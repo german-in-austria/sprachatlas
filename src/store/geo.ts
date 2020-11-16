@@ -9,7 +9,7 @@ export const geoStore = {
 
 async function init () {
   console.log('Called geo Init function')
-  // geoStore.bundeslaender = await (await fetch('static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
+  geoStore.bundeslaender = await (await fetch('geojson/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
 }
 
 export const initialize = _.once(init)
