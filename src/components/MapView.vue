@@ -1,71 +1,73 @@
 <template>
-  <v-checkbox
-    v-model="showBundesl"
-    hide-details
-    label="Bundesländergrenzen einblenden"
-  />
-  <v-checkbox
-    v-model="showGemeinden"
-    hide-details
-    label="untersuchte Gemeinden"
-  />
-  <template v-if="!loading">
-    <v-container fluid>
-      <v-row>
-        <v-col xs-6>
-          <div style="height: 500px; width: 100%">
-            <l-map
-              v-if="!loading"
-              :zoom.sync="zoom"
-              :center.sync="center"
-              :options="mapOptions"
-            >
-              <l-tile-layer :url="tileSetUrl" />
+  <div>
+    <v-checkbox
+      v-model="showBundesl"
+      hide-details
+      label="Bundesländergrenzen einblenden"
+    />
+    <v-checkbox
+      v-model="showGemeinden"
+      hide-details
+      label="untersuchte Gemeinden"
+    />
+    <template v-if="!loading">
+      <v-container fluid>
+        <v-row>
+          <v-col xs-6>
+            <div style="height: 500px; width: 100%">
+              <l-map
+                v-if="!loading"
+                :zoom.sync="zoom"
+                :center.sync="center"
+                :options="mapOptions"
+              >
+                <l-tile-layer :url="tileSetUrl" />
 
-              <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
-              <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
-              <template v-if="showGemeinden">
-                <l-circle-marker
-                  v-for="(ort, index) in erhebungen"
-                  :key="ort.id"
-                  :lat-lng="[ort.lat, ort.lon]"
-                  :radius="4"
-                  @click="loadErheb(ort, index)"
-                >
-                  <l-popup>
-                    <div>
-                      {{ ort.ort_namelang.split(",")[0] }},
-                      {{ ort.ort_namelang.split(",")[1] }}
-                    </div>
-                  </l-popup>
-                </l-circle-marker>
-              </template>
-            </l-map>
-          </div>
-        </v-col>
-        <v-col xs-6>
-          <h2 v-if="currentErhebung">
-            Erhebungen für {{ currentErhebung.ort_namelang }}
-          </h2>
-          <v-data-table
-            hide-default-footer
-            v-if="currentErhebung"
-            :headers="headerErheb"
-            :items="currentErhebung.erhebungen"
-          >
-            <template v-slot:[`item.Konzept_von`]="{ item }" Konzept_von>{{
-              item.Konzept_von ? item.Konzept_von.str : "Kein Name vorhanden"
-            }}</template>
-            <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
-              item.Art_Erhebung
-                ? item.Art_Erhebung.Bezeichnung
-                : "Keine Art der Erhebung vorhanden"
-            }}</template>
-          </v-data-table>
-        </v-col>
-      </v-row>
-    </v-container>
-  </template>
+                <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
+                <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
+                <template v-if="showGemeinden">
+                  <l-circle-marker
+                    v-for="(ort, index) in erhebungen"
+                    :key="ort.id"
+                    :lat-lng="[ort.lat, ort.lon]"
+                    :radius="4"
+                    @click="loadErheb(ort, index)"
+                  >
+                    <l-popup>
+                      <div>
+                        {{ ort.ort_namelang.split(",")[0] }},
+                        {{ ort.ort_namelang.split(",")[1] }}
+                      </div>
+                    </l-popup>
+                  </l-circle-marker>
+                </template>
+              </l-map>
+            </div>
+          </v-col>
+          <v-col xs-6>
+            <h2 v-if="currentErhebung">
+              Erhebungen für {{ currentErhebung.ort_namelang }}
+            </h2>
+            <v-data-table
+              hide-default-footer
+              v-if="currentErhebung"
+              :headers="headerErheb"
+              :items="currentErhebung.erhebungen"
+            >
+              <template v-slot:[`item.Konzept_von`]="{ item }" Konzept_von>{{
+                item.Konzept_von ? item.Konzept_von.str : "Kein Name vorhanden"
+              }}</template>
+              <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
+                item.Art_Erhebung
+                  ? item.Art_Erhebung.Bezeichnung
+                  : "Keine Art der Erhebung vorhanden"
+              }}</template>
+            </v-data-table>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </div>
 </template>
 <script lang="ts">
 import * as L from "leaflet";
