@@ -11,10 +11,7 @@ module.exports = {
       devServer: {
         open: 'Google Chrome',
         public: 'https://localhost:8080/',
-        https: {
-          key: fs.readFileSync('/home/jakob/Documents/sprachatlas_dioe/sprachatlas/cert/dioe.at+4-key.pem'),
-          cert: fs.readFileSync('/home/jakob/Documents/sprachatlas_dioe/sprachatlas/cert/dioe.at+4.pem'),  
-        },
+        https: true,
         writeToDisk: true,
       disableHostCheck: true,
       watchOptions: {
