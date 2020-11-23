@@ -45,6 +45,13 @@
             </div>
           </v-col>
           <v-col xs-6>
+            <v-select
+              v-model="selectedTileSet"
+              :items="items"
+              item-text="name"
+              item-value="value"
+              label="Tileset auswählen"
+            ></v-select>
             <h2 v-if="currentErhebung">
               Erhebungen für {{ currentErhebung.ort_namelang }}
             </h2>
@@ -191,6 +198,13 @@ export default class MapView extends Vue {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: "abcd",
     },
+  ];
+
+  items = [
+    { name: this.tileSets[0].name, value: 0 },
+    { name: this.tileSets[1].name, value: 1 },
+    { name: this.tileSets[2].name, value: 2 },
+    { name: this.tileSets[3].name, value: 3 },
   ];
 
   selectedTileSet = 1;
