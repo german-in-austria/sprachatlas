@@ -11,6 +11,6 @@ export const getEinzelerhebungen = (): Promise<AxiosResponse<any>> => {
 }
 
 export const getSingleTranscript = (id: number, page: number): Promise<AxiosResponse<any>> => {
-    return api.get(`/routes/einzelerhebungen/${id}/${page}`)
+    return api.get(`/routes/transcript/${id}/${page}`)
 }
   

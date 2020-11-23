@@ -255,9 +255,13 @@ export default class MapView extends Vue {
       const ele = this.einzelErhebungen.filter(
         () =>
           function (ele: einzErhebung, idx: number) {
-            return ele.ID_Erh === id;
+            console.log(ele.ID_Erh);
+            if (ele.ID_Erh === id) {
+              return ele;
+            }
           }
       );
+      console.log(id);
       return ele;
     }
   }
@@ -267,6 +271,7 @@ export default class MapView extends Vue {
     console.log("test output");
     const element = this.matchTranscriptID(id);
     console.log(element);
+    this.TM.fetchSingleTranscript({ id: id, page: 0 });
   }
 
   loadInfErhebung(infs: any[]) {
