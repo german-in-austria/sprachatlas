@@ -80,7 +80,11 @@
                   ? item.erhebung.Bezeichnung_Erhebung
                   : "Keine Art der Erhebung vorhanden"
               }}</template>
-              <template v-slot:[`item.actions`]="{ item }" Konzept_von>
+              <template
+                v-slot:[`item.actions`]="{ item }"
+                Konzept_von
+                v-on:click="fetchTranscript(item.transcript.id)"
+              >
                 <figure>
                   <figcaption>Aufnahme anhören:</figcaption>
                   <audio
@@ -88,6 +92,11 @@
                     :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
                   ></audio>
                 </figure>
+                <template v-if="item.transcript">
+                  <v-btn v-on:click="fetchTranscript(item.transcript.id)">
+                    Transkript laden
+                  </v-btn>
+                </template>
               </template>
             </v-data-table>
           </v-col>
@@ -112,9 +121,11 @@ import * as geojson from "geojson";
 import {
   ApiLocationResponse,
   ApiLocSingleResponse,
+  einzErhebung,
   SingleErhebResponse,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
+import { transModule } from "../store/modules/transcripts";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 7;
@@ -133,6 +144,8 @@ export default class MapView extends Vue {
   zoom: number = defaultZoom;
   center: number[] = defaultCenter;
   EM = erhebungModule;
+  TM = transModule;
+
   currentErhebungen = null;
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
@@ -210,6 +223,14 @@ export default class MapView extends Vue {
     return erhebungModule.loading;
   }
 
+  get einzelErhebungen() {
+    return transModule.einzelErhebungen;
+  }
+
+  get transcripts() {
+    return transModule.transcripts;
+  }
+
   get infLoading() {
     return erhebungModule.infLoading;
   }
@@ -229,7 +250,24 @@ export default class MapView extends Vue {
     }
   }
 
-  playAudio(filename: string, path: string) {}
+  matchTranscriptID(id: number) {
+    if (this.einzelErhebungen && this.einzelErhebungen.length > 0) {
+      const ele = this.einzelErhebungen.filter(
+        () =>
+          function (ele: einzErhebung, idx: number) {
+            return ele.ID_Erh === id;
+          }
+      );
+      return ele;
+    }
+  }
+
+  fetchTranscript(id: number) {
+    console.log(id);
+    console.log("test output");
+    const element = this.matchTranscriptID(id);
+    console.log(element);
+  }
 
   loadInfErhebung(infs: any[]) {
     erhebungModule.fetchInfErhebungen({
@@ -248,6 +286,9 @@ export default class MapView extends Vue {
     if (!this.erhebungen || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen();
     }
+
+    this.TM.fetchTranscripts();
+    this.TM.fetchEinzelerhebungen();
   }
 
   created() {
