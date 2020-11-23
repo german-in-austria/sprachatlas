@@ -53,6 +53,7 @@
               v-if="currentErhebung"
               :headers="headerErheb"
               :items="currentErhebung.erhebungen"
+              @click:row="loadInfErhebung(currentErhebung.inferhebungen)"
             >
               <template v-slot:[`item.Konzept_von`]="{ item }" Konzept_von>{{
                 item.Konzept_von ? item.Konzept_von.str : "Kein Name vorhanden"
@@ -62,6 +63,32 @@
                   ? item.Art_Erhebung.Bezeichnung
                   : "Keine Art der Erhebung vorhanden"
               }}</template>
+            </v-data-table>
+          </v-col>
+          <v-col xs-6>
+            <h2 v-if="currentErhebung">
+              Verfügbare Erhebungen für {{ currentErhebung.ort_namelang }}
+            </h2>
+            <v-data-table
+              hide-default-footer
+              v-if="infErhebungen"
+              :headers="headerInf"
+              :items="infErhebungen.infErhebungen"
+            >
+              <template v-slot:[`item.Bezeichnung_Erhebung`]="{ item }">{{
+                item.erhebung
+                  ? item.erhebung.Bezeichnung_Erhebung
+                  : "Keine Art der Erhebung vorhanden"
+              }}</template>
+              <template v-slot:[`item.actions`]="{ item }" Konzept_von>
+                <figure>
+                  <figcaption>Aufnahme anhören:</figcaption>
+                  <audio
+                    controls
+                    :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
+                  ></audio>
+                </figure>
+              </template>
             </v-data-table>
           </v-col>
         </v-row>
@@ -123,6 +150,12 @@ export default class MapView extends Vue {
     { text: "Bezeichnung der Erhebung", value: "Bezeichnung_Erhebung" },
   ];
 
+  headerInf = [
+    { text: "Bezeichnung", value: "Bezeichnung_Erhebung" },
+    { text: "Datum", value: "Datum" },
+    { text: "Aktionen", value: "actions" },
+  ];
+
   tileSets = [
     {
       name: "Humanitarian Open Tiles",
@@ -177,9 +210,17 @@ export default class MapView extends Vue {
     return erhebungModule.loading;
   }
 
+  get infLoading() {
+    return erhebungModule.infLoading;
+  }
+
+  get infErhebungen() {
+    return erhebungModule.infErhebungen;
+  }
+
   get isLoading() {
     if (
-      this.geoStore.gemeinden !== null &&
+      this.geoStore.gemeinden !== null ||
       this.geoStore.bundeslaender !== null
     ) {
       return false;
@@ -188,10 +229,16 @@ export default class MapView extends Vue {
     }
   }
 
+  playAudio(filename: string, path: string) {}
+
+  loadInfErhebung(infs: any[]) {
+    erhebungModule.fetchInfErhebungen({
+      infs: infs,
+    });
+  }
+
   loadErheb(ort: ApiLocSingleResponse, id: number) {
     this.currentErhebung = ort;
-    console.log(this.currentErhebung.erhebungen[0]);
-    console.log(ort.erhebungen[0]);
     this.$forceUpdate();
   }
 

@@ -7,28 +7,29 @@ export const getErhebungen = (): Promise<AxiosResponse<any>> => {
 }
 
 export const getAudioErhebung = (
-  inferheb: number[]
+  inferheb: string
 ): Promise<AxiosResponse<any>> => {
   const PARAMS = {
-    inferhebungen: inferheb,
+    inferhebung: inferheb,
     credentials: 'include',
     withCredentials: true
   }
   return api.get(
     'restapi/getErhebungsorte', {
-      params: PARAMS,
+      params: PARAMS
+      /*
       paramsSerializer: params => {
         return qs.stringify(params)
-      }
+      }*/
     })
 }
-/*
+// Audio request: <audio src="https://url.com/file.ogg#t=5.20,7.35">
 export const getSingleAudioFile = (
   path: string,
   filename: string
 ): Promise<AxiosResponse<any>> => {
   return api.get(
-    'private-media/${path}/${filename}'
+    `private-media/${path}/${filename}`
   )
 }
-*/
+

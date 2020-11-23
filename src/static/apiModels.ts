@@ -29,6 +29,37 @@ export interface ApiLocSingleResponse {
     erhebungen: SingleErhebResponse[];
 }
 
+export interface InfResponse {
+    transcript: {
+        id: number,
+        name: string
+    }, 
+    erhebung: {
+        Zeitraum: string,
+        Art_Erhebung: {
+            id: number,
+            Bezeichnung: string
+        },
+        Bezeichnung_Erhebung: string,
+        id: number,
+        Konzept_von: string
+    },
+    id: number,
+    Besonderheiten: string,
+    Kommentar: string,
+    Datum: Date,
+    sprecher: [{
+        str: string,
+        id: number
+    }],
+    Audiofile: string,
+    Dateipfad: string,
+}
+
+export interface ApiInfErhResponse {
+    infErhebungen: InfResponse[]
+}
+
 export interface ApiLocationResponse {
     orte: ApiLocSingleResponse[];
 }

@@ -14,7 +14,7 @@ import {
 
 import { AxiosResponse } from 'axios'
 import Vue from '../../main'
-import { ApiLocationResponse, ApiLocSingleResponse } from '../../static/apiModels'
+import { ApiLocationResponse, ApiLocSingleResponse, SingleInfResponse, ApiInfErhResponse } from '../../static/apiModels'
 
 export interface ErhebungState {
     currentOrt: ApiLocSingleResponse | null;
@@ -31,7 +31,11 @@ export interface ErhebungState {
 class Erhebungen extends VuexModule implements ErhebungState {
     erhebungen: ApiLocationResponse | null = null;
     currentOrt: ApiLocSingleResponse | null = null;
+
+    infErhebungen: ApiInfErhResponse | null = null;
     loading = false;
+    infLoading = false;
+    
 
     @Mutation
     setCurrentOrt (ort: ApiLocSingleResponse | null) {
@@ -43,17 +47,40 @@ class Erhebungen extends VuexModule implements ErhebungState {
       this.loading = loading
     }
 
+    @Mutation
+    setInfLoading (loading: boolean) {
+      this.infLoading = loading
+    }
+
     @MutationAction({ mutate: ['erhebungen', 'loading'] })
     async fetchErhebungen () {
       this.loading = true
       console.log('trying to fetch data')
-      const response = await getErhebungen()
-      console.log('fetched data')
+      const response = await getErhebungen();
+      
+      console.log('fetched data');
       return {
         erhebungen: response.data.orte,
         loading: false
       }
     }
+
+    @MutationAction({ mutate: ['infErhebungen', 'infLoading'] })
+    async fetchInfErhebungen(params: any) {
+      this.infLoading = true;
+      let numbers: number[] = [];
+      params.infs.forEach(function(value: any, index: any){
+        numbers.push(value.id);
+      });
+      const ids = numbers.join(',');
+      const response_inf = await getAudioErhebung(ids);
+      console.log('fetched data');
+      return {
+        infErhebungen: response_inf.data,
+        infLoading: false
+      }
+    }
+    
 }
 
 export const erhebungModule = getModule(Erhebungen)
