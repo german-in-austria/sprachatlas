@@ -10,6 +10,11 @@
       hide-details
       label="untersuchte Gemeinden"
     />
+    <v-checkbox
+      v-model="showDiaReg"
+      hide-details
+      label="Dialektregionen einblenden"
+    />
     <template v-if="!loading">
       <v-container fluid>
         <v-row>
@@ -25,6 +30,7 @@
 
                 <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
                 <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
+                <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
                 <template v-if="showGemeinden">
                   <l-circle-marker
                     v-for="(ort, index) in erhebungen"
@@ -157,6 +163,7 @@ export default class MapView extends Vue {
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
   showGemeinden = false;
+  showDiaReg = false;
   geoStore = geoStore;
   mapOptions = {
     scrollWheelZoom: true,
@@ -228,6 +235,14 @@ export default class MapView extends Vue {
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
       return this.geoStore.gemeinden.features;
+    } else {
+      return [];
+    }
+  }
+
+  get dialektregionen(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.dialektregionen !== null) {
+      return this.geoStore.dialektregionen.features;
     } else {
       return [];
     }
