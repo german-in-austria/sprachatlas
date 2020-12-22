@@ -12,7 +12,7 @@ module.exports = {
         open: 'Google Chrome',
         public: 'https://localhost:8080/',
         https: true,
-        writeToDisk: true,
+        writeToDisk: false,
       disableHostCheck: true,
       watchOptions: {
         poll: false
