@@ -3,7 +3,7 @@ import api from '.'
 import qs from 'qs'
 
 export const getErhebungen = (): Promise<AxiosResponse<any>> => {
-  return api.get('/restapi/getErhebungsorte')
+  return api.dioeDB.get('/restapi/getErhebungsorte')
 }
 
 export const getAudioErhebung = (
@@ -14,7 +14,7 @@ export const getAudioErhebung = (
     credentials: 'include',
     withCredentials: true
   }
-  return api.get(
+  return api.dioeDB.get(
     'restapi/getErhebungsorte', {
       params: PARAMS
       /*
