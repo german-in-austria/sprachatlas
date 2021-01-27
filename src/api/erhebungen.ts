@@ -28,7 +28,7 @@ export const getSingleAudioFile = (
   path: string,
   filename: string
 ): Promise<AxiosResponse<any>> => {
-  return api.get(
+  return api.dioeDB.get(
     `private-media/${path}/${filename}`
   )
 }

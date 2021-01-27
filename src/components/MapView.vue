@@ -15,6 +15,7 @@
       hide-details
       label="Dialektregionen einblenden"
     />
+    <v-btn to="/query"> Neue Legende erstellen </v-btn>
     <template v-if="!loading">
       <v-container fluid>
         <v-row>
@@ -139,6 +140,8 @@ import {
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
+
+import api from "../api/index";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 7;
@@ -317,6 +320,7 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
+    api.dioePublic.getTags();
     if (!this.erhebungen || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen();
     }

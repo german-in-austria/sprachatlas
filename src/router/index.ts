@@ -1,15 +1,29 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import MapView from '../components/MapView.vue'
+import QueryCreator from '../components/QueryCreator.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
+  
   {
+    name: 'home',
     path: '/',
-    name: 'Karte',
-    component: Home
-  },
+    component: Home,
+    children: [
+      {
+        path: '',
+        name: 'Karte',
+        component: MapView
+      },
+      {
+        path: 'query',
+        name: 'Query',
+        component: QueryCreator
+      },
+    ]},
   {
     path: '/about',
     name: 'About',

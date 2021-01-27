@@ -1,3 +1,4 @@
+import { TagTree } from '@/api/dioe-public-api';
 
 type ServerTranscriptId = number
 
@@ -54,6 +55,20 @@ export interface ApiLocSingleResponse {
     osm_type: string;
     inferhebungen: SingleInfResponse[];
     erhebungen: SingleErhebResponse[];
+}
+
+export interface Parameter{
+    name: string;
+    project?: string;
+    ageRange: number[],
+    gender?: string;
+    education?: string;
+    parents?: string;
+    mobility?: string;
+    job?: string;
+    tagList?: number[],
+    token?: string[],
+    color?: string
 }
 
 export interface InfResponse {

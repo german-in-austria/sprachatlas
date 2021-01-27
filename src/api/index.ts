@@ -9,7 +9,15 @@ const api = axios.create({
   timeout: 100000
 })
 
+const dioeApi = axios.create({
+  // baseURL sollte im env sein
+  baseURL: 'https://api.dioe.at',
+  withCredentials: true,
+  timeout: 100000
+})
+
 export default {
   dioeDB: api,
+  dioeApi: dioeApi,
   dioePublic: publicApi
 }
