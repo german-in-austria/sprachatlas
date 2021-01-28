@@ -320,7 +320,6 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
-    api.dioePublic.getTags();
     if (!this.erhebungen || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen();
     }

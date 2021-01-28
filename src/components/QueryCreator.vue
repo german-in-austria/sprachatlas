@@ -3,7 +3,7 @@
     <v-container>
       <v-row>
         <v-col cols="4" offset-md="1">
-          <h2>Parameter erstellen</h2>
+          <h2>Items erstellen</h2>
           <v-form ref="form">
             <v-text-field
               v-model="paraName"
@@ -87,6 +87,10 @@
               chips
               multiple
             ></v-select>
+            <v-text-field
+              v-model="paraLemma"
+              label="Lemma eingeben"
+            ></v-text-field>
             <v-color-picker
               v-model="paraColor"
               dot-size="19"
@@ -119,12 +123,14 @@ import { Component, PropSync, Vue } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
 import { TagTree } from "@/api/dioe-public-api";
 import { Parameter } from "@/static/apiModels";
+import * as LZ from "lz-string";
 
 @Component({
   components: {},
 })
 export default class QueryCreator extends Vue {
   paraName: string = "";
+  paraLemma: string = "";
   selProject: string = "";
   selTags: number[] = [];
   selToken: string[] = [];
@@ -185,6 +191,7 @@ export default class QueryCreator extends Vue {
     };
     const para = encodeURIComponent(JSON.stringify(this.TM.parameters));
     this.TM.addParameter(newParameter);
+    LZ;
     this.$router.push({ path: "query", query: { parameters: para } });
 
     /*

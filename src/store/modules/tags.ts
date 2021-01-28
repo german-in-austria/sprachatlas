@@ -7,13 +7,11 @@ import {
     getModule
   } from 'vuex-module-decorators'
   import store from '@/store'
-  import {
-    getTags,
-  } from '../../api/tags'
   
 import { Parameter } from '@/static/apiModels';
   
 import { TagTree } from '@/api/dioe-public-api';
+import api from '@/api';
   
   export interface TagState {
       tagList: TagTree | null;
@@ -51,10 +49,10 @@ class Tags extends VuexModule implements TagState {
       async fetchTags () {
         this.loading = true
         console.log('trying to fetch data')
-        const response = await getTags();
+        const response = await api.dioePublic.getTags();
         console.log('fetched data');
         return {
-          tagList: response.data,
+          tagList: response,
           loading: false
         }
       }
