@@ -52,9 +52,18 @@
             ></v-select>
             <v-select
               v-model="selEducation"
-              :items="education"
-              label="Bildungsstand"
+              :items="jobs"
+              item-text="bezeichnung"
+              item-value="pk"
+              @change="checkEducation"
+              label="Berufsbezeichnung"
             ></v-select>
+            <span v-if="selEducationAll !== null">
+              Berufskategorie:
+              {{ selEducationAll.berufskategorie }} Kommunikationsgrad:
+              {{ selEducationAll.kommunikationsgrad }} Standardkompetenz:
+              {{ selEducationAll.standardkompetenz }}
+            </span>
             <v-select
               v-model="selParents"
               :items="parents"
@@ -65,7 +74,6 @@
               :items="mobility"
               label="Mobilität"
             ></v-select>
-            <v-select v-model="selJob" :items="job" label="Beruf"></v-select>
 
             <v-autocomplete
               v-model="selTags"
@@ -122,7 +130,7 @@
 import { Component, PropSync, Vue } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
 import { TagTree } from "@/api/dioe-public-api";
-import { Parameter } from "@/static/apiModels";
+import { Job, Parameter } from "@/static/apiModels";
 import * as LZ from "lz-string";
 
 @Component({
@@ -146,6 +154,7 @@ export default class QueryCreator extends Vue {
   selEducation: string = "";
   selGender: string = "";
   selJob: string = "";
+  selEducationAll: Job | null | undefined = null;
 
   range = [20, 70];
 
@@ -159,6 +168,14 @@ export default class QueryCreator extends Vue {
 
   TM = tagModule;
 
+  get jobs() {
+    if (this.TM.jobList.length > 0) {
+      console.log(this.TM.jobList[2].bezeichnung);
+    }
+
+    return this.TM.jobList;
+  }
+
   get tags() {
     return this.TM.tagList == null ? [] : this.TM.tagList;
   }
@@ -169,6 +186,11 @@ export default class QueryCreator extends Vue {
 
   get parameters() {
     return this.TM.parameters;
+  }
+
+  checkEducation(pk: number) {
+    const found = this.jobs.find((pk) => pk === pk);
+    this.selEducationAll = found;
   }
 
   createParameter() {
@@ -189,7 +211,9 @@ export default class QueryCreator extends Vue {
       ageRange: ageRange,
       color: this.paraColor === null ? "" : this.paraColor.hex,
     };
-    const para = encodeURIComponent(JSON.stringify(this.TM.parameters));
+    const para = LZ.compressToEncodedURIComponent(
+      JSON.stringify(this.TM.parameters)
+    );
     this.TM.addParameter(newParameter);
     LZ;
     this.$router.push({ path: "query", query: { parameters: para } });
@@ -212,6 +236,14 @@ export default class QueryCreator extends Vue {
   beforeCreate() {
     if (tagModule.tagList == null) {
       tagModule.fetchTags();
+    }
+    if (this.$route.query.parameters) {
+      const para = this.$route.query.parameters;
+      if (typeof para === "string") {
+        const parameter = LZ.decompressFromEncodedURIComponent(para);
+      } else {
+        console.log("Queryparameter has wrong format");
+      }
     }
   }
 }

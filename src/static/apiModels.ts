@@ -57,6 +57,17 @@ export interface ApiLocSingleResponse {
     erhebungen: SingleErhebResponse[];
 }
 
+export interface Job{
+    berufskategorie: string;
+    kommunikationsgrad: string;
+    bezeichnung: string;
+    standardkompetenz: string;
+}
+
+export interface JobList {
+    jobs: Job[];
+}
+
 export interface Parameter{
     name: string;
     project?: string;

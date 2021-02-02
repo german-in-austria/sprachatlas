@@ -21,6 +21,7 @@ export default class App extends Vue {
   mounted() {
     initGeo();
     tagModule.fetchTags();
+    tagModule.fetchJobs();
   }
 }
 </script>

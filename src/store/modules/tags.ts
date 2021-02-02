@@ -8,24 +8,27 @@ import {
   } from 'vuex-module-decorators'
   import store from '@/store'
   
-import { Parameter } from '@/static/apiModels';
+import { Parameter, Job, JobList } from '@/static/apiModels';
   
 import { TagTree } from '@/api/dioe-public-api';
 import api from '@/api';
+import { getBerufe } from '@/api/erhebungen';
   
-  export interface TagState {
-      tagList: TagTree | null;
-      parameters: Parameter[];
-      loading: boolean;
-  }
+export interface TagState {
+  tagList: TagTree | null;
+  parameters: Parameter[];
+  jobList: Job[];
+  loading: boolean;
+}
   
-  @Module({
-    name: 'tagModule',
-    namespaced: true,
-    store,
-    dynamic: true
+@Module({
+  name: 'tagModule',
+  namespaced: true,
+  store,
+  dynamic: true
 })
 class Tags extends VuexModule implements TagState {
+  jobList: Job[] = [];
       parameters: Parameter[] = [];
       tagList: TagTree | null = null;
       loading = false;
@@ -38,6 +41,11 @@ class Tags extends VuexModule implements TagState {
       @Mutation
       setTagList (ort: TagTree | null) {
         this.tagList = ort
+      }
+
+      @Mutation
+      setJobList(list: Job[]){
+        this.jobList = list
       }
   
       @Mutation
@@ -53,6 +61,18 @@ class Tags extends VuexModule implements TagState {
         console.log('fetched data');
         return {
           tagList: response,
+          loading: false
+        }
+      }
+
+      @MutationAction({ mutate: ['jobList', 'loading'] })
+      async fetchJobs () {
+        this.loading = true
+        console.log('trying to fetch data')
+        const response = await getBerufe();
+        console.log('fetched data');
+        return {
+          jobList: response.data,
           loading: false
         }
       }

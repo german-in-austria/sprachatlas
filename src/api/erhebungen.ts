@@ -6,6 +6,10 @@ export const getErhebungen = (): Promise<AxiosResponse<any>> => {
   return api.dioeDB.get('/restapi/getErhebungsorte')
 }
 
+export const getBerufe = (): Promise<AxiosResponse<any>> => {
+  return api.dioeDB.get('/restapi/getBerufe')
+}
+
 export const getAudioErhebung = (
   inferheb: string
 ): Promise<AxiosResponse<any>> => {
