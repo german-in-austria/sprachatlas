@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "get-api-types": "export $(cat .env | xargs) && curl -v --insecure \"$VUE_APP_API_HOST/api/docs/swagger.json\" > ./api-spec.json && openapi -i api-spec.json -o ./src/api/dioe-public-api",
+    "test": "exit 0",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
