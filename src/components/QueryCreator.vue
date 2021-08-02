@@ -218,14 +218,13 @@
 import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
 import { TagTree } from "@/api/dioe-public-api";
-import Tagsystem from "@/components/Tagsystem.vue";
 import TagView from "@/components/TagView.vue";
 import draggable from "vuedraggable";
 import { Job, Parameter, LegendList } from "@/static/apiModels";
 import * as LZ from "lz-string";
 
 @Component({
-  components: { draggable, Tagsystem, TagView },
+  components: { draggable, TagView },
   name: "QueryTool",
 })
 export default class QueryCreator extends Vue {
