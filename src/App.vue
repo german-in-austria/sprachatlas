@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-content>
+      <Navigation></Navigation>
       <router-view></router-view>
     </v-content>
   </v-app>
@@ -11,10 +12,11 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 import Home from "./views/Home.vue";
 import { initialize as initGeo } from "./store/geo";
 import { tagModule } from "@/store/modules/tags";
-
+import Navigation from "@/components/Navigation.vue";
 @Component({
   components: {
     Home,
+    Navigation,
   },
 })
 export default class App extends Vue {

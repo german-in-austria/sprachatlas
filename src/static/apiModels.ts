@@ -9,6 +9,17 @@ export interface SingleInfResponse {
     hasTranskript: boolean;
 }
 
+export interface SingleTag {
+    tagId: number;
+    tagAbbrev: string;
+}
+
+export interface TagSelection {
+    tagGroup: SingleTag[];
+    parentId: number;
+    children: Array<TagTree>;
+}
+
 export interface einzErhebung {
     Datum: string
     Kommentar: string
@@ -68,6 +79,12 @@ export interface JobList {
     jobs: Job[];
 }
 
+export interface LegendList{
+    parameter: Array<Parameter>;
+    name: string;
+    visible?: boolean;
+}
+
 export interface Parameter{
     name: string;
     project?: string;
@@ -77,9 +94,10 @@ export interface Parameter{
     parents?: string;
     mobility?: string;
     job?: string;
-    tagList?: number[],
+    tagList?: Array<TagSelection>,
     token?: string[],
-    color?: string
+    color?: string,
+    operator?: string;
 }
 
 export interface InfResponse {

@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 import MapView from '../components/MapView.vue'
 import QueryCreator from '../components/QueryCreator.vue'
+import TagView from '@/components/TagView.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +23,11 @@ const routes: Array<RouteConfig> = [
         path: 'query',
         name: 'Query',
         component: QueryCreator
+      },
+      {
+        path: 'tags',
+        name: 'TagSelection',
+        component: TagView
       },
     ]},
   {

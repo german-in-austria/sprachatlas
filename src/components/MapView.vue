@@ -1,64 +1,144 @@
 <template>
   <div>
-    <v-checkbox
-      v-model="showBundesl"
-      hide-details
-      label="Bundesländergrenzen einblenden"
-    />
-    <v-checkbox
-      v-model="showGemeinden"
-      hide-details
-      label="untersuchte Gemeinden"
-    />
-    <v-checkbox
-      v-model="showDiaReg"
-      hide-details
-      label="Dialektregionen einblenden"
-    />
-    <v-btn to="/query"> Neue Legende erstellen </v-btn>
+    <v-navigation-drawer :value="sideBar" permanent right app v-if="sideBar">
+      <v-card elevation="0">
+        <v-card-title> Karten </v-card-title>
+        <v-card-text>
+          <v-select
+            v-model="selectedTileSet"
+            :items="items"
+            item-text="name"
+            item-value="value"
+            label="Tileset auswählen"
+          ></v-select>
+          <v-checkbox
+            v-model="showBundesl"
+            hide-details
+            label="Bundesländergrenzen einblenden"
+          />
+          <v-checkbox
+            v-model="showGemeinden"
+            hide-details
+            label="untersuchte Gemeinden"
+          />
+          <v-checkbox
+            v-model="showDiaReg"
+            hide-details
+            label="Dialektregionen einblenden"
+          />
+        </v-card-text>
+      </v-card>
+      <v-divider style="clear: both; margin-top: 20px" />
+      <v-card elevation="0">
+        <v-card-title> Legenden </v-card-title>
+        <v-card-text>
+          <v-expansion-panels accordion>
+            <v-expansion-panel v-for="(item, idx) in legends" :key="idx">
+              <v-expansion-panel-header>{{
+                item.name
+              }}</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <div v-for="(para, i) in item.parameter">
+                  {{ para.name }}
+                  <v-avatar :color="para.color" size="16"></v-avatar>
+                </div>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
+      </v-card>
+    </v-navigation-drawer>
+    <v-layout class="map-overlay pa-4">
+      <v-flex class="text-xs-right" offset-xs11>
+        <v-btn elevation="4" fab @click="sideBar = !sideBar">
+          <v-icon>mdi-layers</v-icon>
+        </v-btn>
+      </v-flex>
+    </v-layout>
+    <l-map
+      style="z-index: 0; position: absolute; left: 0; top: 0; right: 0"
+      v-if="!loading"
+      :zoom.sync="zoom"
+      :center.sync="center"
+      :options="mapOptions"
+    >
+      <l-tile-layer :url="tileSetUrl" />
+
+      <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
+      <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
+      <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
+      <template v-if="showGemeinden">
+        <l-circle-marker
+          v-for="(ort, index) in erhebungen"
+          :key="ort.id"
+          :lat-lng="[ort.lat, ort.lon]"
+          :radius="4"
+          @click="loadErheb(ort, index)"
+        >
+          <l-popup>
+            <div>
+              {{ ort.ort_namelang.split(",")[0] }},
+              {{ ort.ort_namelang.split(",")[1] }}
+            </div>
+          </l-popup>
+        </l-circle-marker>
+      </template>
+    </l-map>
+  </div>
+
+  <!--
+  <div>
     <template v-if="!loading">
       <v-container fluid>
         <v-row>
-          <v-col xs-6>
+          <v-col xs-4>
+            <v-navigation-drawer
+              :value="sideBar"
+              temporary
+              right
+              app
+              v-if="sideBar"
+            >
+              <v-card elevation="0">
+                <v-card-title style="z-index: 1"> Karten </v-card-title>
+                <v-divider style="clear: both; margin-top: 50px" />
+                <v-card-text>
+                  <v-select
+                    v-model="selectedTileSet"
+                    :items="items"
+                    item-text="name"
+                    item-value="value"
+                    label="Tileset auswählen"
+                  ></v-select>
+                  <v-checkbox
+                    v-model="showBundesl"
+                    hide-details
+                    label="Bundesländergrenzen einblenden"
+                  />
+                  <v-checkbox
+                    v-model="showGemeinden"
+                    hide-details
+                    label="untersuchte Gemeinden"
+                  />
+                  <v-checkbox
+                    v-model="showDiaReg"
+                    hide-details
+                    label="Dialektregionen einblenden"
+                  />
+                </v-card-text>
+              </v-card>
+            </v-navigation-drawer>
+          </v-col>
+          <v-col xs-4>
             <div style="height: 500px; width: 100%">
-              <l-map
-                v-if="!loading"
-                :zoom.sync="zoom"
-                :center.sync="center"
-                :options="mapOptions"
-              >
-                <l-tile-layer :url="tileSetUrl" />
-
-                <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
-                <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
-                <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
-                <template v-if="showGemeinden">
-                  <l-circle-marker
-                    v-for="(ort, index) in erhebungen"
-                    :key="ort.id"
-                    :lat-lng="[ort.lat, ort.lon]"
-                    :radius="4"
-                    @click="loadErheb(ort, index)"
-                  >
-                    <l-popup>
-                      <div>
-                        {{ ort.ort_namelang.split(",")[0] }},
-                        {{ ort.ort_namelang.split(",")[1] }}
-                      </div>
-                    </l-popup>
-                  </l-circle-marker>
-                </template>
-              </l-map>
+              <v-flex class="text-xs-right" offset-xs11>
+                <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
+                  <v-icon>mdi-layers</v-icon>
+                </v-btn>
+              </v-flex>
             </div>
           </v-col>
-          <v-col xs-6>
-            <v-select
-              v-model="selectedTileSet"
-              :items="items"
-              item-text="name"
-              item-value="value"
-              label="Tileset auswählen"
-            ></v-select>
+          <v-col xs-4>
             <h2 v-if="currentErhebung">
               Erhebungen für {{ currentErhebung.ort_namelang }}
             </h2>
@@ -79,7 +159,7 @@
               }}</template>
             </v-data-table>
           </v-col>
-          <v-col xs-6>
+          <v-col xs-4>
             <h2 v-if="currentErhebung">
               Verfügbare Erhebungen für {{ currentErhebung.ort_namelang }}
             </h2>
@@ -117,7 +197,7 @@
         </v-row>
       </v-container>
     </template>
-  </div>
+  </div>-->
 </template>
 <script lang="ts">
 import * as L from "leaflet";
@@ -142,6 +222,7 @@ import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
 
 import api from "../api/index";
+import { tagModule } from "@/store/modules/tags";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 7;
@@ -159,8 +240,10 @@ const defaultZoom = 7;
 export default class MapView extends Vue {
   zoom: number = defaultZoom;
   center: number[] = defaultCenter;
+  sideBar: boolean = false;
   EM = erhebungModule;
   TM = transModule;
+  TaM = tagModule;
 
   currentErhebungen = null;
   currentErhebung: ApiLocSingleResponse | null = null;
@@ -223,6 +306,10 @@ export default class MapView extends Vue {
     return erhebungModule.erhebungen;
   }
 
+  get parameters() {
+    return this.TaM.parameters;
+  }
+
   get tileSetUrl(): string {
     return this.tileSets[this.selectedTileSet].url;
   }
@@ -280,6 +367,10 @@ export default class MapView extends Vue {
     } else {
       return true;
     }
+  }
+
+  get legends() {
+    return this.TaM.legends;
   }
 
   matchTranscriptID(id: number) {
@@ -345,3 +436,17 @@ export default class MapView extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  @import "../../node_modules/leaflet/dist/leaflet.css";
+  .map-overlay {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    * {
+      pointer-events: all;
+    }
+  }
+</style>

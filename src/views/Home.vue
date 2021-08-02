@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <v-container>
-      <h1>Sprachatlas</h1>
       <router-view />
     </v-container>
   </div>
