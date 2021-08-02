@@ -1,0 +1,12 @@
+docker_builder: 
+  env: 
+    DOCKER_PASSWORD: "ENCRYPTED[f34797ff4b3d322b0f81b718acc29ac3b4cad5e63ab6e688f8304a9bf6dc4c92c88ecebd0004f31659832a96d5baace0]"
+    DOCKER_USERNAME: "ENCRYPTED[639527edf6b476b7f3800bd9e5593f2208aa515cb7f5cc0b12822c2ff2e50805a152e45cf5e43514109f3a90613377b6]"
+  script:
+    - git submodule init
+    - git submodule update
+  build_script: "curl -i -X POST -H \"Content-Type: application/json\" -d '{\"text\": \"Starting build: dioe/sprachatlas\\n in branch: '$CIRRUS_BRANCH' \\n details: https://cirrus-ci.com/task/'$CIRRUS_TASK_ID'\"}' https://mm.dioe.at/hooks/9xkct75bzpbn3cm1kiut3jx1ur \
+    && docker build --cache-from dioe/sprachatlas --tag dioe/sprachatlas ."
+  test_script: "docker run dioe/sprachatlas test"
+  login_script: "docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD"
+  push_script: "test $CIRRUS_BRANCH == \"master\" && docker push dioe/sprachatlas && curl -i -X POST -H \"Content-Type: application/json\" -d '{\"text\": \"Cirrus CI built and pushed dioe/sprachatlas\\n details: https://cirrus-ci.com/task/'$CIRRUS_TASK_ID'\"}' https://mm.dioe.at/hooks/9xkct75bzpbn3cm1kiut3jx1ur\n"
