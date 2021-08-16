@@ -10,13 +10,10 @@ module.exports = {
     devtool: 'source-map',
       devServer: {
         open: 'Google Chrome',
-        public: 'https://localhost:8080/',
+        host: 'localhost',
+        port: 8080,
         https: true,
-        writeToDisk: false,
-      disableHostCheck: true,
-      watchOptions: {
-        poll: false
-      }
+        disableHostCheck: true,
     },
     mode: 'development'
   }
