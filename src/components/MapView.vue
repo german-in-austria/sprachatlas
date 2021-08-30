@@ -49,12 +49,90 @@
       </v-card>
     </v-navigation-drawer>
     <v-layout class="map-overlay pa-4">
+      <v-flex xs1>
+        <v-btn fab small class="zoom" @click="zoom = zoom + 1">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom - 1">
+          <v-icon>mdi-minus</v-icon>
+        </v-btn>
+      </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn elevation="4" fab @click="sideBar = !sideBar">
           <v-icon>mdi-layers</v-icon>
         </v-btn>
       </v-flex>
     </v-layout>
+    <v-layout class="map-overlay erhebung" v-if="currentErhebung">
+      <v-card elevation="2">
+        <v-card-text>
+          <h2>Erhebungen für {{ currentErhebung.ort_namelang }}</h2>
+          <v-data-table
+            hide-default-footer
+            v-if="currentErhebung"
+            :headers="headerErheb"
+            :items="currentErhebung.erhebungen"
+            @click:row="loadInfErhebung(currentErhebung.inferhebungen)"
+          >
+            <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
+              item.Art_Erhebung
+                ? item.Art_Erhebung.Bezeichnung
+                : "Keine Art der Erhebung vorhanden"
+            }}</template>
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            depressed
+            color="blue"
+            @click="currentErhebung = infErhebungen = null"
+          >
+            Schließen
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+      <v-card
+        v-if="infErhebungen"
+        elevation="2"
+        class="text-xs-right"
+        offset-xs11
+      >
+        <v-card-text>
+          <h2>
+            Verfügbare Audioaufnahmen für {{ currentErhebung.ort_namelang }}
+          </h2>
+          <v-data-table
+            hide-default-footer
+            v-if="infErhebungen"
+            :headers="headerInf"
+            :items="infErhebungen.infErhebungen"
+          >
+            <template v-slot:[`item.Datum`]="{ item }">{{
+              item.Datum
+            }}</template>
+            <template
+              v-slot:[`item.actions`]="{ item }"
+              Konzept_von
+              v-on:click="fetchTranscript(item.transcript.id)"
+            >
+              <figure>
+                <figcaption>Aufnahme anhören:</figcaption>
+                <audio
+                  controls
+                  :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
+                ></audio>
+              </figure>
+              <template v-if="item.transcript">
+                <v-btn v-on:click="fetchTranscript(item.transcript.id)">
+                  Transkript laden
+                </v-btn>
+              </template>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-layout>
+
     <l-map
       style="z-index: 0; position: absolute; left: 0; top: 0; right: 0"
       v-if="!loading"
@@ -77,8 +155,7 @@
         >
           <l-popup>
             <div>
-              {{ ort.ort_namelang.split(",")[0] }},
-              {{ ort.ort_namelang.split(",")[1] }}
+              {{ ort.ort_namelang.split(",")[0] }}
             </div>
           </l-popup>
         </l-circle-marker>
@@ -138,62 +215,7 @@
               </v-flex>
             </div>
           </v-col>
-          <v-col xs-4>
-            <h2 v-if="currentErhebung">
-              Erhebungen für {{ currentErhebung.ort_namelang }}
-            </h2>
-            <v-data-table
-              hide-default-footer
-              v-if="currentErhebung"
-              :headers="headerErheb"
-              :items="currentErhebung.erhebungen"
-              @click:row="loadInfErhebung(currentErhebung.inferhebungen)"
-            >
-              <template v-slot:[`item.Konzept_von`]="{ item }" Konzept_von>{{
-                item.Konzept_von ? item.Konzept_von.str : "Kein Name vorhanden"
-              }}</template>
-              <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
-                item.Art_Erhebung
-                  ? item.Art_Erhebung.Bezeichnung
-                  : "Keine Art der Erhebung vorhanden"
-              }}</template>
-            </v-data-table>
-          </v-col>
-          <v-col xs-4>
-            <h2 v-if="currentErhebung">
-              Verfügbare Erhebungen für {{ currentErhebung.ort_namelang }}
-            </h2>
-            <v-data-table
-              hide-default-footer
-              v-if="infErhebungen"
-              :headers="headerInf"
-              :items="infErhebungen.infErhebungen"
-            >
-              <template v-slot:[`item.Bezeichnung_Erhebung`]="{ item }">{{
-                item.erhebung
-                  ? item.erhebung.Bezeichnung_Erhebung
-                  : "Keine Art der Erhebung vorhanden"
-              }}</template>
-              <template
-                v-slot:[`item.actions`]="{ item }"
-                Konzept_von
-                v-on:click="fetchTranscript(item.transcript.id)"
-              >
-                <figure>
-                  <figcaption>Aufnahme anhören:</figcaption>
-                  <audio
-                    controls
-                    :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
-                  ></audio>
-                </figure>
-                <template v-if="item.transcript">
-                  <v-btn v-on:click="fetchTranscript(item.transcript.id)">
-                    Transkript laden
-                  </v-btn>
-                </template>
-              </template>
-            </v-data-table>
-          </v-col>
+          
         </v-row>
       </v-container>
     </template>
@@ -258,13 +280,11 @@ export default class MapView extends Vue {
   };
 
   headerErheb = [
-    { text: "Konzept von", value: "Konzept_von" },
     { text: "Art der Erhebung", value: "Art_Erhebung" },
     { text: "Bezeichnung der Erhebung", value: "Bezeichnung_Erhebung" },
   ];
 
   headerInf = [
-    { text: "Bezeichnung", value: "Bezeichnung_Erhebung" },
     { text: "Datum", value: "Datum" },
     { text: "Aktionen", value: "actions" },
   ];
@@ -280,8 +300,7 @@ export default class MapView extends Vue {
     },
     {
       name: "Minimal Ländergrenzen (hell)",
-      url:
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
     },
     {
@@ -300,7 +319,7 @@ export default class MapView extends Vue {
     { name: this.tileSets[3].name, value: 3 },
   ];
 
-  selectedTileSet = 1;
+  selectedTileSet = 2;
 
   get erhebungen() {
     return erhebungModule.erhebungen;
@@ -438,6 +457,10 @@ export default class MapView extends Vue {
 </script>
 <style lang="scss" scoped>
   @import "../../node_modules/leaflet/dist/leaflet.css";
+
+  html {
+    overflow: hidden;
+  }
   .map-overlay {
     position: absolute;
     z-index: 1;
@@ -448,5 +471,28 @@ export default class MapView extends Vue {
     * {
       pointer-events: all;
     }
+  }
+
+  .erhebung {
+    bottom: 0;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    width: 50%;
+    height: 35%;
+  }
+
+  .zoom {
+    margin: 5px;
+  }
+
+  .v-card {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .v-card__text {
+    flex-grow: 1;
+    overflow: auto;
+    overflow-y: scroll;
   }
 </style>

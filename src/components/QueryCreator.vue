@@ -280,10 +280,6 @@ export default class QueryCreator extends Vue {
     return this.TM.jobList;
   }
 
-  get birthdayWishes() {
-    return "Alles Gute zum Geburtstag lieber Gerhard!";
-  }
-
   viewLegend(idx: number, legend: LegendList) {
     this.legName = legend.name;
     this.focusParameter = legend.parameter;
