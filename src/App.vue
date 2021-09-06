@@ -1,8 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <Navigation></Navigation>
-      <router-view></router-view>
+      <template v-if="loggedIn">
+        <Navigation></Navigation>
+        <router-view></router-view>
+      </template>
+      <template v-else>
+        <v-card class="mx-auto my-12" max-width="500">
+          <v-card-title>Login</v-card-title
+          ><v-card-text class="text-center"
+            >Please
+            <a :href="`https://dioedb.dioe.at/login/`" target="_blank">login</a>
+            and <a @click="loadTranscripts">refresh</a></v-card-text
+          ></v-card
+        >
+      </template>
     </v-main>
   </v-app>
 </template>
@@ -13,6 +25,8 @@ import Home from "./views/Home.vue";
 import { initialize as initGeo } from "./store/geo";
 import { tagModule } from "@/store/modules/tags";
 import Navigation from "@/components/Navigation.vue";
+import { getTranscripts } from "@/api/transcripts";
+import { ServerTranscriptListItem } from "./static/apiModels";
 @Component({
   components: {
     Home,
@@ -20,10 +34,29 @@ import Navigation from "@/components/Navigation.vue";
   },
 })
 export default class App extends Vue {
+  loggedIn: boolean = false;
+  errorMessage: string | null = "";
+
+  async loadTranscripts() {
+    try {
+      this.errorMessage = null;
+      const res = (await getTranscripts()).data;
+      if (res.transcripts !== undefined) {
+        this.loggedIn = true;
+      } else if ((res as any).error === "login") {
+        this.loggedIn = false;
+      }
+    } catch (e) {
+      this.loggedIn = false;
+      this.errorMessage = "could not load transcripts from backend.";
+    }
+  }
+
   mounted() {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchJobs();
+    this.loadTranscripts();
   }
 }
 </script>

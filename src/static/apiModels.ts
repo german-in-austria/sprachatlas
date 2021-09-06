@@ -137,6 +137,12 @@ export interface ApiInfErhResponse {
     infErhebungen: InfResponse[]
 }
 
+export interface ServerTranscriptListItem {
+    pk: number
+    ut: string
+    n: string
+  }
+
 export interface ApiLocationResponse {
     orte: ApiLocSingleResponse[];
 }
