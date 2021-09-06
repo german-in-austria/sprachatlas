@@ -1,5 +1,46 @@
 <template>
   <div>
+    <v-layout>
+      <v-card
+        outlined
+        elevation="2"
+        class="mx-auto search-overlay justify-center"
+        xs12
+      >
+        <v-card-actions>
+          <v-flex xs8>
+            <v-autocomplete
+              v-model="searchTerm"
+              :items="searchTerms"
+              :loading="autoCompleteLoading"
+              :search-input="searchInput"
+              solo
+              clearable
+              chips
+              deletable-chips
+              hide-no-data
+              label="Suche über alles"
+              item-text="name"
+              return-object
+              @change="displayData()"
+            >
+            </v-autocomplete>
+          </v-flex>
+          <v-spacer xs1></v-spacer>
+          <v-flex xs2>
+            <v-select
+              solo
+              v-model="selSearchModel"
+              :items="selSearchItem"
+              v-on:change="changeSearchTerms"
+              item-text="name"
+              item-value="value"
+            >
+            </v-select>
+          </v-flex>
+        </v-card-actions>
+      </v-card>
+    </v-layout>
     <v-navigation-drawer :value="sideBar" permanent right app v-if="sideBar">
       <v-card elevation="0">
         <v-card-title> Karten </v-card-title>
@@ -82,11 +123,7 @@
           </v-data-table>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            depressed
-            color="blue"
-            @click="currentErhebung = infErhebungen = null"
-          >
+          <v-btn depressed color="blue" @click="closeInfCard()">
             Schließen
           </v-btn>
         </v-card-actions>
@@ -139,6 +176,7 @@
       :zoom.sync="zoom"
       :center.sync="center"
       :options="mapOptions"
+      ref="map"
     >
       <l-tile-layer :url="tileSetUrl" />
 
@@ -151,7 +189,7 @@
           :key="ort.id"
           :lat-lng="[ort.lat, ort.lon]"
           :radius="4"
-          @click="loadErheb(ort, index)"
+          @click="loadErheb(ort)"
         >
           <l-popup>
             <div>
@@ -239,6 +277,7 @@ import {
   ApiLocSingleResponse,
   einzErhebung,
   SingleErhebResponse,
+  SearchItems,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
@@ -266,12 +305,23 @@ export default class MapView extends Vue {
   EM = erhebungModule;
   TM = transModule;
   TaM = tagModule;
+  searchInput: string = "";
+  searchTerms: { type: SearchItems; content: any; name: string }[] = [];
 
+  mapComp = null;
+  selSearchModel = SearchItems.Alle;
+  selSearchItem = [
+    { name: "Alles", value: SearchItems.Alle },
+    { name: "Nur Orte", value: SearchItems.Ort },
+    { name: "Tags", value: SearchItems.Tag },
+  ];
   currentErhebungen = null;
+  focusLayer: L.LayerGroup | null = null;
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
   showGemeinden = false;
   showDiaReg = false;
+  searchTerm: { type: SearchItems; content: any; name: string } | null = null;
   geoStore = geoStore;
   mapOptions = {
     scrollWheelZoom: true,
@@ -322,7 +372,9 @@ export default class MapView extends Vue {
   selectedTileSet = 2;
 
   get erhebungen() {
-    return erhebungModule.erhebungen;
+    return erhebungModule.erhebungen
+      ? erhebungModule.erhebungen
+      : ({} as ApiLocationResponse);
   }
 
   get parameters() {
@@ -361,6 +413,10 @@ export default class MapView extends Vue {
     return erhebungModule.loading;
   }
 
+  get autoCompleteLoading() {
+    return erhebungModule.loading && tagModule.loading;
+  }
+
   get einzelErhebungen() {
     return transModule.einzelErhebungen;
   }
@@ -390,6 +446,78 @@ export default class MapView extends Vue {
 
   get legends() {
     return this.TaM.legends;
+  }
+
+  get tagList() {
+    return this.TaM.tags;
+  }
+
+  addSearchTerms(terms: any, type: SearchItems, name: string) {
+    for (let curr of terms) {
+      this.searchTerms.push({
+        type: type,
+        content: curr,
+        name: curr[name],
+      });
+    }
+  }
+
+  closeInfCard() {
+    this.currentErhebung = null;
+    // @ts-ignore
+    this.$refs.map.mapObject.closePopup();
+    this.center = defaultCenter;
+    this.zoom = defaultZoom;
+    // @ts-ignore
+    const map = this.$refs.map.mapObject;
+    if (map.hasLayer(this.focusLayer)) {
+      map.removeLayer(this.focusLayer);
+      this.focusLayer?.clearLayers();
+      this.searchInput = "";
+      this.searchTerm = null;
+    }
+  }
+
+  changeSearchTerms() {
+    this.searchTerms = [];
+    switch (this.selSearchModel) {
+      case SearchItems.Ort:
+        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
+        break;
+      case SearchItems.Tag:
+        this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
+        break;
+      default:
+      case SearchItems.Alle:
+        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
+        this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
+        break;
+    }
+  }
+
+  displayData() {
+    this.focusLayer = L.layerGroup();
+    if (this.searchTerm) {
+      if (this.searchTerm.type === SearchItems.Ort) {
+        const ort: ApiLocSingleResponse = this.searchTerm.content;
+        // @ts-ignore
+        const map = this.$refs.map.mapObject;
+        const circle = L.circleMarker([Number(ort.lat), Number(ort.lon)], {
+          color: "red",
+          radius: 4,
+          // @ts-ignore
+        }).addTo(this.focusLayer);
+        // @ts-ignore
+        this.$refs.map.mapObject.addLayer(this.focusLayer);
+        circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
+        this.loadErheb(ort);
+        this.center = [Number(ort.lat), Number(ort.lon)];
+        this.zoom = 12;
+        map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
+      }
+    } else {
+      console.log("Empty");
+    }
   }
 
   matchTranscriptID(id: number) {
@@ -422,7 +550,7 @@ export default class MapView extends Vue {
     });
   }
 
-  loadErheb(ort: ApiLocSingleResponse, id: number) {
+  loadErheb(ort: ApiLocSingleResponse) {
     this.currentErhebung = ort;
     this.$forceUpdate();
   }
@@ -430,12 +558,18 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
-    if (!this.erhebungen || this.erhebungen.orte.length === 0) {
-      erhebungModule.fetchErhebungen();
+    this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
+    if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
+      erhebungModule.fetchErhebungen().then((res) => {
+        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
+      });
     }
 
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
+
+    if (this.tagList.length > 0) {
+    }
   }
 
   created() {
@@ -471,6 +605,12 @@ export default class MapView extends Vue {
     * {
       pointer-events: all;
     }
+  }
+
+  .search-overlay {
+    position: relative;
+    z-index: 1;
+    width: 100%;
   }
 
   .erhebung {

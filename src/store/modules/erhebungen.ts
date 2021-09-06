@@ -36,6 +36,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
     loading = false;
     infLoading = false;
     
+    
 
     @Mutation
     setCurrentOrt (ort: ApiLocSingleResponse | null) {

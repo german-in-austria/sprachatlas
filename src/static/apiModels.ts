@@ -79,6 +79,12 @@ export interface JobList {
     jobs: Job[];
 }
 
+export enum SearchItems{
+    Tag,
+    Ort,
+    Alle
+}
+
 export interface LegendList{
     parameter: Array<Parameter>;
     name: string;
