@@ -20,6 +20,16 @@ export interface TagSelection {
     children: Array<TagTree>;
 }
 
+export interface TagOrteResults{
+    numTag: number;
+    tagName: string;
+    tagLang: string | null;
+    osmId: number | null;
+    ortNamelang: string| null;
+    lat: string | null;
+    lon: string | null;   
+}
+
 export interface einzErhebung {
     Datum: string
     Kommentar: string
