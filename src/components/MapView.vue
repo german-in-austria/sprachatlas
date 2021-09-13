@@ -273,6 +273,7 @@ import {
 import { Component, Vue } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
 import * as geojson from "geojson";
+import { computePropCircle } from "@/helpers/MapCompute";
 import {
   ApiLocationResponse,
   ApiLocSingleResponse,
@@ -288,7 +289,7 @@ import { tagModule } from "@/store/modules/tags";
 import { flatten } from "lodash";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
-const defaultZoom = 7;
+const defaultZoom = 8;
 
 @Component({
   components: {
@@ -545,11 +546,10 @@ export default class MapView extends Vue {
           const curr = this.tagOrtResult;
           if(curr.length > 0){
             for (const ele of curr) {
-                // @ts-ignore
-              
+              const divFactor = Math.sqrt(ele.numTag / Math.PI);
               const circle = L.circleMarker([Number(ele.lat), Number(ele.lon)], {
                 color: "red",
-                radius: 4,
+                radius: divFactor / 2,
                 // @ts-ignore
               }).addTo(this.focusLayer);
               // @ts-ignore
@@ -559,9 +559,9 @@ export default class MapView extends Vue {
             }
           }
         });
+        this.zoom = defaultZoom;
         this.center = defaultCenter;
-        this.zoom = 12;
-        map.setView(defaultCenter, this.zoom);
+        map.setView(this.center, this.zoom);
       }
     } else {
       console.log("Empty");
