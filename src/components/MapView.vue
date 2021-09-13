@@ -23,6 +23,7 @@
               item-text="name"
               return-object
               @change="displayData()"
+              @click:clear="closeInfCard()"
             >
             </v-autocomplete>
           </v-flex>
@@ -284,6 +285,7 @@ import { transModule } from "../store/modules/transcripts";
 
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
+import { flatten } from "lodash";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 7;
@@ -433,6 +435,10 @@ export default class MapView extends Vue {
     return erhebungModule.infErhebungen;
   }
 
+  get tagOrtResult() {
+    return tagModule.tagOrteNum;
+  }
+
   get isLoading() {
     if (
       this.geoStore.gemeinden !== null ||
@@ -452,6 +458,23 @@ export default class MapView extends Vue {
     return this.TaM.tags;
   }
 
+  get tagListFlat() {
+    const curr = this.flattenTagsArray(this.TaM.tags);
+    return curr;
+  }
+
+  flattenTagsArray(arr: any[]): any[] {
+    return arr.reduce(
+      (acc, val) =>
+        acc.concat(
+          Array.isArray(val.children) && val.children.length > 0
+            ? [].concat(...this.flattenTagsArray(val.children), val)
+            : val
+        ),
+      []
+    );
+  }
+
   addSearchTerms(terms: any, type: SearchItems, name: string) {
     for (let curr of terms) {
       this.searchTerms.push({
@@ -469,6 +492,8 @@ export default class MapView extends Vue {
     this.center = defaultCenter;
     this.zoom = defaultZoom;
     // @ts-ignore
+    this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
+    // @ts-ignore
     const map = this.$refs.map.mapObject;
     if (map.hasLayer(this.focusLayer)) {
       map.removeLayer(this.focusLayer);
@@ -485,7 +510,7 @@ export default class MapView extends Vue {
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
         break;
       case SearchItems.Tag:
-        this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
+        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         break;
       default:
       case SearchItems.Alle:
@@ -498,10 +523,10 @@ export default class MapView extends Vue {
   displayData() {
     this.focusLayer = L.layerGroup();
     if (this.searchTerm) {
+      // @ts-ignore
+      const map = this.$refs.map.mapObject;
       if (this.searchTerm.type === SearchItems.Ort) {
         const ort: ApiLocSingleResponse = this.searchTerm.content;
-        // @ts-ignore
-        const map = this.$refs.map.mapObject;
         const circle = L.circleMarker([Number(ort.lat), Number(ort.lon)], {
           color: "red",
           radius: 4,
@@ -514,6 +539,29 @@ export default class MapView extends Vue {
         this.center = [Number(ort.lat), Number(ort.lon)];
         this.zoom = 12;
         map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
+      } else if (this.searchTerm.type === SearchItems.Tag){
+        const tag = this.searchTerm.content.tagId;
+        this.loadTagOrt(tag).then((res) => {
+          const curr = this.tagOrtResult;
+          if(curr.length > 0){
+            for (const ele of curr) {
+                // @ts-ignore
+              
+              const circle = L.circleMarker([Number(ele.lat), Number(ele.lon)], {
+                color: "red",
+                radius: 4,
+                // @ts-ignore
+              }).addTo(this.focusLayer);
+              // @ts-ignore
+              this.$refs.map.mapObject.addLayer(this.focusLayer);
+              circle.bindPopup(ele.ortNamelang ? ele.ortNamelang.split(",")[0] : "Kein Name vorhanden").openPopup();
+              
+            }
+          }
+        });
+        this.center = defaultCenter;
+        this.zoom = 12;
+        map.setView(defaultCenter, this.zoom);
       }
     } else {
       console.log("Empty");
@@ -553,6 +601,10 @@ export default class MapView extends Vue {
   loadErheb(ort: ApiLocSingleResponse) {
     this.currentErhebung = ort;
     this.$forceUpdate();
+  }
+
+  async loadTagOrt(tagId: number){
+    await tagModule.fetchTagOrteResults({tagId: tagId});
   }
 
   // lifecycle hook

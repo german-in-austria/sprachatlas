@@ -8,7 +8,7 @@ import {
 } from 'vuex-module-decorators'
 import store from '@/store'
 
-import { Parameter, Job, JobList, LegendList, TagSelection } from '@/static/apiModels';
+import { Parameter, Job, JobList, LegendList, TagSelection, TagOrteResults } from '@/static/apiModels';
 
 import { TagTree } from '@/api/dioe-public-api';
 import api from '@/api';
@@ -21,6 +21,7 @@ export interface TagState {
   jobList: Job[];
   loading: boolean;
   tagSelection: Array<TagSelection>;
+  tagOrteResults: Array<TagOrteResults>;
 }
 
 @Module({
@@ -30,6 +31,7 @@ export interface TagState {
   dynamic: true
 })
 class Tags extends VuexModule implements TagState {
+  tagOrteResults: TagOrteResults[] = [];
   tagSelection: TagSelection[] = [];
   legends: LegendList[] = [];
   jobList: Job[] = [];
@@ -41,6 +43,10 @@ class Tags extends VuexModule implements TagState {
     return (name: string) => {
       return this.legends.find(e  => e.name === name);
     }
+  }
+
+  get tagOrteNum(){
+    return this.tagOrteResults;
   }
 
   get tags() {
@@ -141,6 +147,16 @@ class Tags extends VuexModule implements TagState {
     console.log('fetched data');
     return {
       tagList: response,
+      loading: false
+    }
+  }
+
+  @MutationAction({mutate: ['tagOrteResults', 'loading']})
+  async fetchTagOrteResults (arg: {tagId: number}){
+    this.loading = true;
+    const res = await api.dioePublic.getTagOrte(arg.tagId);
+    return {
+      tagOrteResults: res,
       loading: false
     }
   }
