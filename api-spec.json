@@ -90,6 +90,66 @@
 				},
 				"type": "array",
 				"description": "Types generated for queries found in \"src/dao/tag.ts\""
+			},
+			"ISelectTagsLayersResult": {
+				"description": "'SelectTagsLayers' return type",
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectOrtTagsResult": {
+				"description": "'SelectOrtTags' return type",
+				"properties": {
+					"numTag": {
+						"type": "string",
+						"nullable": true
+					},
+					"tagName": {
+						"type": "string"
+					},
+					"tagLang": {
+						"type": "string",
+						"nullable": true
+					},
+					"osmId": {
+						"type": "string",
+						"nullable": true
+					},
+					"ortNamelang": {
+						"type": "string"
+					},
+					"lat": {
+						"type": "string",
+						"nullable": true
+					},
+					"lon": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"numTag",
+					"tagName",
+					"tagLang",
+					"osmId",
+					"ortNamelang",
+					"lat",
+					"lon"
+				],
+				"type": "object",
+				"additionalProperties": true
 			}
 		},
 		"securitySchemes": {
@@ -130,6 +190,60 @@
 				},
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/tags/layers": {
+			"get": {
+				"operationId": "GetTagLayers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectTagsLayersResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/tags/ort/{tagId}": {
+			"get": {
+				"operationId": "GetTagOrte",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectOrtTagsResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "tagId",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		},
 		"/test/{something}": {
