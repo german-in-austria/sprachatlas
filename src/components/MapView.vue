@@ -98,6 +98,9 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
+        <v-btn fab small @click="center = defaultCenter; zoom = defaultZoom">
+          <v-icon>mdi-home</v-icon>
+        </v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn elevation="4" fab @click="sideBar = !sideBar">
@@ -167,6 +170,16 @@
               </template>
             </template>
           </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-layout>
+    <v-layout class="map-overlay legend" v-if="searchTerm && searchTerm.type === SearchItems.Tag">
+      <v-card elevation="2">
+        <v-card-text>
+          Daten für Tag {{searchTerm.content.tagName}}
+        </v-card-text>
+        <v-card-text>
+          Testdaten
         </v-card-text>
       </v-card>
     </v-layout>
@@ -513,10 +526,9 @@ export default class MapView extends Vue {
       case SearchItems.Tag:
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         break;
-      default:
       case SearchItems.Alle:
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
-        this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
+        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         break;
     }
   }
@@ -549,7 +561,7 @@ export default class MapView extends Vue {
               const divFactor = Math.sqrt(ele.numTag / Math.PI);
               const circle = L.circleMarker([Number(ele.lat), Number(ele.lon)], {
                 color: "red",
-                radius: divFactor / 2,
+                radius: divFactor,
                 // @ts-ignore
               }).addTo(this.focusLayer);
               // @ts-ignore
@@ -671,6 +683,16 @@ export default class MapView extends Vue {
     margin-left: 50px;
     width: 50%;
     height: 35%;
+  }
+
+  .legend {
+    bottom: 0;
+    margin-bottom: 50px;
+    margin-right: 20px;
+    right: 20px;
+    left: 80%;
+    width:20%;
+    height: 20%;
   }
 
   .zoom {
