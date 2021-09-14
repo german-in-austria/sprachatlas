@@ -25,6 +25,7 @@
               @change="displayData()"
               @click:clear="closeInfCard()"
             >
+
             </v-autocomplete>
           </v-flex>
           <v-spacer xs1></v-spacer>
@@ -173,13 +174,13 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout class="map-overlay legend" v-if="searchTerm && searchTerm.type === SearchItems.Tag">
+    <v-layout class="map-overlay legend" v-if="searchTerm && searchTerm.type === getSearchItem.Tag">
       <v-card elevation="2">
         <v-card-text>
-          Daten für Tag {{searchTerm.content.tagName}}
+          <h2>Daten für Tag {{searchTerm.content.tagName}}</h2>
         </v-card-text>
         <v-card-text>
-          Testdaten
+          {{popUpData}}
         </v-card-text>
       </v-card>
     </v-layout>
@@ -339,6 +340,7 @@ export default class MapView extends Vue {
   showDiaReg = false;
   searchTerm: { type: SearchItems; content: any; name: string } | null = null;
   geoStore = geoStore;
+  popUpData: string = "";
   mapOptions = {
     scrollWheelZoom: true,
     zoomControl: false,
@@ -391,6 +393,10 @@ export default class MapView extends Vue {
     return erhebungModule.erhebungen
       ? erhebungModule.erhebungen
       : ({} as ApiLocationResponse);
+  }
+
+  get getSearchItem(){
+    return SearchItems;
   }
 
   get parameters() {
@@ -517,6 +523,12 @@ export default class MapView extends Vue {
     }
   }
 
+  setTagDataMap(e: L.LatLng, msg: string){
+    const curr = this.tagOrtResult;
+    const ort = curr.find((lat, lon) => Number(lat) === e.lat && Number(lon) === e.lng);
+    console.log(curr.find((lat, lon) => Number(lat) === e.lat));
+  }
+
   changeSearchTerms() {
     this.searchTerms = [];
     switch (this.selSearchModel) {
@@ -563,7 +575,7 @@ export default class MapView extends Vue {
                 color: "red",
                 radius: divFactor,
                 // @ts-ignore
-              }).addTo(this.focusLayer);
+              }).addTo(this.focusLayer).on('click', (e) => this.setTagDataMap(e.latlng));
               // @ts-ignore
               this.$refs.map.mapObject.addLayer(this.focusLayer);
               circle.bindPopup(ele.ortNamelang ? ele.ortNamelang.split(",")[0] : "Kein Name vorhanden").openPopup();
@@ -622,9 +634,9 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
-    this.addSearchTerms(this.tagList, SearchItems.Tag, "tagName");
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then((res) => {
+        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
       });
     }
