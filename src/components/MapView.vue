@@ -273,6 +273,8 @@
       </v-container>
     </template>
   </div>-->
+
+  
 </template>
 <script lang="ts">
 import * as L from "leaflet";
@@ -386,6 +388,16 @@ export default class MapView extends Vue {
     { name: this.tileSets[2].name, value: 2 },
     { name: this.tileSets[3].name, value: 3 },
   ];
+
+  /*
+   * Sprachatlas Feedback
+   * Proportionaler Kreis muss der Größe beim Zoom auch entsprechen
+   * Skalierbalken für das Einstellen der Größe
+   * 
+   * Multiple Tag Suche mit einzeichnen von Kreisdiagramm
+   * 
+   * Predefined Tags für Ansichten
+  */
 
   selectedTileSet = 2;
 
@@ -523,6 +535,19 @@ export default class MapView extends Vue {
     }
   }
 
+  clearLayer() {
+    // @ts-ignore
+    this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
+    // @ts-ignore
+    const map = this.$refs.map.mapObject;
+    if (map.hasLayer(this.focusLayer)) {
+      map.removeLayer(this.focusLayer);
+      this.focusLayer?.clearLayers();
+      this.searchInput = "";
+      this.searchTerm = null;
+    }
+  }
+
   setTagDataMap(e: L.LatLng, msg: string){
     const curr = this.tagOrtResult;
     const ort = curr.find((lat, lon) => Number(lat) === e.lat && Number(lon) === e.lng);
@@ -547,6 +572,7 @@ export default class MapView extends Vue {
 
   displayData() {
     this.focusLayer = L.layerGroup();
+    this.clearLayer();
     if (this.searchTerm) {
       // @ts-ignore
       const map = this.$refs.map.mapObject;
