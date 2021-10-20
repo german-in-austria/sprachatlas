@@ -194,8 +194,40 @@
         <v-divider class="mx-4"></v-divider>
         <v-card-title>Legende</v-card-title>
         <v-card-text>
-          <v-avatar color="indigo" size="20"> </v-avatar>
-          {{ searchTerm.content.tagName }}
+          <v-list class="transparent">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-menu
+                  ref="menu"
+                  v-model="menu"
+                  transition="scale-transition"
+                  :close-on-content-click="false"
+                  :return-value.sync="color"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on">
+                      <icon-circle
+                        width="100"
+                        height="50"
+                        radius="15"
+                        fillCol="red"
+                      />
+                    </v-icon>
+                  </template>
+                  <v-color-picker
+                    v-model="color"
+                    hide-canvas
+                    hide-inputs
+                    show-swatches
+                    class="mx-auto"
+                  ></v-color-picker>
+                </v-menu>
+              </v-list-item-icon>
+              {{ searchTerm.content.tagName }}
+            </v-list-item>
+          </v-list>
         </v-card-text>
       </v-card>
     </v-layout>
@@ -328,6 +360,8 @@ import { transModule } from "../store/modules/transcripts";
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
 import { flatten } from "lodash";
+import IconBase from "@/icons/IconBase.vue";
+import IconCircle from "@/icons/IconCircle.vue";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -340,6 +374,8 @@ const defaultZoom = 8;
     LGeoJson,
     LCircleMarker,
     LPopup,
+    IconBase,
+    IconCircle,
   },
 })
 export default class MapView extends Vue {
@@ -369,6 +405,8 @@ export default class MapView extends Vue {
   focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
+  color: string = "";
+  menu = false;
   showGemeinden = false;
   showDiaReg = false;
   searchTerm: { type: SearchItems; content: any; name: string } | null = null;
