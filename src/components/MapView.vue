@@ -207,14 +207,14 @@
                   min-width="auto"
                 >
                   <template v-slot:activator="{ on }">
-                    <v-icon v-on="on">
+                    <v-avatar v-on="on">
                       <icon-circle
-                        width="100"
+                        width="50"
                         height="50"
                         radius="15"
-                        fillCol="red"
+                        fillCol="#F00"
                       />
-                    </v-icon>
+                    </v-avatar>
                   </template>
                   <v-color-picker
                     v-model="color"
