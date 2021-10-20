@@ -25,7 +25,6 @@
               @change="displayData()"
               @click:clear="closeInfCard()"
             >
-
             </v-autocomplete>
           </v-flex>
           <v-spacer xs1></v-spacer>
@@ -99,7 +98,14 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
-        <v-btn fab small @click="center = defaultCenter; zoom = defaultZoom">
+        <v-btn
+          fab
+          small
+          @click="
+            center = defaultCenter;
+            zoom = defaultZoom;
+          "
+        >
           <v-icon>mdi-home</v-icon>
         </v-btn>
       </v-flex>
@@ -174,13 +180,22 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout class="map-overlay legend" v-if="searchTerm && searchTerm.type === getSearchItem.Tag">
+    <v-layout
+      class="map-overlay legend"
+      v-if="searchTerm && searchTerm.type === getSearchItem.Tag"
+    >
       <v-card elevation="2">
         <v-card-text>
-          <h2>Daten für Tag {{searchTerm.content.tagName}}</h2>
+          <h2>Daten für Tag {{ searchTerm.content.tagName }}</h2>
         </v-card-text>
         <v-card-text>
-          {{popUpData}}
+          {{ popUpData }}
+        </v-card-text>
+        <v-divider class="mx-4"></v-divider>
+        <v-card-title>Legende</v-card-title>
+        <v-card-text>
+          <v-avatar color="indigo" size="20"> </v-avatar>
+          {{ searchTerm.content.tagName }}
         </v-card-text>
       </v-card>
     </v-layout>
@@ -198,6 +213,18 @@
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
       <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
+      <template v-if="showIcon">
+        <template v-for="(ort, index) in tagOrtResult">
+          <l-marker :lat-lng="[ort.lat, ort.lon]" :key="index + ort.tagName">
+            <l-icon
+              :icon-size="[(12 * 2) / 1, (12 * 2) / 1]"
+              :icon-url="
+                drawCircleDiagram(24, 1, '#000', '#FFF', ort.numTag, true)
+              "
+            />
+          </l-marker>
+        </template>
+      </template>
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
@@ -273,8 +300,6 @@
       </v-container>
     </template>
   </div>-->
-
-  
 </template>
 <script lang="ts">
 import * as L from "leaflet";
@@ -289,7 +314,7 @@ import {
 import { Component, Vue } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
 import * as geojson from "geojson";
-import { computePropCircle } from "@/helpers/MapCompute";
+import { computePropCircle, drawCircleDiagram } from "@/helpers/MapCompute";
 import {
   ApiLocationResponse,
   ApiLocSingleResponse,
@@ -335,7 +360,13 @@ export default class MapView extends Vue {
     { name: "Tags", value: SearchItems.Tag },
   ];
   currentErhebungen = null;
+  // TODO: Organsieren als Array mit Objekten
+  // Tag/Ort als ID des Layers
   focusLayer: L.LayerGroup | null = null;
+
+  showIcon: boolean = false;
+
+  focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
   showGemeinden = false;
@@ -393,11 +424,22 @@ export default class MapView extends Vue {
    * Sprachatlas Feedback
    * Proportionaler Kreis muss der Größe beim Zoom auch entsprechen
    * Skalierbalken für das Einstellen der Größe
-   * 
+   *
    * Multiple Tag Suche mit einzeichnen von Kreisdiagramm
-   * 
+   *
    * Predefined Tags für Ansichten
-  */
+   *
+   * Farben aussuchen für Symbole
+   *
+   * Nach Phänomen filtern
+   * Und daraus Aufgaben heraussuchen
+   *
+   * O-te Generation für Tags
+   *
+   * Extra Filter um die Generationen von Tags auszuwählen
+   *
+   * Schöne Startseite gestalten
+   */
 
   selectedTileSet = 2;
 
@@ -407,7 +449,7 @@ export default class MapView extends Vue {
       : ({} as ApiLocationResponse);
   }
 
-  get getSearchItem(){
+  get getSearchItem() {
     return SearchItems;
   }
 
@@ -548,9 +590,11 @@ export default class MapView extends Vue {
     }
   }
 
-  setTagDataMap(e: L.LatLng, msg: string){
+  setTagDataMap(e: L.LatLng, msg: string) {
     const curr = this.tagOrtResult;
-    const ort = curr.find((lat, lon) => Number(lat) === e.lat && Number(lon) === e.lng);
+    const ort = curr.find(
+      (lat, lon) => Number(lat) === e.lat && Number(lon) === e.lng
+    );
     console.log(curr.find((lat, lon) => Number(lat) === e.lat));
   }
 
@@ -578,7 +622,7 @@ export default class MapView extends Vue {
       const map = this.$refs.map.mapObject;
       if (this.searchTerm.type === SearchItems.Ort) {
         const ort: ApiLocSingleResponse = this.searchTerm.content;
-        const circle = L.circleMarker([Number(ort.lat), Number(ort.lon)], {
+        const circle = L.circle([Number(ort.lat), Number(ort.lon)], {
           color: "red",
           radius: 4,
           // @ts-ignore
@@ -590,22 +634,31 @@ export default class MapView extends Vue {
         this.center = [Number(ort.lat), Number(ort.lon)];
         this.zoom = 12;
         map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
-      } else if (this.searchTerm.type === SearchItems.Tag){
+      } else if (this.searchTerm.type === SearchItems.Tag) {
         const tag = this.searchTerm.content.tagId;
         this.loadTagOrt(tag).then((res) => {
           const curr = this.tagOrtResult;
-          if(curr.length > 0){
+          if (curr.length > 0) {
             for (const ele of curr) {
               const divFactor = Math.sqrt(ele.numTag / Math.PI);
-              const circle = L.circleMarker([Number(ele.lat), Number(ele.lon)], {
+              const circle = L.circle([Number(ele.lat), Number(ele.lon)], {
                 color: "red",
-                radius: divFactor,
+                //radius: divFactor * 100 * 2 * this.zoom,
+                radius: divFactor * 300,
+              })
                 // @ts-ignore
-              }).addTo(this.focusLayer).on('click', (e) => this.setTagDataMap(e.latlng));
+                .addTo(this.focusLayer)
+                // @ts-ignore
+                .on("click", (e) => this.setTagDataMap(e.latlng));
               // @ts-ignore
               this.$refs.map.mapObject.addLayer(this.focusLayer);
-              circle.bindPopup(ele.ortNamelang ? ele.ortNamelang.split(",")[0] : "Kein Name vorhanden").openPopup();
-              
+              circle
+                .bindPopup(
+                  ele.ortNamelang
+                    ? ele.ortNamelang.split(",")[0]
+                    : "Kein Name vorhanden"
+                )
+                .openPopup();
             }
           }
         });
@@ -653,8 +706,8 @@ export default class MapView extends Vue {
     this.$forceUpdate();
   }
 
-  async loadTagOrt(tagId: number){
-    await tagModule.fetchTagOrteResults({tagId: tagId});
+  async loadTagOrt(tagId: number) {
+    await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
 
   // lifecycle hook
@@ -729,7 +782,7 @@ export default class MapView extends Vue {
     margin-right: 20px;
     right: 20px;
     left: 80%;
-    width:20%;
+    width: 20%;
     height: 20%;
   }
 
