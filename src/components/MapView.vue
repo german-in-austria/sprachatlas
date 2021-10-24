@@ -10,6 +10,7 @@
         <v-card-actions>
           <v-flex xs8>
             <v-autocomplete
+              ref="searchTermAutoComplete"
               v-model="searchTerm"
               :items="searchTerms"
               :loading="autoCompleteLoading"
@@ -22,7 +23,7 @@
               label="Suche über alles"
               item-text="name"
               return-object
-              @change="displayData()"
+              @change="submitSearch()"
               @click:clear="closeInfCard()"
             >
             </v-autocomplete>
@@ -248,7 +249,7 @@
                   </template>
                 </v-menu>
               </v-list-item-icon>
-              {{ searchTerm.content.tagName }}
+              {{ d.term }}
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -436,6 +437,7 @@ export default class MapView extends Vue {
     size: number;
     strokeColor: string;
     strokeWidth: number;
+    term: string;
   }> = [];
 
   currentErhebung: ApiLocSingleResponse | null = null;
@@ -686,6 +688,94 @@ export default class MapView extends Vue {
     }
   }
 
+  submitSearch() {
+    if (this.displayData()) {
+      // clear data of autocomplete
+      //@ts-ignore
+      this.$refs.searchTermAutoComplete.reset();
+    } else {
+      // Extend autocomplete with a error banner
+      console.log("Fehler beim Suchen");
+    }
+  }
+
+  displayOrt(map: any) {
+    if (this.searchTerm) {
+      const ort: ApiLocSingleResponse = this.searchTerm.content;
+      const color = "#F00";
+      const radius = 4;
+      const circle = L.circle([Number(ort.lat), Number(ort.lon)], {
+        color: color,
+        radius: radius,
+        // @ts-ignore
+      }).addTo(this.focusLayer);
+      // @ts-ignore
+      this.$refs.map.mapObject.addLayer(this.focusLayer);
+      circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
+      this.loadErheb(ort);
+      this.center = [Number(ort.lat), Number(ort.lon)];
+      this.zoom = 12;
+      map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
+      this.dataArray.push({
+        data: ort,
+        color: color,
+        size: radius,
+        strokeColor: "black",
+        strokeWidth: 1,
+        term: ort.ort_namekurz,
+      });
+      return true;
+    }
+  }
+
+  displayTag(map: any) {
+    if (this.searchTerm) {
+      const tag = this.searchTerm.content.tagId;
+      const tagName = this.searchTerm.content.tagName;
+      const color = "#F00";
+      let radius = 15;
+      this.zoom = defaultZoom;
+      this.center = defaultCenter;
+      map.setView(this.center, this.zoom);
+      this.dataArray.push({
+        data: this.tagOrtResult,
+        color: color,
+        size: radius,
+        strokeColor: "black",
+        strokeWidth: 1,
+        term: tagName,
+      });
+      return this.loadTagOrt(tag).then((res) => {
+        const curr = this.tagOrtResult;
+        if (curr.length > 0) {
+          for (const ele of curr) {
+            const divFactor = Math.sqrt(ele.numTag / Math.PI);
+            radius = 15;
+            const circle = L.circle([Number(ele.lat), Number(ele.lon)], {
+              color: color,
+              //radius: divFactor * 100 * 2 * this.zoom,
+              radius: divFactor * standardFactor,
+            })
+              // @ts-ignore
+              .addTo(this.focusLayer)
+              // @ts-ignore
+              .on("click", (e) => this.setTagDataMap(e.latlng));
+            // @ts-ignore
+            this.$refs.map.mapObject.addLayer(this.focusLayer);
+            circle
+              .bindPopup(
+                ele.ortNamelang
+                  ? ele.ortNamelang.split(",")[0]
+                  : "Kein Name vorhanden"
+              )
+              .openPopup();
+          }
+        }
+        return true;
+      });
+    }
+  }
+
   displayData() {
     this.focusLayer = L.layerGroup();
     this.clearLayer();
@@ -693,71 +783,13 @@ export default class MapView extends Vue {
       // @ts-ignore
       const map = this.$refs.map.mapObject;
       if (this.searchTerm.type === SearchItems.Ort) {
-        const ort: ApiLocSingleResponse = this.searchTerm.content;
-        const color = "#F00";
-        const radius = 4;
-        const circle = L.circle([Number(ort.lat), Number(ort.lon)], {
-          color: color,
-          radius: radius,
-          // @ts-ignore
-        }).addTo(this.focusLayer);
-        // @ts-ignore
-        this.$refs.map.mapObject.addLayer(this.focusLayer);
-        circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
-        this.loadErheb(ort);
-        this.center = [Number(ort.lat), Number(ort.lon)];
-        this.zoom = 12;
-        map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
-        this.dataArray.push({
-          data: ort,
-          color: color,
-          size: radius,
-          strokeColor: "black",
-          strokeWidth: 1,
-        });
+        return this.displayOrt(map);
       } else if (this.searchTerm.type === SearchItems.Tag) {
-        const tag = this.searchTerm.content.tagId;
-        const color = "#F00";
-        let radius = 15;
-        this.loadTagOrt(tag).then((res) => {
-          const curr = this.tagOrtResult;
-          if (curr.length > 0) {
-            for (const ele of curr) {
-              const divFactor = Math.sqrt(ele.numTag / Math.PI);
-              radius = 15;
-              const circle = L.circle([Number(ele.lat), Number(ele.lon)], {
-                color: color,
-                //radius: divFactor * 100 * 2 * this.zoom,
-                radius: divFactor * standardFactor,
-              })
-                // @ts-ignore
-                .addTo(this.focusLayer)
-                // @ts-ignore
-                .on("click", (e) => this.setTagDataMap(e.latlng));
-              // @ts-ignore
-              this.$refs.map.mapObject.addLayer(this.focusLayer);
-              circle
-                .bindPopup(
-                  ele.ortNamelang
-                    ? ele.ortNamelang.split(",")[0]
-                    : "Kein Name vorhanden"
-                )
-                .openPopup();
-            }
-          }
-        });
-        this.zoom = defaultZoom;
-        this.center = defaultCenter;
-        map.setView(this.center, this.zoom);
-        this.dataArray.push({
-          data: this.tagOrtResult,
-          color: color,
-          size: radius,
-          strokeColor: "black",
-          strokeWidth: 1,
-        });
+        return this.displayTag(map);
       }
     } else {
+      // TODO Add further error banner if data cant be loaded
+      return false;
       console.log("Empty");
     }
   }
