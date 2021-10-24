@@ -180,22 +180,13 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout
-      class="map-overlay legend"
-      v-if="searchTerm && searchTerm.type === getSearchItem.Tag"
-    >
-      <v-card elevation="2">
-        <v-card-text>
-          <h2>Daten für Tag {{ searchTerm.content.tagName }}</h2>
-        </v-card-text>
-        <v-card-text>
-          {{ popUpData }}
-        </v-card-text>
+    <v-layout class="map-overlay legend" v-if="dataArray.length > 0">
+      <v-card elevation="2" class="mx-auto" max-width="500" min-width="250">
         <v-divider class="mx-4"></v-divider>
         <v-card-title>Legende</v-card-title>
-        <v-card-text>
+        <v-card-text class="mx-auto">
           <v-list class="transparent">
-            <v-list-item>
+            <v-list-item v-for="(d, i) in dataArray">
               <v-list-item-icon>
                 <v-menu
                   ref="menu"
@@ -203,26 +194,58 @@
                   transition="scale-transition"
                   :close-on-content-click="false"
                   :return-value.sync="color"
-                  offset-y
                   min-width="auto"
                 >
+                  <!--
+                  TODO:
+                  In Komponente auslagern
+                  Und Daten von dort bearbeiten in Array
+                  Farben+Maße seperat pro Datensatz speichern 
+
+                  -->
                   <template v-slot:activator="{ on }">
                     <v-avatar v-on="on">
                       <icon-circle
-                        width="50"
-                        height="50"
-                        radius="15"
-                        fillCol="#F00"
+                        :radius="d.size"
+                        :fillCol="d.color"
+                        :strokeWidth="d.strokeWidth"
                       />
                     </v-avatar>
                   </template>
-                  <v-color-picker
-                    v-model="color"
-                    hide-canvas
-                    hide-inputs
-                    show-swatches
-                    class="mx-auto"
-                  ></v-color-picker>
+                  <template>
+                    <v-card>
+                      <v-card-title>Farbe</v-card-title>
+                      <v-card-text>
+                        <v-color-picker
+                          v-model="d.color"
+                          hide-inputs
+                          class="mx-auto"
+                        ></v-color-picker>
+                      </v-card-text>
+                      <v-divider class="mx-4"></v-divider>
+                      <v-card-title>Durchmesser</v-card-title>
+                      <v-card-text>
+                        {{ d.size }} px
+                        <v-slider
+                          v-model="d.size"
+                          hint="Durchmesser einstellen"
+                          min="2"
+                          max="20"
+                        ></v-slider
+                      ></v-card-text>
+                      <v-divider class="mx-4"></v-divider>
+                      <v-card-title>Durchmesser Rand</v-card-title>
+                      <v-card-text>
+                        {{ d.strokeWidth }} px
+                        <v-slider
+                          v-model="d.strokeWidth"
+                          hint="Durchmesser von Strich einstellen"
+                          min="1"
+                          max="10"
+                        ></v-slider
+                      ></v-card-text>
+                    </v-card>
+                  </template>
                 </v-menu>
               </v-list-item-icon>
               {{ searchTerm.content.tagName }}
@@ -353,6 +376,7 @@ import {
   einzErhebung,
   SingleErhebResponse,
   SearchItems,
+  TagOrteResults,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
@@ -365,6 +389,7 @@ import IconCircle from "@/icons/IconCircle.vue";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
+const standardFactor = 300;
 
 @Component({
   components: {
@@ -403,6 +428,16 @@ export default class MapView extends Vue {
   showIcon: boolean = false;
 
   focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
+
+  // Contains the data for the tag Array
+  dataArray: Array<{
+    data: TagOrteResults[] | ApiLocSingleResponse;
+    color: string;
+    size: number;
+    strokeColor: string;
+    strokeWidth: number;
+  }> = [];
+
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
   color: string = "";
@@ -411,7 +446,6 @@ export default class MapView extends Vue {
   showDiaReg = false;
   searchTerm: { type: SearchItems; content: any; name: string } | null = null;
   geoStore = geoStore;
-  popUpData: string = "";
   mapOptions = {
     scrollWheelZoom: true,
     zoomControl: false,
@@ -431,11 +465,11 @@ export default class MapView extends Vue {
   tileSets = [
     {
       name: "Humanitarian Open Tiles",
-      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png ",
     },
     {
       name: "Wikimedia",
-      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
+      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png?lang=local",
     },
     {
       name: "Minimal Ländergrenzen (hell)",
@@ -444,7 +478,7 @@ export default class MapView extends Vue {
     },
     {
       name: "Minimal Ländergrenzen (dunkel)",
-      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?lang=de",
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: "abcd",
@@ -660,9 +694,11 @@ export default class MapView extends Vue {
       const map = this.$refs.map.mapObject;
       if (this.searchTerm.type === SearchItems.Ort) {
         const ort: ApiLocSingleResponse = this.searchTerm.content;
+        const color = "#F00";
+        const radius = 4;
         const circle = L.circle([Number(ort.lat), Number(ort.lon)], {
-          color: "red",
-          radius: 4,
+          color: color,
+          radius: radius,
           // @ts-ignore
         }).addTo(this.focusLayer);
         // @ts-ignore
@@ -672,17 +708,27 @@ export default class MapView extends Vue {
         this.center = [Number(ort.lat), Number(ort.lon)];
         this.zoom = 12;
         map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
+        this.dataArray.push({
+          data: ort,
+          color: color,
+          size: radius,
+          strokeColor: "black",
+          strokeWidth: 1,
+        });
       } else if (this.searchTerm.type === SearchItems.Tag) {
         const tag = this.searchTerm.content.tagId;
+        const color = "#F00";
+        let radius = 15;
         this.loadTagOrt(tag).then((res) => {
           const curr = this.tagOrtResult;
           if (curr.length > 0) {
             for (const ele of curr) {
               const divFactor = Math.sqrt(ele.numTag / Math.PI);
+              radius = 15;
               const circle = L.circle([Number(ele.lat), Number(ele.lon)], {
-                color: "red",
+                color: color,
                 //radius: divFactor * 100 * 2 * this.zoom,
-                radius: divFactor * 300,
+                radius: divFactor * standardFactor,
               })
                 // @ts-ignore
                 .addTo(this.focusLayer)
@@ -703,6 +749,13 @@ export default class MapView extends Vue {
         this.zoom = defaultZoom;
         this.center = defaultCenter;
         map.setView(this.center, this.zoom);
+        this.dataArray.push({
+          data: this.tagOrtResult,
+          color: color,
+          size: radius,
+          strokeColor: "black",
+          strokeWidth: 1,
+        });
       }
     } else {
       console.log("Empty");
