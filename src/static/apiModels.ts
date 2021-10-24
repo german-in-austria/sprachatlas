@@ -27,7 +27,7 @@ export interface TagOrteResults{
     osmId: number | null;
     ortNamelang: string| null;
     lat: string | null;
-    lon: string | null;   
+    lon: string | null;
 }
 
 export interface einzErhebung {
