@@ -214,7 +214,17 @@
                     </v-avatar>
                   </template>
                   <template>
-                    <v-card>
+                    <v-card
+                      @click="
+                        onLegendChange(
+                          d.layer,
+                          d.color,
+                          d.size,
+                          d.strokeWidth,
+                          d.strokeColor
+                        )
+                      "
+                    >
                       <v-card-title>Farbe</v-card-title>
                       <v-card-text>
                         <v-color-picker
@@ -232,6 +242,15 @@
                           hint="Durchmesser einstellen"
                           min="2"
                           max="20"
+                          @change="
+                            onLegendChange(
+                              d.layer,
+                              d.color,
+                              d.size,
+                              d.strokeWidth,
+                              d.strokeColor
+                            )
+                          "
                         ></v-slider
                       ></v-card-text>
                       <v-divider class="mx-4"></v-divider>
@@ -243,6 +262,15 @@
                           hint="Durchmesser von Strich einstellen"
                           min="1"
                           max="10"
+                          @change="
+                            onLegendChange(
+                              d.layer,
+                              d.color,
+                              d.size,
+                              d.strokeWidth,
+                              d.strokeColor
+                            )
+                          "
                         ></v-slider
                       ></v-card-text>
                     </v-card>
@@ -367,7 +395,7 @@ import {
   LCircleMarker,
   LPopup,
 } from "vue2-leaflet";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
 import * as geojson from "geojson";
 import { computePropCircle, drawCircleDiagram } from "@/helpers/MapCompute";
@@ -617,6 +645,25 @@ export default class MapView extends Vue {
     return curr;
   }
 
+  onLegendChange(
+    layer: L.LayerGroup,
+    color: string,
+    size: number,
+    strokeWidth: number,
+    strokeColor: string
+  ) {
+    layer.eachLayer((l: L.Layer) => {
+      if (l instanceof L.CircleMarker) {
+        l.setRadius(size);
+        l.setStyle({
+          color: strokeColor,
+          weight: strokeWidth,
+          fillColor: color,
+        });
+      }
+    });
+  }
+
   flattenTagsArray(arr: any[]): any[] {
     return arr.reduce(
       (acc, val) =>
@@ -704,7 +751,7 @@ export default class MapView extends Vue {
     }
   }
 
-  addCircleToMap(
+  addCircleMarkerToMap(
     lat: number,
     lon: number,
     color: string,
@@ -713,7 +760,7 @@ export default class MapView extends Vue {
   ) {
     // @ts-ignore
     const map = this.$refs.map.mapObject;
-    const res = L.circle([lat, lon], {
+    const res = L.circleMarker([lat, lon], {
       color: color,
       radius: size,
       // @ts-ignore
@@ -725,14 +772,14 @@ export default class MapView extends Vue {
 
   setMapToPoint(lat: number, lon: number, zoom: number) {
     this.center = [lat, lon];
-    this.zoom = 12;
+    this.zoom = zoom;
     this.map.setView(new L.LatLng(lat, lon), zoom);
   }
 
   resetMap() {
     this.zoom = defaultZoom;
     this.center = defaultCenter;
-    this.setMapToPoint(this.center[0], this.center[1], this.zoom);
+    this.setMapToPoint(this.center[0], this.center[1], 7);
   }
 
   displayOrt(map: any, layer: L.LayerGroup) {
@@ -740,7 +787,7 @@ export default class MapView extends Vue {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = "#F00";
       const radius = 4;
-      const circle = this.addCircleToMap(
+      const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
         color,
@@ -785,11 +832,11 @@ export default class MapView extends Vue {
           for (const ele of curr) {
             const divFactor = Math.sqrt(ele.numTag / Math.PI);
             radius = 15;
-            const circ = this.addCircleToMap(
+            const circ = this.addCircleMarkerToMap(
               Number(ele.lat),
               Number(ele.lon),
               color,
-              divFactor * standardFactor,
+              divFactor,
               layer
             );
             // @ts-ignore
