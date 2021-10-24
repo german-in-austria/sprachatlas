@@ -438,6 +438,7 @@ export default class MapView extends Vue {
     strokeColor: string;
     strokeWidth: number;
     term: string;
+    layer: L.LayerGroup | null;
   }> = [];
 
   currentErhebung: ApiLocSingleResponse | null = null;
@@ -559,6 +560,11 @@ export default class MapView extends Vue {
     }
   }
 
+  get map() {
+    // @ts-ignore
+    return this.$refs.map.mapObject;
+  }
+
   get loading() {
     return erhebungModule.loading;
   }
@@ -669,7 +675,6 @@ export default class MapView extends Vue {
     const ort = curr.find(
       (lat, lon) => Number(lat) === e.lat && Number(lon) === e.lng
     );
-    console.log(curr.find((lat, lon) => Number(lat) === e.lat));
   }
 
   changeSearchTerms() {
@@ -699,23 +704,52 @@ export default class MapView extends Vue {
     }
   }
 
-  displayOrt(map: any) {
+  addCircleToMap(
+    lat: number,
+    lon: number,
+    color: string,
+    size: number,
+    layer: L.LayerGroup
+  ) {
+    // @ts-ignore
+    const map = this.$refs.map.mapObject;
+    const res = L.circle([lat, lon], {
+      color: color,
+      radius: size,
+      // @ts-ignore
+    }).addTo(layer);
+    // @ts-ignore
+    this.$refs.map.mapObject.addLayer(layer);
+    return res;
+  }
+
+  setMapToPoint(lat: number, lon: number, zoom: number) {
+    this.center = [lat, lon];
+    this.zoom = 12;
+    this.map.setView(new L.LatLng(lat, lon), zoom);
+  }
+
+  resetMap() {
+    this.zoom = defaultZoom;
+    this.center = defaultCenter;
+    this.setMapToPoint(this.center[0], this.center[1], this.zoom);
+  }
+
+  displayOrt(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = "#F00";
       const radius = 4;
-      const circle = L.circle([Number(ort.lat), Number(ort.lon)], {
-        color: color,
-        radius: radius,
-        // @ts-ignore
-      }).addTo(this.focusLayer);
-      // @ts-ignore
-      this.$refs.map.mapObject.addLayer(this.focusLayer);
+      const circle = this.addCircleToMap(
+        Number(ort.lat),
+        Number(ort.lon),
+        color,
+        radius,
+        layer
+      );
       circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
       this.loadErheb(ort);
-      this.center = [Number(ort.lat), Number(ort.lon)];
-      this.zoom = 12;
-      map.setView(new L.LatLng(Number(ort.lat), Number(ort.lon)), this.zoom);
+      this.setMapToPoint(Number(ort.lat), Number(ort.lon), 12);
       this.dataArray.push({
         data: ort,
         color: color,
@@ -723,20 +757,19 @@ export default class MapView extends Vue {
         strokeColor: "black",
         strokeWidth: 1,
         term: ort.ort_namekurz,
+        layer: layer,
       });
       return true;
     }
   }
 
-  displayTag(map: any) {
+  displayTag(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const tagName = this.searchTerm.content.tagName;
       const color = "#F00";
       let radius = 15;
-      this.zoom = defaultZoom;
-      this.center = defaultCenter;
-      map.setView(this.center, this.zoom);
+      this.resetMap();
       this.dataArray.push({
         data: this.tagOrtResult,
         color: color,
@@ -744,6 +777,7 @@ export default class MapView extends Vue {
         strokeColor: "black",
         strokeWidth: 1,
         term: tagName,
+        layer: layer,
       });
       return this.loadTagOrt(tag).then((res) => {
         const curr = this.tagOrtResult;
@@ -751,18 +785,16 @@ export default class MapView extends Vue {
           for (const ele of curr) {
             const divFactor = Math.sqrt(ele.numTag / Math.PI);
             radius = 15;
-            const circle = L.circle([Number(ele.lat), Number(ele.lon)], {
-              color: color,
-              //radius: divFactor * 100 * 2 * this.zoom,
-              radius: divFactor * standardFactor,
-            })
-              // @ts-ignore
-              .addTo(this.focusLayer)
-              // @ts-ignore
-              .on("click", (e) => this.setTagDataMap(e.latlng));
+            const circ = this.addCircleToMap(
+              Number(ele.lat),
+              Number(ele.lon),
+              color,
+              divFactor * standardFactor,
+              layer
+            );
             // @ts-ignore
-            this.$refs.map.mapObject.addLayer(this.focusLayer);
-            circle
+            circ.on("click", (e) => this.setTagDataMap(e.latlng));
+            circ
               .bindPopup(
                 ele.ortNamelang
                   ? ele.ortNamelang.split(",")[0]
@@ -778,14 +810,15 @@ export default class MapView extends Vue {
 
   displayData() {
     this.focusLayer = L.layerGroup();
+    const newLayer = L.layerGroup();
     this.clearLayer();
     if (this.searchTerm) {
       // @ts-ignore
       const map = this.$refs.map.mapObject;
       if (this.searchTerm.type === SearchItems.Ort) {
-        return this.displayOrt(map);
+        return this.displayOrt(map, newLayer);
       } else if (this.searchTerm.type === SearchItems.Tag) {
-        return this.displayTag(map);
+        return this.displayTag(map, newLayer);
       }
     } else {
       // TODO Add further error banner if data cant be loaded
