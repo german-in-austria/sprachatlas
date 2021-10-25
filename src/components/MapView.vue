@@ -307,7 +307,14 @@
                 (d.size * 2) / kmPerPixel,
               ]"
               :icon-url="
-                drawCircleDiagram(24, 1, d.color, d.color, d.data, true)
+                drawCircleDiagram(
+                  d.size,
+                  0.5,
+                  '#000',
+                  d.data[0].c,
+                  d.data,
+                  true
+                )
               "
             />
           </l-marker>
@@ -535,7 +542,6 @@ export default class MapView extends Vue {
     data: any,
     encoded: boolean
   ) {
-    console.log(data);
     return drawCircleDiagram(size, border, borderColor, color, data, encoded);
   }
 
