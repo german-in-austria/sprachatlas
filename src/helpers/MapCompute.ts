@@ -60,11 +60,11 @@ export const drawCircleDiagram = (size: number, border: number, borderColor: str
     let out = ''
     out += '<circle cx="' + hSize + '" cy="' + hSize + '" r="' + hSize + '" fill="' + borderColor + '" />'
     out += '<circle cx="' + hSize + '" cy="' + hSize + '" r="' + ihSize + '" fill="' + color + '" />'
-    let max = data.reduce((a: any, b: any) => a + (b.v || 0), 0)
+    let max: number = data.flat(Infinity).reduce((a: any, b: any) => Number(a) + (Number(b.v) || 0), 0)
     let angMulti = 360 / max
     let lAng = 0
     data.forEach((el: any) => {
-        let nAng = lAng + el.v * angMulti
+        let nAng = lAng + el.v * angMulti;
         out += '<path d="' + describeArc(hSize, hSize, ihSize, lAng, nAng) + '" stroke-width="0" fill="' + (el.c || '#f00') + '" />'
         lAng = nAng
     })
