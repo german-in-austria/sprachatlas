@@ -214,19 +214,19 @@
                     </v-avatar>
                   </template>
                   <template>
-                    <v-card
-                      @click="
-                        onLegendChange(
-                          d.layer,
-                          d.color,
-                          d.size,
-                          d.strokeWidth,
-                          d.strokeColor
-                        )
-                      "
-                    >
+                    <v-card>
                       <v-card-title>Farbe</v-card-title>
-                      <v-card-text>
+                      <v-card-text
+                        @click="
+                          onLegendChange(
+                            d.layer,
+                            d.color,
+                            d.size,
+                            d.strokeWidth,
+                            d.strokeColor
+                          )
+                        "
+                      >
                         <v-color-picker
                           v-model="d.color"
                           hide-inputs
@@ -297,13 +297,23 @@
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
       <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
-      <template v-if="showIcon">
-        <template v-for="(ort, index) in tagOrtResult">
-          <l-marker :lat-lng="[ort.lat, ort.lon]" :key="index + ort.tagName">
+      <template v-if="tagData.data && tagData.data.length > 1">
+        <template v-for="(d, index) in tagData.res">
+          <l-marker :lat-lng="[d.lat, d.lon]" :key="index + d.tagName">
             <l-icon
-              :icon-size="[(12 * 2) / 1, (12 * 2) / 1]"
+              :icon-size="[
+                (d.radius * 2) / mPerPixel,
+                (d.radius * 2) / mPerPixel,
+              ]"
               :icon-url="
-                drawCircleDiagram(24, 1, '#000', '#FFF', ort.numTag, true)
+                drawCircleDiagram(
+                  24,
+                  1,
+                  d.strokeColor,
+                  d.color,
+                  [d.numTag],
+                  true
+                )
               "
             />
           </l-marker>
@@ -326,64 +336,6 @@
       </template>
     </l-map>
   </div>
-
-  <!--
-  <div>
-    <template v-if="!loading">
-      <v-container fluid>
-        <v-row>
-          <v-col xs-4>
-            <v-navigation-drawer
-              :value="sideBar"
-              temporary
-              right
-              app
-              v-if="sideBar"
-            >
-              <v-card elevation="0">
-                <v-card-title style="z-index: 1"> Karten </v-card-title>
-                <v-divider style="clear: both; margin-top: 50px" />
-                <v-card-text>
-                  <v-select
-                    v-model="selectedTileSet"
-                    :items="items"
-                    item-text="name"
-                    item-value="value"
-                    label="Tileset auswählen"
-                  ></v-select>
-                  <v-checkbox
-                    v-model="showBundesl"
-                    hide-details
-                    label="Bundesländergrenzen einblenden"
-                  />
-                  <v-checkbox
-                    v-model="showGemeinden"
-                    hide-details
-                    label="untersuchte Gemeinden"
-                  />
-                  <v-checkbox
-                    v-model="showDiaReg"
-                    hide-details
-                    label="Dialektregionen einblenden"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-navigation-drawer>
-          </v-col>
-          <v-col xs-4>
-            <div style="height: 500px; width: 100%">
-              <v-flex class="text-xs-right" offset-xs11>
-                <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
-                  <v-icon>mdi-layers</v-icon>
-                </v-btn>
-              </v-flex>
-            </div>
-          </v-col>
-          
-        </v-row>
-      </v-container>
-    </template>
-  </div>-->
 </template>
 <script lang="ts">
 import * as L from "leaflet";
@@ -394,6 +346,7 @@ import {
   LGeoJson,
   LCircleMarker,
   LPopup,
+  LIcon,
 } from "vue2-leaflet";
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
@@ -420,6 +373,17 @@ const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
 const standardFactor = 300;
 
+type tagDataObj = {
+  data: number[];
+  tagName: string[];
+  res: TagOrteResults[];
+  color: string;
+  size: number;
+  strokeColor: string;
+  strokeWidth: number;
+  layer: L.LayerGroup | null;
+};
+
 @Component({
   components: {
     LMap,
@@ -428,12 +392,14 @@ const standardFactor = 300;
     LGeoJson,
     LCircleMarker,
     LPopup,
+    LIcon,
     IconBase,
     IconCircle,
   },
 })
 export default class MapView extends Vue {
   zoom: number = defaultZoom;
+  mPerPixel: number = 0;
   center: number[] = defaultCenter;
   sideBar: boolean = false;
   EM = erhebungModule;
@@ -469,6 +435,21 @@ export default class MapView extends Vue {
     layer: L.LayerGroup | null;
   }> = [];
 
+  colorid = 0;
+
+  colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
+
+  tagData = {
+    data: [],
+    res: [],
+    tagName: [],
+    color: "red",
+    size: 12,
+    strokeColor: "red",
+    strokeWidth: 12,
+    layer: null,
+  } as tagDataObj;
+
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
   color: string = "";
@@ -481,6 +462,11 @@ export default class MapView extends Vue {
     scrollWheelZoom: true,
     zoomControl: false,
     renderer: L.canvas(),
+  };
+
+  curZoom = {
+    start: 0,
+    end: 0,
   };
 
   headerErheb = [
@@ -550,6 +536,18 @@ export default class MapView extends Vue {
     return erhebungModule.erhebungen
       ? erhebungModule.erhebungen
       : ({} as ApiLocationResponse);
+  }
+
+  drawCircleDiagram(
+    size: number,
+    border: number,
+    borderColor: string,
+    color: string,
+    data: any,
+    encoded: boolean
+  ) {
+    console.log(data);
+    drawCircleDiagram(size, border, borderColor, color, data, encoded);
   }
 
   get getSearchItem() {
@@ -717,6 +715,13 @@ export default class MapView extends Vue {
     }
   }
 
+  removeLayer(l: L.LayerGroup) {
+    if (this.map.hasLayer(l)) {
+      this.map.removeLayer(l);
+      l?.clearLayers();
+    }
+  }
+
   setTagDataMap(e: L.LatLng, msg: string) {
     const curr = this.tagOrtResult;
     const ort = curr.find(
@@ -785,7 +790,7 @@ export default class MapView extends Vue {
   displayOrt(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
-      const color = "#F00";
+      const color = this.color[this.colorid];
       const radius = 4;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
@@ -801,7 +806,7 @@ export default class MapView extends Vue {
         data: ort,
         color: color,
         size: radius,
-        strokeColor: "black",
+        strokeColor: color,
         strokeWidth: 1,
         term: ort.ort_namekurz,
         layer: layer,
@@ -811,34 +816,29 @@ export default class MapView extends Vue {
   }
 
   displayTag(map: any, layer: L.LayerGroup) {
+    const tagLayer = L.layerGroup();
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const tagName = this.searchTerm.content.tagName;
-      const color = "#F00";
-      let radius = 15;
+      const color = this.color[this.colorid];
+      const radius = 15;
       this.resetMap();
-      this.dataArray.push({
-        data: this.tagOrtResult,
-        color: color,
-        size: radius,
-        strokeColor: "black",
-        strokeWidth: 1,
-        term: tagName,
-        layer: layer,
-      });
+      this.tagData.color = color;
+      this.tagData.size = radius;
+      this.tagData.strokeColor = color;
+      this.tagData.strokeWidth = 1;
+      this.tagData.layer = tagLayer;
       return this.loadTagOrt(tag).then((res) => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
+          let divFactor = 0;
           for (const ele of curr) {
-            const divFactor = Math.sqrt(ele.numTag / Math.PI);
-            radius = 15;
-            const circ = this.addCircleMarkerToMap(
-              Number(ele.lat),
-              Number(ele.lon),
-              color,
-              divFactor,
-              layer
-            );
+            divFactor = Math.sqrt(ele.numTag / Math.PI);
+            this.tagData.data.push(ele.numTag);
+            this.tagData.tagName.push(ele.tagName);
+            this.tagData.res.push(ele);
+
+            /*
             // @ts-ignore
             circ.on("click", (e) => this.setTagDataMap(e.latlng));
             circ
@@ -847,8 +847,17 @@ export default class MapView extends Vue {
                   ? ele.ortNamelang.split(",")[0]
                   : "Kein Name vorhanden"
               )
-              .openPopup();
+              .openPopup();*/
           }
+          this.dataArray.push({
+            data: curr,
+            color: color,
+            size: divFactor * radius,
+            strokeColor: color,
+            strokeWidth: 1,
+            term: tagName,
+            layer: layer,
+          });
         }
         return true;
       });
@@ -856,7 +865,6 @@ export default class MapView extends Vue {
   }
 
   displayData() {
-    this.focusLayer = L.layerGroup();
     const newLayer = L.layerGroup();
     this.clearLayer();
     if (this.searchTerm) {
@@ -867,6 +875,10 @@ export default class MapView extends Vue {
       } else if (this.searchTerm.type === SearchItems.Tag) {
         return this.displayTag(map, newLayer);
       }
+      if (this.colorid >= this.colors.length) {
+        this.colorid = 0;
+      }
+      this.colorid++;
     } else {
       // TODO Add further error banner if data cant be loaded
       return false;
@@ -909,6 +921,11 @@ export default class MapView extends Vue {
     this.$forceUpdate();
   }
 
+  computeMPerPixel(center: number, zoom: number) {
+    this.mPerPixel =
+      (156543.03392 * Math.cos((center * Math.PI) / 180)) / Math.pow(2, zoom);
+  }
+
   async loadTagOrt(tagId: number) {
     await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
@@ -916,6 +933,9 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
+    this.mPerPixel =
+      (156543.03392 * Math.cos((defaultCenter[0] * Math.PI) / 180)) /
+      Math.pow(2, defaultZoom);
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then((res) => {
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
@@ -931,7 +951,15 @@ export default class MapView extends Vue {
   }
 
   created() {
-    // this.l.log('Collections created');
+    this.map.on("zoomstart", () => {
+      this.curZoom.start = this.map.getZoom();
+    });
+
+    this.map.on("zoomend", () => {
+      this.curZoom.end = this.map.getZoom();
+      const diff = this.curZoom.start - this.curZoom.end;
+      this.computeMPerPixel(defaultCenter[0], this.map.getZoom());
+    });
   }
 
   beforeCreate() {
@@ -986,7 +1014,6 @@ export default class MapView extends Vue {
     right: 20px;
     left: 80%;
     width: 20%;
-    height: 20%;
   }
 
   .zoom {
