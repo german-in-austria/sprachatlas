@@ -297,23 +297,14 @@
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
       <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
-      <template v-if="tagData.data && tagData.data.length > 1">
-        <template v-for="(d, index) in tagData.res">
-          <l-marker :lat-lng="[d.lat, d.lon]" :key="index + d.tagName">
+
+      <template v-if="tagData.length > 0">
+        <template v-for="(d, index) in tagData">
+          <l-marker :lat-lng="[d.lat, d.lon]" :key="index + d.osm">
             <l-icon
-              :icon-size="[
-                (d.radius * 2) / mPerPixel,
-                (d.radius * 2) / mPerPixel,
-              ]"
+              :icon-size="[(d.size * 2) / mPerPixel, (d.size * 2) / mPerPixel]"
               :icon-url="
-                drawCircleDiagram(
-                  24,
-                  1,
-                  d.strokeColor,
-                  d.color,
-                  [d.numTag],
-                  true
-                )
+                drawCircleDiagram(24, 1, d.color, d.color, d.data, true)
               "
             />
           </l-marker>
@@ -443,18 +434,7 @@ export default class MapView extends Vue {
 
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
 
-  tagData = [
-    {
-      data: [],
-      res: [],
-      size: 1,
-      strokeWidth: 1,
-      lat: 0,
-      lon: 0,
-      osm: 0,
-      layer: null,
-    },
-  ] as tagDataObj[];
+  tagData = [] as tagDataObj[];
 
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
@@ -796,7 +776,7 @@ export default class MapView extends Vue {
   displayOrt(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
-      const color = this.color[this.colorid];
+      const color = this.colors[this.colorid];
       const radius = 4;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
@@ -826,7 +806,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const tagName = this.searchTerm.content.tagName;
-      const color = this.color[this.colorid];
+      const color = this.colors[this.colorid];
       const radius = 15;
       this.resetMap();
       return this.loadTagOrt(tag).then((res) => {
@@ -903,6 +883,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       // @ts-ignore
       const map = this.$refs.map.mapObject;
+      this.colorid++;
       if (this.searchTerm.type === SearchItems.Ort) {
         return this.displayOrt(map, newLayer);
       } else if (this.searchTerm.type === SearchItems.Tag) {
@@ -911,7 +892,6 @@ export default class MapView extends Vue {
       if (this.colorid >= this.colors.length) {
         this.colorid = 0;
       }
-      this.colorid++;
     } else {
       // TODO Add further error banner if data cant be loaded
       return false;
