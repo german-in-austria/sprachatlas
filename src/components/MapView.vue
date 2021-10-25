@@ -374,13 +374,17 @@ const defaultZoom = 8;
 const standardFactor = 300;
 
 type tagDataObj = {
-  data: number[];
-  tagName: string[];
+  data: Array<{
+    v: number;
+    name: string;
+    c: string;
+  }>;
   res: TagOrteResults[];
-  color: string;
   size: number;
-  strokeColor: string;
   strokeWidth: number;
+  lat: number;
+  lon: number;
+  osm: number;
   layer: L.LayerGroup | null;
 };
 
@@ -439,16 +443,18 @@ export default class MapView extends Vue {
 
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
 
-  tagData = {
-    data: [],
-    res: [],
-    tagName: [],
-    color: "red",
-    size: 12,
-    strokeColor: "red",
-    strokeWidth: 12,
-    layer: null,
-  } as tagDataObj;
+  tagData = [
+    {
+      data: [],
+      res: [],
+      size: 1,
+      strokeWidth: 1,
+      lat: 0,
+      lon: 0,
+      osm: 0,
+      layer: null,
+    },
+  ] as tagDataObj[];
 
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
@@ -823,21 +829,48 @@ export default class MapView extends Vue {
       const color = this.color[this.colorid];
       const radius = 15;
       this.resetMap();
-      this.tagData.color = color;
-      this.tagData.size = radius;
-      this.tagData.strokeColor = color;
-      this.tagData.strokeWidth = 1;
-      this.tagData.layer = tagLayer;
       return this.loadTagOrt(tag).then((res) => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
           let divFactor = 0;
           for (const ele of curr) {
             divFactor = Math.sqrt(ele.numTag / Math.PI);
-            this.tagData.data.push(ele.numTag);
-            this.tagData.tagName.push(ele.tagName);
-            this.tagData.res.push(ele);
-
+            const ort = this.tagData.findIndex(
+              (tD) =>
+                (ele.osmId && ele.osmId == tD.osm) ||
+                (ele.lon &&
+                  ele.lat &&
+                  tD.lon === Number(ele.lon) &&
+                  tD.lat === Number(ele.lat))
+            );
+            if (ort > -1) {
+              // Element with coordiantes already exists in Array
+              const currArray = this.tagData[ort];
+              currArray.data.push({
+                v: ele.numTag,
+                name: ele.tagName,
+                c: color,
+              });
+            } else {
+              // Doesn't exist in Array
+              const newTagData: tagDataObj = {
+                res: curr,
+                size: radius,
+                strokeWidth: 1,
+                lat: Number(ele.lat),
+                lon: Number(ele.lon),
+                osm: ele.osmId ? ele.osmId : -1,
+                layer: tagLayer,
+                data: [
+                  {
+                    v: ele.numTag,
+                    name: ele.tagName,
+                    c: color,
+                  },
+                ],
+              };
+              this.tagData.push(newTagData);
+            }
             /*
             // @ts-ignore
             circ.on("click", (e) => this.setTagDataMap(e.latlng));
