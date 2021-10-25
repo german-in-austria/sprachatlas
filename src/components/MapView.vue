@@ -302,7 +302,10 @@
         <template v-for="(d, index) in tagData">
           <l-marker :lat-lng="[d.lat, d.lon]" :key="index + d.osm">
             <l-icon
-              :icon-size="[(d.size * 2) / mPerPixel, (d.size * 2) / mPerPixel]"
+              :icon-size="[
+                (d.size * 2) / kmPerPixel,
+                (d.size * 2) / kmPerPixel,
+              ]"
               :icon-url="
                 drawCircleDiagram(24, 1, d.color, d.color, d.data, true)
               "
@@ -394,7 +397,7 @@ type tagDataObj = {
 })
 export default class MapView extends Vue {
   zoom: number = defaultZoom;
-  mPerPixel: number = 0;
+  kmPerPixel: number = 0;
   center: number[] = defaultCenter;
   sideBar: boolean = false;
   EM = erhebungModule;
@@ -533,7 +536,7 @@ export default class MapView extends Vue {
     encoded: boolean
   ) {
     console.log(data);
-    drawCircleDiagram(size, border, borderColor, color, data, encoded);
+    return drawCircleDiagram(size, border, borderColor, color, data, encoded);
   }
 
   get getSearchItem() {
@@ -935,8 +938,10 @@ export default class MapView extends Vue {
   }
 
   computeMPerPixel(center: number, zoom: number) {
-    this.mPerPixel =
-      (156543.03392 * Math.cos((center * Math.PI) / 180)) / Math.pow(2, zoom);
+    this.kmPerPixel =
+      (156543.03392 * Math.cos((center * Math.PI) / 180)) /
+      Math.pow(2, zoom) /
+      1000;
   }
 
   async loadTagOrt(tagId: number) {
@@ -946,9 +951,10 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
-    this.mPerPixel =
+    this.kmPerPixel =
       (156543.03392 * Math.cos((defaultCenter[0] * Math.PI) / 180)) /
-      Math.pow(2, defaultZoom);
+      Math.pow(2, defaultZoom) /
+      1000;
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then((res) => {
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
