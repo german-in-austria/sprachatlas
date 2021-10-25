@@ -54,7 +54,7 @@ export const describeArc = (
   return d;
 };
 
-export const drawCircleDiagram = (size: number, border: number, borderColor: string, color: string, data: any, encoded: boolean) => {
+export const drawCircleDiagram = (size: number, border: number, borderColor: string, color: string, data: [{v: number, c: string}], encoded: boolean) => {
     let hSize = size * 0.5
     let ihSize = (size - border * 2) * 0.5
     let out = ''
