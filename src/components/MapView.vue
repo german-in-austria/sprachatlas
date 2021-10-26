@@ -291,6 +291,7 @@
       :center.sync="center"
       :options="mapOptions"
       ref="map"
+      @update:zoom="onMapZoomUpdate()"
     >
       <l-tile-layer :url="tileSetUrl" />
 
@@ -440,11 +441,12 @@ export default class MapView extends Vue {
     layer: L.LayerGroup | null;
   }> = [];
 
+  // Currently Data for the tags
+  tagData = [] as tagDataObj[];
+
   colorid = 0;
 
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
-
-  tagData = [] as tagDataObj[];
 
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
@@ -636,6 +638,10 @@ export default class MapView extends Vue {
   get tagListFlat() {
     const curr = this.flattenTagsArray(this.TaM.tags);
     return curr;
+  }
+
+  onMapZoomUpdate() {
+    this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
   }
 
   onLegendChange(
@@ -945,8 +951,8 @@ export default class MapView extends Vue {
 
   computeMPerPixel(center: number, zoom: number) {
     this.kmPerPixel =
-      (156543.03392 * Math.cos((center * Math.PI) / 180)) /
-      Math.pow(2, zoom) /
+      (40075016.686 * Math.abs(Math.cos((center * Math.PI) / 180))) /
+      Math.pow(2, zoom + 8) /
       1000;
   }
 
@@ -975,17 +981,7 @@ export default class MapView extends Vue {
     }
   }
 
-  created() {
-    this.map.on("zoomstart", () => {
-      this.curZoom.start = this.map.getZoom();
-    });
-
-    this.map.on("zoomend", () => {
-      this.curZoom.end = this.map.getZoom();
-      const diff = this.curZoom.start - this.curZoom.end;
-      this.computeMPerPixel(defaultCenter[0], this.map.getZoom());
-    });
-  }
+  created() {}
 
   beforeCreate() {
     // //this.l.log('Collections before created'); --logger does not exist yet. if needed define outside like in app
