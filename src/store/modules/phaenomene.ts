@@ -28,14 +28,6 @@ class Phaenomene extends VuexModule implements PhaeState {
   phaen: Array<Phaen> = [];
   phaenBer: Array<PhaenBer> = [];
   loading = false;
-
-  get phaen() {
-      return this.phaen;
-  }
-
-  get phaenBer() {
-      return this.phaenBer;
-  }
   
   @MutationAction({ mutate: ['phaenBer', 'loading'] })
   async fetchBereich () {
@@ -66,7 +58,7 @@ class Phaenomene extends VuexModule implements PhaeState {
     const response = await api.dioePublic.getSinglePhaen(arg.berId);
     console.log('fetched data');
     return {
-      phaen: response.data,
+      phaen: response,
       loading: false
     }
   }
