@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { erhebungModule } from './modules/erhebungen'
 
 import VuexPersistence from 'vuex-persist'
 
