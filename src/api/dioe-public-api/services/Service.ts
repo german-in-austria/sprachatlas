@@ -2,6 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
+import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
+import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
+import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
 import type { ISelectTagsLayersResult } from '../models/ISelectTagsLayersResult';
 import type { TagTree } from '../models/TagTree';
 import { request as __request } from '../core/request';
@@ -69,6 +72,45 @@ export class Service {
                 'query_param': queryParam,
             },
             body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectPhaenBerResult Ok
+     * @throws ApiError
+     */
+    public static async getPhaenBer(): Promise<Array<ISelectPhaenBerResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/phaen/ber`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectPhaenResult Ok
+     * @throws ApiError
+     */
+    public static async getPhaen(): Promise<Array<ISelectPhaenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/phaen`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param berId
+     * @returns ISelectSinglePhaenResult Ok
+     * @throws ApiError
+     */
+    public static async getSinglePhaen(
+        berId: number,
+    ): Promise<Array<ISelectSinglePhaenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/phaen/${berId}`,
         });
         return result.body;
     }
