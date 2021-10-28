@@ -1,282 +1,296 @@
-import { TagTree } from '@/api/dioe-public-api';
+import { TagTree } from "@/api/dioe-public-api";
 
-type ServerTranscriptId = number
+type ServerTranscriptId = number;
 
-export type TokenTierType = 'text'|'ortho'|'phon'
+export type TokenTierType = "text" | "ortho" | "phon";
 
 export interface SingleInfResponse {
-    id: number;
-    hasTranskript: boolean;
+  id: number;
+  hasTranskript: boolean;
 }
 
 export interface SingleTag {
-    tagId: number;
-    tagAbbrev: string;
+  tagId: number;
+  tagAbbrev: string;
 }
 
 export interface TagSelection {
-    tagGroup: SingleTag[];
-    parentId: number;
-    children: Array<TagTree>;
+  tagGroup: SingleTag[];
+  parentId: number;
+  children: Array<TagTree>;
 }
 
-export interface TagOrteResults{
-    numTag: number;
-    tagName: string;
-    tagLang: string | null;
-    osmId: number | null;
-    ortNamelang: string| null;
-    lat: string | null;
-    lon: string | null;
+export interface TagOrteResults {
+  numTag: number;
+  tagName: string;
+  tagLang: string | null;
+  osmId: number | null;
+  ortNamelang: string | null;
+  lat: string | null;
+  lon: string | null;
 }
 
 export interface einzErhebung {
-    Datum: string
-    Kommentar: string
-    Logfile: string
-    Explorator: number
-    Dateipfad: string
-    id_transcript: number
-    Ort: string
-    Besonderheiten: string
-    ID_Erh: number
-    pk: number
-    OrtString: string
-    Audiofile: string
-    FX_Informanten: {
-        pk: number
-        Name: string
-        Vorname: string
-        Kuerzel: string
-        Kuerzel_anonym: string
-    }[] 
+  Datum: string;
+  Kommentar: string;
+  Logfile: string;
+  Explorator: number;
+  Dateipfad: string;
+  id_transcript: number;
+  Ort: string;
+  Besonderheiten: string;
+  ID_Erh: number;
+  pk: number;
+  OrtString: string;
+  Audiofile: string;
+  FX_Informanten: {
+    pk: number;
+    Name: string;
+    Vorname: string;
+    Kuerzel: string;
+    Kuerzel_anonym: string;
+  }[];
 }
 
 export interface SingleErhebResponse {
+  id: number;
+  zeitraum: string;
+  Bezeichnung_Erhebung: string;
+  Art_Erhebung: {
+    Bezeichnung: string;
     id: number;
-    zeitraum: string;
-    Bezeichnung_Erhebung: string;
-    Art_Erhebung: {
-        Bezeichnung: string;
-        id: number;
-    };
-    Konzept_von: {
-        str: string;
-        id: number;
-    };
+  };
+  Konzept_von: {
+    str: string;
+    id: number;
+  };
 }
 
 export interface ApiLocSingleResponse {
-    ort_namekurz: string;
-    osm_id: number;
-    id: number;
-    ort_namelang: string;
-    lat: string;
-    lon: string;
-    osm_type: string;
-    inferhebungen: SingleInfResponse[];
-    erhebungen: SingleErhebResponse[];
+  ort_namekurz: string;
+  osm_id: number;
+  id: number;
+  ort_namelang: string;
+  lat: string;
+  lon: string;
+  osm_type: string;
+  inferhebungen: SingleInfResponse[];
+  erhebungen: SingleErhebResponse[];
 }
 
-export interface Job{
-    berufskategorie: string;
-    kommunikationsgrad: string;
-    bezeichnung: string;
-    standardkompetenz: string;
+export interface Job {
+  berufskategorie: string;
+  kommunikationsgrad: string;
+  bezeichnung: string;
+  standardkompetenz: string;
 }
 
 export interface JobList {
-    jobs: Job[];
+  jobs: Job[];
 }
 
-export enum SearchItems{
-    Tag,
-    Ort,
-    Alle
+export enum SearchItems {
+  Tag,
+  Ort,
+  Phaen,
+  Alle
 }
 
-export interface LegendList{
-    parameter: Array<Parameter>;
-    name: string;
-    visible?: boolean;
+export interface LegendList {
+  parameter: Array<Parameter>;
+  name: string;
+  visible?: boolean;
 }
 
-export interface Parameter{
-    name: string;
-    project?: string;
-    ageRange: number[],
-    gender?: string;
-    education?: string;
-    parents?: string;
-    mobility?: string;
-    job?: string;
-    tagList?: Array<TagSelection>,
-    token?: string[],
-    color?: string,
-    operator?: string;
+export interface Parameter {
+  name: string;
+  project?: string;
+  ageRange: number[];
+  gender?: string;
+  education?: string;
+  parents?: string;
+  mobility?: string;
+  job?: string;
+  tagList?: Array<TagSelection>;
+  token?: string[];
+  color?: string;
+  operator?: string;
 }
 
 export interface InfResponse {
-    transcript: {
-        id: number,
-        name: string
-    }, 
-    erhebung: {
-        Zeitraum: string,
-        Art_Erhebung: {
-            id: number,
-            Bezeichnung: string
-        },
-        Bezeichnung_Erhebung: string,
-        id: number,
-        Konzept_von: string
-    },
-    id: number,
-    Besonderheiten: string,
-    Kommentar: string,
-    Datum: Date,
-    sprecher: [{
-        str: string,
-        id: number
-    }],
-    Audiofile: string,
-    Dateipfad: string,
+  transcript: {
+    id: number;
+    name: string;
+  };
+  erhebung: {
+    Zeitraum: string;
+    Art_Erhebung: {
+      id: number;
+      Bezeichnung: string;
+    };
+    Bezeichnung_Erhebung: string;
+    id: number;
+    Konzept_von: string;
+  };
+  id: number;
+  Besonderheiten: string;
+  Kommentar: string;
+  Datum: Date;
+  sprecher: [
+    {
+      str: string;
+      id: number;
+    }
+  ];
+  Audiofile: string;
+  Dateipfad: string;
 }
 
 export interface ApiInfErhResponse {
-    infErhebungen: InfResponse[]
+  infErhebungen: InfResponse[];
 }
 
 export interface ServerTranscriptListItem {
-    pk: number
-    ut: string
-    n: string
-  }
+  pk: number;
+  ut: string;
+  n: string;
+}
 
 export interface ApiLocationResponse {
-    orte: ApiLocSingleResponse[];
+  orte: ApiLocSingleResponse[];
 }
 
 export interface ServerAnswer {
-    // there are other properties here
-    // that we don’t care about now
-    it: number // token id
+  // there are other properties here
+  // that we don’t care about now
+  it: number; // token id
 }
 
 export interface ServerAnswerSet {
-    // there are other properties here
-    // that we don’t care about now
-    its: number // token set id
+  // there are other properties here
+  // that we don’t care about now
+  its: number; // token set id
 }
 
 export interface TokenRange {
-    ivt: number // token id (id von token)
-    ibt: number // token id (id bis token)
+  ivt: number; // token id (id von token)
+  ibt: number; // token id (id bis token)
 }
-  
+
 export interface TokenSet {
-    t: number[] // token ids
+  t: number[]; // token ids
 }
 
 export interface ServerTier {
-    tier_name: string
+  tier_name: string;
 }
 
 export interface ServerToken {
-    tr: number // token reihung
-    tt: number // token type
-    sr: number // sequence in sentence
-    t: string // text
-    to: string // text in ortho
-    s: number // sentence id
-    i: number // inf id
-    e: number // event id
-    o?: string // ortho
-    p?: string // add phon on server
-    fo?: number // fragment of
+  tr: number; // token reihung
+  tt: number; // token type
+  sr: number; // sequence in sentence
+  t: string; // text
+  to: string; // text in ortho
+  s: number; // sentence id
+  i: number; // inf id
+  e: number; // event id
+  o?: string; // ortho
+  p?: string; // add phon on server
+  fo?: number; // fragment of
 }
 
-
 export interface ServerTranscriptInformants {
-    [speaker_id: number]: ServerTranscriptInformant
+  [speaker_id: number]: ServerTranscriptInformant;
 }
 
 export interface ServerTranscriptInformant {
-    ka: string // abbrev anonymized
-    k: string // abbrev
+  ka: string; // abbrev anonymized
+  k: string; // abbrev
 }
 
 export interface ServerTranscriptTokenTypes {
-    // token type id
-    [id: string]: {
-      n: string // token type name
-    }
+  // token type id
+  [id: string]: {
+    n: string; // token type name
+  };
 }
 
 export interface ServerEvent {
-    pk: number
-    tid: {
-      [speaker_id: string]: number[]
-    }
-    event_tiers: ServerSpeakerEventTiers
-    e: string // end
-    s: string // start
-    l: 0
+  pk: number;
+  tid: {
+    [speaker_id: string]: number[];
+  };
+  event_tiers: ServerSpeakerEventTiers;
+  e: string; // end
+  s: string; // start
+  l: 0;
 }
 
 export interface ServerEventTierContent {
-    // event tier string
-    t: string
-    // tier id
-    ti: number
-  }
-  
-  export interface ServerEventTiers {
-    [event_tier_id: string]: ServerEventTierContent
-  }
-  
-  export interface ServerSpeakerEventTiers {
-    [speaker_id: string]: ServerEventTiers
-  }
+  // event tier string
+  t: string;
+  // tier id
+  ti: number;
+}
+
+export interface ServerEventTiers {
+  [event_tier_id: string]: ServerEventTierContent;
+}
+
+export interface ServerSpeakerEventTiers {
+  [speaker_id: string]: ServerEventTiers;
+}
 
 export interface ServerTranscript {
-    aAntworten?: {
-      [answer_id: string]: ServerAnswer|ServerAnswerSet
-    }
-    aTokenSets?: {
-      [set_id: number]: TokenRange|TokenSet
-    }
-    aTiers: {
-      [tier_id: string]: ServerTier
-    }
-    aTokens: {
-      [token_id: string]: ServerToken
-    }
-    aEinzelErhebung?: {
-      af: string
-      d: string
-      dp: string
-      e: number
-      pk: number
-      trId: number
-    }
-    aInformanten?: ServerTranscriptInformants
-    aTranskript?: {
-      default_tier?: TokenTierType|null
-      n: string // name
-      pk: ServerTranscriptId
-      ut: string
-    }
-    aTokenTypes?: ServerTranscriptTokenTypes
-    aEvents: ServerEvent[]
-    nNr: number
-    aNr: number
-    aTmNr?: number
-  }
+  aAntworten?: {
+    [answer_id: string]: ServerAnswer | ServerAnswerSet;
+  };
+  aTokenSets?: {
+    [set_id: number]: TokenRange | TokenSet;
+  };
+  aTiers: {
+    [tier_id: string]: ServerTier;
+  };
+  aTokens: {
+    [token_id: string]: ServerToken;
+  };
+  aEinzelErhebung?: {
+    af: string;
+    d: string;
+    dp: string;
+    e: number;
+    pk: number;
+    trId: number;
+  };
+  aInformanten?: ServerTranscriptInformants;
+  aTranskript?: {
+    default_tier?: TokenTierType | null;
+    n: string; // name
+    pk: ServerTranscriptId;
+    ut: string;
+  };
+  aTokenTypes?: ServerTranscriptTokenTypes;
+  aEvents: ServerEvent[];
+  nNr: number;
+  aNr: number;
+  aTmNr?: number;
+}
 
-  export interface transRoute {
-      pk: number
-      n: string
-      ut: string
-      default_tier: TokenTierType
-  }
+export interface transRoute {
+  pk: number;
+  n: string;
+  ut: string;
+  default_tier: TokenTierType;
+}
+
+export interface PhaenBer {
+    id: number;
+    bez: string;
+}
+
+export interface Phaen {
+    id: number;
+    bez: string;
+    besch: string;
+    bez_br: string;
+}
