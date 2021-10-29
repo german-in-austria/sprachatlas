@@ -7,6 +7,7 @@ import type { numberArray } from './numberArray';
 export type TagTree = {
     tagId: number;
     tagAbbrev: string;
+    tagGene: number | null;
     tagName: string | null;
     tagComment: string | null;
     tagOrder: number | null;
