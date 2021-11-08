@@ -1,46 +1,102 @@
 <template>
   <div>
     <v-layout>
-      <v-card
-        outlined
-        elevation="2"
-        class="mx-auto search-overlay justify-center"
-        xs12
-      >
-        <v-card-actions>
-          <v-flex xs8>
-            <v-autocomplete
-              ref="searchTermAutoComplete"
-              v-model="searchTerm"
-              :items="searchTerms"
-              :loading="autoCompleteLoading"
-              :search-input="searchInput"
-              solo
-              clearable
-              chips
-              deletable-chips
-              hide-no-data
-              label="Suche über alles"
-              item-text="name"
-              return-object
-              @change="submitSearch()"
-              @click:clear="closeInfCard()"
-            >
-            </v-autocomplete>
-          </v-flex>
-          <v-spacer xs1></v-spacer>
-          <v-flex xs2>
-            <v-select
-              solo
-              v-model="selSearchModel"
-              :items="selSearchItem"
-              v-on:change="changeSearchTerms"
-              item-text="name"
-              item-value="value"
-            >
-            </v-select>
-          </v-flex>
-        </v-card-actions>
+      <v-card outlined elevation="2" class="search-overlay justify-center">
+        <v-container class="ma-0 pa-5">
+          <v-row>
+            <v-col cols="6">
+              <v-autocomplete
+                ref="searchTermAutoComplete"
+                v-model="searchTerm"
+                :items="searchTerms"
+                :loading="autoCompleteLoading"
+                :search-input="searchInput"
+                solo
+                clearable
+                chips
+                deletable-chips
+                hide-no-data
+                label="Suche über alles"
+                item-text="name"
+                return-object
+                @change="submitSearch()"
+                @click:clear="closeInfCard()"
+              >
+              </v-autocomplete>
+            </v-col>
+            <v-col cols="2">
+              <v-menu
+                :close-on-content-click="false"
+                :nudge-width="400"
+                offset-y
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn class="mx-1" fab small v-bind="attrs" v-on="on">
+                    <v-icon> mdi-magnify </v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>Weitere Optionen</v-card-title>
+                  <v-divider></v-divider>
+                  <v-container class="ma-0 pa-0">
+                    <v-row class="mb-12" no-gutters>
+                      <v-col>
+                        <v-list flat>
+                          <v-list-item-group color="indigo">
+                            <template v-for="(d, index) in filterOptionMenu">
+                              <v-list-item
+                                link
+                                :key="index"
+                                @click="openFilter(d.type)"
+                              >
+                                <v-list-item-title>
+                                  {{ d.name }}
+                                </v-list-item-title>
+                                <v-icon> mdi-chevron-right </v-icon>
+                              </v-list-item>
+                            </template>
+                          </v-list-item-group>
+                        </v-list>
+                      </v-col>
+                      <v-col>
+                        <v-list max-height="300px" class="overflow-y-auto" flat>
+                          <v-list-item-group
+                            v-model="filterMenuValue.length > 0"
+                            color="indigo"
+                          >
+                            <template v-for="(val, i) in filterMenuValue">
+                              <v-list-item link>
+                                {{ val.content[val.name] }}
+                              </v-list-item>
+                              <v-divider></v-divider>
+                            </template>
+                          </v-list-item-group>
+                        </v-list>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-menu>
+            </v-col>
+            <v-col>
+              <v-spacer></v-spacer>
+            </v-col>
+            <v-col>
+              <v-select
+                solo
+                v-model="selSearchModel"
+                :items="selSearchItem"
+                v-on:change="changeSearchTerms"
+                item-text="name"
+                item-value="value"
+              >
+              </v-select>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-card>
     </v-layout>
     <v-navigation-drawer :value="sideBar" permanent right app v-if="sideBar">
@@ -181,13 +237,26 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout class="map-overlay legend" v-if="dataArray.length > 0">
+    <v-layout class="map-overlay legend" v-if="tagData.length > 0">
       <v-card elevation="2" class="mx-auto" max-width="500" min-width="250">
         <v-divider class="mx-4"></v-divider>
         <v-card-title>Legende</v-card-title>
         <v-card-text class="mx-auto">
           <v-list class="transparent">
-            <v-list-item v-for="(d, i) in dataArray">
+            <v-list-item v-for="(d, i) in tagData">
+              <!--
+                type tagDataObj = {
+  data: Array<singleTag> | ApiLocSingleResponse;
+  res: TagOrteResults[] | null;
+  size: number;
+  strokeWidth: number;
+  lat: number;
+  lon: number;
+  osm: number;
+  layer: L.LayerGroup | null;
+  type: SearchItems;
+};
+                -->
               <v-list-item-icon>
                 <v-menu
                   ref="menu"
@@ -241,7 +310,7 @@
                           v-model="d.size"
                           hint="Durchmesser einstellen"
                           min="2"
-                          max="20"
+                          max="50"
                           @change="
                             onLegendChange(
                               d.layer,
@@ -301,7 +370,11 @@
 
       <template v-if="tagData.length > 0">
         <template v-for="(d, index) in tagData">
-          <l-marker :lat-lng="[d.lat, d.lon]" :key="index + d.osm">
+          <l-marker
+            v-if="Array.isArray(d.data)"
+            :lat-lng="[d.lat, d.lon]"
+            :key="index + d.osm"
+          >
             <l-icon
               :icon-size="[
                 (d.size * 2) / kmPerPixel,
@@ -364,30 +437,36 @@ import {
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
+import { phaeModule } from "@/store/modules/phaenomene";
 
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
-import { flatten } from "lodash";
+import { flatten, isArray } from "lodash";
 import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
+
+import { getOrtName } from "@/helpers/helper";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
 const standardFactor = 300;
 
+type singleTag = {
+  v: number;
+  name: string;
+  c: string;
+};
+
 type tagDataObj = {
-  data: Array<{
-    v: number;
-    name: string;
-    c: string;
-  }>;
-  res: TagOrteResults[];
+  data: Array<singleTag> | ApiLocSingleResponse;
+  res: TagOrteResults[] | null;
   size: number;
   strokeWidth: number;
   lat: number;
   lon: number;
   osm: number;
   layer: L.LayerGroup | null;
+  type: SearchItems;
 };
 
 @Component({
@@ -411,8 +490,11 @@ export default class MapView extends Vue {
   EM = erhebungModule;
   TM = transModule;
   TaM = tagModule;
+  PM = phaeModule;
   searchInput: string = "";
   searchTerms: { type: SearchItems; content: any; name: string }[] = [];
+
+  selectionMenu: boolean = false;
 
   mapComp = null;
   selSearchModel = SearchItems.Alle;
@@ -420,7 +502,16 @@ export default class MapView extends Vue {
     { name: "Alles", value: SearchItems.Alle },
     { name: "Nur Orte", value: SearchItems.Ort },
     { name: "Tags", value: SearchItems.Tag },
+    { name: "Phänomene", value: SearchItems.Phaen },
   ];
+
+  filterOptionMenu = [
+    { name: "Phänomene", type: SearchItems.Phaen },
+    { name: "Tags", type: SearchItems.Tag },
+  ];
+  filterMenuValue: Array<{ type: SearchItems; content: any; name: string }> =
+    [];
+
   currentErhebungen = null;
   // TODO: Organsieren als Array mit Objekten
   // Tag/Ort als ID des Layers
@@ -547,6 +638,14 @@ export default class MapView extends Vue {
     return drawCircleDiagram(size, border, borderColor, color, data, encoded);
   }
 
+  get phaen() {
+    return this.PM.phaen;
+  }
+
+  get phaenBer() {
+    return this.PM.phaenBer;
+  }
+
   get getSearchItem() {
     return SearchItems;
   }
@@ -644,6 +743,36 @@ export default class MapView extends Vue {
     this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
   }
 
+  openFilter(type: SearchItems) {
+    switch (type) {
+      case SearchItems.Phaen:
+        this.changeFilterMenuValue(
+          SearchItems.Phaen,
+          this.phaen,
+          "bezPhaenomen"
+        );
+        break;
+      case SearchItems.Tag:
+        this.changeFilterMenuValue(
+          SearchItems.Tag,
+          this.tagListFlat,
+          "tagName"
+        );
+        break;
+    }
+  }
+
+  changeFilterMenuValue(type: SearchItems, content: Array<any>, name: string) {
+    this.filterMenuValue = [];
+    content.forEach((e) => {
+      this.filterMenuValue.push({ content: e, type: type, name: name });
+    });
+  }
+
+  clearFilterMenu() {
+    this.filterMenuValue = [];
+  }
+
   onLegendChange(
     layer: L.LayerGroup,
     color: string,
@@ -739,6 +868,9 @@ export default class MapView extends Vue {
       case SearchItems.Tag:
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         break;
+      case SearchItems.Phaen:
+        this.addSearchTerms(this.phaen, SearchItems.Phaen, "bez");
+        break;
       case SearchItems.Alle:
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
@@ -792,7 +924,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = this.colors[this.colorid];
-      const radius = 4;
+      const radius = 15;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
@@ -803,13 +935,27 @@ export default class MapView extends Vue {
       circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
       this.loadErheb(ort);
       this.setMapToPoint(Number(ort.lat), Number(ort.lon), 12);
+      this.tagData.push({
+        res: null,
+        size: radius,
+        strokeWidth: 1,
+        lat: Number(ort.lat),
+        lon: Number(ort.lon),
+        osm: ort.osm_id ? ort.osm_id : -1,
+        layer: layer,
+        type: SearchItems.Ort,
+        data: ort,
+      });
       this.dataArray.push({
         data: ort,
         color: color,
-        size: radius,
+        size: radius * this.kmPerPixel,
         strokeColor: color,
         strokeWidth: 1,
-        term: ort.ort_namekurz,
+        term:
+          ort.ort_namekurz === "" || ort.ort_namekurz === null
+            ? getOrtName(ort.ort_namelang).name
+            : ort.ort_namekurz,
         layer: layer,
       });
       return true;
@@ -841,11 +987,12 @@ export default class MapView extends Vue {
             if (ort > -1) {
               // Element with coordiantes already exists in Array
               const currArray = this.tagData[ort];
-              currArray.data.push({
-                v: ele.numTag,
-                name: ele.tagName,
-                c: color,
-              });
+              if (isArray(currArray.data))
+                currArray.data.push({
+                  v: ele.numTag,
+                  name: ele.tagName,
+                  c: color,
+                } as singleTag);
             } else {
               // Doesn't exist in Array
               const newTagData: tagDataObj = {
@@ -856,13 +1003,14 @@ export default class MapView extends Vue {
                 lon: Number(ele.lon),
                 osm: ele.osmId ? ele.osmId : -1,
                 layer: tagLayer,
+                type: SearchItems.Tag,
                 data: [
                   {
                     v: ele.numTag,
                     name: ele.tagName,
                     c: color,
                   },
-                ],
+                ] as singleTag[],
               };
               this.tagData.push(newTagData);
             }
@@ -909,8 +1057,8 @@ export default class MapView extends Vue {
       }
     } else {
       // TODO Add further error banner if data cant be loaded
-      return false;
       console.log("Empty");
+      return false;
     }
   }
 
@@ -974,6 +1122,7 @@ export default class MapView extends Vue {
       });
     }
 
+    this.PM.fetchAllPhaen();
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
 
