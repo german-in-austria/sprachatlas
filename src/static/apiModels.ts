@@ -102,6 +102,20 @@ export interface LegendList {
   visible?: boolean;
 }
 
+export interface LegendGlobal {
+  id: number;
+  color: string;
+  type: SearchItems;
+  content: any;
+  stroke: boolean;
+  strokeWidth: number;
+  lat: string | null;
+  lon: string | null;
+  parameter: Parameter | null;
+  vis: boolean;
+  name: string
+}
+
 export interface Parameter {
   name: string;
   project?: string;
