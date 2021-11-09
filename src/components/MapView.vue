@@ -271,16 +271,7 @@
                   <template>
                     <v-card>
                       <v-card-title>Farbe</v-card-title>
-                      <v-card-text
-                        @click="
-                          onLegendChange(
-                            d.layer,
-                            d.color,
-                            d.size,
-                            d.strokeWidth
-                          )
-                        "
-                      >
+                      <v-card-text @click="onLegendChange(d.layer, d)">
                         <v-color-picker
                           v-model="d.color"
                           hide-inputs
@@ -295,14 +286,7 @@
                           hint="Durchmesser einstellen"
                           min="2"
                           max="50"
-                          @change="
-                            onLegendChange(
-                              d.layer,
-                              d.color,
-                              d.size,
-                              d.strokeWidth
-                            )
-                          "
+                          @change="onLegendChange(d.layer, d)"
                         ></v-slider
                       ></v-card-text>
                       <v-divider class="mx-4"></v-divider>
@@ -314,14 +298,7 @@
                           hint="Durchmesser von Strich einstellen"
                           min="1"
                           max="10"
-                          @change="
-                            onLegendChange(
-                              d.layer,
-                              d.color,
-                              d.size,
-                              d.strokeWidth
-                            )
-                          "
+                          @change="onLegendChange(d.layer, d)"
                         ></v-slider
                       ></v-card-text>
                     </v-card>
@@ -416,6 +393,7 @@ import {
   SingleErhebResponse,
   SearchItems,
   TagOrteResults,
+  LegendGlobal,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
@@ -776,17 +754,9 @@ export default class MapView extends Vue {
     this.filterMenuValue = [];
   }
 
-  onLegendChange(
-    layer: L.LayerGroup,
-    color: string,
-    size: number,
-    strokeWidth: number
-  ) {
-    layer.eachLayer((l: L.Layer) => {
-      if (l instanceof L.Icon) {
-        l.options.size = [size, size];
-      }
-    });
+  onLegendChange(layer: L.LayerGroup, el: LegendGlobal) {
+    layer.clearLayers();
+    this.displayCircle(el);
   }
 
   flattenTagsArray(arr: any[]): any[] {
@@ -917,56 +887,53 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], 7);
   }
 
-  displayCircle() {
+  displayCircle(tags: LegendGlobal) {
     const radius = 1;
     // Layer where the data is going to be displayed
-    const layer = L.layerGroup();
+    const layer = tags.layer ? tags.layer : L.layerGroup();
     // Legendarray with the filtered tag data
-    const tags = this.legendGlobal.filter((el) => el.type === SearchItems.Tag);
     // Array for the extracted Tag data with geo data
     const data = [] as Array<circleData>;
     // Iterate through the array and sort by geo data
     // Get the values for the diagram
-    for (const ele of tags) {
-      const cont = ele.content as TagOrteResults[];
-      for (const tag of cont) {
-        const ort = data.findIndex(
-          (tD) =>
-            (tag.osmId && tag.osmId == tD.osm) ||
-            (tag.lat &&
-              tag.lat &&
-              tD.lon === Number(tag.lon) &&
-              tD.lat === Number(tag.lat))
-        );
-        if (ort > -1) {
-          // Element with geodata already exists in data
-          const curTag = data[ort];
-          if (isArray(curTag.data))
-            curTag.data.push({
+    const cont = tags.content as TagOrteResults[];
+    for (const tag of cont) {
+      const ort = data.findIndex(
+        (tD) =>
+          (tag.osmId && tag.osmId == tD.osm) ||
+          (tag.lat &&
+            tag.lat &&
+            tD.lon === Number(tag.lon) &&
+            tD.lat === Number(tag.lat))
+      );
+      if (ort > -1) {
+        // Element with geodata already exists in data
+        const curTag = data[ort];
+        if (isArray(curTag.data))
+          curTag.data.push({
+            v: tag.numTag,
+            name: tag.tagName,
+            c: tags.color,
+          } as singleTag);
+      } else {
+        // Element doesnt exist and needs to be added
+        const newTagData: circleData = {
+          lat: Number(tag.lat),
+          lon: Number(tag.lon),
+          osm: tag.osmId ? tag.osmId : -1,
+          layer: layer,
+          size: 15,
+          strokeWidth: 1,
+          data: [
+            {
               v: tag.numTag,
               name: tag.tagName,
-              c: ele.color,
-            } as singleTag);
-        } else {
-          // Element doesnt exist and needs to be added
-          const newTagData: circleData = {
-            lat: Number(tag.lat),
-            lon: Number(tag.lon),
-            osm: tag.osmId ? tag.osmId : -1,
-            layer: layer,
-            size: 15,
-            strokeWidth: 1,
-            data: [
-              {
-                v: tag.numTag,
-                name: tag.tagName,
-                c: ele.color,
-                r: Math.sqrt(tag.numTag / Math.PI) * radius,
-              },
-            ] as singleTag[],
-          };
-          data.push(newTagData);
-        }
+              c: tags.color,
+              r: Math.sqrt(tag.numTag / Math.PI) * radius,
+            },
+          ] as singleTag[],
+        };
+        data.push(newTagData);
       }
     }
 
@@ -1055,7 +1022,8 @@ export default class MapView extends Vue {
             layer: layer,
           };
           this.LM.addLegendEntry(newLegend);
-          this.displayCircle();
+          const nL = this.legendGlobal[this.legendGlobal.length - 1];
+          this.displayCircle(nL);
         }
         return true;
       });
