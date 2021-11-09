@@ -21,7 +21,7 @@ import { Component, Prop } from "vue-property-decorator";
   name: "IconCircle",
 })
 export default class IconCircle extends Vue {
-  @Prop({ type: [Number, String], default: 0 }) readonly radius:
+  @Prop({ type: [Number, String], default: 12 }) readonly radius:
     | number
     | string
     | undefined;
@@ -31,8 +31,8 @@ export default class IconCircle extends Vue {
   height: number = 0;
   width: number = 0;
 
-  beforeCreate() {
-    this.width = (Number(this.radius) + this.strokeWidth) * 2;
+  mounted() {
+    this.width = (Number(this.radius) + 1) * 2;
     this.height = this.width;
   }
 }
