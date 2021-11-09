@@ -103,14 +103,13 @@ export interface LegendList {
 }
 
 export interface LegendGlobal {
-  id: number;
+  id: string;
   color: string;
+  size: number;
   type: SearchItems;
   content: any;
   stroke: boolean;
   strokeWidth: number;
-  lat: string | null;
-  lon: string | null;
   parameter: Parameter | null;
   vis: boolean;
   name: string
