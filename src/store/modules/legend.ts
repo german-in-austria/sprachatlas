@@ -7,21 +7,15 @@ import {
   getModule
 } from "vuex-module-decorators";
 import store from "@/store";
-import { getAudioErhebung, getErhebungen } from "../../api/erhebungen";
 import { generateID } from "@/helpers/helper";
-import { AxiosResponse } from "axios";
 import Vue from "../../main";
 import {
   SearchItems,
   Parameter,
-  ApiLocationResponse,
-  ApiLocSingleResponse,
-  SingleInfResponse,
-  ApiInfErhResponse,
   LegendGlobal
 } from "../../static/apiModels";
 
-export interface ErhebungState {
+export interface LegendState {
   legend: Array<LegendGlobal>;
   loading: boolean;
 }
@@ -34,17 +28,16 @@ export interface ErhebungState {
 })
 class Legend extends VuexModule implements LegendState {
   loading = false;
-  legend = [] as LegendGlobal;
+  legend = [] as Array<LegendGlobal>;
 
   @Mutation
   addLegendEntry(
     color: string,
+    size: number,
     type: SearchItems,
     content: any,
     stroke: boolean,
     strokeWidth: number,
-    lat: string | null,
-    lon: string | null,
     parameter: Parameter | null,
     vis: boolean,
     name: string
@@ -52,12 +45,11 @@ class Legend extends VuexModule implements LegendState {
     this.legend.push({
       id: generateID(),
       color,
+      size,
       type,
       content,
       stroke,
       strokeWidth,
-      lat,
-      lon,
       parameter,
       vis,
       name
@@ -70,7 +62,7 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
-  removeEntryById(sid: number) {
+  removeEntryById(sid: string) {
     const idxEle = this.legend.findIndex(ele => ele.id === sid);
     if (idxEle > -1) {
       this.legend.splice(idxEle, 1);
