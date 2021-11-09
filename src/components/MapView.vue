@@ -237,26 +237,13 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout class="map-overlay legend" v-if="tagData.length > 0">
-      <v-card elevation="2" class="mx-auto" max-width="500" min-width="250">
+    <v-layout class="map-overlay legend" v-if="legendGlobal.length > 0">
+      <v-card elevation="2" class="mx-auto" max-width="300" min-width="250">
         <v-divider class="mx-4"></v-divider>
         <v-card-title>Legende</v-card-title>
         <v-card-text class="mx-auto">
           <v-list class="transparent">
-            <v-list-item v-for="(d, i) in tagData">
-              <!--
-                type tagDataObj = {
-  data: Array<singleTag> | ApiLocSingleResponse;
-  res: TagOrteResults[] | null;
-  size: number;
-  strokeWidth: number;
-  lat: number;
-  lon: number;
-  osm: number;
-  layer: L.LayerGroup | null;
-  type: SearchItems;
-};
-                -->
+            <v-list-item v-for="(d, i) in legendGlobal">
               <v-list-item-icon>
                 <v-menu
                   ref="menu"
@@ -264,7 +251,7 @@
                   transition="scale-transition"
                   :close-on-content-click="false"
                   :return-value.sync="color"
-                  min-width="auto"
+                  class="mx-auto pr-100"
                 >
                   <!--
                   TODO:
@@ -276,7 +263,6 @@
                   <template v-slot:activator="{ on }">
                     <v-avatar v-on="on">
                       <icon-circle
-                        :radius="d.size"
                         :fillCol="d.color"
                         :strokeWidth="d.strokeWidth"
                       />
@@ -291,15 +277,13 @@
                             d.layer,
                             d.color,
                             d.size,
-                            d.strokeWidth,
-                            d.strokeColor
+                            d.strokeWidth
                           )
                         "
                       >
                         <v-color-picker
                           v-model="d.color"
                           hide-inputs
-                          class="mx-auto"
                         ></v-color-picker>
                       </v-card-text>
                       <v-divider class="mx-4"></v-divider>
@@ -316,8 +300,7 @@
                               d.layer,
                               d.color,
                               d.size,
-                              d.strokeWidth,
-                              d.strokeColor
+                              d.strokeWidth
                             )
                           "
                         ></v-slider
@@ -336,8 +319,7 @@
                               d.layer,
                               d.color,
                               d.size,
-                              d.strokeWidth,
-                              d.strokeColor
+                              d.strokeWidth
                             )
                           "
                         ></v-slider
@@ -346,7 +328,7 @@
                   </template>
                 </v-menu>
               </v-list-item-icon>
-              {{ d.term }}
+              {{ d.name }}
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -367,9 +349,9 @@
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
       <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
-
-      <template v-if="tagData.length > 0">
-        <template v-for="(d, index) in tagData">
+      <!--
+      <template v-if="legendGlobal.length > 0">
+        <template v-for="(d, index) in legendGlobal">
           <l-marker
             v-if="Array.isArray(d.data)"
             :lat-lng="[d.lat, d.lon]"
@@ -393,7 +375,7 @@
             />
           </l-marker>
         </template>
-      </template>
+      </template>-->
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
@@ -441,6 +423,7 @@ import { phaeModule } from "@/store/modules/phaenomene";
 
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
+import { legendMod } from "@/store/modules/legend";
 import { flatten, isArray } from "lodash";
 import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
@@ -455,6 +438,17 @@ type singleTag = {
   v: number;
   name: string;
   c: string;
+  r: number;
+};
+
+type circleData = {
+  data: Array<singleTag>;
+  lat: number;
+  lon: number;
+  osm: number;
+  layer: L.LayerGroup;
+  size: number;
+  strokeWidth: number;
 };
 
 type tagDataObj = {
@@ -491,6 +485,7 @@ export default class MapView extends Vue {
   TM = transModule;
   TaM = tagModule;
   PM = phaeModule;
+  LM = legendMod;
   searchInput: string = "";
   searchTerms: { type: SearchItems; content: any; name: string }[] = [];
 
@@ -638,6 +633,14 @@ export default class MapView extends Vue {
     return drawCircleDiagram(size, border, borderColor, color, data, encoded);
   }
 
+  get legendGlobal() {
+    return this.LM.legend;
+  }
+
+  get legendLoading() {
+    return this.LM.loading;
+  }
+
   get phaen() {
     return this.PM.phaen;
   }
@@ -777,17 +780,11 @@ export default class MapView extends Vue {
     layer: L.LayerGroup,
     color: string,
     size: number,
-    strokeWidth: number,
-    strokeColor: string
+    strokeWidth: number
   ) {
     layer.eachLayer((l: L.Layer) => {
-      if (l instanceof L.CircleMarker) {
-        l.setRadius(size);
-        l.setStyle({
-          color: strokeColor,
-          weight: strokeWidth,
-          fillColor: color,
-        });
+      if (l instanceof L.Icon) {
+        l.options.size = [size, size];
       }
     });
   }
@@ -920,6 +917,81 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], 7);
   }
 
+  displayCircle() {
+    const radius = 1;
+    // Layer where the data is going to be displayed
+    const layer = L.layerGroup();
+    // Legendarray with the filtered tag data
+    const tags = this.legendGlobal.filter((el) => el.type === SearchItems.Tag);
+    // Array for the extracted Tag data with geo data
+    const data = [] as Array<circleData>;
+    // Iterate through the array and sort by geo data
+    // Get the values for the diagram
+    for (const ele of tags) {
+      const cont = ele.content as TagOrteResults[];
+      for (const tag of cont) {
+        const ort = data.findIndex(
+          (tD) =>
+            (tag.osmId && tag.osmId == tD.osm) ||
+            (tag.lat &&
+              tag.lat &&
+              tD.lon === Number(tag.lon) &&
+              tD.lat === Number(tag.lat))
+        );
+        if (ort > -1) {
+          // Element with geodata already exists in data
+          const curTag = data[ort];
+          if (isArray(curTag.data))
+            curTag.data.push({
+              v: tag.numTag,
+              name: tag.tagName,
+              c: ele.color,
+            } as singleTag);
+        } else {
+          // Element doesnt exist and needs to be added
+          const newTagData: circleData = {
+            lat: Number(tag.lat),
+            lon: Number(tag.lon),
+            osm: tag.osmId ? tag.osmId : -1,
+            layer: layer,
+            size: 15,
+            strokeWidth: 1,
+            data: [
+              {
+                v: tag.numTag,
+                name: tag.tagName,
+                c: ele.color,
+                r: Math.sqrt(tag.numTag / Math.PI) * radius,
+              },
+            ] as singleTag[],
+          };
+          data.push(newTagData);
+        }
+      }
+    }
+
+    for (const ort of data) {
+      let s = ort.size;
+      if (ort.data.length < 2) {
+        s = ort.data[0].r;
+      }
+      var circleIcon = L.icon({
+        iconSize: [(s * 2) / this.kmPerPixel, (s * 2) / this.kmPerPixel],
+        iconUrl: this.drawCircleDiagram(
+          ort.size,
+          0.5,
+          "#000",
+          ort.data[0].c,
+          ort.data,
+          true
+        ),
+      });
+      L.marker([ort.lat, ort.lon], { icon: circleIcon }).addTo(layer);
+      // @ts-ignore
+      this.map.addLayer(layer);
+    }
+  }
+
   displayOrt(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
@@ -935,105 +1007,55 @@ export default class MapView extends Vue {
       circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
       this.loadErheb(ort);
       this.setMapToPoint(Number(ort.lat), Number(ort.lon), 12);
-      this.tagData.push({
-        res: null,
-        size: radius,
-        strokeWidth: 1,
-        lat: Number(ort.lat),
-        lon: Number(ort.lon),
-        osm: ort.osm_id ? ort.osm_id : -1,
-        layer: layer,
-        type: SearchItems.Ort,
-        data: ort,
-      });
-      this.dataArray.push({
-        data: ort,
+      const newLegend = {
         color: color,
         size: radius * this.kmPerPixel,
-        strokeColor: color,
+        type: SearchItems.Ort,
+        content: {
+          lat: Number(ort.lat),
+          lon: Number(ort.lon),
+          osmId: ort.osm_id,
+        },
+        stroke: true,
         strokeWidth: 1,
-        term:
+        parameter: null,
+        vis: true,
+        name:
           ort.ort_namekurz === "" || ort.ort_namekurz === null
             ? getOrtName(ort.ort_namelang).name
             : ort.ort_namekurz,
         layer: layer,
-      });
+      };
+      this.LM.addLegendEntry(newLegend);
       return true;
     }
   }
 
   displayTag(map: any, layer: L.LayerGroup) {
-    const tagLayer = L.layerGroup();
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const tagName = this.searchTerm.content.tagName;
       const color = this.colors[this.colorid];
-      const radius = 15;
+      const radius = 12;
       this.resetMap();
       return this.loadTagOrt(tag).then((res) => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
-          let divFactor = 0;
-          for (const ele of curr) {
-            divFactor = Math.sqrt(ele.numTag / Math.PI);
-            const ort = this.tagData.findIndex(
-              (tD) =>
-                (ele.osmId && ele.osmId == tD.osm) ||
-                (ele.lon &&
-                  ele.lat &&
-                  tD.lon === Number(ele.lon) &&
-                  tD.lat === Number(ele.lat))
-            );
-            if (ort > -1) {
-              // Element with coordiantes already exists in Array
-              const currArray = this.tagData[ort];
-              if (isArray(currArray.data))
-                currArray.data.push({
-                  v: ele.numTag,
-                  name: ele.tagName,
-                  c: color,
-                } as singleTag);
-            } else {
-              // Doesn't exist in Array
-              const newTagData: tagDataObj = {
-                res: curr,
-                size: radius,
-                strokeWidth: 1,
-                lat: Number(ele.lat),
-                lon: Number(ele.lon),
-                osm: ele.osmId ? ele.osmId : -1,
-                layer: tagLayer,
-                type: SearchItems.Tag,
-                data: [
-                  {
-                    v: ele.numTag,
-                    name: ele.tagName,
-                    c: color,
-                  },
-                ] as singleTag[],
-              };
-              this.tagData.push(newTagData);
-            }
-            /*
-            // @ts-ignore
-            circ.on("click", (e) => this.setTagDataMap(e.latlng));
-            circ
-              .bindPopup(
-                ele.ortNamelang
-                  ? ele.ortNamelang.split(",")[0]
-                  : "Kein Name vorhanden"
-              )
-              .openPopup();*/
-          }
-          this.dataArray.push({
-            data: curr,
+          // const divFactor = Math.sqrt(ele.numTag / Math.PI);
+          const newLegend = {
             color: color,
-            size: divFactor * radius,
-            strokeColor: color,
+            size: radius,
+            type: SearchItems.Tag,
+            content: curr,
+            stroke: true,
             strokeWidth: 1,
-            term: tagName,
+            parameter: null,
+            vis: true,
+            name: curr[0].tagName,
             layer: layer,
-          });
+          };
+          this.LM.addLegendEntry(newLegend);
+          this.displayCircle();
         }
         return true;
       });
