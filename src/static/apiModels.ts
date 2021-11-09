@@ -111,6 +111,7 @@ export interface LegendGlobal {
   stroke: boolean;
   strokeWidth: number;
   parameter: Parameter | null;
+  layer: L.LayerGroup | null;
   vis: boolean;
   name: string
 }

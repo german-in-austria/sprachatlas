@@ -9,11 +9,7 @@ import {
 import store from "@/store";
 import { generateID } from "@/helpers/helper";
 import Vue from "../../main";
-import {
-  SearchItems,
-  Parameter,
-  LegendGlobal
-} from "../../static/apiModels";
+import { SearchItems, Parameter, LegendGlobal } from "../../static/apiModels";
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -32,28 +28,10 @@ class Legend extends VuexModule implements LegendState {
 
   @Mutation
   addLegendEntry(
-    color: string,
-    size: number,
-    type: SearchItems,
-    content: any,
-    stroke: boolean,
-    strokeWidth: number,
-    parameter: Parameter | null,
-    vis: boolean,
-    name: string
+    e: any
   ) {
-    this.legend.push({
-      id: generateID(),
-      color,
-      size,
-      type,
-      content,
-      stroke,
-      strokeWidth,
-      parameter,
-      vis,
-      name
-    });
+    e.id = generateID();
+    this.legend.push(e);
   }
 
   @Mutation
