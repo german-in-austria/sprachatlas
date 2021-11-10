@@ -7,17 +7,16 @@ import {
   getModule
 } from "vuex-module-decorators";
 import store from "@/store";
+import api from '@/api';
 import { generateID } from "@/helpers/helper";
 import Vue from "../../main";
 import {} from "../../static/apiModels";
-import {
-  ISelectAufgabenFromSetResult,
-  ISelectAufgabenResult,
-  ISelectAufgabenSetResult
-} from "@/api/dioe-public-api/models";
+import {ISelectAufgabenFromSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenFromSetResult";
+import {ISelectAufgabenResult} from "../../api/dioe-public-api/models/ISelectAufgabenResult";
+import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenSetResult";
 
 export interface AufgabenState {
-  legend: Array<ISelectAufgabenSetResult>;
+  aufgabenSet: Array<ISelectAufgabenSetResult>;
   loading: boolean;
 }
 
@@ -49,9 +48,9 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['aufgabenSet', 'loading']})
-    async fetchAufgabenSet(arg: {phaenId: number }){
+    async fetchAufgabenSet(arg: {ids: number[] }){
         this.loading = true;
-        const res = await api.dioePublic.getAufgabenSets(arg.phaenId);
+        const res = await api.dioePublic.getAufgabenSets(arg);
         return {
             aufgabenSet: res,
             loading: false
@@ -59,9 +58,9 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['aufgaben', 'loading'] })
-    async fetchAufgabeBasedPhaen(arg: {phaenId: number }){
+    async fetchAufgabeBasedPhaen(arg: {phaenId: number[] }){
         this.loading = true;
-        const res = await api.dioePublic.getAufgabenPhaen(arg.phaenId);
+        const res = await api.dioePublic.getAufgabenPhaen(arg);
         return {
             aufgaben: res,
             loading: false
@@ -69,9 +68,9 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['aufgabenFromSet', 'loading'] })
-    async fetchAufgabeBasedSet(arg: {aufgabenSetId: number }){
+    async fetchAufgabeBasedSet(arg: {aufgabenSetId: number[] }){
         this.loading = true;
-        const res = await api.dioePublic.getTagOrte1(arg.aufgabenSetId);
+        const res = await api.dioePublic.getTagOrte1(arg);
         return {
             aufgabenFromSet: res,
             loading: false
