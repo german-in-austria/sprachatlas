@@ -493,20 +493,6 @@ export default class MapView extends Vue {
 
   focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
 
-  // Contains the data for the tag Array
-  dataArray: Array<{
-    data: TagOrteResults[] | ApiLocSingleResponse;
-    color: string;
-    size: number;
-    strokeColor: string;
-    strokeWidth: number;
-    term: string;
-    layer: L.LayerGroup | null;
-  }> = [];
-
-  // Currently Data for the tags
-  tagData = [] as tagDataObj[];
-
   colorid = 0;
 
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
