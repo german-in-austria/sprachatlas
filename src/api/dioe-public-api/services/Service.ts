@@ -136,25 +136,33 @@ export class Service {
     }
 
     /**
+     * @param requestBody
      * @returns ISelectAufgabenResult Ok
      * @throws ApiError
      */
-    public static async getAufgabenPhaen(): Promise<Array<ISelectAufgabenResult>> {
+    public static async getAufgabenPhaen(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenResult>> {
         const result = await __request({
             method: 'POST',
             path: `/aufgaben`,
+            body: requestBody,
         });
         return result.body;
     }
 
     /**
+     * @param requestBody
      * @returns ISelectAufgabenFromSetResult Ok
      * @throws ApiError
      */
-    public static async getTagOrte1(): Promise<Array<ISelectAufgabenFromSetResult>> {
+    public static async getTagOrte1(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenFromSetResult>> {
         const result = await __request({
             method: 'POST',
             path: `/aufgaben/setaufgabe`,
+            body: requestBody,
         });
         return result.body;
     }
