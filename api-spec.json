@@ -262,6 +262,22 @@
 				"type": "object",
 				"additionalProperties": true
 			},
+			"aufgabenDto": {
+				"properties": {
+					"ids": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"ids"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"ISelectAufgabenResult": {
 				"description": "'SelectAufgaben' return type",
 				"properties": {
@@ -557,8 +573,8 @@
 				]
 			}
 		},
-		"/aufgaben/sets/{phaenID}": {
-			"get": {
+		"/aufgaben/sets": {
+			"post": {
 				"operationId": "GetAufgabenSets",
 				"responses": {
 					"200": {
@@ -576,21 +592,21 @@
 					}
 				},
 				"security": [],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "phaenID",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/aufgabenDto"
+							}
 						}
 					}
-				]
+				}
 			}
 		},
-		"/aufgaben/{phaenID}": {
-			"get": {
+		"/aufgaben": {
+			"post": {
 				"operationId": "GetAufgabenPhaen",
 				"responses": {
 					"200": {
@@ -608,21 +624,11 @@
 					}
 				},
 				"security": [],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "phaenID",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					}
-				]
+				"parameters": []
 			}
 		},
-		"/aufgaben/sets": {
-			"get": {
+		"/aufgaben/setaufgabe": {
+			"post": {
 				"operationId": "GetTagOrte",
 				"responses": {
 					"200": {
@@ -640,17 +646,7 @@
 					}
 				},
 				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "setID",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					}
-				]
+				"parameters": []
 			}
 		}
 	},

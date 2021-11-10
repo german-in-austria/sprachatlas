@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { aufgabenDto } from '../models/aufgabenDto';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
@@ -119,49 +120,41 @@ export class Service {
     }
 
     /**
-     * @param phaenId
+     * @param requestBody
      * @returns ISelectAufgabenSetResult Ok
      * @throws ApiError
      */
     public static async getAufgabenSets(
-        phaenId: number,
+        requestBody: aufgabenDto,
     ): Promise<Array<ISelectAufgabenSetResult>> {
         const result = await __request({
-            method: 'GET',
-            path: `/aufgaben/sets/${phaenId}`,
+            method: 'POST',
+            path: `/aufgaben/sets`,
+            body: requestBody,
         });
         return result.body;
     }
 
     /**
-     * @param phaenId
      * @returns ISelectAufgabenResult Ok
      * @throws ApiError
      */
-    public static async getAufgabenPhaen(
-        phaenId: number,
-    ): Promise<Array<ISelectAufgabenResult>> {
+    public static async getAufgabenPhaen(): Promise<Array<ISelectAufgabenResult>> {
         const result = await __request({
-            method: 'GET',
-            path: `/aufgaben/${phaenId}`,
+            method: 'POST',
+            path: `/aufgaben`,
         });
         return result.body;
     }
 
     /**
-     * @param setId
      * @returns ISelectAufgabenFromSetResult Ok
      * @throws ApiError
      */
-    public static async getTagOrte1(
-        setId: number,
-    ): Promise<Array<ISelectAufgabenFromSetResult>> {
+    public static async getTagOrte1(): Promise<Array<ISelectAufgabenFromSetResult>> {
         const result = await __request({
-            method: 'GET',
-            path: `/aufgaben/sets`,
-            query: {
-                'setID': setId,
-            },
+            method: 'POST',
+            path: `/aufgaben/setaufgabe`,
         });
         return result.body;
     }

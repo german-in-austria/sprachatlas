@@ -4,6 +4,7 @@
 export { ApiError } from './core/ApiError';
 export { OpenAPI } from './core/OpenAPI';
 
+export type { aufgabenDto } from './models/aufgabenDto';
 export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';
 export type { ISelectAufgabenResult } from './models/ISelectAufgabenResult';
 export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult';
