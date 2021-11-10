@@ -58,7 +58,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['aufgaben', 'loading'] })
-    async fetchAufgabeBasedPhaen(arg: {phaenId: number[] }){
+    async fetchAufgabeBasedPhaen(arg: {ids: number[] }){
         this.loading = true;
         const res = await api.dioePublic.getAufgabenPhaen(arg);
         return {
@@ -68,7 +68,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['aufgabenFromSet', 'loading'] })
-    async fetchAufgabeBasedSet(arg: {aufgabenSetId: number[] }){
+    async fetchAufgabeBasedSet(arg: {ids: number[] }){
         this.loading = true;
         const res = await api.dioePublic.getTagOrte1(arg);
         return {
