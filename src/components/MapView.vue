@@ -305,7 +305,33 @@
                   </template>
                 </v-menu>
               </v-list-item-icon>
-              {{ d.name }}
+              <v-list-item-content class="mx-auto">
+                {{ d.name }}
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-container>
+                  <v-row>
+                    <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
+                      <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon
+                      color="grey"
+                      @click="
+                        d.vis = !d.vis;
+                        onLegendChange(d.layer, d);
+                      "
+                    >
+                      <template v-if="d.vis">
+                        <v-icon>mdi-eye-outline</v-icon>
+                      </template>
+                      <template v-else>
+                        <v-icon>mdi-eye-off-outline</v-icon>
+                      </template>
+                    </v-btn>
+                  </v-row>
+                </v-container>
+              </v-list-item-action>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -326,33 +352,6 @@
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
       <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
-      <!--
-      <template v-if="legendGlobal.length > 0">
-        <template v-for="(d, index) in legendGlobal">
-          <l-marker
-            v-if="Array.isArray(d.data)"
-            :lat-lng="[d.lat, d.lon]"
-            :key="index + d.osm"
-          >
-            <l-icon
-              :icon-size="[
-                (d.size * 2) / kmPerPixel,
-                (d.size * 2) / kmPerPixel,
-              ]"
-              :icon-url="
-                drawCircleDiagram(
-                  d.size,
-                  0.5,
-                  '#000',
-                  d.data[0].c,
-                  d.data,
-                  true
-                )
-              "
-            />
-          </l-marker>
-        </template>
-      </template>-->
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
@@ -754,6 +753,16 @@ export default class MapView extends Vue {
     this.filterMenuValue = [];
   }
 
+  deleteLegendEntry(el: LegendGlobal, idx: number | null) {
+    const l = el.layer;
+    l?.clearLayers();
+    if (idx) {
+      this.LM.removeEntryByIdx(idx);
+    } else {
+      this.LM.removeEntryById(el.id);
+    }
+  }
+
   onLegendChange(layer: L.LayerGroup, el: LegendGlobal) {
     layer.clearLayers();
     this.displayCircle(el);
@@ -897,46 +906,47 @@ export default class MapView extends Vue {
     // Iterate through the array and sort by geo data
     // Get the values for the diagram
     const cont = tags.content as TagOrteResults[];
-    for (const tag of cont) {
-      const ort = data.findIndex(
-        (tD) =>
-          (tag.osmId && tag.osmId == tD.osm) ||
-          (tag.lat &&
-            tag.lat &&
-            tD.lon === Number(tag.lon) &&
-            tD.lat === Number(tag.lat))
-      );
-      if (ort > -1) {
-        // Element with geodata already exists in data
-        const curTag = data[ort];
-        if (isArray(curTag.data))
-          curTag.data.push({
-            v: tag.numTag,
-            name: tag.tagName,
-            c: tags.color,
-          } as singleTag);
-      } else {
-        // Element doesnt exist and needs to be added
-        const newTagData: circleData = {
-          lat: Number(tag.lat),
-          lon: Number(tag.lon),
-          osm: tag.osmId ? tag.osmId : -1,
-          layer: layer,
-          size: 15,
-          strokeWidth: 1,
-          data: [
-            {
+    if (tags.vis) {
+      for (const tag of cont) {
+        const ort = data.findIndex(
+          (tD) =>
+            (tag.osmId && tag.osmId == tD.osm) ||
+            (tag.lat &&
+              tag.lat &&
+              tD.lon === Number(tag.lon) &&
+              tD.lat === Number(tag.lat))
+        );
+        if (ort > -1) {
+          // Element with geodata already exists in data
+          const curTag = data[ort];
+          if (isArray(curTag.data))
+            curTag.data.push({
               v: tag.numTag,
               name: tag.tagName,
               c: tags.color,
-              r: Math.sqrt(tag.numTag / Math.PI) * radius,
-            },
-          ] as singleTag[],
-        };
-        data.push(newTagData);
+            } as singleTag);
+        } else {
+          // Element doesnt exist and needs to be added
+          const newTagData: circleData = {
+            lat: Number(tag.lat),
+            lon: Number(tag.lon),
+            osm: tag.osmId ? tag.osmId : -1,
+            layer: layer,
+            size: 15,
+            strokeWidth: 1,
+            data: [
+              {
+                v: tag.numTag,
+                name: tag.tagName,
+                c: tags.color,
+                r: Math.sqrt(tag.numTag / Math.PI) * radius,
+              },
+            ] as singleTag[],
+          };
+          data.push(newTagData);
+        }
       }
     }
-
     for (const ort of data) {
       let s = ort.size;
       if (ort.data.length < 2) {
