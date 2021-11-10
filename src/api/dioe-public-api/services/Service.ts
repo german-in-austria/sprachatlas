@@ -1,6 +1,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
+import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
+import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
 import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
@@ -111,6 +114,54 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/phaen/${berId}`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param phaenId
+     * @returns ISelectAufgabenSetResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenSets(
+        phaenId: number,
+    ): Promise<Array<ISelectAufgabenSetResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/aufgaben/sets/${phaenId}`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param phaenId
+     * @returns ISelectAufgabenResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenPhaen(
+        phaenId: number,
+    ): Promise<Array<ISelectAufgabenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/aufgaben/${phaenId}`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param setId
+     * @returns ISelectAufgabenFromSetResult Ok
+     * @throws ApiError
+     */
+    public static async getTagOrte1(
+        setId: number,
+    ): Promise<Array<ISelectAufgabenFromSetResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/aufgaben/sets`,
+            query: {
+                'setID': setId,
+            },
         });
         return result.body;
     }

@@ -4,6 +4,9 @@
 export { ApiError } from './core/ApiError';
 export { OpenAPI } from './core/OpenAPI';
 
+export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';
+export type { ISelectAufgabenResult } from './models/ISelectAufgabenResult';
+export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult';
 export type { ISelectOrtTagsResult } from './models/ISelectOrtTagsResult';
 export type { ISelectPhaenBerResult } from './models/ISelectPhaenBerResult';
 export type { ISelectPhaenResult } from './models/ISelectPhaenResult';
