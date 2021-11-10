@@ -27,7 +27,7 @@
             <v-col cols="2">
               <v-menu
                 :close-on-content-click="false"
-                :nudge-width="400"
+                :nudge-width="800"
                 offset-y
               >
                 <template v-slot:activator="{ on, attrs }">
@@ -36,48 +36,117 @@
                   </v-btn>
                 </template>
                 <v-card>
-                  <v-card-title>Weitere Optionen</v-card-title>
-                  <v-divider></v-divider>
-                  <v-container class="ma-0 pa-0">
-                    <v-row class="mb-12" no-gutters>
-                      <v-col>
-                        <v-list flat>
-                          <v-list-item-group color="indigo">
-                            <template v-for="(d, index) in filterOptionMenu">
-                              <v-list-item
-                                link
-                                :key="index"
-                                @click="openFilter(d.type)"
+                  <v-tabs
+                    background-color="indigo"
+                    dark
+                    grow
+                    v-model="optionTab"
+                  >
+                    <v-tab>Weitere Optionen </v-tab>
+                    <v-tab>Aufgabensets</v-tab>
+                    <v-tab>Aufgaben</v-tab>
+                  </v-tabs>
+                  <v-tabs-items v-model="optionTab">
+                    <v-tab-item>
+                      <v-card>
+                        <v-card-title>Weitere Optionen</v-card-title>
+                        <v-divider></v-divider>
+                        <v-container class="ma-0 pa-0">
+                          <v-row class="mb-12" no-gutters>
+                            <v-col>
+                              <v-list flat>
+                                <v-list-item-group color="indigo">
+                                  <template
+                                    v-for="(d, index) in filterOptionMenu"
+                                  >
+                                    <v-list-item
+                                      link
+                                      :key="index"
+                                      @click="openFilter(d.type)"
+                                    >
+                                      <v-list-item-title>
+                                        {{ d.name }}
+                                      </v-list-item-title>
+                                      <v-icon> mdi-chevron-right </v-icon>
+                                    </v-list-item>
+                                  </template>
+                                </v-list-item-group>
+                              </v-list>
+                            </v-col>
+                            <v-col>
+                              <v-list
+                                max-height="300px"
+                                class="overflow-y-auto"
                               >
-                                <v-list-item-title>
-                                  {{ d.name }}
-                                </v-list-item-title>
-                                <v-icon> mdi-chevron-right </v-icon>
-                              </v-list-item>
-                            </template>
-                          </v-list-item-group>
-                        </v-list>
-                      </v-col>
-                      <v-col>
-                        <v-list max-height="300px" class="overflow-y-auto" flat>
-                          <v-list-item-group
-                            v-model="filterMenuValue.length > 0"
-                            color="indigo"
+                                <v-list-item-group
+                                  v-if="filterMenuValue.length > 0"
+                                  v-model="phaenSelection"
+                                  color="indigo"
+                                  multiple
+                                >
+                                  <template v-for="(val, i) in filterMenuValue">
+                                    <v-list-item>
+                                      {{ val.content[val.name] }}
+                                    </v-list-item>
+                                    <v-divider></v-divider>
+                                  </template>
+                                </v-list-item-group>
+                              </v-list>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            color="primary"
+                            small
+                            @click="searchAufgabeByPhaen()"
+                            v-if="
+                              filterMenuValue.length > 0 &&
+                              filterMenuValue[0].type === 2 &&
+                              phaenSelection.length > 0
+                            "
                           >
-                            <template v-for="(val, i) in filterMenuValue">
-                              <v-list-item link>
-                                {{ val.content[val.name] }}
-                              </v-list-item>
-                              <v-divider></v-divider>
-                            </template>
-                          </v-list-item-group>
-                        </v-list>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
+                            Nach Aufgabensets suchen
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-tab-item>
+                    <v-tab-item>
+                      <v-card :loading="aufgabenLoading">
+                        <v-card-title>Aufgabensets</v-card-title>
+                        <v-divider></v-divider>
+                        <v-container class="ma-0 pa-0">
+                          <v-row class="mb-12" no-gutters>
+                            <v-col>
+                              <v-list flat>
+                                <v-list-item-group color="indigo">
+                                  <template v-for="(d, i) in aufgabenSet">
+                                    <v-list-item
+                                      link
+                                      :key="index"
+                                      @click="openFilter(d.type)"
+                                    >
+                                      <v-list-item-title>
+                                        Name: {{ d.nameAset }} Fokus:
+                                        {{ d.Fokus }}
+                                      </v-list-item-title>
+                                    </v-list-item>
+                                  </template>
+                                </v-list-item-group>
+                              </v-list>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card>
+                    </v-tab-item>
+                    <v-tab-item>
+                      <v-card>
+                        <v-card-title>Aufgaben</v-card-title>
+                        <v-divider></v-divider>
+                      </v-card>
+                    </v-tab-item>
+                  </v-tabs-items>
                 </v-card>
               </v-menu>
             </v-col>
@@ -393,10 +462,12 @@ import {
   SearchItems,
   TagOrteResults,
   LegendGlobal,
+  Phaen,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
 import { phaeModule } from "@/store/modules/phaenomene";
+import { aufgabenModule } from "@/store/modules/aufgaben";
 
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
@@ -463,11 +534,13 @@ export default class MapView extends Vue {
   TaM = tagModule;
   PM = phaeModule;
   LM = legendMod;
+  AM = aufgabenModule;
   searchInput: string = "";
   searchTerms: { type: SearchItems; content: any; name: string }[] = [];
-
+  optionTab = 0;
   selectionMenu: boolean = false;
 
+  phaenSelection = [];
   mapComp = null;
   selSearchModel = SearchItems.Alle;
   selSearchItem = [
@@ -561,11 +634,11 @@ export default class MapView extends Vue {
    * Proportionaler Kreis muss der Größe beim Zoom auch entsprechen
    * Skalierbalken für das Einstellen der Größe
    *
-   * Multiple Tag Suche mit einzeichnen von Kreisdiagramm
+   * Multiple Tag Suche mit einzeichnen von Kreisdiagramm (done)
    *
    * Predefined Tags für Ansichten
    *
-   * Farben aussuchen für Symbole
+   * Farben aussuchen für Symbole (done)
    *
    * Nach Phänomen filtern
    * Und daraus Aufgaben heraussuchen
@@ -583,6 +656,22 @@ export default class MapView extends Vue {
     return erhebungModule.erhebungen
       ? erhebungModule.erhebungen
       : ({} as ApiLocationResponse);
+  }
+
+  get aufgabenSet() {
+    return this.AM.aufgabenSet;
+  }
+
+  get aufgaben() {
+    return this.AM.aufgaben;
+  }
+
+  get aufgabenFromSet() {
+    return this.AM.aufgabenFromSet;
+  }
+
+  get aufgabenLoading() {
+    return this.AM.loading;
   }
 
   drawCircleDiagram(
@@ -705,11 +794,23 @@ export default class MapView extends Vue {
     return curr;
   }
 
+  searchAufgabeByPhaen() {
+    this.optionTab = 1;
+    const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
+    const cont = [] as number[];
+    for (const ele of elements) {
+      const e = ele.content as Phaen;
+      cont.push(e.id);
+    }
+    this.AM.fetchAufgabenSet({ ids: cont });
+  }
+
   onMapZoomUpdate() {
     this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
   }
 
   openFilter(type: SearchItems) {
+    this.phaenSelection = [];
     switch (type) {
       case SearchItems.Phaen:
         this.changeFilterMenuValue(
