@@ -1,8 +1,11 @@
 <template>
   <v-app>
-    <v-main>
+    <v-main
+      class="pa-0"
+      style="pa-0; postion: absolute; width: 100%; height: 100%"
+    >
       <template v-if="loggedIn">
-        <Navigation></Navigation>
+        <Navigation class="navbar"></Navigation>
         <router-view></router-view>
       </template>
       <template v-else>
@@ -60,3 +63,16 @@ export default class App extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .navbar {
+    opacity: 25%;
+    transition: opacity 0.5s ease-out;
+    -moz-transition: opacity 0.5s ease-out;
+    -webkit-transition: opacity 0.5s ease-out;
+    -o-transition: opacity 0.5s ease-out;
+  }
+
+  .navbar:hover {
+    opacity: 100%;
+  }
+</style>
