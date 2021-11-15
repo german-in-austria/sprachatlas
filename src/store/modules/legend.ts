@@ -32,11 +32,19 @@ class Legend extends VuexModule implements LegendState {
   ) {
     e.id = generateID();
     this.legend.push(e);
+    return e.id;
   }
 
   @Mutation
   editLegendElement(idx: number, content: LegendGlobal) {
     this.legend[idx] = content;
+  }
+
+  @Mutation
+  editLegendByID(content: LegendGlobal){
+    const sid = content.id;
+    const ele = this.legend.findIndex((el) => el.id === sid);
+    this.legend[ele] = content;
   }
 
   @Mutation
