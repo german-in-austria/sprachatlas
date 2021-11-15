@@ -28,6 +28,7 @@ export interface TagOrteResults {
   ortNamelang: string | null;
   lat: string | null;
   lon: string | null;
+  tagId: string | null;
 }
 
 export interface einzErhebung {
