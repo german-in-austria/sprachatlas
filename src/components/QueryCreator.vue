@@ -129,9 +129,9 @@
         </v-dialog>
         <v-list rounded>
           <v-subheader> Legenden </v-subheader>
-          <v-list-item-group v-model="selectedItem" color="primary">
-            <v-list-item v-for="(item, idx) in legends" :key="idx">
-              <v-list-item-content @click="viewLegend(idx, item)">
+          <v-list-item-group color="primary">
+            <v-list-item v-for="(item, idx) in queryLegend">
+              <v-list-item-content :key="idx" @click="viewLegend(idx, item)">
                 <v-list-item-title v-text="item.name">{{
                   item.name
                 }}</v-list-item-title>
@@ -156,16 +156,16 @@
                 role="group"
                 hide-dot
               >
-                <v-edit-dialog :return-value.sync="legName">
+                <v-edit-dialog :return-value.sync="focusLegend.name">
                   <h2>
-                    {{ legName }}
+                    {{ focusLegend.name }}
                     <v-btn icon color="blue"
                       ><v-icon>mdi-square-edit-outline</v-icon></v-btn
                     >
                   </h2>
                   <template v-slot:input>
                     <v-text-field
-                      v-model="legName"
+                      v-model="focusLegend.name"
                       label="Legendenname bearbeiten"
                       single-line
                       @keydown.enter="editLegName()"
@@ -217,10 +217,17 @@
 <script lang="ts">
 import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
+import { legendMod } from "@/store/modules/legend";
 import { TagTree } from "@/api/dioe-public-api";
 import TagView from "@/components/TagView.vue";
 import draggable from "vuedraggable";
-import { Job, Parameter, LegendList } from "@/static/apiModels";
+import {
+  Job,
+  Parameter,
+  LegendList,
+  SearchItems,
+  LegendGlobal,
+} from "@/static/apiModels";
 import * as LZ from "lz-string";
 
 @Component({
@@ -232,6 +239,8 @@ export default class QueryCreator extends Vue {
   showTimeline: boolean = false;
   dialog: boolean = false;
   selectedItem = null;
+
+  focusLegend: LegendGlobal = {} as LegendGlobal;
   focusParameter: Parameter[] = [];
   focusLegId: number = -1;
 
@@ -271,6 +280,7 @@ export default class QueryCreator extends Vue {
   mobility = ["Auto", "Zug", "Pferd"];
 
   TM = tagModule;
+  LM = legendMod;
 
   get jobs() {
     if (this.TM.jobList.length > 0) {
@@ -299,13 +309,24 @@ export default class QueryCreator extends Vue {
     return this.TM.parameters;
   }
 
+  get queryLegend() {
+    return this.LM.legend.filter((el) => el.type === SearchItems.Query);
+  }
+
   get legends() {
     return this.TM.legends;
   }
 
+  get globalLegend() {
+    return this.LM.legend;
+  }
+
+  get legendLoad() {
+    return this.LM.loading;
+  }
+
   editLegName() {
-    if (this.legName !== "" && this.focusLegId > -1)
-      this.TM.changeLegendName(this.legName, this.focusLegId);
+    if (this.focusLegend.name !== "") this.LM.editLegendByID(this.focusLegend);
   }
 
   checkEducation(pk: number) {
@@ -314,8 +335,23 @@ export default class QueryCreator extends Vue {
   }
 
   createlegend() {
-    this.legName = "Unbennante Legende";
+    const name = "Unbennante Legende";
+    const emptyLegend = {
+      color: "#F00",
+      size: 15,
+      type: SearchItems.Query,
+      content: null,
+      stroke: true,
+      strokeWidth: 1,
+      parameter: null,
+      layer: null,
+      vis: true,
+      name: name,
+    };
+    const id = this.LM.addLegendEntry(emptyLegend);
+    this.legName = name;
     this.focusParameter = [];
+    this.focusLegend = this.globalLegend[this.globalLegend.length - 1];
     this.focusLegId = -1;
     this.showTimeline = true;
   }
@@ -334,30 +370,34 @@ export default class QueryCreator extends Vue {
       this.paraName = "";
     }
 
-    const ageRange = [this.range[0], this.range[1]];
-    const newParameter: Parameter = {
-      name: this.paraName,
-      project: this.selProject,
-      gender: this.selGender,
-      education: this.selEducation,
-      parents: this.selParents,
-      job: this.selJob,
-      tagList: this.TM.tagSelection,
-      token: this.selToken,
-      ageRange: ageRange,
-      color: this.paraColor === null ? "" : this.paraColor.hex,
-    };
-    this.TM.addLegendParameter({
-      parameter: newParameter,
-      lname: this.legName,
-    });
-    const para = LZ.compressToEncodedURIComponent(JSON.stringify(this.legends));
-    this.$router.push({
-      path: "query",
-      query: { parameters: para },
-    });
-    if (clear) this.dialog = false;
-    this.clearForm();
+    if (this.focusLegend && this.focusLegend.parameter) {
+      const ageRange = [this.range[0], this.range[1]];
+      const newParameter: Parameter = {
+        name: this.paraName,
+        project: this.selProject,
+        gender: this.selGender,
+        education: this.selEducation,
+        parents: this.selParents,
+        job: this.selJob,
+        tagList: this.TM.tagSelection,
+        token: this.selToken,
+        ageRange: ageRange,
+        color: this.paraColor === null ? "" : this.paraColor.hex,
+      };
+      this.focusLegend.parameter.push(newParameter);
+      this.LM.editLegendByID(this.focusLegend);
+      this.focusParameter.push(newParameter);
+      /*
+      const para = LZ.compressToEncodedURIComponent(
+        JSON.stringify(this.legends)
+      );
+      this.$router.push({
+        path: "query",
+        query: { parameters: para },
+      });*/
+      if (clear) this.dialog = false;
+      this.clearForm();
+    }
   }
 
   beforeCreate() {
