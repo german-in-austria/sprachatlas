@@ -93,6 +93,7 @@ export enum SearchItems {
   Tag,
   Ort,
   Phaen,
+  Query,
   Alle
 }
 
@@ -106,11 +107,11 @@ export interface LegendGlobal {
   id: string;
   color: string;
   size: number;
-  type: SearchItems;
+  type: SearchItems | null;
   content: any;
   stroke: boolean;
   strokeWidth: number;
-  parameter: Parameter | null;
+  parameter: Parameter[] | null;
   layer: L.LayerGroup | null;
   vis: boolean;
   name: string
