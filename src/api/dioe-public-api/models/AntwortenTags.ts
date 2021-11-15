@@ -9,5 +9,7 @@ export type AntwortenTags = {
     dateipfad: string | null;
     audiofile: string | null;
     tagId: number;
+    osmid: string | null;
+    tagName: string | null;
     tagNum: string | null;
 }

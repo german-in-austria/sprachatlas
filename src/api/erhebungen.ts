@@ -30,10 +30,12 @@ export const getAudioErhebung = (
 // Audio request: <audio src="https://url.com/file.ogg#t=5.20,7.35">
 export const getSingleAudioFile = (
   path: string,
-  filename: string
+  filename: string,
+  start?: number,
+  stop?: number
 ): Promise<AxiosResponse<any>> => {
   return api.dioeDB.get(
-    `private-media/${path}/${filename}`
+    `private-media/${path}/${filename}#t=${start},${stop}`
   )
 }
 
