@@ -241,6 +241,67 @@
         </v-btn>
       </v-flex>
     </v-layout>
+    <v-layout
+      class="map-overlay erhebung"
+      v-if="antwortenAudio && antwortenAudio.length > 0"
+    >
+      <v-card elevation="2">
+        <v-card-title>
+          Verfügbare Audioaufnahmen für {{ selectedOrt.ortName }}
+        </v-card-title>
+        <v-card-text>
+          <v-expansion-panels focusable>
+            <v-expansion-panel v-for="(item, idx) in antwortenAudio" :key="idx">
+              <v-expansion-panel-header>
+                {{ item.name }}
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-data-table
+                  hide-default-footer
+                  v-if="item.content.length > 0"
+                  :headers="audioInf"
+                  :items="item.content"
+                >
+                  <template v-slot:[`item.audio`]="{ item }">
+                    <figure>
+                      <figcaption>Aufnahme anhören:</figcaption>
+                      <audio
+                        controls
+                        loop
+                        :src="
+                          getAudioPath(
+                            item.Dateipfad,
+                            item.Audiofile,
+                            item.startAntwort.minutes,
+                            item.startAntwort.seconds,
+                            item.stopAntwort.minutes,
+                            item.stopAntwort.seconds
+                          )
+                        "
+                      ></audio>
+                    </figure>
+                  </template>
+                  <template
+                    v-slot:[`item.actions`]="{ item }"
+                    Konzept_von
+                    v-on:click="fetchTranscript(item.transcript.id)"
+                  >
+                    <template v-if="item.transcript">
+                      <v-btn v-on:click="fetchTranscript(item.transcript.id)">
+                        Transkript laden
+                      </v-btn>
+                    </template>
+                  </template>
+                  <template v-slot:[`item.komm`]="{ item }">
+                    {{ item.kommentar }}
+                  </template>
+                </v-data-table></v-expansion-panel-content
+              >
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
+      </v-card>
+    </v-layout>
     <v-layout class="map-overlay erhebung" v-if="currentErhebung">
       <v-card elevation="2">
         <v-card-text>
@@ -477,6 +538,7 @@ import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
 
 import { getOrtName } from "@/helpers/helper";
+import { AntwortenTags } from "@/api/dioe-public-api";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -487,10 +549,12 @@ type singleTag = {
   name: string;
   c: string;
   r: number;
+  id: string;
 };
 
 type circleData = {
   data: Array<singleTag>;
+  ortName: string;
   lat: number;
   lon: number;
   osm: number;
@@ -499,16 +563,10 @@ type circleData = {
   strokeWidth: number;
 };
 
-type tagDataObj = {
-  data: Array<singleTag> | ApiLocSingleResponse;
-  res: TagOrteResults[] | null;
-  size: number;
-  strokeWidth: number;
-  lat: number;
-  lon: number;
-  osm: number;
-  layer: L.LayerGroup | null;
-  type: SearchItems;
+type IAntwortenAudio = {
+  name: string | null;
+  tagid: number;
+  content: Array<AntwortenTags>;
 };
 
 @Component({
@@ -539,6 +597,7 @@ export default class MapView extends Vue {
   searchTerms: { type: SearchItems; content: any; name: string }[] = [];
   optionTab = 0;
   selectionMenu: boolean = false;
+  selectedOrt: circleData | null = null;
 
   phaenSelection = [];
   mapComp = null;
@@ -599,6 +658,12 @@ export default class MapView extends Vue {
     { text: "Aktionen", value: "actions" },
   ];
 
+  audioInf = [
+    { text: "Audio", value: "audio" },
+    { text: "Transskript", value: "trans" },
+    { text: "Kommentar", value: "komm" },
+  ];
+
   tileSets = [
     {
       name: "Humanitarian Open Tiles",
@@ -650,12 +715,77 @@ export default class MapView extends Vue {
    * Schöne Startseite gestalten
    */
 
+  /*
+   * Suche bei den Tags nach Generation im Suchfeld
+   * + Phänomene
+   * Stattdessen generationen wise hineinladen
+   * Aufgabensets können generell wegegelassen werden => Feature für Wissenschaftler (Für später)
+   * Tags in Tagsets => Vorgefertigte Tags
+   *
+   */
+
+  /*
+   ToDo till SFB Days
+    - Preset Tagsets
+   Tag zusammenwerfen:
+    - Sozialdaten herauswerfen
+    - Tag funktionalität beibehalten
+    - 
+    Legende erstellen:
+    Vorschau bzw soziale Daten ausgrauen
+    Token suche (Als Expertenmodus vorschau)
+
+    An einem Ort
+    Aufnahmen zu einem Ort => nach Symbol
+
+    Design:
+    Saubere Gestaltung des gesamten Interface
+
+    Führungen durch das Tool:
+    - Stellen von Fragen
+    - Klang (Auswahl der verschiedenen Phänomenen; Ausschnitt aus den Tondateien, was da drinnen ist)
+    , Wortschatz
+    , Satzbau
+    - Orte selbst sollen nicht in der Legende stehen
+      => Ortsnamen ein- & ausblenden
+    Durchsuchen der untersuchten Gemeinden
+
+    Streamlining für den User
+
+    Sprachkarten sollen auf den Tags basieren (bzw auf deren Ebene)
+    Auswertung dafür (Über die Legende) mit Vorschau für den Expertenmodus
+
+    Suchfeld => Soll nicht in der Legende landen; Markiert werden wenn dieser gesucht wird
+    Extra box um die Orte ein & auszublenden
+
+    Legende ein & ausblenden
+
+    Suche:
+    visueller Hinweis für die Orte bei der Suche, damit diese unterscheidbar sind
+    Nadel Ort; Notetag für Tags / Palette; Phäno  
+    Fragebuch als Buch 
+
+   */
+
   selectedTileSet = 2;
 
   get erhebungen() {
     return erhebungModule.erhebungen
       ? erhebungModule.erhebungen
       : ({} as ApiLocationResponse);
+  }
+
+  getAudioPath(
+    path: string,
+    file: string,
+    startMin: number,
+    startSec: number,
+    stopMin: number,
+    stopSec: number
+  ) {
+    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${
+      startMin * 60 + startSec
+    },${stopMin * 60 + stopSec}`;
   }
 
   get aufgabenSet() {
@@ -794,6 +924,19 @@ export default class MapView extends Vue {
     return curr;
   }
 
+  get antwortenAudio() {
+    const arr = this.AM.antwortenAudio;
+    const res = [] as IAntwortenAudio[];
+    [...new Set(arr.map((item) => item.tagId))].forEach((el) => {
+      res.push({
+        tagid: el,
+        content: arr.filter((e) => e.tagId === el),
+        name: arr.filter((e) => e.tagId === el)[0].tagName,
+      });
+    });
+    return res;
+  }
+
   searchAufgabeByPhaen() {
     this.optionTab = 1;
     const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
@@ -848,6 +991,7 @@ export default class MapView extends Vue {
     } else {
       this.LM.removeEntryById(el.id);
     }
+    this.displayCircle(el);
   }
 
   onLegendChange(layer: L.LayerGroup, el: LegendGlobal) {
@@ -983,54 +1127,62 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], 7);
   }
 
-  displayCircle(tags: LegendGlobal) {
+  displayCircle(tagsSingle: LegendGlobal) {
     const radius = 1;
-    // Layer where the data is going to be displayed
-    const layer = tags.layer ? tags.layer : L.layerGroup();
     // Legendarray with the filtered tag data
+    const tags = this.legendGlobal.filter((el) => el.type === SearchItems.Tag);
     // Array for the extracted Tag data with geo data
     const data = [] as Array<circleData>;
     // Iterate through the array and sort by geo data
     // Get the values for the diagram
-    const cont = tags.content as TagOrteResults[];
-    if (tags.vis) {
-      for (const tag of cont) {
-        const ort = data.findIndex(
-          (tD) =>
-            (tag.osmId && tag.osmId == tD.osm) ||
-            (tag.lat &&
-              tag.lat &&
-              tD.lon === Number(tag.lon) &&
-              tD.lat === Number(tag.lat))
-        );
-        if (ort > -1) {
-          // Element with geodata already exists in data
-          const curTag = data[ort];
-          if (isArray(curTag.data))
-            curTag.data.push({
-              v: tag.numTag,
-              name: tag.tagName,
-              c: tags.color,
-            } as singleTag);
-        } else {
-          // Element doesnt exist and needs to be added
-          const newTagData: circleData = {
-            lat: Number(tag.lat),
-            lon: Number(tag.lon),
-            osm: tag.osmId ? tag.osmId : -1,
-            layer: layer,
-            size: 15,
-            strokeWidth: 1,
-            data: [
-              {
+    for (const ele of tags) {
+      // Layer where the data is going to be displayed
+      const layer = ele.layer ? ele.layer : L.layerGroup();
+      layer.clearLayers();
+      const cont = ele.content as TagOrteResults[];
+      if (ele.vis) {
+        for (const tag of cont) {
+          const ort = data.findIndex(
+            (tD) =>
+              (tag.osmId && tag.osmId == tD.osm) ||
+              (tag.lat &&
+                tag.lat &&
+                tD.lon === Number(tag.lon) &&
+                tD.lat === Number(tag.lat))
+          );
+          if (ort > -1) {
+            // Element with geodata already exists in data
+            const curTag = data[ort];
+            if (isArray(curTag.data))
+              curTag.data.push({
                 v: tag.numTag,
                 name: tag.tagName,
-                c: tags.color,
+                c: ele.color,
                 r: Math.sqrt(tag.numTag / Math.PI) * radius,
-              },
-            ] as singleTag[],
-          };
-          data.push(newTagData);
+                id: tag.tagId,
+              } as singleTag);
+          } else {
+            // Element doesnt exist and needs to be added
+            const newTagData: circleData = {
+              lat: Number(tag.lat),
+              lon: Number(tag.lon),
+              osm: tag.osmId ? tag.osmId : -1,
+              ortName: tag.ortNamelang ? tag.ortNamelang : "",
+              layer: layer,
+              size: 15,
+              strokeWidth: 1,
+              data: [
+                {
+                  v: tag.numTag,
+                  name: tag.tagName,
+                  c: ele.color,
+                  r: Math.sqrt(tag.numTag / Math.PI) * radius,
+                  id: tag.tagId,
+                },
+              ] as singleTag[],
+            };
+            data.push(newTagData);
+          }
         }
       }
     }
@@ -1050,9 +1202,19 @@ export default class MapView extends Vue {
           true
         ),
       });
-      L.marker([ort.lat, ort.lon], { icon: circleIcon }).addTo(layer);
+      L.marker([ort.lat, ort.lon], { icon: circleIcon })
+        .addTo(ort.layer)
+        .on("click", (e) => {
+          const ids = [];
+          for (const tag of ort.data) {
+            const id = tag.id ? Number(tag.id) : -1;
+            if (id != -1) ids.push(id);
+          }
+          this.selectedOrt = ort;
+          this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+        });
       // @ts-ignore
-      this.map.addLayer(layer);
+      this.map.addLayer(ort.layer);
     }
   }
 
