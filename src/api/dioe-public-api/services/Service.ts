@@ -1,6 +1,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { antwortenDto } from '../models/antwortenDto';
+import type { AntwortenTags } from '../models/AntwortenTags';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
@@ -10,6 +12,7 @@ import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
 import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
 import type { ISelectTagsLayersResult } from '../models/ISelectTagsLayersResult';
+import type { tagDto } from '../models/tagDto';
 import type { TagTree } from '../models/TagTree';
 import { request as __request } from '../core/request';
 
@@ -50,6 +53,22 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/tags/ort/${tagId}`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectOrtTagsResult Ok
+     * @throws ApiError
+     */
+    public static async getTagOrteMultiple(
+        requestBody: tagDto,
+    ): Promise<Array<ISelectOrtTagsResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/tags/ort`,
+            body: requestBody,
         });
         return result.body;
     }
@@ -162,6 +181,22 @@ export class Service {
         const result = await __request({
             method: 'POST',
             path: `/aufgaben/setaufgabe`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns AntwortenTags Ok
+     * @throws ApiError
+     */
+    public static async getAntByTags(
+        requestBody: antwortenDto,
+    ): Promise<Array<AntwortenTags>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/antworten/tags`,
             body: requestBody,
         });
         return result.body;
