@@ -469,7 +469,15 @@
     </v-layout>
 
     <l-map
-      style="z-index: 0; position: absolute; left: 0; top: 0; right: 0"
+      style="
+        z-index: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+      "
       v-if="!loading"
       :zoom.sync="zoom"
       :center.sync="center"
@@ -767,7 +775,7 @@ export default class MapView extends Vue {
 
    */
 
-  selectedTileSet = 2;
+  selectedTileSet = 0;
 
   get erhebungen() {
     return erhebungModule.erhebungen
@@ -1400,6 +1408,7 @@ export default class MapView extends Vue {
   html {
     overflow: hidden;
   }
+
   .map-overlay {
     position: absolute;
     z-index: 1;
@@ -1416,6 +1425,7 @@ export default class MapView extends Vue {
     position: relative;
     z-index: 1;
     width: 100%;
+    margin-top: 100px;
   }
 
   .erhebung {
