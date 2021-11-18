@@ -50,6 +50,16 @@ class Aufgaben extends VuexModule implements AufgabenState{
         this.aufgabenFromSet = [];
     }
 
+    @Mutation
+    clearAntworten() {
+        this.antwortenAudio = [];
+    }
+
+    @Mutation
+    setLoading(val: boolean) {
+        this.loading = val;
+    }
+
     @MutationAction({ mutate: ['aufgabenSet', 'loading']})
     async fetchAufgabenSet(arg: {ids: number[] }){
         this.loading = true;
@@ -82,8 +92,11 @@ class Aufgaben extends VuexModule implements AufgabenState{
 
     @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
     async fetchAntwortAudio(arg: {ids: number[], osmId: number }){
-        this.loading = true;
+        // @ts-ignore
+        this.commit('setLoading', true);
+        console.log("Getting Antworten");
         const res = await api.dioePublic.getAntByTags(arg);
+        console.log("Done!");
         return {
             antwortenAudio: res,
             loading: false

@@ -1,7 +1,11 @@
 <template>
   <div>
     <v-layout>
-      <v-card outlined elevation="2" class="search-overlay justify-center">
+      <v-card
+        outlined
+        elevation="2"
+        class="search-overlay justify-center rounded-lg"
+      >
         <v-container class="ma-0 pa-5">
           <v-row>
             <v-col cols="6">
@@ -241,11 +245,19 @@
         </v-btn>
       </v-flex>
     </v-layout>
-    <v-layout
-      class="map-overlay erhebung"
-      v-if="antwortenAudio && antwortenAudio.length > 0"
-    >
-      <v-card elevation="2">
+    <v-layout class="map-overlay erhebung">
+      <v-skeleton-loader
+        min-width="500"
+        type="article, actions"
+        v-if="aufgabenLoading"
+      >
+      </v-skeleton-loader>
+      <v-card
+        elevation="2"
+        v-else-if="
+          antwortenAudio && antwortenAudio.length > 0 && !aufgabenLoading
+        "
+      >
         <v-card-title>
           Verfügbare Audioaufnahmen für {{ selectedOrt.ortName }}
         </v-card-title>
@@ -281,16 +293,8 @@
                       ></audio>
                     </figure>
                   </template>
-                  <template
-                    v-slot:[`item.actions`]="{ item }"
-                    Konzept_von
-                    v-on:click="fetchTranscript(item.transcript.id)"
-                  >
-                    <template v-if="item.transcript">
-                      <v-btn v-on:click="fetchTranscript(item.transcript.id)">
-                        Transkript laden
-                      </v-btn>
-                    </template>
+                  <template v-slot:[`item.actions`]="{ item }" Konzept_von>
+                    Ortho: {{ item.ortho }} Text Ortho: {{ item.orthoText }}
                   </template>
                   <template v-slot:[`item.komm`]="{ item }">
                     {{ item.kommentar }}
@@ -885,7 +889,7 @@ export default class MapView extends Vue {
   }
 
   get autoCompleteLoading() {
-    return erhebungModule.loading && tagModule.loading;
+    return erhebungModule.loading && tagModule.loading && this.AM.loading;
   }
 
   get einzelErhebungen() {
@@ -942,6 +946,7 @@ export default class MapView extends Vue {
         name: arr.filter((e) => e.tagId === el)[0].tagName,
       });
     });
+    console.log(res);
     return res;
   }
 
@@ -994,6 +999,7 @@ export default class MapView extends Vue {
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     const l = el.layer;
     l?.clearLayers();
+    this.AM.clearAntworten();
     if (idx) {
       this.LM.removeEntryByIdx(idx);
     } else {
