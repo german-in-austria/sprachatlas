@@ -11,5 +11,7 @@ export type AntwortenTags = {
     tagId: number;
     osmid: string | null;
     tagName: string | null;
+    ortho: string | null;
+    orthoText: string | null;
     tagNum: string | null;
 }
