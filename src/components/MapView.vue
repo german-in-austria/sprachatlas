@@ -220,7 +220,7 @@
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
-    <v-layout class="map-overlay pa-4">
+    <v-layout class="map-overlay pa-5">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
           <v-icon>mdi-plus</v-icon>
@@ -228,83 +228,111 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
-        <v-btn
-          fab
-          small
-          @click="
-            center = defaultCenter;
-            zoom = defaultZoom;
-          "
-        >
+        <v-btn fab small class="zoom" @click="resetMap()">
           <v-icon>mdi-home</v-icon>
         </v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
-        <v-btn elevation="4" fab @click="sideBar = !sideBar">
+        <v-btn small fab @click="sideBar = !sideBar">
           <v-icon>mdi-layers</v-icon>
         </v-btn>
       </v-flex>
     </v-layout>
-    <v-layout class="map-overlay erhebung">
-      <v-skeleton-loader
-        min-width="500"
-        type="article, actions"
-        v-if="aufgabenLoading"
+    <transition name="layout-slide">
+      <v-layout class="map-overlay erhebung" v-if="showAudio">
+        <template v-if="aufgabenLoading">
+          <v-skeleton-loader min-width="500" type="article, actions">
+          </v-skeleton-loader>
+        </template>
+        <template
+          v-else-if="
+            antwortenAudio && antwortenAudio.length > 0 && !aufgabenLoading
+          "
+        >
+          <transition name="expand-slide" appear>
+            <v-card elevation="2">
+              <v-card-title>
+                Verfügbare Audioaufnahmen für
+                {{ selectedOrt.ortName.split(",")[0] }}
+                <v-spacer></v-spacer>
+                <v-btn icon color="indigo" @click="showAudio = !showAudio">
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-text>
+                <v-expansion-panels focusable>
+                  <v-expansion-panel
+                    v-for="(item, idx) in antwortenAudio"
+                    :key="idx"
+                  >
+                    <v-expansion-panel-header>
+                      {{ item.name }}
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content eager>
+                      <v-data-table
+                        v-if="item.content.length > 0"
+                        :headers="audioInf"
+                        :items="item.content"
+                      >
+                        <template v-slot:[`item.audio`]="{ item }">
+                          <figure>
+                            <figcaption>Aufnahme anhören:</figcaption>
+                            <audio
+                              controls
+                              loop
+                              :src="
+                                getAudioPath(
+                                  item.Dateipfad,
+                                  item.Audiofile,
+                                  item.startAntwort.minutes,
+                                  item.startAntwort.seconds,
+                                  item.stopAntwort.minutes,
+                                  item.stopAntwort.seconds
+                                )
+                              "
+                            ></audio>
+                          </figure>
+                        </template>
+                        <template v-slot:[`item.trans`]="{ item }">
+                          Ortho: {{ item.ortho }} <br />Text Ortho:
+                          {{ item.orthoText }}
+                        </template>
+                        <template v-slot:[`item.komm`]="{ item }">
+                          {{ item.kommentar }}
+                        </template>
+                      </v-data-table></v-expansion-panel-content
+                    >
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-card-text>
+            </v-card>
+          </transition>
+        </template>
+      </v-layout>
+    </transition>
+    <v-layout class="map-overlay buttons">
+      <template
+        v-if="!showAudio && antwortenAudio && antwortenAudio.length > 0"
       >
-      </v-skeleton-loader>
-      <v-card
-        elevation="2"
-        v-else-if="
-          antwortenAudio && antwortenAudio.length > 0 && !aufgabenLoading
-        "
-      >
-        <v-card-title>
-          Verfügbare Audioaufnahmen für {{ selectedOrt.ortName }}
-        </v-card-title>
-        <v-card-text>
-          <v-expansion-panels focusable>
-            <v-expansion-panel v-for="(item, idx) in antwortenAudio" :key="idx">
-              <v-expansion-panel-header>
-                {{ item.name }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-data-table
-                  hide-default-footer
-                  v-if="item.content.length > 0"
-                  :headers="audioInf"
-                  :items="item.content"
-                >
-                  <template v-slot:[`item.audio`]="{ item }">
-                    <figure>
-                      <figcaption>Aufnahme anhören:</figcaption>
-                      <audio
-                        controls
-                        loop
-                        :src="
-                          getAudioPath(
-                            item.Dateipfad,
-                            item.Audiofile,
-                            item.startAntwort.minutes,
-                            item.startAntwort.seconds,
-                            item.stopAntwort.minutes,
-                            item.stopAntwort.seconds
-                          )
-                        "
-                      ></audio>
-                    </figure>
-                  </template>
-                  <template v-slot:[`item.actions`]="{ item }" Konzept_von>
-                    Ortho: {{ item.ortho }} Text Ortho: {{ item.orthoText }}
-                  </template>
-                  <template v-slot:[`item.komm`]="{ item }">
-                    {{ item.kommentar }}
-                  </template>
-                </v-data-table></v-expansion-panel-content
-              >
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              fab
+              dark
+              small
+              v-bind="attrs"
+              v-on="on"
+              @click="showAudio = !showAudio"
+            >
+              <v-icon>mdi-chevron-double-up</v-icon>
+            </v-btn>
+          </template>
+          <span>
+            Verfügbare Audioaufnahmen für
+            {{ selectedOrt.ortName.split(",")[0] }}
+          </span>
+        </v-tooltip>
+      </template>
     </v-layout>
     <v-layout class="map-overlay erhebung" v-if="currentErhebung">
       <v-card elevation="2">
@@ -610,6 +638,7 @@ export default class MapView extends Vue {
   optionTab = 0;
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
+  showAudio: boolean = false;
 
   phaenSelection = [];
   mapComp = null;
@@ -672,7 +701,7 @@ export default class MapView extends Vue {
 
   audioInf = [
     { text: "Audio", value: "audio" },
-    { text: "Transskript", value: "trans" },
+    { text: "Transkript", value: "trans" },
     { text: "Kommentar", value: "komm" },
   ];
 
@@ -946,7 +975,6 @@ export default class MapView extends Vue {
         name: arr.filter((e) => e.tagId === el)[0].tagName,
       });
     });
-    console.log(res);
     return res;
   }
 
@@ -1205,8 +1233,10 @@ export default class MapView extends Vue {
       if (ort.data.length < 2) {
         s = ort.data[0].r;
       }
+      const rad = (s * 2) / this.kmPerPixel;
       var circleIcon = L.icon({
         iconSize: [(s * 2) / this.kmPerPixel, (s * 2) / this.kmPerPixel],
+        className: "circle-draw",
         iconUrl: this.drawCircleDiagram(
           ort.size,
           0.5,
@@ -1216,7 +1246,9 @@ export default class MapView extends Vue {
           true
         ),
       });
-      L.marker([ort.lat, ort.lon], { icon: circleIcon })
+      L.marker([ort.lat, ort.lon], {
+        icon: circleIcon,
+      })
         .addTo(ort.layer)
         .on("click", (e) => {
           const ids = [];
@@ -1226,6 +1258,7 @@ export default class MapView extends Vue {
           }
           this.selectedOrt = ort;
           this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+          this.showAudio = true;
         });
       // @ts-ignore
       this.map.addLayer(ort.layer);
@@ -1427,6 +1460,12 @@ export default class MapView extends Vue {
     }
   }
 
+  .buttons {
+    margin-bottom: 0px;
+    bottom: 0px;
+    left: 25%;
+  }
+
   .search-overlay {
     position: relative;
     z-index: 1;
@@ -1452,7 +1491,7 @@ export default class MapView extends Vue {
   }
 
   .zoom {
-    margin: 5px;
+    margin: 10px;
   }
 
   .v-card {
@@ -1464,5 +1503,37 @@ export default class MapView extends Vue {
     flex-grow: 1;
     overflow: auto;
     overflow-y: scroll;
+  }
+
+  .expand-slide-enter-active {
+    transition: all 0.3s ease;
+    transition-property: width;
+  }
+
+  .expand-slide-enter, .expand-slide-leave-to
+                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+    transition: max-height 0.25s ease-out;
+    transition-property: width;
+  }
+
+  .circle-draw {
+    animation: 1s ease-out 0s 1 fadeIn;
+  }
+
+  .layout-slide-enter-active,
+  .layout-slide-leave-active {
+    -moz-transition-duration: 0.3s;
+    -webkit-transition-duration: 0.3s;
+    -o-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -moz-transition-timing-function: ease-in;
+    -webkit-transition-timing-function: ease-in;
+    -o-transition-timing-function: ease-in;
+    transition-timing-function: ease-in;
+  }
+
+  .layout-slide-fade-enter, .layout-slide-fade-leave-to
+                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+    transform: translateY(100px);
   }
 </style>
