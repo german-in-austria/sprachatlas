@@ -22,9 +22,9 @@ import { Component, Vue } from "vue-property-decorator";
 })
 export default class Navigation extends Vue {}
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   .navbar {
-    opacity: 50%;
+    opacity: 100%;
     transition: opacity 0.5s ease-out;
     -moz-transition: opacity 0.5s ease-out;
     -webkit-transition: opacity 0.5s ease-out;
