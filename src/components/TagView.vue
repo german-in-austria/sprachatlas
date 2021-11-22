@@ -87,13 +87,11 @@ export default class TagView extends Vue {
 
   beforeCreate() {
     if (tagModule.tagList == null) {
-      console.log("fetching Tags");
       tagModule.fetchTags();
     }
   }
 
   addChildTag(tag: TagSelection, idx: number) {
-    console.log(tag);
     this.selMode = true;
     this.itemTagList = tag.children;
     this.idx = idx;
@@ -117,26 +115,21 @@ export default class TagView extends Vue {
   }
 
   updateTag() {
-    console.log("Change!");
-    console.log(this.selTag);
-
     if (this.selTag) {
       if (
         this.selTag.parentIds &&
         this.selTag.parentIds.length > 0 &&
         this.idx > -1
       ) {
-        const parentId = this.selTag.parentIds[
-          this.selTag.parentIds.length - 1
-        ];
+        const parentId =
+          this.selTag.parentIds[this.selTag.parentIds.length - 1];
         const element = this.selectionTag[this.idx];
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = this.selTag.tagId;
         cT.tagAbbrev = this.selTag.tagAbbrev;
-        console.log(cT);
-        console.log(element);
         if (element) {
           element.tagGroup.push(cT);
+          element.tagIds.push(cT.tagId);
           element.children = this.selTag.children;
         }
       } else {
@@ -147,6 +140,7 @@ export default class TagView extends Vue {
 
         const tG: SingleTag[] = [cT];
         const tS: TagSelection = {} as TagSelection;
+        tS.tagIds = [cT.tagId];
         tS.tagGroup = tG;
         tS.parentId = cT.tagId;
         tS.children = this.selTag.children;

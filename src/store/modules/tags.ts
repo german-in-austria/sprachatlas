@@ -172,6 +172,17 @@ class Tags extends VuexModule implements TagState {
       loading: false
     }
   }
+
+  @MutationAction({ mutate: ['tagOrteResults', 'loading']})
+  async fetchTagOrteResultsMultiple (arg: {ids: number[]}){
+    this.loading = true;
+    const res = await api.dioePublic.getTagOrteMultiple(arg);
+    return {
+      tagOrteResults: res,
+      loading: false
+    }
+  }
+
   
   @MutationAction({ mutate: ['jobList', 'loading'] })
   async fetchJobs () {
