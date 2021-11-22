@@ -82,20 +82,22 @@
                     </template>
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-row>
-                      Erhebungen:
-                      <v-spacer class="mr-5 mt-5"></v-spacer>
-                      <v-chip class="white--text" small color="teal">
-                        {{ item.content.erhebungen.length }}</v-chip
-                      >
-                    </v-row>
-                    <v-row>
-                      Aufnahmen:
-                      <v-spacer class="mr-5 mt-5"></v-spacer>
-                      <v-chip class="white--text" small color="teal">
-                        {{ item.content.inferhebungen.length }}
-                      </v-chip>
-                    </v-row>
+                    <template v-if="item.type === 1">
+                      <v-row>
+                        Erhebungen:
+                        <v-spacer class="mr-5 mt-5"></v-spacer>
+                        <v-chip class="white--text" small color="teal">
+                          {{ item.content.erhebungen.length }}</v-chip
+                        >
+                      </v-row>
+                      <v-row>
+                        Aufnahmen:
+                        <v-spacer class="mr-5 mt-5"></v-spacer>
+                        <v-chip class="white--text" small color="teal">
+                          {{ item.content.inferhebungen.length }}
+                        </v-chip>
+                      </v-row>
+                    </template>
                   </v-list-item-action>
                 </template>
               </v-autocomplete>
@@ -229,12 +231,22 @@
             <v-col>
               <v-spacer></v-spacer>
             </v-col>
+            <v-col v-if="selSearchModel === 0">
+              <v-select
+                solo
+                v-model="selGen"
+                :items="generation"
+                @change="changeTags()"
+                item-text="name"
+                item-value="value"
+              ></v-select>
+            </v-col>
             <v-col>
               <v-select
                 solo
                 v-model="selSearchModel"
                 :items="selSearchItem"
-                v-on:change="changeSearchTerms"
+                v-on:change="changeSearchTerms()"
                 item-text="name"
                 item-value="value"
               >
@@ -748,6 +760,15 @@ export default class MapView extends Vue {
     { name: "Tags", value: SearchItems.Tag },
     { name: "Phänomene", value: SearchItems.Phaen },
   ];
+  selGen = -1;
+  generation = [
+    { name: 4, value: 4 },
+    { name: 3, value: 3 },
+    { name: 2, value: 2 },
+    { name: 1, value: 1 },
+    { name: 0, value: 0 },
+    { name: "Alle Generationen", value: -1 },
+  ];
 
   filterOptionMenu = [
     { name: "Phänomene", type: SearchItems.Phaen },
@@ -1230,6 +1251,16 @@ export default class MapView extends Vue {
     }
   }
 
+  changeTags() {
+    if (this.selGen > -1) {
+      this.TaM.fetchGenTags({ gen: this.selGen }).then(() =>
+        this.changeSearchTerms()
+      );
+    } else {
+      this.TaM.fetchTags().then(() => this.changeSearchTerms());
+    }
+  }
+
   submitSearch() {
     if (this.displayData()) {
       // clear data of autocomplete
@@ -1624,7 +1655,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                          /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

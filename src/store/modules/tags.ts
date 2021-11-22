@@ -151,6 +151,18 @@ class Tags extends VuexModule implements TagState {
     }
   }
 
+  @MutationAction({ mutate: ['tagList', 'loading'] })
+  async fetchGenTags (arg : {gen: number}) {
+    this.loading = true
+    console.log('trying to fetch data')
+    const response = await api.dioePublic.getTagGen(arg.gen);
+    console.log('fetched data');
+    return {
+      tagList: response,
+      loading: false
+    }
+  }
+
   @MutationAction({mutate: ['tagOrteResults', 'loading']})
   async fetchTagOrteResults (arg: {tagId: number}){
     this.loading = true;
