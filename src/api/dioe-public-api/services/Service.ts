@@ -10,6 +10,7 @@ import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResul
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
 import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
+import type { ISelectSingleGenResult } from '../models/ISelectSingleGenResult';
 import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
 import type { ISelectTagsLayersResult } from '../models/ISelectTagsLayersResult';
 import type { tagDto } from '../models/tagDto';
@@ -26,6 +27,24 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/tags`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param gen
+     * @returns ISelectSingleGenResult Ok
+     * @throws ApiError
+     */
+    public static async getTagGen(
+        gen: number,
+    ): Promise<Array<ISelectSingleGenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/tags/gen`,
+            query: {
+                'gen': gen,
+            },
         });
         return result.body;
     }

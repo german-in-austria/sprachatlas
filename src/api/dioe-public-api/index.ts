@@ -13,6 +13,7 @@ export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult
 export type { ISelectOrtTagsResult } from './models/ISelectOrtTagsResult';
 export type { ISelectPhaenBerResult } from './models/ISelectPhaenBerResult';
 export type { ISelectPhaenResult } from './models/ISelectPhaenResult';
+export type { ISelectSingleGenResult } from './models/ISelectSingleGenResult';
 export type { ISelectSinglePhaenResult } from './models/ISelectSinglePhaenResult';
 export type { ISelectTagsLayersResult } from './models/ISelectTagsLayersResult';
 export type { numberArray } from './models/numberArray';
