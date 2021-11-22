@@ -26,6 +26,78 @@
                 @change="submitSearch()"
                 @click:clear="closeInfCard()"
               >
+                <template v-slot:no-data>
+                  <v-list-item v-if="selSearchModel === 1">
+                    <v-list-item-title>
+                      Suche für alle <strong>Orte</strong>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item v-else-if="selSearchModel === 0">
+                    <v-list-item-title>
+                      Suche über alle <strong>Tags</strong>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item v-else-if="selSearchModel === 2">
+                    <v-list-item-title>
+                      Suche für alle <strong>Phänomene</strong>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item v-else>
+                    <v-list-item-title>
+                      Suche über alle verfügbaren Daten
+                    </v-list-item-title>
+                  </v-list-item>
+                </template>
+                <template v-slot:item="{ item }">
+                  <v-list-item-avatar>
+                    <template v-if="item.type === 1">
+                      <v-icon>mdi-map-marker</v-icon>
+                    </template>
+                    <template v-else-if="item.type === 0">
+                      <v-icon>mdi-tag</v-icon>
+                    </template>
+                    <template v-else-if="item.type === 2">
+                      <v-icon>mdi-pandora</v-icon>
+                    </template>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <template v-if="item.type === 0">
+                      <v-list-item-title v-text="item.name"></v-list-item-title>
+                      <v-list-item-subtitle
+                        >{{
+                          item.content.tagGene
+                        }}.Generation</v-list-item-subtitle
+                      >
+                    </template>
+                    <template v-else-if="item.type === 1">
+                      <v-list-item-title
+                        v-text="getOrtNameTemplate(item.name).name"
+                      ></v-list-item-title>
+                      <v-list-item-subtitle>{{
+                        item.name
+                      }}</v-list-item-subtitle>
+                    </template>
+                    <template v-else>
+                      <v-list-item-title v-text="item.name"></v-list-item-title>
+                    </template>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-row>
+                      Erhebungen:
+                      <v-spacer class="mr-5 mt-5"></v-spacer>
+                      <v-chip class="white--text" small color="teal">
+                        {{ item.content.erhebungen.length }}</v-chip
+                      >
+                    </v-row>
+                    <v-row>
+                      Aufnahmen:
+                      <v-spacer class="mr-5 mt-5"></v-spacer>
+                      <v-chip class="white--text" small color="teal">
+                        {{ item.content.inferhebungen.length }}
+                      </v-chip>
+                    </v-row>
+                  </v-list-item-action>
+                </template>
               </v-autocomplete>
             </v-col>
             <v-col cols="2">
@@ -172,54 +244,81 @@
         </v-container>
       </v-card>
     </v-layout>
-    <v-navigation-drawer :value="sideBar" permanent right app v-if="sideBar">
-      <v-card elevation="0">
-        <v-card-title> Karten </v-card-title>
-        <v-card-text>
-          <v-select
-            v-model="selectedTileSet"
-            :items="items"
-            item-text="name"
-            item-value="value"
-            label="Tileset auswählen"
-          ></v-select>
-          <v-checkbox
-            v-model="showBundesl"
-            hide-details
-            label="Bundesländergrenzen einblenden"
-          />
-          <v-checkbox
-            v-model="showGemeinden"
-            hide-details
-            label="untersuchte Gemeinden"
-          />
-          <v-checkbox
-            v-model="showDiaReg"
-            hide-details
-            label="Dialektregionen einblenden"
-          />
-        </v-card-text>
-      </v-card>
-      <v-divider style="clear: both; margin-top: 20px" />
-      <v-card elevation="0">
-        <v-card-title> Legenden </v-card-title>
-        <v-card-text>
-          <v-expansion-panels accordion>
-            <v-expansion-panel v-for="(item, idx) in legends" :key="idx">
-              <v-expansion-panel-header>{{
-                item.name
-              }}</v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <div v-for="(para, i) in item.parameter">
-                  {{ para.name }}
-                  <v-avatar :color="para.color" size="16"></v-avatar>
-                </div>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
-    </v-navigation-drawer>
+    <template>
+      <v-navigation-drawer :value="sideBar" permanent right app v-if="sideBar">
+        <v-card elevation="0">
+          <v-card-title> Karten </v-card-title>
+          <v-card-text>
+            <v-select
+              v-model="selectedTileSet"
+              :items="items"
+              item-text="name"
+              item-value="value"
+              label="Tileset auswählen"
+            ></v-select>
+            <v-checkbox
+              v-model="showBundesl"
+              hide-details
+              label="Bundesländergrenzen einblenden"
+            />
+            <v-checkbox
+              v-model="showGemeinden"
+              hide-details
+              label="untersuchte Gemeinden"
+            />
+            <v-checkbox
+              v-model="showDiaReg"
+              hide-details
+              label="Dialektregionen einblenden"
+            />
+          </v-card-text>
+        </v-card>
+        <v-divider style="clear: both; margin-top: 20px" />
+        <v-card elevation="0">
+          <v-card-title> Legenden </v-card-title>
+          <v-card-text>
+            <v-expansion-panels accordion>
+              <v-expansion-panel v-for="(item, idx) in legends" :key="idx">
+                <v-expansion-panel-header>{{
+                  item.name
+                }}</v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <div v-for="(para, i) in item.parameter">
+                    {{ para.name }}
+                    <v-avatar :color="para.color" size="16"></v-avatar>
+                  </div>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-navigation-drawer>
+      <div
+        class="map-overlay"
+        style="left: 50%; top: 50%; transform: translate(-50%, -50%)"
+      >
+        <template>
+          <v-fab-transition>
+            <v-btn
+              style="float: right; top: 25%"
+              :class="{ drawer: sideBar }"
+              class="drawer-right"
+              small
+              right
+              rounded
+              @click="sideBar = !sideBar"
+            >
+              <template v-if="sideBar">
+                <v-icon> mdi-chevron-double-right </v-icon>
+              </template>
+              <template v-else>
+                <v-icon> mdi-chevron-double-left</v-icon>
+              </template>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+      </div>
+    </template>
     <v-layout class="map-overlay pa-5">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
@@ -1108,6 +1207,10 @@ export default class MapView extends Vue {
     );
   }
 
+  getOrtNameTemplate(name: string): any {
+    return getOrtName(name);
+  }
+
   changeSearchTerms() {
     this.searchTerms = [];
     switch (this.selSearchModel) {
@@ -1460,6 +1563,16 @@ export default class MapView extends Vue {
     }
   }
 
+  .drawer {
+    margin-right: 250px;
+    z-index: 5;
+  }
+
+  .drawer-right {
+    border-top-right-radius: 0em;
+    border-bottom-right-radius: 0em;
+  }
+
   .buttons {
     margin-bottom: 0px;
     bottom: 0px;
@@ -1511,7 +1624,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                          /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
@@ -1532,8 +1645,8 @@ export default class MapView extends Vue {
     transition-timing-function: ease-in;
   }
 
-  .layout-slide-fade-enter, .layout-slide-fade-leave-to
-                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+  .layout-slide-fade-enter,
+  .layout-slide-fade-leave-to {
     transform: translateY(100px);
   }
 </style>

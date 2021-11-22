@@ -91,11 +91,11 @@ export interface JobList {
 }
 
 export enum SearchItems {
-  Tag,
-  Ort,
-  Phaen,
-  Query,
-  Alle
+  Tag, // 0
+  Ort, // 1
+  Phaen, // 2
+  Query, // 3
+  Alle // 4
 }
 
 export interface LegendList {
