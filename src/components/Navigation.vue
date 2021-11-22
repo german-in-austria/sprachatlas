@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app>
+  <v-app-bar class="navbar" app>
     <v-toolbar-title class="headline text-uppercase">
       <router-link tag="button" to="/">Sprachatlas</router-link>
     </v-toolbar-title>
@@ -23,4 +23,15 @@ import { Component, Vue } from "vue-property-decorator";
 export default class Navigation extends Vue {}
 </script>
 <style lang="scss" scoped>
+  .navbar {
+    opacity: 50%;
+    transition: opacity 0.5s ease-out;
+    -moz-transition: opacity 0.5s ease-out;
+    -webkit-transition: opacity 0.5s ease-out;
+    -o-transition: opacity 0.5s ease-out;
+  }
+
+  .navbar:hover {
+    opacity: 100%;
+  }
 </style>
