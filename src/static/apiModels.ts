@@ -18,6 +18,7 @@ export interface TagSelection {
   tagGroup: SingleTag[];
   parentId: number;
   children: Array<TagTree>;
+  tagIds: number[];
 }
 
 export interface TagOrteResults {
