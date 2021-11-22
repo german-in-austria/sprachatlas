@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="margin-top: 75px">
     <v-row>
       <v-col md="4">
         <v-btn color="primary" dark @click="createlegend()">
@@ -283,18 +283,7 @@ export default class QueryCreator extends Vue {
   LM = legendMod;
 
   get jobs() {
-    if (this.TM.jobList.length > 0) {
-      console.log(this.TM.jobList[2].bezeichnung);
-    }
-
     return this.TM.jobList;
-  }
-
-  viewLegend(idx: number, legend: LegendList) {
-    this.legName = legend.name;
-    this.focusParameter = legend.parameter;
-    this.focusLegId = idx;
-    if (!this.showTimeline) this.showTimeline = !this.showTimeline;
   }
 
   get tags() {
@@ -334,6 +323,16 @@ export default class QueryCreator extends Vue {
     this.selEducationAll = found;
   }
 
+  viewLegend(idx: number, legend: LegendGlobal) {
+    this.legName = legend.name;
+    this.focusParameter = legend.parameter
+      ? legend.parameter
+      : ([] as Parameter[]);
+    this.focusLegId = idx;
+    this.focusLegend = legend;
+    if (!this.showTimeline) this.showTimeline = !this.showTimeline;
+  }
+
   createlegend() {
     const name = "Unbennante Legende";
     const emptyLegend = {
@@ -370,7 +369,7 @@ export default class QueryCreator extends Vue {
       this.paraName = "";
     }
 
-    if (this.focusLegend && this.focusLegend.parameter) {
+    if (this.focusLegend) {
       const ageRange = [this.range[0], this.range[1]];
       const newParameter: Parameter = {
         name: this.paraName,
@@ -384,6 +383,10 @@ export default class QueryCreator extends Vue {
         ageRange: ageRange,
         color: this.paraColor === null ? "" : this.paraColor.hex,
       };
+      console.log(newParameter);
+      if (!this.focusLegend.parameter) {
+        this.focusLegend.parameter = [] as Parameter[];
+      }
       this.focusLegend.parameter.push(newParameter);
       this.LM.editLegendByID(this.focusLegend);
       this.focusParameter.push(newParameter);
@@ -416,7 +419,6 @@ export default class QueryCreator extends Vue {
         legend = new Function(
           "return [" + parameter?.substring(1, parameter.length - 1) + "];"
         )();
-        console.log(legend);
         tagModule.clearLegend();
         legend.forEach((element: { name: string; parameter: Parameter[] }) => {
           tagModule.addLegend({
@@ -424,11 +426,6 @@ export default class QueryCreator extends Vue {
             parameter: element.parameter,
           });
           // this.legName = element.name;
-          console.log({
-            name: element.name,
-            parameter: element.parameter,
-          });
-          console.log(element);
           tagModule.setParameters(element.parameter);
         });
       } else {
