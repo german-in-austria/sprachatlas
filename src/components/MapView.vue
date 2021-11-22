@@ -311,22 +311,34 @@
       >
         <template>
           <v-fab-transition>
-            <v-btn
-              style="float: right; top: 25%"
-              :class="{ drawer: sideBar }"
-              class="drawer-right"
-              small
-              right
-              rounded
-              @click="sideBar = !sideBar"
-            >
+            <v-tooltip left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  style="float: right; top: 25%"
+                  :class="{ drawer: sideBar }"
+                  class="drawer-right"
+                  small
+                  right
+                  rounded
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="sideBar = !sideBar"
+                >
+                  <template v-if="sideBar">
+                    <v-icon> mdi-chevron-double-right </v-icon>
+                  </template>
+                  <template v-else>
+                    <v-icon> mdi-chevron-double-left</v-icon>
+                  </template>
+                </v-btn>
+              </template>
               <template v-if="sideBar">
-                <v-icon> mdi-chevron-double-right </v-icon>
+                <span> Navigationsleiste schließen </span>
               </template>
               <template v-else>
-                <v-icon> mdi-chevron-double-left</v-icon>
+                <span> Navigationsleiste öffnen </span>
               </template>
-            </v-btn>
+            </v-tooltip>
           </v-fab-transition>
         </template>
       </div>
@@ -384,6 +396,10 @@
                         v-if="item.content.length > 0"
                         :headers="audioInf"
                         :items="item.content"
+                        hide-default-footer
+                        :items-per-page="
+                          items.content ? items.content.length : 15
+                        "
                       >
                         <template v-slot:[`item.audio`]="{ item }">
                           <figure>
@@ -428,9 +444,9 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              fab
-              dark
               small
+              rounded
+              class="drawer-down"
               v-bind="attrs"
               v-on="on"
               @click="showAudio = !showAudio"
@@ -510,10 +526,16 @@
         </v-card-text>
       </v-card>
     </v-layout>
-    <v-layout class="map-overlay legend" v-if="legendGlobal.length > 0">
+    <v-layout class="map-overlay legend" v-if="showLegend">
       <v-card elevation="2" class="mx-auto" max-width="300" min-width="250">
         <v-divider class="mx-4"></v-divider>
-        <v-card-title>Legende</v-card-title>
+        <v-card-title
+          >Legende
+          <v-spacer></v-spacer>
+          <v-btn icon color="indigo" @click="showLegend = !showLegend">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </v-card-title>
         <v-card-text class="mx-auto">
           <v-list class="transparent">
             <v-list-item v-for="(d, i) in legendGlobal">
@@ -610,7 +632,36 @@
         </v-card-text>
       </v-card>
     </v-layout>
-
+    <div
+      class="map-overlay"
+      style="left: 50%; top: 75%; transform: translate(-50%, -50%)"
+      v-if="!showLegend"
+    >
+      <template>
+        <v-fab-transition>
+          <v-tooltip left>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                style="float: right"
+                :class="{ drawer: showLegend }"
+                class="drawer-right"
+                small
+                right
+                rounded
+                v-bind="attrs"
+                v-on="on"
+                @click="showLegend = !showLegend"
+              >
+                <template>
+                  <v-icon> mdi-chevron-double-left</v-icon>
+                </template>
+              </v-btn>
+            </template>
+            <span> Legende anzeigen </span>
+          </v-tooltip>
+        </v-fab-transition>
+      </template>
+    </div>
     <l-map
       style="
         z-index: 0;
@@ -750,7 +801,7 @@ export default class MapView extends Vue {
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
   showAudio: boolean = false;
-
+  showLegend: boolean = false;
   phaenSelection = [];
   mapComp = null;
   selSearchModel = SearchItems.Alle;
@@ -1300,7 +1351,7 @@ export default class MapView extends Vue {
   resetMap() {
     this.zoom = defaultZoom;
     this.center = defaultCenter;
-    this.setMapToPoint(this.center[0], this.center[1], 7);
+    this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
   }
 
   displayCircle(tagsSingle: LegendGlobal) {
@@ -1473,6 +1524,7 @@ export default class MapView extends Vue {
   displayData() {
     const newLayer = L.layerGroup();
     this.clearLayer();
+    this.showLegend = true;
     if (this.searchTerm) {
       // @ts-ignore
       const map = this.$refs.map.mapObject;
@@ -1604,6 +1656,11 @@ export default class MapView extends Vue {
     border-bottom-right-radius: 0em;
   }
 
+  .drawer-down {
+    border-bottom-right-radius: 0em;
+    border-bottom-left-radius: 0em;
+  }
+
   .buttons {
     margin-bottom: 0px;
     bottom: 0px;
@@ -1655,7 +1712,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                    /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
