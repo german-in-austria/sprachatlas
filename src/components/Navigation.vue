@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar class="navbar" app>
+  <v-app-bar app>
     <v-toolbar-title class="headline text-uppercase">
       <router-link tag="button" to="/">Sprachatlas</router-link>
     </v-toolbar-title>
