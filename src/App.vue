@@ -65,7 +65,7 @@ export default class App extends Vue {
 </script>
 <style lang="scss" scoped>
   .navbar {
-    opacity: 25%;
+    opacity: 50%;
     transition: opacity 0.5s ease-out;
     -moz-transition: opacity 0.5s ease-out;
     -webkit-transition: opacity 0.5s ease-out;

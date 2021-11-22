@@ -726,6 +726,7 @@ import {
   TagOrteResults,
   LegendGlobal,
   Phaen,
+  Parameter,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
@@ -1489,10 +1490,42 @@ export default class MapView extends Vue {
     }
   }
 
+  displayParameters(para: Parameter[]) {
+    for (const p of para) {
+      if (p.tagList) {
+        const ids = [];
+        p.tagList.forEach((el) => {
+          this.TaM.fetchTagOrteResultsMultiple({ ids: el.tagIds });
+          // this.displayCircle(el.tagIds);
+        });
+      }
+    }
+  }
+
+  displayDataFromLegend(legend: LegendGlobal[]) {
+    // @ts-ignore
+    const map = this.$refs.map.mapObject;
+    this.clearLayer();
+    this.showLegend = true;
+    for (const l of legend) {
+      const layer = l.layer ? l.layer : L.layerGroup();
+      switch (l.type) {
+        case SearchItems.Tag:
+          this.displayCircle(l);
+          break;
+        case SearchItems.Ort:
+          this.displayOrt(map, layer);
+          break;
+        case SearchItems.Query:
+          if (l.parameter) this.displayParameters(l.parameter);
+          break;
+      }
+    }
+  }
+
   displayTag(map: any, layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
-      const tagName = this.searchTerm.content.tagName;
       const color = this.colors[this.colorid];
       const radius = 12;
       this.resetMap();
@@ -1539,6 +1572,7 @@ export default class MapView extends Vue {
       }
     } else {
       // TODO Add further error banner if data cant be loaded
+      // Also proper message intern
       console.log("Empty");
       return false;
     }
@@ -1608,7 +1642,8 @@ export default class MapView extends Vue {
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
 
-    if (this.tagList.length > 0) {
+    if (this.legendGlobal.length > 0) {
+      this.displayDataFromLegend(legendMod.legend);
     }
   }
 
@@ -1712,7 +1747,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                    /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
