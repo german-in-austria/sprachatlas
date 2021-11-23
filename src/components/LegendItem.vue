@@ -1,5 +1,11 @@
 <template>
-  <v-card elevation="2" class="mx-auto" max-width="300" min-width="250">
+  <v-card
+    v-if="vis"
+    elevation="2"
+    class="mx-auto"
+    max-width="300"
+    min-width="250"
+  >
     <v-divider class="mx-4"></v-divider>
     <v-card-title
       >Legende
