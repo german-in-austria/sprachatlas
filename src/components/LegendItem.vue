@@ -4,7 +4,7 @@
     <v-card-title
       >Legende
       <v-spacer></v-spacer>
-      <v-btn icon color="indigo" @click="vis = !vis">
+      <v-btn icon color="indigo" @click="updateVis()">
         <v-icon>mdi-minus</v-icon>
       </v-btn>
     </v-card-title>
@@ -118,9 +118,6 @@ import { LegendGlobal } from "../static/apiModels";
   name: "LegendItem",
 })
 export default class LegendItem extends Vue {
-  @Prop(String) readonly name!: string;
-  @Prop(String) readonly color!: string;
-  @Prop(Number) readonly size!: number;
   @Prop(Boolean) readonly vis!: boolean;
 
   LM = legendMod;
@@ -137,6 +134,10 @@ export default class LegendItem extends Vue {
 
   onLegendChange(layer: L.LayerGroup) {
     layer.clearLayers();
+  }
+
+  updateVis() {
+    this.$emit("update:vis", !this.vis);
   }
 }
 </script>
