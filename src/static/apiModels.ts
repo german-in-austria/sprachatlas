@@ -132,6 +132,7 @@ export interface Parameter {
   token?: string[];
   color?: string;
   operator?: string;
+  size?: number;
 }
 
 export interface InfResponse {
