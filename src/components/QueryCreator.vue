@@ -347,7 +347,7 @@ export default class QueryCreator extends Vue {
       vis: true,
       name: name,
     };
-    const id = this.LM.addLegendEntry(emptyLegend);
+    this.LM.addLegendEntry(emptyLegend);
     this.legName = name;
     this.focusParameter = [];
     this.focusLegend = this.globalLegend[this.globalLegend.length - 1];
@@ -383,7 +383,6 @@ export default class QueryCreator extends Vue {
         ageRange: ageRange,
         color: this.paraColor === null ? "" : this.paraColor.hex,
       };
-      console.log(newParameter);
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }

@@ -290,14 +290,17 @@
           <v-card-title> Legenden </v-card-title>
           <v-card-text>
             <v-expansion-panels accordion>
-              <v-expansion-panel v-for="(item, idx) in legends" :key="idx">
+              <v-expansion-panel
+                v-for="(item, idx) in legendGlobalQuery"
+                :key="idx"
+              >
                 <v-expansion-panel-header>{{
                   item.name
                 }}</v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <div v-for="(para, i) in item.parameter">
                     {{ para.name }}
-                    <v-avatar :color="para.color" size="16"></v-avatar>
+                    <v-avatar :color="para.color" size="20"></v-avatar>
                   </div>
                 </v-expansion-panel-content>
               </v-expansion-panel>
@@ -538,7 +541,9 @@
         </v-card-title>
         <v-card-text class="mx-auto">
           <v-list class="transparent">
-            <v-list-item v-for="(d, i) in legendGlobal">
+            <v-list-item
+              v-for="(d, i) in legendGlobal.filter((el) => el.type !== 3)"
+            >
               <v-list-item-icon>
                 <v-menu
                   ref="menu"
@@ -1030,6 +1035,10 @@ export default class MapView extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  get legendGlobalQuery() {
+    return this.LM.legend.filter((el) => el.type === SearchItems.Query);
   }
 
   get legendLoading() {
@@ -1747,7 +1756,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
