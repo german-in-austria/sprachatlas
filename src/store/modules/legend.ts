@@ -76,6 +76,18 @@ class Legend extends VuexModule implements LegendState {
   clearLegend() {
     this.legend = [];
   }
+
+  @Action
+  deleteLegendEntry(el: LegendGlobal, idx: number | null) {
+    const l = el.layer;
+    l?.clearLayers();
+    if (idx) {
+      this.context.commit("removeEntryByIdx", idx)
+    } else {
+      this.context.commit("removeEntryById", el.id);
+    }
+  }
+
 }
 
 export const legendMod = getModule(Legend);
