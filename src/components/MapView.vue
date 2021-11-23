@@ -530,112 +530,7 @@
       </v-card>
     </v-layout>
     <v-layout class="map-overlay legend" v-if="showLegend">
-      <v-card elevation="2" class="mx-auto" max-width="300" min-width="250">
-        <v-divider class="mx-4"></v-divider>
-        <v-card-title
-          >Legende
-          <v-spacer></v-spacer>
-          <v-btn icon color="indigo" @click="showLegend = !showLegend">
-            <v-icon>mdi-minus</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text class="mx-auto">
-          <v-list class="transparent">
-            <v-list-item
-              v-for="(d, i) in legendGlobal.filter((el) => el.type !== 3)"
-            >
-              <v-list-item-icon>
-                <v-menu
-                  ref="menu"
-                  v-model="menu"
-                  transition="scale-transition"
-                  :close-on-content-click="false"
-                  :return-value.sync="color"
-                  class="mx-auto pr-100"
-                >
-                  <!--
-                  TODO:
-                  In Komponente auslagern
-                  Und Daten von dort bearbeiten in Array
-                  Farben+Maße seperat pro Datensatz speichern 
-
-                  -->
-                  <template v-slot:activator="{ on }">
-                    <v-avatar v-on="on">
-                      <icon-circle
-                        :fillCol="d.color"
-                        :strokeWidth="d.strokeWidth"
-                      />
-                    </v-avatar>
-                  </template>
-                  <template>
-                    <v-card>
-                      <v-card-title>Farbe</v-card-title>
-                      <v-card-text @click="onLegendChange(d.layer, d)">
-                        <v-color-picker
-                          v-model="d.color"
-                          hide-inputs
-                        ></v-color-picker>
-                      </v-card-text>
-                      <v-divider class="mx-4"></v-divider>
-                      <v-card-title>Durchmesser</v-card-title>
-                      <v-card-text>
-                        {{ d.size }} px
-                        <v-slider
-                          v-model="d.size"
-                          hint="Durchmesser einstellen"
-                          min="2"
-                          max="50"
-                          @change="onLegendChange(d.layer, d)"
-                        ></v-slider
-                      ></v-card-text>
-                      <v-divider class="mx-4"></v-divider>
-                      <v-card-title>Durchmesser Rand</v-card-title>
-                      <v-card-text>
-                        {{ d.strokeWidth }} px
-                        <v-slider
-                          v-model="d.strokeWidth"
-                          hint="Durchmesser von Strich einstellen"
-                          min="1"
-                          max="10"
-                          @change="onLegendChange(d.layer, d)"
-                        ></v-slider
-                      ></v-card-text>
-                    </v-card>
-                  </template>
-                </v-menu>
-              </v-list-item-icon>
-              <v-list-item-content class="mx-auto">
-                {{ d.name }}
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-container>
-                  <v-row>
-                    <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
-                      <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn
-                      icon
-                      color="grey"
-                      @click="
-                        d.vis = !d.vis;
-                        onLegendChange(d.layer, d);
-                      "
-                    >
-                      <template v-if="d.vis">
-                        <v-icon>mdi-eye-outline</v-icon>
-                      </template>
-                      <template v-else>
-                        <v-icon>mdi-eye-off-outline</v-icon>
-                      </template>
-                    </v-btn>
-                  </v-row>
-                </v-container>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-      </v-card>
+      <LegendItem :vis.sync="showLegend"></LegendItem>
     </v-layout>
     <div
       class="map-overlay"
@@ -722,6 +617,8 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
 import * as geojson from "geojson";
 import { computePropCircle, drawCircleDiagram } from "@/helpers/MapCompute";
+import LegendItem from "@/components/LegendItem.vue";
+
 import {
   ApiLocationResponse,
   ApiLocSingleResponse,
@@ -788,6 +685,7 @@ type IAntwortenAudio = {
     LIcon,
     IconBase,
     IconCircle,
+    LegendItem,
   },
 })
 export default class MapView extends Vue {
@@ -1206,14 +1104,8 @@ export default class MapView extends Vue {
   }
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
-    const l = el.layer;
-    l?.clearLayers();
+    this.LM.deleteLegendEntry(el, idx);
     this.AM.clearAntworten();
-    if (idx) {
-      this.LM.removeEntryByIdx(idx);
-    } else {
-      this.LM.removeEntryById(el.id);
-    }
     this.displayCircle(el);
   }
 
@@ -1756,7 +1648,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
