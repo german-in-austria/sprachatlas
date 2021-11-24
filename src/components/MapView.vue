@@ -530,37 +530,38 @@
       </v-card>
     </v-layout>
     <v-layout class="map-overlay legend">
-      <LegendItem :vis.sync="showLegend"></LegendItem>
+      <LegendItem
+        v-on:callChange="onLegendChange"
+        :vis.sync="showLegend"
+      ></LegendItem>
     </v-layout>
     <div
       class="map-overlay"
       style="left: 50%; top: 75%; transform: translate(-50%, -50%)"
       v-if="!showLegend"
     >
-      <template>
-        <v-fab-transition>
-          <v-tooltip left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                style="float: right"
-                :class="{ drawer: showLegend }"
-                class="drawer-right"
-                small
-                right
-                rounded
-                v-bind="attrs"
-                v-on="on"
-                @click="showLegend = !showLegend"
-              >
-                <template>
-                  <v-icon> mdi-chevron-double-left</v-icon>
-                </template>
-              </v-btn>
-            </template>
-            <span> Legende anzeigen </span>
-          </v-tooltip>
-        </v-fab-transition>
-      </template>
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-slide-x-reverse-transition>
+            <v-btn
+              style="float: right"
+              :class="{ drawer: showLegend }"
+              class="drawer-right"
+              small
+              right
+              rounded
+              v-bind="attrs"
+              v-on="on"
+              @click="showLegend = !showLegend"
+            >
+              <template>
+                <v-icon> mdi-chevron-double-left</v-icon>
+              </template>
+            </v-btn>
+          </v-slide-x-reverse-transition>
+        </template>
+        <span> Legende anzeigen </span>
+      </v-tooltip>
     </div>
     <l-map
       style="
@@ -573,11 +574,10 @@
         height: 100%;
       "
       v-if="!loading"
-      :zoom.sync="zoom"
-      :center.sync="center"
+      :zoom="zoom"
+      :center="center"
       :options="mapOptions"
       ref="map"
-      @update:zoom="onMapZoomUpdate()"
     >
       <l-tile-layer :url="tileSetUrl" />
 
@@ -747,8 +747,6 @@ export default class MapView extends Vue {
 
   currentErhebung: ApiLocSingleResponse | null = null;
   showBundesl = false;
-  color: string = "";
-  menu = false;
   showGemeinden = false;
   showDiaReg = false;
   searchTerm: { type: SearchItems; content: any; name: string } | null = null;
@@ -1068,10 +1066,6 @@ export default class MapView extends Vue {
     this.AM.fetchAufgabenSet({ ids: cont });
   }
 
-  onMapZoomUpdate() {
-    this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
-  }
-
   openFilter(type: SearchItems) {
     this.phaenSelection = [];
     switch (type) {
@@ -1103,14 +1097,7 @@ export default class MapView extends Vue {
     this.filterMenuValue = [];
   }
 
-  deleteLegendEntry(el: LegendGlobal, idx: number | null) {
-    this.LM.deleteLegendEntry(el, idx);
-    this.AM.clearAntworten();
-    this.displayCircle(el);
-  }
-
-  onLegendChange(layer: L.LayerGroup, el: LegendGlobal) {
-    layer.clearLayers();
+  onLegendChange(el: LegendGlobal) {
     this.displayCircle(el);
   }
 
@@ -1155,8 +1142,6 @@ export default class MapView extends Vue {
   }
 
   clearLayer() {
-    // @ts-ignore
-    this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
     // @ts-ignore
     const map = this.$refs.map.mapObject;
     if (map.hasLayer(this.focusLayer)) {
@@ -1232,8 +1217,6 @@ export default class MapView extends Vue {
     size: number,
     layer: L.LayerGroup
   ) {
-    // @ts-ignore
-    const map = this.$refs.map.mapObject;
     const res = L.circleMarker([lat, lon], {
       color: color,
       radius: size,
@@ -1247,7 +1230,7 @@ export default class MapView extends Vue {
   setMapToPoint(lat: number, lon: number, zoom: number) {
     this.center = [lat, lon];
     this.zoom = zoom;
-    this.map.setView(new L.LatLng(lat, lon), zoom);
+    this.map.flyTo(this.center);
   }
 
   resetMap() {
@@ -1257,7 +1240,6 @@ export default class MapView extends Vue {
   }
 
   displayCircle(tagsSingle: LegendGlobal) {
-    const radius = 1;
     // Legendarray with the filtered tag data
     const tags = this.legendGlobal.filter((el) => el.type === SearchItems.Tag);
     // Array for the extracted Tag data with geo data
@@ -1287,7 +1269,7 @@ export default class MapView extends Vue {
                 v: tag.numTag,
                 name: tag.tagName,
                 c: ele.color,
-                r: Math.sqrt(tag.numTag / Math.PI) * radius,
+                r: Math.sqrt(tag.numTag / Math.PI) * ele.size,
                 id: tag.tagId,
               } as singleTag);
           } else {
@@ -1298,14 +1280,14 @@ export default class MapView extends Vue {
               osm: tag.osmId ? tag.osmId : -1,
               ortName: tag.ortNamelang ? tag.ortNamelang : "",
               layer: layer,
-              size: 15,
+              size: Math.sqrt(tag.numTag / Math.PI) * ele.size,
               strokeWidth: 1,
               data: [
                 {
                   v: tag.numTag,
                   name: tag.tagName,
                   c: ele.color,
-                  r: Math.sqrt(tag.numTag / Math.PI) * radius,
+                  r: Math.sqrt(tag.numTag / Math.PI) * ele.size,
                   id: tag.tagId,
                 },
               ] as singleTag[],
@@ -1322,7 +1304,7 @@ export default class MapView extends Vue {
       }
       const rad = (s * 2) / this.kmPerPixel;
       var circleIcon = L.icon({
-        iconSize: [(s * 2) / this.kmPerPixel, (s * 2) / this.kmPerPixel],
+        iconSize: [rad, rad],
         className: "circle-draw",
         iconUrl: this.drawCircleDiagram(
           ort.size,
@@ -1356,7 +1338,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = this.colors[this.colorid];
-      const radius = 15;
+      const radius = 100 * this.kmPerPixel;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
@@ -1364,12 +1346,12 @@ export default class MapView extends Vue {
         radius,
         layer
       );
-      circle.bindPopup(ort.ort_namelang.split(",")[0]).openPopup();
+      circle.bindPopup(ort.ort_namelang.split(",")[0]);
       this.loadErheb(ort);
-      this.setMapToPoint(Number(ort.lat), Number(ort.lon), 12);
+
       const newLegend = {
         color: color,
-        size: radius * this.kmPerPixel,
+        size: radius,
         type: SearchItems.Ort,
         content: {
           lat: Number(ort.lat),
@@ -1386,8 +1368,7 @@ export default class MapView extends Vue {
             : ort.ort_namekurz,
         layer: layer,
       };
-      this.LM.addLegendEntry(newLegend);
-      return true;
+      return newLegend;
     }
   }
 
@@ -1429,14 +1410,13 @@ export default class MapView extends Vue {
       const tag = this.searchTerm.content.tagId;
       const color = this.colors[this.colorid];
       const radius = 12;
-      this.resetMap();
       return this.loadTagOrt(tag).then((res) => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
           // const divFactor = Math.sqrt(ele.numTag / Math.PI);
           const newLegend = {
             color: color,
-            size: radius,
+            size: radius / this.kmPerPixel,
             type: SearchItems.Tag,
             content: curr,
             stroke: true,
@@ -1446,11 +1426,9 @@ export default class MapView extends Vue {
             name: curr[0].tagName,
             layer: layer,
           };
-          this.LM.addLegendEntry(newLegend);
-          const nL = this.legendGlobal[this.legendGlobal.length - 1];
-          this.displayCircle(nL);
+
+          return newLegend;
         }
-        return true;
       });
     }
   }
@@ -1464,9 +1442,19 @@ export default class MapView extends Vue {
       const map = this.$refs.map.mapObject;
       this.colorid++;
       if (this.searchTerm.type === SearchItems.Ort) {
-        return this.displayOrt(map, newLayer);
+        const leg = this.displayOrt(map, newLayer);
+        this.LM.addLegendEntry(leg);
+        this.setMapToPoint(
+          Number(leg?.content.lat),
+          Number(leg?.content.lon),
+          10
+        );
+        return true;
       } else if (this.searchTerm.type === SearchItems.Tag) {
-        return this.displayTag(map, newLayer);
+        this.resetMap();
+        this.LM.addLegendEntry(this.displayTag(map, newLayer));
+        this.displayCircle(this.legendGlobal[this.legendGlobal.length - 1]);
+        return true;
       }
       if (this.colorid >= this.colors.length) {
         this.colorid = 0;
@@ -1515,10 +1503,13 @@ export default class MapView extends Vue {
   }
 
   computeMPerPixel(center: number, zoom: number) {
-    this.kmPerPixel =
+    /*this.kmPerPixel =
       (40075016.686 * Math.abs(Math.cos((center * Math.PI) / 180))) /
       Math.pow(2, zoom + 8) /
       1000;
+      */
+    this.kmPerPixel =
+      (156543.03392 * Math.cos((center * Math.PI) / 180)) / Math.pow(2, zoom);
   }
 
   async loadTagOrt(tagId: number) {
@@ -1546,6 +1537,11 @@ export default class MapView extends Vue {
     if (this.legendGlobal.length > 0) {
       this.displayDataFromLegend(legendMod.legend);
     }
+
+    this.map.on("zoomend", (e: any) => {
+      this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
+      this.displayDataFromLegend(legendMod.legend);
+    });
   }
 
   created() {}
@@ -1648,7 +1644,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
