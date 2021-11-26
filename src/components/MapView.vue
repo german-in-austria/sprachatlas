@@ -937,6 +937,10 @@ export default class MapView extends Vue {
     return this.LM.legend.filter((el) => el.type === SearchItems.Query);
   }
 
+  get legendGlobalTag() {
+    return this.LM.legend.filter((el) => el.type === SearchItems.Tag);
+  }
+
   get legendLoading() {
     return this.LM.loading;
   }
@@ -1098,7 +1102,23 @@ export default class MapView extends Vue {
   }
 
   onLegendChange(el: LegendGlobal) {
-    this.displayCircle(el);
+    if (el.type === SearchItems.Tag) {
+      el.layer?.clearLayers();
+      this.displaySingleTagLegend(this.legendGlobalTag);
+    } else if (el.type === SearchItems.Ort) {
+      const lay = el.layer;
+      if (lay) {
+        lay.eachLayer((l) => {
+          if (l instanceof L.CircleMarker) {
+            l.setRadius(el.size);
+            l.setStyle({
+              color: el.color,
+              weight: el.strokeWidth,
+            });
+          }
+        });
+      }
+    }
   }
 
   flattenTagsArray(arr: any[]): any[] {
@@ -1142,10 +1162,8 @@ export default class MapView extends Vue {
   }
 
   clearLayer() {
-    // @ts-ignore
-    const map = this.$refs.map.mapObject;
-    if (map.hasLayer(this.focusLayer)) {
-      map.removeLayer(this.focusLayer);
+    if (this.map.hasLayer(this.focusLayer)) {
+      this.map.removeLayer(this.focusLayer);
       this.focusLayer?.clearLayers();
       this.searchInput = "";
       this.searchTerm = null;
@@ -1214,16 +1232,16 @@ export default class MapView extends Vue {
     lat: number,
     lon: number,
     color: string,
+    stroke: number,
     size: number,
     layer: L.LayerGroup
   ) {
     const res = L.circleMarker([lat, lon], {
       color: color,
       radius: size,
-      // @ts-ignore
+      weight: stroke,
     }).addTo(layer);
-    // @ts-ignore
-    this.$refs.map.mapObject.addLayer(layer);
+    this.map.addLayer(layer);
     return res;
   }
 
@@ -1239,9 +1257,85 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
   }
 
-  displayCircle(tagsSingle: LegendGlobal) {
-    // Legendarray with the filtered tag data
-    const tags = this.legendGlobal.filter((el) => el.type === SearchItems.Tag);
+  createCircleIcon(ort: circleData): L.Icon<L.IconOptions> {
+    let s = ort.size;
+    if (ort.data.length > 1) {
+      s = ort.data[0].r;
+    }
+    const rad = (s * 2) / this.kmPerPixel;
+    console.log(rad);
+    var circleIcon = L.icon({
+      iconSize: [rad, rad],
+      className: "circle-draw",
+      iconUrl: this.drawCircleDiagram(
+        24,
+        ort.strokeWidth,
+        "#000",
+        ort.data[0].c,
+        ort.data,
+        true
+      ),
+    });
+    return circleIcon;
+  }
+
+  extractTagData(
+    tags: TagOrteResults[],
+    color: string,
+    layer: L.LayerGroup,
+    vis: boolean,
+    size: number,
+    data: Array<circleData>
+  ): Array<circleData> {
+    if (vis) {
+      for (const tag of tags) {
+        const ort = data.findIndex(
+          (tD) =>
+            (tag.osmId && tag.osmId == tD.osm) ||
+            (tag.lat &&
+              tag.lat &&
+              tD.lon === Number(tag.lon) &&
+              tD.lat === Number(tag.lat))
+        );
+        if (ort > -1) {
+          // Element with geodata already exists in data
+          const curTag = data[ort];
+          if (isArray(curTag.data))
+            curTag.data.push({
+              v: tag.numTag,
+              name: tag.tagName,
+              c: color,
+              r: size,
+              id: tag.tagId,
+            } as singleTag);
+        } else {
+          // Element doesnt exist and needs to be added
+          const newTagData: circleData = {
+            lat: Number(tag.lat),
+            lon: Number(tag.lon),
+            osm: tag.osmId ? tag.osmId : -1,
+            ortName: tag.ortNamelang ? tag.ortNamelang : "",
+            layer: layer,
+            size: size,
+            strokeWidth: 1,
+            data: [
+              {
+                v: tag.numTag,
+                name: tag.tagName,
+                c: color,
+                r: size,
+                id: tag.tagId,
+              },
+            ] as singleTag[],
+          };
+          data.push(newTagData);
+        }
+      }
+    }
+    return data;
+  }
+
+  displaySingleTagLegend(tags: LegendGlobal[]) {
     // Array for the extracted Tag data with geo data
     const data = [] as Array<circleData>;
     // Iterate through the array and sort by geo data
@@ -1251,70 +1345,13 @@ export default class MapView extends Vue {
       const layer = ele.layer ? ele.layer : L.layerGroup();
       layer.clearLayers();
       const cont = ele.content as TagOrteResults[];
-      if (ele.vis) {
-        for (const tag of cont) {
-          const ort = data.findIndex(
-            (tD) =>
-              (tag.osmId && tag.osmId == tD.osm) ||
-              (tag.lat &&
-                tag.lat &&
-                tD.lon === Number(tag.lon) &&
-                tD.lat === Number(tag.lat))
-          );
-          if (ort > -1) {
-            // Element with geodata already exists in data
-            const curTag = data[ort];
-            if (isArray(curTag.data))
-              curTag.data.push({
-                v: tag.numTag,
-                name: tag.tagName,
-                c: ele.color,
-                r: Math.sqrt(tag.numTag / Math.PI) * ele.size,
-                id: tag.tagId,
-              } as singleTag);
-          } else {
-            // Element doesnt exist and needs to be added
-            const newTagData: circleData = {
-              lat: Number(tag.lat),
-              lon: Number(tag.lon),
-              osm: tag.osmId ? tag.osmId : -1,
-              ortName: tag.ortNamelang ? tag.ortNamelang : "",
-              layer: layer,
-              size: Math.sqrt(tag.numTag / Math.PI) * ele.size,
-              strokeWidth: 1,
-              data: [
-                {
-                  v: tag.numTag,
-                  name: tag.tagName,
-                  c: ele.color,
-                  r: Math.sqrt(tag.numTag / Math.PI) * ele.size,
-                  id: tag.tagId,
-                },
-              ] as singleTag[],
-            };
-            data.push(newTagData);
-          }
-        }
-      }
+      data.push.apply(
+        data,
+        this.extractTagData(cont, ele.color, layer, ele.vis, ele.size, data)
+      );
     }
     for (const ort of data) {
-      let s = ort.size;
-      if (ort.data.length < 2) {
-        s = ort.data[0].r;
-      }
-      const rad = (s * 2) / this.kmPerPixel;
-      var circleIcon = L.icon({
-        iconSize: [rad, rad],
-        className: "circle-draw",
-        iconUrl: this.drawCircleDiagram(
-          ort.size,
-          0.5,
-          "#000",
-          ort.data[0].c,
-          ort.data,
-          true
-        ),
-      });
+      const circleIcon = this.createCircleIcon(ort);
       L.marker([ort.lat, ort.lon], {
         icon: circleIcon,
       })
@@ -1334,15 +1371,16 @@ export default class MapView extends Vue {
     }
   }
 
-  displayOrt(map: any, layer: L.LayerGroup) {
+  displayOrt(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = this.colors[this.colorid];
-      const radius = 100 * this.kmPerPixel;
+      const radius = 50 * this.kmPerPixel;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
         color,
+        1,
         radius,
         layer
       );
@@ -1372,51 +1410,72 @@ export default class MapView extends Vue {
     }
   }
 
-  displayParameters(para: Parameter[]) {
-    for (const p of para) {
-      if (p.tagList) {
-        const ids = [];
-        p.tagList.forEach((el) => {
-          this.TaM.fetchTagOrteResultsMultiple({ ids: el.tagIds });
-          // this.displayCircle(el.tagIds);
-        });
+  displayParameters(queries: LegendGlobal[]) {
+    let idToTag = new Map();
+    for (const q of queries) {
+      const ids: number[] = [];
+      idToTag.set(q.id, [] as number[]);
+      if (q.parameter) {
+        for (const p of q.parameter) {
+          if (p.tagList) {
+            p.tagList.forEach((el) => {
+              idToTag.set(q.id, idToTag.get(q.id).push(el.tagIds));
+              ids.concat(el.tagIds);
+            });
+          }
+        }
+        this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)] }).then(
+          () => {
+            const tags = this.tagOrtResult;
+            const data = [] as Array<circleData>;
+            // data.push.apply(data, this.extractTagData(tags));
+          }
+        );
       }
     }
   }
 
   displayDataFromLegend(legend: LegendGlobal[]) {
-    // @ts-ignore
-    const map = this.$refs.map.mapObject;
     this.clearLayer();
     this.showLegend = true;
+    this.displaySingleTagLegend(this.legendGlobalTag);
+    this.displayParameters(this.legendGlobalQuery);
     for (const l of legend) {
       const layer = l.layer ? l.layer : L.layerGroup();
       switch (l.type) {
-        case SearchItems.Tag:
-          this.displayCircle(l);
-          break;
         case SearchItems.Ort:
-          this.displayOrt(map, layer);
-          break;
-        case SearchItems.Query:
-          if (l.parameter) this.displayParameters(l.parameter);
+          const ort: ApiLocSingleResponse = l.content;
+          const circle = this.addCircleMarkerToMap(
+            Number(ort.lat),
+            Number(ort.lon),
+            l.color,
+            l.strokeWidth,
+            l.size,
+            layer
+          );
+          circle.bindPopup(ort.ort_namelang.split(",")[0]);
           break;
       }
     }
   }
 
-  displayTag(map: any, layer: L.LayerGroup) {
+  createMultipleTagLegend(ids: Array<number>) {
+    this.TaM.fetchTagOrteResultsMultiple({ ids: ids }).then(() => {});
+  }
+
+  async createTagLegend(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const color = this.colors[this.colorid];
-      const radius = 12;
-      return this.loadTagOrt(tag).then((res) => {
+      const radius = 10;
+      return await this.loadTagOrt(tag).then(() => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
           // const divFactor = Math.sqrt(ele.numTag / Math.PI);
-          const newLegend = {
+          const newLegend: LegendGlobal = {
+            id: "",
             color: color,
-            size: radius / this.kmPerPixel,
+            size: radius,
             type: SearchItems.Tag,
             content: curr,
             stroke: true,
@@ -1426,7 +1485,6 @@ export default class MapView extends Vue {
             name: curr[0].tagName,
             layer: layer,
           };
-
           return newLegend;
         }
       });
@@ -1438,11 +1496,9 @@ export default class MapView extends Vue {
     this.clearLayer();
     this.showLegend = true;
     if (this.searchTerm) {
-      // @ts-ignore
-      const map = this.$refs.map.mapObject;
       this.colorid++;
       if (this.searchTerm.type === SearchItems.Ort) {
-        const leg = this.displayOrt(map, newLayer);
+        const leg = this.displayOrt(newLayer);
         this.LM.addLegendEntry(leg);
         this.setMapToPoint(
           Number(leg?.content.lat),
@@ -1452,8 +1508,10 @@ export default class MapView extends Vue {
         return true;
       } else if (this.searchTerm.type === SearchItems.Tag) {
         this.resetMap();
-        this.LM.addLegendEntry(this.displayTag(map, newLayer));
-        this.displayCircle(this.legendGlobal[this.legendGlobal.length - 1]);
+        this.createTagLegend(newLayer).then((res) => {
+          legendMod.addLegendEntry(res);
+          this.displaySingleTagLegend(this.legendGlobalTag);
+        });
         return true;
       }
       if (this.colorid >= this.colors.length) {
@@ -1509,7 +1567,9 @@ export default class MapView extends Vue {
       1000;
       */
     this.kmPerPixel =
-      (156543.03392 * Math.cos((center * Math.PI) / 180)) / Math.pow(2, zoom);
+      (156543.03392 * Math.cos((center * Math.PI) / 180)) /
+      Math.pow(2, zoom) /
+      1000;
   }
 
   async loadTagOrt(tagId: number) {
@@ -1644,7 +1704,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
