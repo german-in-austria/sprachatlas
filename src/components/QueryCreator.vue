@@ -374,18 +374,19 @@ export default class QueryCreator extends Vue {
       const newParameter: Parameter = {
         name: this.paraName,
         project: this.selProject,
-        gender: this.selGender,
-        education: this.selEducation,
+        gender: this.selGender === "Weiblich" ? true : false, // Boolean
+        education: this.selEducation, // ID
         parents: this.selParents,
         job: this.selJob,
         tagList: this.TM.tagSelection,
-        token: this.selToken,
-        ageRange: ageRange,
+        token: this.selToken, //
+        ageRange: ageRange, // Array 2 Number
         color: this.paraColor === null ? "" : this.paraColor.hex,
       };
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }
+      console.log(newParameter);
       this.focusLegend.parameter.push(newParameter);
       this.LM.editLegendByID(this.focusLegend);
       this.focusParameter.push(newParameter);
