@@ -123,7 +123,7 @@ export interface Parameter {
   name: string;
   project?: string;
   ageRange: number[];
-  gender?: string;
+  gender?: boolean;
   education?: string;
   parents?: string;
   mobility?: string;
