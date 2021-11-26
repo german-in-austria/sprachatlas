@@ -53,7 +53,7 @@
                         v-model="d.size"
                         hint="Durchmesser einstellen"
                         min="2"
-                        max="50"
+                        max="100"
                         @change="onLegendChange(d)"
                       ></v-slider
                     ></v-card-text>
@@ -139,7 +139,6 @@ export default class LegendItem extends Vue {
   }
 
   onLegendChange(el: LegendGlobal) {
-    el.layer?.clearLayers();
     this.$emit("callChange", el);
   }
 
