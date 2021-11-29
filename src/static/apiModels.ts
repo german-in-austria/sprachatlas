@@ -121,6 +121,9 @@ export interface LegendGlobal {
 
 export interface Parameter {
   name: string;
+  content: any;
+  id: string;
+  visible: boolean;
   project?: string;
   ageRange: number[];
   gender?: boolean;
