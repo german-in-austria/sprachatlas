@@ -283,6 +283,18 @@
               hide-details
               label="Dialektregionen einblenden"
             />
+            <v-checkbox
+              v-model="showDataSideways"
+              hide-details
+              @change="displayDataFromLegend(LM.legend)"
+              label="Daten nebeneinander anzeigen"
+            />
+            <v-checkbox
+              v-model="showDataProp"
+              hide-details
+              @change="displayDataFromLegend(LM.legend)"
+              label="Daten proportional anzeigen"
+            />
           </v-card-text>
         </v-card>
         <v-divider style="clear: both; margin-top: 20px" />
@@ -533,6 +545,7 @@
       <LegendItem
         v-on:callChange="onLegendChange"
         :vis.sync="showLegend"
+        :propCircl="!showDataSideways"
       ></LegendItem>
     </v-layout>
     <div
@@ -616,7 +629,12 @@ import {
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { geoStore } from "../store/geo";
 import * as geojson from "geojson";
-import { computePropCircle, drawCircleDiagram } from "@/helpers/MapCompute";
+import {
+  computePropCircle,
+  drawCircleDiagram,
+  drawRect,
+  drawTriangle,
+} from "@/helpers/MapCompute";
 import LegendItem from "@/components/LegendItem.vue";
 
 import {
@@ -629,6 +647,7 @@ import {
   LegendGlobal,
   Phaen,
   Parameter,
+  Symbols,
 } from "../static/apiModels";
 import { erhebungModule } from "../store/modules/erhebungen";
 import { transModule } from "../store/modules/transcripts";
@@ -655,6 +674,7 @@ type singleTag = {
   c: string;
   r: number;
   id: string;
+  icon: Symbols;
 };
 
 type circleData = {
@@ -742,6 +762,7 @@ export default class MapView extends Vue {
   focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
 
   colorid = 0;
+  iconId = 0;
 
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
 
@@ -749,6 +770,8 @@ export default class MapView extends Vue {
   showBundesl = false;
   showGemeinden = false;
   showDiaReg = false;
+  showDataSideways = false;
+  showDataProp = false;
   searchTerm: { type: SearchItems; content: any; name: string } | null = null;
   geoStore = geoStore;
   mapOptions = {
@@ -927,6 +950,10 @@ export default class MapView extends Vue {
     encoded: boolean
   ) {
     return drawCircleDiagram(size, border, borderColor, color, data, encoded);
+  }
+
+  drawRect(size: number, border: number, color: string, encoded: boolean) {
+    return drawRect(size, border, color, encoded);
   }
 
   get legendGlobal() {
@@ -1257,13 +1284,40 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
   }
 
-  createCircleIcon(ort: circleData): L.Icon<L.IconOptions> {
+  createRectIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
     let s = ort.size;
-    if (ort.data.length > 1) {
-      s = ort.data[0].r;
+    if (ort.data.length > 1 && this.showDataProp) {
+      s = data[0].r;
+    }
+    const rad = s / this.kmPerPixel;
+    var rect = L.icon({
+      iconSize: [rad, rad * 1.7],
+      className: "circle-draw",
+      iconUrl: this.drawRect(3, ort.strokeWidth, data[0].c, true),
+    });
+    return rect;
+  }
+
+  createTriIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
+    let s = ort.size;
+    if (ort.data.length > 1 && this.showDataProp) {
+      s = data[0].r;
+    }
+    const rad = s / this.kmPerPixel;
+    var rect = L.icon({
+      iconSize: [rad, rad],
+      className: "circle-draw",
+      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true),
+    });
+    return rect;
+  }
+
+  createCircleIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
+    let s = ort.size;
+    if (ort.data.length > 1 && this.showDataProp) {
+      s = data[0].r;
     }
     const rad = (s * 2) / this.kmPerPixel;
-    console.log(rad);
     var circleIcon = L.icon({
       iconSize: [rad, rad],
       className: "circle-draw",
@@ -1271,8 +1325,8 @@ export default class MapView extends Vue {
         24,
         ort.strokeWidth,
         "#000",
-        ort.data[0].c,
-        ort.data,
+        data[0].c,
+        data,
         true
       ),
     });
@@ -1285,9 +1339,11 @@ export default class MapView extends Vue {
     layer: L.LayerGroup,
     vis: boolean,
     size: number,
-    data: Array<circleData>
+    data: Array<circleData>,
+    icon: Symbols
   ): Array<circleData> {
     if (vis) {
+      const propFactor = computePropCircle(tags, 20 * this.kmPerPixel);
       for (const tag of tags) {
         const ort = data.findIndex(
           (tD) =>
@@ -1305,8 +1361,9 @@ export default class MapView extends Vue {
               v: tag.numTag,
               name: tag.tagName,
               c: color,
-              r: size,
+              r: tag.numTag * propFactor,
               id: tag.tagId,
+              icon: icon,
             } as singleTag);
         } else {
           // Element doesnt exist and needs to be added
@@ -1323,8 +1380,9 @@ export default class MapView extends Vue {
                 v: tag.numTag,
                 name: tag.tagName,
                 c: color,
-                r: size,
+                r: tag.numTag * propFactor,
                 id: tag.tagId,
+                icon: icon,
               },
             ] as singleTag[],
           };
@@ -1335,25 +1393,81 @@ export default class MapView extends Vue {
     return data;
   }
 
+  createIcon(
+    ort: circleData,
+    data: singleTag[],
+    icon: Symbols
+  ): L.Icon<L.IconOptions> {
+    switch (icon) {
+      case Symbols.Circle:
+        return this.createCircleIcon(ort, data);
+        break;
+      case Symbols.Rect:
+        return this.createRectIcon(ort, data);
+        break;
+      case Symbols.Tri:
+        return this.createTriIcon(ort, data);
+        break;
+    }
+  }
+
   addDataToMap(data: Array<circleData>) {
     for (const ort of data) {
-      const circleIcon = this.createCircleIcon(ort);
-      L.marker([ort.lat, ort.lon], {
-        icon: circleIcon,
-      })
-        .addTo(ort.layer)
-        .on("click", (e) => {
-          const ids = [];
-          for (const tag of ort.data) {
-            const id = tag.id ? Number(tag.id) : -1;
-            if (id != -1) ids.push(id);
+      if (this.showDataSideways) {
+        let idx = 0;
+        const lonToPoint = this.map.latLngToContainerPoint([ort.lat, ort.lon]);
+        let rad = 0;
+        for (const d of ort.data) {
+          const circleIcon = this.createIcon(ort, [d], d.icon);
+
+          let s = ort.size;
+          if (this.showDataProp) {
+            s = d.r;
           }
-          this.selectedOrt = ort;
-          this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
-          this.showAudio = true;
-        });
-      // @ts-ignore
-      this.map.addLayer(ort.layer);
+          const lonOffset = this.map.containerPointToLatLng([
+            idx === 0 ? lonToPoint.x : rad + lonToPoint.x + s * 2,
+            lonToPoint.y,
+          ]);
+          rad = (s * 2) / this.kmPerPixel;
+          L.marker(lonOffset, {
+            icon: circleIcon,
+            riseOnHover: true,
+          })
+            .addTo(ort.layer)
+            .on("click", (e) => {
+              const ids = [];
+              for (const tag of ort.data) {
+                const id = tag.id ? Number(tag.id) : -1;
+                if (id != -1) ids.push(id);
+              }
+              this.selectedOrt = ort;
+              this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+              this.showAudio = true;
+            });
+          // @ts-ignore
+          this.map.addLayer(ort.layer);
+          idx++;
+        }
+      } else {
+        const circleIcon = this.createCircleIcon(ort, ort.data);
+        L.marker([ort.lat, ort.lon], {
+          icon: circleIcon,
+          riseOnHover: true,
+        })
+          .addTo(ort.layer)
+          .on("click", (e) => {
+            const ids = [];
+            for (const tag of ort.data) {
+              const id = tag.id ? Number(tag.id) : -1;
+              if (id != -1) ids.push(id);
+            }
+            this.selectedOrt = ort;
+            this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+            this.showAudio = true;
+          });
+        // @ts-ignore
+        this.map.addLayer(ort.layer);
+      }
     }
   }
 
@@ -1369,7 +1483,15 @@ export default class MapView extends Vue {
       const cont = ele.content as TagOrteResults[];
       data.push.apply(
         data,
-        this.extractTagData(cont, ele.color, layer, ele.vis, ele.size, data)
+        this.extractTagData(
+          cont,
+          ele.color,
+          layer,
+          ele.vis,
+          ele.size,
+          data,
+          ele.symbol
+        )
       );
     }
     this.addDataToMap(data);
@@ -1455,7 +1577,8 @@ export default class MapView extends Vue {
               layer,
               p.visible && q.vis,
               p.size ? p.size : 12,
-              data
+              data,
+              q.symbol
             )
           );
         });
@@ -1488,10 +1611,6 @@ export default class MapView extends Vue {
     }
   }
 
-  createMultipleTagLegend(ids: Array<number>) {
-    this.TaM.fetchTagOrteResultsMultiple({ ids: ids }).then(() => {});
-  }
-
   async createTagLegend(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
@@ -1507,6 +1626,7 @@ export default class MapView extends Vue {
             size: radius,
             type: SearchItems.Tag,
             content: curr,
+            symbol: this.iconId++,
             stroke: true,
             strokeWidth: 1,
             parameter: null,
@@ -1733,7 +1853,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
