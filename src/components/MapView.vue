@@ -14,7 +14,7 @@
                 v-model="searchTerm"
                 :items="searchTerms"
                 :loading="autoCompleteLoading"
-                :search-input="searchInput"
+                :search-input.sync="searchInput"
                 solo
                 clearable
                 chips
@@ -42,6 +42,11 @@
                       Suche für alle <strong>Phänomene</strong>
                     </v-list-item-title>
                   </v-list-item>
+                  <v-list-item v-else-if="selSearchModel === 4">
+                    <v-list-item-title>
+                      Suche für alle <strong>Aufgaben</strong>
+                    </v-list-item-title>
+                  </v-list-item>
                   <v-list-item v-else>
                     <v-list-item-title>
                       Suche über alle verfügbaren Daten
@@ -58,6 +63,9 @@
                     </template>
                     <template v-else-if="item.type === 2">
                       <v-icon>mdi-pandora</v-icon>
+                    </template>
+                    <template v-else-if="item.type === 4">
+                      <v-icon>mdi-book</v-icon>
                     </template>
                   </v-list-item-avatar>
                   <v-list-item-content>
@@ -76,6 +84,15 @@
                       <v-list-item-subtitle>{{
                         item.name
                       }}</v-list-item-subtitle>
+                    </template>
+                    <template v-else-if="item.type === 4">
+                      <v-list-item-title>{{
+                        item.name ? item.name : item.kontext
+                      }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >{{ item.content.Aufgabenstellung }} - Aufgabenart:
+                        {{ item.content.artBezeichnung }}</v-list-item-subtitle
+                      >
                     </template>
                     <template v-else>
                       <v-list-item-title v-text="item.name"></v-list-item-title>
@@ -768,6 +785,7 @@ export default class MapView extends Vue {
   colors = ["#F00", "#0F0", "#0FF", "#FF0", "#0FF", "#F0F"];
 
   currentErhebung: ApiLocSingleResponse | null = null;
+  _debounceId = 0;
   showBundesl = false;
   showGemeinden = false;
   showDiaReg = false;
@@ -934,6 +952,10 @@ export default class MapView extends Vue {
     return this.AM.aufgaben;
   }
 
+  get allAufgaben() {
+    return this.AM.allAufgaben;
+  }
+
   get aufgabenFromSet() {
     return this.AM.aufgabenFromSet;
   }
@@ -1027,7 +1049,9 @@ export default class MapView extends Vue {
   }
 
   get autoCompleteLoading() {
-    return erhebungModule.loading && tagModule.loading && this.AM.loading;
+    return (
+      erhebungModule.loading && tagModule.loading && aufgabenModule.loading
+    );
   }
 
   get einzelErhebungen() {
@@ -1087,6 +1111,12 @@ export default class MapView extends Vue {
     return res;
   }
 
+  @Watch("searchInput")
+  search(val: any) {
+    if (!val) return;
+    this.fetchEntriesDebounced();
+  }
+
   searchAufgabeByPhaen() {
     this.optionTab = 1;
     const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
@@ -1116,6 +1146,15 @@ export default class MapView extends Vue {
         );
         break;
     }
+  }
+
+  fetchEntriesDebounced() {
+    // cancel pending call
+    clearTimeout(this._debounceId);
+
+    this._debounceId = setTimeout(() => {
+      this.changeSearchTerms();
+    }, 250);
   }
 
   changeFilterMenuValue(type: SearchItems, content: Array<any>, name: string) {
@@ -1228,7 +1267,19 @@ export default class MapView extends Vue {
       case SearchItems.Phaen:
         this.addSearchTerms(this.phaen, SearchItems.Phaen, "bez");
         break;
+      case SearchItems.Aufgaben:
+        this.addSearchTerms(
+          this.allAufgaben,
+          SearchItems.Aufgaben,
+          "Beschreibung"
+        );
+        break;
       case SearchItems.Alle:
+        this.addSearchTerms(
+          this.allAufgaben,
+          SearchItems.Aufgaben,
+          "Beschreibung"
+        );
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
         break;
@@ -1735,8 +1786,7 @@ export default class MapView extends Vue {
       1000;
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then((res) => {
-        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
-        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
+        this.changeSearchTerms();
       });
     }
 
@@ -1854,7 +1904,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

@@ -27,6 +27,7 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 import Home from "./views/Home.vue";
 import { initialize as initGeo } from "./store/geo";
 import { tagModule } from "@/store/modules/tags";
+import { aufgabenModule } from "@/store/modules/aufgaben";
 import Navigation from "@/components/Navigation.vue";
 import { getTranscripts } from "@/api/transcripts";
 import { ServerTranscriptListItem } from "./static/apiModels";
@@ -59,6 +60,7 @@ export default class App extends Vue {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchJobs();
+    aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
   }
 }
