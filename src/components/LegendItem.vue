@@ -29,12 +29,26 @@
                 class="mx-auto pr-100"
               >
                 <template v-slot:activator="{ on }">
-                  <v-avatar v-on="on">
-                    <icon-circle
-                      :fillCol="d.color"
-                      :strokeWidth="d.strokeWidth"
-                    />
-                  </v-avatar>
+                  <template v-if="d.symbol === 0 || propCircl">
+                    <v-avatar v-on="on">
+                      <icon-circle
+                        :fillCol="d.color"
+                        :strokeWidth="d.strokeWidth"
+                      />
+                    </v-avatar>
+                  </template>
+                  <template v-else>
+                    <v-avatar tile v-on="on">
+                      <template v-if="d.symbol === 1">
+                        <img :src="drawRect(7, d.strokeWidth, d.color, true)" />
+                      </template>
+                      <template v-else="d.symbol === 2">
+                        <img
+                          :src="drawTriangle(7, d.strokeWidth, d.color, true)"
+                        />
+                      </template>
+                    </v-avatar>
+                  </template>
                 </template>
                 <template>
                   <v-card>
@@ -106,7 +120,7 @@
           >
             <v-list-item-content class="mx-auto">
               {{ d.name }}
-              <v-list-item v-for="(para, idx) in d.parameter">
+              <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
                 <v-avatar v-on="on">
                   <icon-circle
                     :fillCol="para.color"
@@ -157,6 +171,13 @@ import IconCircle from "@/icons/IconCircle.vue";
 
 import { LegendGlobal } from "../static/apiModels";
 
+import {
+  computePropCircle,
+  drawCircleDiagram,
+  drawRect,
+  drawTriangle,
+} from "@/helpers/MapCompute";
+
 @Component({
   name: "LegendItem",
   components: {
@@ -165,6 +186,7 @@ import { LegendGlobal } from "../static/apiModels";
 })
 export default class LegendItem extends Vue {
   @Prop(Boolean) readonly vis!: boolean;
+  @Prop(Boolean) readonly propCircl!: boolean;
 
   menu = false;
   LM = legendMod;
@@ -172,6 +194,14 @@ export default class LegendItem extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  drawRect(size: number, border: number, color: string, encoded: boolean) {
+    return drawRect(size, border, color, encoded);
+  }
+
+  drawTriangle(size: number, border: number, color: string, encoded: boolean) {
+    return drawTriangle(size, border, color, encoded);
   }
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
