@@ -91,6 +91,12 @@ export interface JobList {
   jobs: Job[];
 }
 
+export enum Symbols {
+  Circle, 
+  Rect,
+  Tri
+}
+
 export enum SearchItems {
   Tag, // 0
   Ort, // 1
@@ -107,6 +113,7 @@ export interface LegendList {
 
 export interface LegendGlobal {
   id: string;
+  symbol: Symbols;
   color: string;
   size: number;
   type: SearchItems | null;
@@ -124,6 +131,7 @@ export interface Parameter {
   content: any;
   id: string;
   visible: boolean;
+  symbol: Symbols;
   project?: string;
   ageRange: number[];
   gender?: boolean;
