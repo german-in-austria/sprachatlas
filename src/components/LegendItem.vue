@@ -101,6 +101,48 @@
               </v-container>
             </v-list-item-action>
           </v-list-item>
+          <v-list-item
+            v-for="(d, i) in legendGlobal.filter((el) => el.type === 3)"
+          >
+            <v-list-item-content class="mx-auto">
+              {{ d.name }}
+              <v-list-item v-for="(para, idx) in d.parameter">
+                <v-avatar v-on="on">
+                  <icon-circle
+                    :fillCol="para.color"
+                    :strokeWidth="d.strokeWidth"
+                  />
+                </v-avatar>
+                <v-list-item-content>
+                  {{ para.name }}
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-container>
+                <v-row>
+                  <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
+                    <v-icon>mdi-cancel</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    color="grey"
+                    @click="
+                      d.vis = !d.vis;
+                      onLegendChange(d);
+                    "
+                  >
+                    <template v-if="d.vis">
+                      <v-icon>mdi-eye-outline</v-icon>
+                    </template>
+                    <template v-else>
+                      <v-icon>mdi-eye-off-outline</v-icon>
+                    </template>
+                  </v-btn>
+                </v-row>
+              </v-container>
+            </v-list-item-action>
+          </v-list-item>
         </v-list>
       </v-card-text>
     </v-card>
