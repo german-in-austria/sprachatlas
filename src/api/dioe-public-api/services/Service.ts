@@ -4,6 +4,7 @@
 import type { antwortenDto } from '../models/antwortenDto';
 import type { AntwortenTags } from '../models/AntwortenTags';
 import type { aufgabenDto } from '../models/aufgabenDto';
+import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
@@ -12,6 +13,7 @@ import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
 import type { ISelectSingleGenResult } from '../models/ISelectSingleGenResult';
 import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
+import type { ISelectTagByIdResult } from '../models/ISelectTagByIdResult';
 import type { ISelectTagsLayersResult } from '../models/ISelectTagsLayersResult';
 import type { tagDto } from '../models/tagDto';
 import type { TagTree } from '../models/TagTree';
@@ -27,6 +29,21 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/tags`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param tagId
+     * @returns ISelectTagByIdResult Ok
+     * @throws ApiError
+     */
+    public static async getTagById(
+        tagId: number,
+    ): Promise<Array<ISelectTagByIdResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/tags/${tagId}`,
         });
         return result.body;
     }
@@ -158,17 +175,13 @@ export class Service {
     }
 
     /**
-     * @param requestBody
-     * @returns ISelectAufgabenSetResult Ok
+     * @returns ISelectAllAufgabenResult Ok
      * @throws ApiError
      */
-    public static async getAufgabenSets(
-        requestBody: aufgabenDto,
-    ): Promise<Array<ISelectAufgabenSetResult>> {
+    public static async getAllAufgaben(): Promise<Array<ISelectAllAufgabenResult>> {
         const result = await __request({
-            method: 'POST',
-            path: `/aufgaben/sets`,
-            body: requestBody,
+            method: 'GET',
+            path: `/aufgaben`,
         });
         return result.body;
     }
@@ -184,6 +197,22 @@ export class Service {
         const result = await __request({
             method: 'POST',
             path: `/aufgaben`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectAufgabenSetResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenSets(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenSetResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben/sets`,
             body: requestBody,
         });
         return result.body;
