@@ -734,6 +734,7 @@ export default class MapView extends Vue {
     { name: "Nur Orte", value: SearchItems.Ort },
     { name: "Tags", value: SearchItems.Tag },
     { name: "Phänomene", value: SearchItems.Phaen },
+    { name: "Aufgaben", value: SearchItems.Aufgaben },
   ];
   selGen = -1;
   generation = [
@@ -953,7 +954,7 @@ export default class MapView extends Vue {
   }
 
   drawRect(size: number, border: number, color: string, encoded: boolean) {
-    return drawRect(size, border, color, encoded);
+    return drawRect(size, border, color, encoded, 0.7);
   }
 
   get legendGlobal() {
@@ -1307,7 +1308,7 @@ export default class MapView extends Vue {
     var rect = L.icon({
       iconSize: [rad, rad],
       className: "circle-draw",
-      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true),
+      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true, 0.7),
     });
     return rect;
   }
@@ -1853,7 +1854,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

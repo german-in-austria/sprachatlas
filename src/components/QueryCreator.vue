@@ -26,79 +26,109 @@
                   :items="projects"
                   label="Projekt"
                 ></v-select>
-                <h3>Alter auswählen</h3>
-                <v-range-slider
-                  v-model="range"
-                  :max="max"
-                  :min="min"
-                  hide-details
-                  class="align-center"
-                >
-                  <template v-slot:prepend>
-                    <v-text-field
-                      :value="range[0]"
-                      class="mt-0 pt-0"
-                      hide-details
-                      single-line
-                      type="number"
-                      style="width: 60px"
-                      @change="$set(range, 0, $event)"
-                    ></v-text-field>
-                  </template>
-                  <template v-slot:append>
-                    <v-text-field
-                      :value="range[1]"
-                      class="mt-0 pt-0"
-                      hide-details
-                      single-line
-                      type="number"
-                      style="width: 60px"
-                      @change="$set(range, 1, $event)"
-                    ></v-text-field>
-                  </template>
-                </v-range-slider>
-                <v-select
-                  v-model="selGender"
-                  :items="gender"
-                  label="Geschlecht"
-                ></v-select>
-                <v-select
-                  v-model="selEducation"
-                  :items="jobs"
-                  item-text="bezeichnung"
-                  item-value="pk"
-                  @change="checkEducation"
-                  label="Berufsbezeichnung"
-                ></v-select>
-                <span v-if="selEducationAll !== null">
-                  Berufskategorie:
-                  {{ selEducationAll.berufskategorie }} Kommunikationsgrad:
-                  {{ selEducationAll.kommunikationsgrad }} Standardkompetenz:
-                  {{ selEducationAll.standardkompetenz }}
-                </span>
-                <v-select
-                  v-model="selParents"
-                  :items="parents"
-                  label="Eltern"
-                ></v-select>
-                <v-select
-                  v-model="selMobility"
-                  :items="mobility"
-                  label="Mobilität"
-                ></v-select>
+                <v-expansion-panels>
+                  <v-expansion-panel>
+                    <v-expansion-panel-header>
+                      Sozialdaten
+                      <template v-slot:actions>
+                        <v-icon color="primary"> $expand </v-icon>
+                      </template>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <h3>Alter auswählen</h3>
+                      <v-range-slider
+                        v-model="range"
+                        :max="max"
+                        :min="min"
+                        hide-details
+                        class="align-center"
+                      >
+                        <template v-slot:prepend>
+                          <v-text-field
+                            :value="range[0]"
+                            class="mt-0 pt-0"
+                            hide-details
+                            single-line
+                            type="number"
+                            style="width: 60px"
+                            @change="$set(range, 0, $event)"
+                          ></v-text-field>
+                        </template>
+                        <template v-slot:append>
+                          <v-text-field
+                            :value="range[1]"
+                            class="mt-0 pt-0"
+                            hide-details
+                            single-line
+                            type="number"
+                            style="width: 60px"
+                            @change="$set(range, 1, $event)"
+                          ></v-text-field>
+                        </template>
+                      </v-range-slider>
+                      <v-select
+                        v-model="selGender"
+                        :items="gender"
+                        label="Geschlecht"
+                      ></v-select>
+                      <v-select
+                        v-model="selEducation"
+                        :items="jobs"
+                        item-text="bezeichnung"
+                        item-value="pk"
+                        @change="checkEducation"
+                        label="Berufsbezeichnung"
+                      ></v-select>
+                      <span v-if="selEducationAll !== null">
+                        Berufskategorie:
+                        {{ selEducationAll.berufskategorie }}
+                        Kommunikationsgrad:
+                        {{ selEducationAll.kommunikationsgrad }}
+                        Standardkompetenz:
+                        {{ selEducationAll.standardkompetenz }}
+                      </span>
+                      <v-select
+                        v-model="selParents"
+                        :items="parents"
+                        label="Eltern"
+                      ></v-select>
+                      <v-select
+                        v-model="selMobility"
+                        :items="mobility"
+                        label="Mobilität"
+                      ></v-select>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+                <TagView class="mt-10 mb-10" ref="tagView"></TagView>
+                <SymbolPicker
+                  ref="sym"
+                  :color="paraColor ? paraColor.hex : parColor"
+                />
+                <v-expansion-panels class="mb-10">
+                  <v-expansion-panel>
+                    <v-expansion-panel-header>
+                      Lemma & Token
+                      <template v-slot:actions>
+                        <v-icon color="primary"> $expand </v-icon>
+                      </template>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-select
+                        v-model="selToken"
+                        :items="token"
+                        label="Token auswählen"
+                        chips
+                        multiple
+                      ></v-select>
 
-                <TagView ref="tagView"></TagView>
-                <v-select
-                  v-model="selToken"
-                  :items="token"
-                  label="Token auswählen"
-                  chips
-                  multiple
-                ></v-select>
-                <v-text-field
-                  v-model="paraLemma"
-                  label="Lemma eingeben"
-                ></v-text-field>
+                      <v-text-field
+                        v-model="paraLemma"
+                        label="Lemma eingeben"
+                      ></v-text-field>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
                 <v-color-picker
                   v-model="paraColor"
                   dot-size="19"
@@ -225,12 +255,15 @@ import {
   LegendList,
   SearchItems,
   LegendGlobal,
+  Symbols,
 } from "@/static/apiModels";
 import * as LZ from "lz-string";
 import { generateID } from "@/helpers/helper";
+import IconCircle from "@/icons/IconCircle.vue";
+import SymbolPicker from "@/components/SymbolPicker.vue";
 
 @Component({
-  components: { draggable, TagView },
+  components: { draggable, TagView, IconCircle, SymbolPicker },
   name: "QueryTool",
 })
 export default class QueryCreator extends Vue {
@@ -257,7 +290,7 @@ export default class QueryCreator extends Vue {
 
   paraColor: {
     hex: string;
-  } | null = null;
+  } = { hex: "#F00" };
 
   selMobility: string = "";
   selParents: string = "";
@@ -369,7 +402,6 @@ export default class QueryCreator extends Vue {
     if (this.paraName === null) {
       this.paraName = "";
     }
-
     if (this.focusLegend) {
       const ageRange = [this.range[0], this.range[1]];
       const newParameter: Parameter = {
@@ -377,6 +409,8 @@ export default class QueryCreator extends Vue {
         content: null,
         id: generateID(),
         visible: true,
+        // @ts-ignore
+        symbol: this.$refs.sym.symbol,
         project: this.selProject,
         gender: this.selGender === "Weiblich" ? true : false, // Boolean
         education: this.selEducation, // ID

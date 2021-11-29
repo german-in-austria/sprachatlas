@@ -102,6 +102,7 @@ export enum SearchItems {
   Ort, // 1
   Phaen, // 2
   Query, // 3
+  Aufgaben,
   Alle // 4
 }
 
