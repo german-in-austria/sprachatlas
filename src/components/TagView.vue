@@ -91,6 +91,10 @@ export default class TagView extends Vue {
     }
   }
 
+  clear() {
+    this.selectionTag = [];
+  }
+
   addChildTag(tag: TagSelection, idx: number) {
     this.selMode = true;
     this.itemTagList = tag.children;
