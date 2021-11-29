@@ -72,17 +72,17 @@ export const drawCircleDiagram = (size: number, border: number, borderColor: str
     return encoded ? 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(out))) : out
 }
 
-export const drawRect = (size: number, border: number, color: string, encoded: boolean) => {
+export const drawRect = (size: number, border: number, color: string, encoded: boolean, opacity: number) => {
   const hSize = size * 1.7;
   let out = '';
-  out += `<rect x="0" y="0" width="${size}" height="${hSize}" fill="${color}" fill-opacity="0.5" stroke="${color}" stroke-opacity="0.8" stroke-width="${border}"/>`
+  out += `<rect x="0" y="0" width="${size}" height="${hSize}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-opacity="0.8" stroke-width="${border}"/>`
   out = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="' + size + '" height="' + hSize + '" viewBox="0 0 ' + size + ' ' + hSize + '">' + out + '</svg>'
   return encoded ? 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(out))) : out
 }
 
-export const drawTriangle = (size: number, border: number, color: string, encoded: boolean) => {
+export const drawTriangle = (size: number, border: number, color: string, encoded: boolean, opacity: number) => {
   let out = '';
-  out += `<polygon points="${size/2},0 ${size},${size} 0,${size}" fill="${color}" fill-opacity="0.5" stroke="${color}" stroke-opacity="0.8" stroke-width="${border / 10}"/>`
+  out += `<polygon points="${size/2},0 ${size},${size} 0,${size}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-opacity="0.8" stroke-width="${border / 10}"/>`
   out = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' + out + '</svg>'
   return encoded ? 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(out))) : out
 }
