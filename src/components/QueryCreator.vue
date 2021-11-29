@@ -87,7 +87,7 @@
                   label="Mobilität"
                 ></v-select>
 
-                <TagView></TagView>
+                <TagView ref="tagView"></TagView>
                 <v-select
                   v-model="selToken"
                   :items="token"
@@ -103,8 +103,6 @@
                   v-model="paraColor"
                   dot-size="19"
                   hide-inputs
-                  hide-sliders
-                  hide-mode-switch
                   swatches-max-height="226"
                 ></v-color-picker>
                 <v-card-actions>
@@ -229,6 +227,7 @@ import {
   LegendGlobal,
 } from "@/static/apiModels";
 import * as LZ from "lz-string";
+import { generateID } from "@/helpers/helper";
 
 @Component({
   components: { draggable, TagView },
@@ -362,6 +361,8 @@ export default class QueryCreator extends Vue {
   clearForm() {
     // @ts-ignore
     this.$refs.form.reset();
+    // @ts-ignore
+    this.$refs.tagView.clear();
   }
 
   createParameter(clear: boolean) {
@@ -373,6 +374,9 @@ export default class QueryCreator extends Vue {
       const ageRange = [this.range[0], this.range[1]];
       const newParameter: Parameter = {
         name: this.paraName,
+        content: null,
+        id: generateID(),
+        visible: true,
         project: this.selProject,
         gender: this.selGender === "Weiblich" ? true : false, // Boolean
         education: this.selEducation, // ID
@@ -386,10 +390,8 @@ export default class QueryCreator extends Vue {
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }
-      console.log(newParameter);
       this.focusLegend.parameter.push(newParameter);
-      this.LM.editLegendByID(this.focusLegend);
-      this.focusParameter.push(newParameter);
+      this.focusParameter = this.focusLegend.parameter;
       /*
       const para = LZ.compressToEncodedURIComponent(
         JSON.stringify(this.legends)
