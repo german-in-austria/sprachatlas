@@ -197,11 +197,11 @@ export default class LegendItem extends Vue {
   }
 
   drawRect(size: number, border: number, color: string, encoded: boolean) {
-    return drawRect(size, border, color, encoded);
+    return drawRect(size, border, color, encoded, 1.0);
   }
 
   drawTriangle(size: number, border: number, color: string, encoded: boolean) {
-    return drawTriangle(size, border, color, encoded);
+    return drawTriangle(size, border, color, encoded, 1.0);
   }
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
