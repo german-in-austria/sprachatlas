@@ -638,7 +638,7 @@ import { aufgabenModule } from "@/store/modules/aufgaben";
 import api from "../api/index";
 import { tagModule } from "@/store/modules/tags";
 import { legendMod } from "@/store/modules/legend";
-import { flatten, isArray } from "lodash";
+import { flatten, isArray, cloneDeep } from "lodash";
 import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
 
@@ -1248,7 +1248,7 @@ export default class MapView extends Vue {
   setMapToPoint(lat: number, lon: number, zoom: number) {
     this.center = [lat, lon];
     this.zoom = zoom;
-    this.map.flyTo(this.center);
+    this.map.flyTo(this.center, zoom);
   }
 
   resetMap() {
@@ -1335,21 +1335,7 @@ export default class MapView extends Vue {
     return data;
   }
 
-  displaySingleTagLegend(tags: LegendGlobal[]) {
-    // Array for the extracted Tag data with geo data
-    const data = [] as Array<circleData>;
-    // Iterate through the array and sort by geo data
-    // Get the values for the diagram
-    for (const ele of tags) {
-      // Layer where the data is going to be displayed
-      const layer = ele.layer ? ele.layer : L.layerGroup();
-      layer.clearLayers();
-      const cont = ele.content as TagOrteResults[];
-      data.push.apply(
-        data,
-        this.extractTagData(cont, ele.color, layer, ele.vis, ele.size, data)
-      );
-    }
+  addDataToMap(data: Array<circleData>) {
     for (const ort of data) {
       const circleIcon = this.createCircleIcon(ort);
       L.marker([ort.lat, ort.lon], {
@@ -1369,6 +1355,24 @@ export default class MapView extends Vue {
       // @ts-ignore
       this.map.addLayer(ort.layer);
     }
+  }
+
+  displaySingleTagLegend(tags: LegendGlobal[]) {
+    // Array for the extracted Tag data with geo data
+    const data = [] as Array<circleData>;
+    // Iterate through the array and sort by geo data
+    // Get the values for the diagram
+    for (const ele of tags) {
+      // Layer where the data is going to be displayed
+      const layer = ele.layer ? ele.layer : L.layerGroup();
+      layer.clearLayers();
+      const cont = ele.content as TagOrteResults[];
+      data.push.apply(
+        data,
+        this.extractTagData(cont, ele.color, layer, ele.vis, ele.size, data)
+      );
+    }
+    this.addDataToMap(data);
   }
 
   displayOrt(layer: L.LayerGroup) {
@@ -1410,29 +1414,54 @@ export default class MapView extends Vue {
     }
   }
 
-  displayParameters(queries: LegendGlobal[]) {
+  // Parameter darstellen
+  // 1. Parameterdaten extrahieren
+  // 2. Request für die Tagdaten durchführen
+  // 3. Daten ins content feld vom Parameter einpflegen
+
+  async displayParameters(queries: LegendGlobal[]) {
     let idToTag = new Map();
+    const data = [] as Array<circleData>;
     for (const q of queries) {
-      const ids: number[] = [];
+      let ids: Array<number> = [];
+      const layer = q.layer ? q.layer : L.layerGroup();
       idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
         for (const p of q.parameter) {
+          const id = p.id;
           if (p.tagList) {
             p.tagList.forEach((el) => {
-              idToTag.set(q.id, idToTag.get(q.id).push(el.tagIds));
-              ids.concat(el.tagIds);
+              idToTag.set(
+                id,
+                idToTag.has(id) ? idToTag.get(id).push(el.tagIds) : el.tagIds
+              );
+              ids = ids.concat(el.tagIds);
             });
           }
         }
-        this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)] }).then(
-          () => {
-            const tags = this.tagOrtResult;
-            const data = [] as Array<circleData>;
-            // data.push.apply(data, this.extractTagData(tags));
-          }
-        );
+
+        await this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)] });
+        const tags = cloneDeep(this.tagOrtResult);
+        q.parameter?.forEach((p: Parameter) => {
+          const tagData = tags.filter((el) =>
+            idToTag.get(p.id).includes(el.tagId)
+          );
+          q.content = tagData;
+          data.push.apply(
+            data,
+            this.extractTagData(
+              q.content,
+              p.color ? p.color : this.colors[this.colorid++],
+              layer,
+              p.visible && q.vis,
+              p.size ? p.size : 12,
+              data
+            )
+          );
+        });
       }
     }
+    this.addDataToMap(data);
   }
 
   displayDataFromLegend(legend: LegendGlobal[]) {
@@ -1704,7 +1733,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
