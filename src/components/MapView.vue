@@ -42,9 +42,12 @@
                       Suche für alle <strong>Phänomene</strong>
                     </v-list-item-title>
                   </v-list-item>
-                  <v-list-item v-else-if="selSearchModel === 4">
+                  <v-list-item
+                    v-else-if="selSearchModel === 4 || selSearchModel === 5"
+                  >
                     <v-list-item-title>
-                      Suche für alle <strong>Aufgaben</strong>
+                      Suche für alle <strong>Aufgaben</strong> und
+                      <strong>Sätze</strong>
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item v-else>
@@ -66,6 +69,9 @@
                     </template>
                     <template v-else-if="item.type === 4">
                       <v-icon>mdi-book</v-icon>
+                    </template>
+                    <template v-else-if="item.type === 5">
+                      <v-icon>mdi-draw-pen</v-icon>
                     </template>
                   </v-list-item-avatar>
                   <v-list-item-content>
@@ -92,6 +98,12 @@
                       <v-list-item-subtitle
                         >{{ item.content.Aufgabenstellung }} - Aufgabenart:
                         {{ item.content.artBezeichnung }}</v-list-item-subtitle
+                      >
+                    </template>
+                    <template v-else-if="item.type === 5">
+                      <v-list-item-title>{{ item.name }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >ipa: {{ item.content.ipa }}</v-list-item-subtitle
                       >
                     </template>
                     <template v-else>
@@ -786,6 +798,7 @@ export default class MapView extends Vue {
 
   currentErhebung: ApiLocSingleResponse | null = null;
   _debounceId = 0;
+  dbLoading = false;
   showBundesl = false;
   showGemeinden = false;
   showDiaReg = false;
@@ -1050,7 +1063,7 @@ export default class MapView extends Vue {
 
   get autoCompleteLoading() {
     return (
-      erhebungModule.loading && tagModule.loading && aufgabenModule.loading
+      this.EM.loading || this.TaM.loading || this.AM.loading || this.dbLoading
     );
   }
 
@@ -1111,6 +1124,10 @@ export default class MapView extends Vue {
     return res;
   }
 
+  get allSaetze() {
+    return this.AM.allSaetze;
+  }
+
   @Watch("searchInput")
   search(val: any) {
     if (!val) return;
@@ -1148,13 +1165,22 @@ export default class MapView extends Vue {
     }
   }
 
-  fetchEntriesDebounced() {
+  async fetchEntriesDebounced() {
     // cancel pending call
     clearTimeout(this._debounceId);
-
+    this.dbLoading = true;
     this._debounceId = setTimeout(() => {
-      this.changeSearchTerms();
-    }, 250);
+      if (
+        this.selSearchModel === SearchItems.Alle ||
+        this.selSearchModel === SearchItems.Aufgaben
+      )
+        this.AM.fetchSaetze({ query: this.searchInput }).then(() =>
+          this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript")
+        );
+      console.log(this.searchTerms.length);
+      // this.changeSearchTerms();
+      this.dbLoading = false;
+    }, 500);
   }
 
   changeFilterMenuValue(type: SearchItems, content: Array<any>, name: string) {
@@ -1273,6 +1299,7 @@ export default class MapView extends Vue {
           SearchItems.Aufgaben,
           "Beschreibung"
         );
+        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript");
         break;
       case SearchItems.Alle:
         this.addSearchTerms(
@@ -1282,6 +1309,7 @@ export default class MapView extends Vue {
         );
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
+        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript");
         break;
     }
   }
@@ -1904,7 +1932,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

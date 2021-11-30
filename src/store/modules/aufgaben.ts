@@ -15,6 +15,7 @@ import {ISelectAufgabenFromSetResult} from "../../api/dioe-public-api/models/ISe
 import {ISelectAufgabenResult} from "../../api/dioe-public-api/models/ISelectAufgabenResult";
 import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenSetResult";
 import {ISelectAllAufgabenResult} from "../../api/dioe-public-api/models/ISelectAllAufgabenResult";
+import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
 import { AntwortenTags } from "../../api/dioe-public-api/models/AntwortenTags";
 
 export interface AufgabenState {
@@ -35,6 +36,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     aufgabenFromSet = [] as Array<ISelectAufgabenFromSetResult>;
     antwortenAudio = [] as Array<AntwortenTags>;
     allAufgaben = [] as Array<ISelectAllAufgabenResult>;
+    allSaetze = [] as Array<ISelectSatzResult>;
     loading = false;
 
     @Mutation
@@ -117,6 +119,17 @@ class Aufgaben extends VuexModule implements AufgabenState{
             loading: false
         }
 
+    }
+
+    @MutationAction({ mutate: ['allSaetze', 'loading'] })
+    async fetchSaetze(arg: { query: string }){
+        // @ts-ignore
+        this.commit('setLoading', true);
+        const res = await api.dioePublic.getSatz(arg.query);
+        return {
+            allSaetze: res,
+            loading: false
+        }
     }
 }
 

@@ -102,8 +102,9 @@ export enum SearchItems {
   Ort, // 1
   Phaen, // 2
   Query, // 3
-  Aufgaben,
-  Alle // 4
+  Aufgaben, // 4
+  Saetze, // 5
+  Alle // 6
 }
 
 export interface LegendList {
