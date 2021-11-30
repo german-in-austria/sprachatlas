@@ -11,6 +11,7 @@ import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResul
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
 import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
+import type { ISelectSatzResult } from '../models/ISelectSatzResult';
 import type { ISelectSingleGenResult } from '../models/ISelectSingleGenResult';
 import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
 import type { ISelectTagByIdResult } from '../models/ISelectTagByIdResult';
@@ -246,6 +247,24 @@ export class Service {
             method: 'POST',
             path: `/antworten/tags`,
             body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param q
+     * @returns ISelectSatzResult Ok
+     * @throws ApiError
+     */
+    public static async getSatz(
+        q: string,
+    ): Promise<Array<ISelectSatzResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/antworten/saetze`,
+            query: {
+                'q': q,
+            },
         });
         return result.body;
     }
