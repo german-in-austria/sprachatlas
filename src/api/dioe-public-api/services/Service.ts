@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { antwortenDto } from '../models/antwortenDto';
+import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
 import type { AntwortenTags } from '../models/AntwortenTags';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
@@ -231,6 +232,27 @@ export class Service {
             method: 'POST',
             path: `/aufgaben/setaufgabe`,
             body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param sid
+     * @param aid
+     * @returns AntwortenFromAufgabe Ok
+     * @throws ApiError
+     */
+    public static async getAntbyAufgaben(
+        sid?: number,
+        aid?: number,
+    ): Promise<Array<AntwortenFromAufgabe>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/antworten`,
+            query: {
+                'sid': sid,
+                'aid': aid,
+            },
         });
         return result.body;
     }

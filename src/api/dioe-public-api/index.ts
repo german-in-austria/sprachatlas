@@ -4,8 +4,11 @@
 export { ApiError } from './core/ApiError';
 export { OpenAPI } from './core/OpenAPI';
 
+export type { Antwort } from './models/Antwort';
 export type { antwortenDto } from './models/antwortenDto';
+export type { AntwortenFromAufgabe } from './models/AntwortenFromAufgabe';
 export type { AntwortenTags } from './models/AntwortenTags';
+export type { AntwortTimestamp } from './models/AntwortTimestamp';
 export type { aufgabenDto } from './models/aufgabenDto';
 export type { ISelectAllAufgabenResult } from './models/ISelectAllAufgabenResult';
 export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';
