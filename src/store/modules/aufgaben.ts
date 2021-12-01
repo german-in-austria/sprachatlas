@@ -17,6 +17,7 @@ import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelect
 import {ISelectAllAufgabenResult} from "../../api/dioe-public-api/models/ISelectAllAufgabenResult";
 import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
 import { AntwortenTags } from "../../api/dioe-public-api/models/AntwortenTags";
+import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
 
 export interface AufgabenState {
   aufgabenSet: Array<ISelectAufgabenSetResult>;
@@ -37,6 +38,8 @@ class Aufgaben extends VuexModule implements AufgabenState{
     antwortenAudio = [] as Array<AntwortenTags>;
     allAufgaben = [] as Array<ISelectAllAufgabenResult>;
     allSaetze = [] as Array<ISelectSatzResult>;
+
+    antworten = [] as Array<AntwortenFromAufgabe>;
     loading = false;
 
     @Mutation
@@ -128,6 +131,17 @@ class Aufgaben extends VuexModule implements AufgabenState{
         const res = await api.dioePublic.getSatz(arg.query);
         return {
             allSaetze: res,
+            loading: false
+        }
+    }
+
+    @MutationAction({ mutate: ['antworten', 'loading']})
+    async fetchAntworten(arg: { sid?: number, aid?: number }){
+        // @ts-ignore
+        this.commit('setLoading', true);
+        const res = await api.dioePublic.getAntbyAufgaben(arg.sid, arg.aid);
+        return {
+            antworten: res,
             loading: false
         }
     }

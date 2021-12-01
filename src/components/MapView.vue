@@ -689,9 +689,10 @@ import { legendMod } from "@/store/modules/legend";
 import { flatten, isArray, cloneDeep } from "lodash";
 import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
+import AudioPlayer from "@/components/AudioPlayer.vue";
 
 import { getOrtName } from "@/helpers/helper";
-import { AntwortenTags } from "@/api/dioe-public-api";
+import { AntwortenFromAufgabe, AntwortenTags } from "@/api/dioe-public-api";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -735,6 +736,7 @@ type IAntwortenAudio = {
     IconBase,
     IconCircle,
     LegendItem,
+    AudioPlayer,
   },
 })
 export default class MapView extends Vue {
@@ -1128,10 +1130,21 @@ export default class MapView extends Vue {
     return this.AM.allSaetze;
   }
 
+  get einzelAntworten() {
+    return this.AM.antworten;
+  }
+
   @Watch("searchInput")
   search(val: any) {
     if (!val) return;
     this.fetchEntriesDebounced();
+  }
+
+  @Watch("iconId")
+  onIconIdChange() {
+    if (this.iconId > Object.keys(Symbols).length) {
+      this.iconId = 0;
+    }
   }
 
   searchAufgabeByPhaen() {
@@ -1177,8 +1190,6 @@ export default class MapView extends Vue {
         this.AM.fetchSaetze({ query: this.searchInput }).then(() =>
           this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript")
         );
-      console.log(this.searchTerms.length);
-      // this.changeSearchTerms();
       this.dbLoading = false;
     }, 500);
   }
@@ -1324,8 +1335,8 @@ export default class MapView extends Vue {
     }
   }
 
-  submitSearch() {
-    if (this.displayData()) {
+  async submitSearch() {
+    if (await this.displayData()) {
       // clear data of autocomplete
       //@ts-ignore
       this.$refs.searchTermAutoComplete.reset();
@@ -1580,7 +1591,7 @@ export default class MapView extends Vue {
   displayOrt(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
-      const color = this.colors[this.colorid];
+      const color = this.colors[this.colorid++];
       const radius = 50 * this.kmPerPixel;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
@@ -1667,6 +1678,29 @@ export default class MapView extends Vue {
     this.addDataToMap(data);
   }
 
+  drawSentence(legSentence: Array<LegendGlobal>) {
+    legSentence.forEach((el) => {
+      const content = el.content as Array<AntwortenFromAufgabe>;
+      content.forEach((satz) => {
+        const circle = this.addCircleMarkerToMap(
+          Number(satz.lat),
+          Number(satz.lon),
+          el.color,
+          1,
+          el.size,
+          el.layer ? el.layer : L.layerGroup()
+        );
+        circle.on("click", (e) => {
+          satz.data.forEach((antwort) => {
+            // antwort.
+          });
+          // xthis.selectedOrt = ort;
+          this.showAudio = true;
+        });
+      });
+    });
+  }
+
   displayDataFromLegend(legend: LegendGlobal[]) {
     this.clearLayer();
     this.showLegend = true;
@@ -1694,7 +1728,7 @@ export default class MapView extends Vue {
   async createTagLegend(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
-      const color = this.colors[this.colorid];
+      const color = this.colors[this.colorid++];
       const radius = 10;
       return await this.loadTagOrt(tag).then(() => {
         const curr = this.tagOrtResult;
@@ -1720,12 +1754,11 @@ export default class MapView extends Vue {
     }
   }
 
-  displayData() {
+  async displayData() {
     const newLayer = L.layerGroup();
     this.clearLayer();
     this.showLegend = true;
     if (this.searchTerm) {
-      this.colorid++;
       if (this.searchTerm.type === SearchItems.Ort) {
         const leg = this.displayOrt(newLayer);
         this.LM.addLegendEntry(leg);
@@ -1734,18 +1767,34 @@ export default class MapView extends Vue {
           Number(leg?.content.lon),
           10
         );
-        return true;
       } else if (this.searchTerm.type === SearchItems.Tag) {
         this.resetMap();
         this.createTagLegend(newLayer).then((res) => {
           legendMod.addLegendEntry(res);
           this.displaySingleTagLegend(this.legendGlobalTag);
         });
-        return true;
+      } else if (this.searchTerm.type === SearchItems.Saetze) {
+        const sid = this.searchTerm.content.id;
+        const term = this.searchTerm.content.transkript;
+        await this.AM.fetchAntworten({ sid: sid });
+        const res = this.einzelAntworten;
+        console.log(term);
+        this.resetMap();
+        const legEntry = await this.LM.createLegendEntry({
+          icon: Symbols.Circle,
+          layer: L.layerGroup(),
+          name: term,
+          color: this.colors[this.colorid++],
+          radius: 20,
+          content: res,
+          type: this.searchTerm.type,
+        });
+        this.LM.addLegendEntry(legEntry);
       }
       if (this.colorid >= this.colors.length) {
         this.colorid = 0;
       }
+      return true;
     } else {
       // TODO Add further error banner if data cant be loaded
       // Also proper message intern
@@ -1932,7 +1981,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

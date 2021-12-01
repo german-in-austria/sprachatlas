@@ -41,62 +41,38 @@
 <script lang="ts">
 import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
 
+export interface Audio {
+  startAntwort: {
+    minutes?: number;
+    seconds: number;
+    milliseconds: number;
+  };
+  stopAntwort: {
+    minutes?: number;
+    seconds: number;
+    milliseconds: number;
+  };
+}
+
 @Component({
   components: {},
   name: "AudioPlayer",
 })
 export default class QueryCreator extends Vue {
-  dateipfad = "allsptd03";
-  audiofile = "0032_NECK_alt_m_SPTD.ogg";
+  @Prop(String) readonly dateipfad!: string;
+  @Prop(String) readonly audiofile!: string;
+  @Prop({ type: Array, required: true }) readonly data!: Array<Audio>;
+  // dateipfad = "allsptd03";
+  // audiofile = "0032_NECK_alt_m_SPTD.ogg";
   timestampId = 0;
   repeat = false;
   time = 0;
   completion = 0;
 
   audioTrack = document.getElementById(this.trackId) as HTMLAudioElement;
-  audio = {
-    dateipfad: "allsptd03",
-    audiofile: "0032_NECK_alt_m_SPTD.ogg",
-    gruppeBez: "Alt (65+)",
-    teamBez: "PP03",
-    data: [
-      {
-        startAntwort: {
-          seconds: 10,
-          milliseconds: 110,
-        },
-        stopAntwort: {
-          seconds: 13,
-          milliseconds: 190,
-        },
-        kommentar: "",
-        tagId: 34,
-        tagName: "Irrelevant",
-        satzId: 4271,
-        aufgabeId: 184,
-      },
-      {
-        startAntwort: {
-          minutes: 1,
-          seconds: 19,
-          milliseconds: 119,
-        },
-        stopAntwort: {
-          minutes: 1,
-          seconds: 29,
-          milliseconds: 129,
-        },
-        kommentar: "",
-        tagId: 34,
-        tagName: "Irrelevant",
-        satzId: 4271,
-        aufgabeId: 185,
-      },
-    ],
-  };
 
   get maxLength() {
-    return this.audio.data.length;
+    return this.data.length;
   }
 
   get duration() {
@@ -106,7 +82,7 @@ export default class QueryCreator extends Vue {
   }
 
   get timestampStart() {
-    const start = this.audio.data[this.timestampId].startAntwort;
+    const start = this.data[this.timestampId].startAntwort;
     let sec = 0;
     if (start.minutes) {
       sec += start.minutes * 60;
@@ -116,7 +92,7 @@ export default class QueryCreator extends Vue {
   }
 
   get timestampEnd() {
-    const end = this.audio.data[this.timestampId].stopAntwort;
+    const end = this.data[this.timestampId].stopAntwort;
     let sec = 0;
     if (end.minutes) {
       sec += end.minutes * 60;
@@ -141,8 +117,8 @@ export default class QueryCreator extends Vue {
   @Watch("timestampId")
   ontimestapid() {
     const track = document.getElementById(this.trackId) as HTMLAudioElement;
-    if (this.timestampId >= this.audio.data.length) {
-      this.timestampId = this.audio.data.length - 1;
+    if (this.timestampId >= this.data.length) {
+      this.timestampId = this.data.length - 1;
     }
 
     if (this.timestampId < 0) {

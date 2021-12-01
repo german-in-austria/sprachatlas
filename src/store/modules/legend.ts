@@ -9,7 +9,12 @@ import {
 import store from "@/store";
 import { generateID } from "@/helpers/helper";
 import Vue from "../../main";
-import { SearchItems, Parameter, LegendGlobal } from "../../static/apiModels";
+import {
+  SearchItems,
+  Parameter,
+  LegendGlobal,
+  Symbols
+} from "../../static/apiModels";
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -27,9 +32,7 @@ class Legend extends VuexModule implements LegendState {
   legend = [] as Array<LegendGlobal>;
 
   @Mutation
-  addLegendEntry(
-    e: any
-  ) {
+  addLegendEntry(e: any) {
     e.id = generateID();
     this.legend.push(e);
     return e.id;
@@ -41,9 +44,9 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
-  editLegendByID(content: LegendGlobal){
+  editLegendByID(content: LegendGlobal) {
     const sid = content.id;
-    const ele = this.legend.findIndex((el) => el.id === sid);
+    const ele = this.legend.findIndex(el => el.id === sid);
     this.legend[ele] = content;
   }
 
@@ -78,16 +81,42 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Action
+  createLegendEntry(arg: {
+    icon: Symbols,
+    layer: L.LayerGroup,
+    name: string,
+    color: string,
+    radius: number,
+    content: any,
+    type: SearchItems}
+  ): LegendGlobal {
+    const newLegend: LegendGlobal = {
+      id: "",
+      color: arg.color,
+      size: arg.radius,
+      type: arg.type,
+      content: arg.content,
+      symbol: arg.icon,
+      stroke: true,
+      strokeWidth: 1,
+      parameter: null,
+      vis: true,
+      name: arg.name,
+      layer: arg.layer
+    };
+    return newLegend;
+  }
+
+  @Action
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     const l = el.layer;
     l?.clearLayers();
     if (idx) {
-      this.context.commit("removeEntryByIdx", idx)
+      this.context.commit("removeEntryByIdx", idx);
     } else {
       this.context.commit("removeEntryById", el.id);
     }
   }
-
 }
 
 export const legendMod = getModule(Legend);
