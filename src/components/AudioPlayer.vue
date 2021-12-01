@@ -186,6 +186,7 @@ export default class QueryCreator extends Vue {
         this.pause();
       } else if (sound.currentTime >= this.timestampEnd && this.repeat) {
         sound.currentTime = this.timestampStart;
+        this.completion = 0;
       }
     });
   }

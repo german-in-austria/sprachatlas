@@ -448,20 +448,17 @@
                         <template v-slot:[`item.audio`]="{ item }">
                           <figure>
                             <figcaption>Aufnahme anhören:</figcaption>
-                            <audio
-                              controls
-                              loop
-                              :src="
-                                getAudioPath(
-                                  item.Dateipfad,
-                                  item.Audiofile,
-                                  item.startAntwort.minutes,
-                                  item.startAntwort.seconds,
-                                  item.stopAntwort.minutes,
-                                  item.stopAntwort.seconds
-                                )
-                              "
-                            ></audio>
+                            <AudioPlayer
+                              class="mx-10"
+                              :dateipfad="item.Dateipfad"
+                              :audiofile="item.Audiofile"
+                              :data="[
+                                {
+                                  startAntwort: item.startAntwort,
+                                  stopAntwort: item.stopAntwort,
+                                },
+                              ]"
+                            />
                           </figure>
                         </template>
                         <template v-slot:[`item.trans`]="{ item }">
@@ -469,7 +466,7 @@
                           {{ item.orthoText }}
                         </template>
                         <template v-slot:[`item.komm`]="{ item }">
-                          {{ item.kommentar }}
+                          {{ item.gruppeBez }}
                         </template>
                       </v-data-table></v-expansion-panel-content
                     >
@@ -1123,6 +1120,7 @@ export default class MapView extends Vue {
         name: arr.filter((e) => e.tagId === el)[0].tagName,
       });
     });
+    console.log(res);
     return res;
   }
 
@@ -1981,7 +1979,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
