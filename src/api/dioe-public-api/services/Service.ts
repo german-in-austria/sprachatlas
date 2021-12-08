@@ -3,7 +3,7 @@
 /* eslint-disable */
 import type { antwortenDto } from '../models/antwortenDto';
 import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
-import type { AntwortenTags } from '../models/AntwortenTags';
+import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
@@ -259,12 +259,12 @@ export class Service {
 
     /**
      * @param requestBody
-     * @returns AntwortenTags Ok
+     * @returns AntwortTokenStamp Ok
      * @throws ApiError
      */
     public static async getAntByTags(
         requestBody: antwortenDto,
-    ): Promise<Array<AntwortenTags>> {
+    ): Promise<Array<AntwortTokenStamp>> {
         const result = await __request({
             method: 'POST',
             path: `/antworten/tags`,

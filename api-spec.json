@@ -508,10 +508,6 @@
 					"stopAntwort": {
 						"type": "string"
 					},
-					"kommentar": {
-						"type": "string",
-						"nullable": true
-					},
 					"tagId": {
 						"type": "number",
 						"format": "double"
@@ -519,25 +515,13 @@
 					"tagName": {
 						"type": "string",
 						"nullable": true
-					},
-					"satzId": {
-						"type": "number",
-						"format": "double",
-						"nullable": true
-					},
-					"aufgabeId": {
-						"type": "number",
-						"format": "double"
 					}
 				},
 				"required": [
 					"startAntwort",
 					"stopAntwort",
-					"kommentar",
 					"tagId",
-					"tagName",
-					"satzId",
-					"aufgabeId"
+					"tagName"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -607,7 +591,7 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"AntwortenTags": {
+			"AntwortToken": {
 				"properties": {
 					"startAntwort": {
 						"type": "string"
@@ -615,25 +599,9 @@
 					"stopAntwort": {
 						"type": "string"
 					},
-					"kommentar": {
-						"type": "string",
-						"nullable": true
-					},
-					"dateipfad": {
-						"type": "string",
-						"nullable": true
-					},
-					"audiofile": {
-						"type": "string",
-						"nullable": true
-					},
 					"tagId": {
 						"type": "number",
 						"format": "double"
-					},
-					"osmid": {
-						"type": "string",
-						"nullable": true
 					},
 					"tagName": {
 						"type": "string",
@@ -646,24 +614,57 @@
 					"orthoText": {
 						"type": "string",
 						"nullable": true
-					},
-					"tagNum": {
-						"type": "string",
-						"nullable": true
 					}
 				},
 				"required": [
 					"startAntwort",
 					"stopAntwort",
-					"kommentar",
-					"dateipfad",
-					"audiofile",
 					"tagId",
-					"osmid",
 					"tagName",
 					"ortho",
-					"orthoText",
-					"tagNum"
+					"orthoText"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"AntwortTokenStamp": {
+				"properties": {
+					"dateipfad": {
+						"type": "string",
+						"nullable": true
+					},
+					"audiofile": {
+						"type": "string",
+						"nullable": true
+					},
+					"gruppeBez": {
+						"type": "string",
+						"nullable": true
+					},
+					"teamBez": {
+						"type": "string",
+						"nullable": true
+					},
+					"data": {
+						"items": {
+							"anyOf": [
+								{
+									"$ref": "#/components/schemas/Antwort"
+								},
+								{
+									"$ref": "#/components/schemas/AntwortToken"
+								}
+							]
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"dateipfad",
+					"audiofile",
+					"gruppeBez",
+					"teamBez",
+					"data"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1205,7 +1206,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/AntwortenTags"
+										"$ref": "#/components/schemas/AntwortTokenStamp"
 									},
 									"type": "array"
 								}
