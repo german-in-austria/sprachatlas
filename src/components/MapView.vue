@@ -429,47 +429,43 @@
               <v-card-text>
                 <v-expansion-panels focusable>
                   <v-expansion-panel
-                    v-for="(item, idx) in antwortenAudio"
+                    v-for="(d, idx) in antwortenAudio"
                     :key="idx"
                   >
                     <v-expansion-panel-header>
-                      {{ item.name }}
+                      {{ d.gruppeBez }} - Team: {{ d.teamBez }}
                     </v-expansion-panel-header>
+
                     <v-expansion-panel-content eager>
+                      <figure>
+                        <figcaption>Aufnahme anhören:</figcaption>
+                        <AudioPlayer
+                          class="mx-10"
+                          :dateipfad="d.dateipfad"
+                          :audiofile="d.audiofile"
+                          :data="d.data"
+                        />
+                      </figure>
+                      <!--
                       <v-data-table
-                        v-if="item.content.length > 0"
+                        v-if="d.data.length > 0"
                         :headers="audioInf"
-                        :items="item.content"
+                        :items="d"
                         hide-default-footer
-                        :items-per-page="
-                          items.content ? items.content.length : 15
-                        "
                       >
                         <template v-slot:[`item.audio`]="{ item }">
-                          <figure>
-                            <figcaption>Aufnahme anhören:</figcaption>
-                            <AudioPlayer
-                              class="mx-10"
-                              :dateipfad="item.Dateipfad"
-                              :audiofile="item.Audiofile"
-                              :data="[
-                                {
-                                  startAntwort: item.startAntwort,
-                                  stopAntwort: item.stopAntwort,
-                                },
-                              ]"
-                            />
-                          </figure>
+                          
                         </template>
                         <template v-slot:[`item.trans`]="{ item }">
-                          Ortho: {{ item.ortho }} <br />Text Ortho:
+                          Ortho: {{ item.tagName }} <br />Text Ortho:
                           {{ item.orthoText }}
                         </template>
                         <template v-slot:[`item.komm`]="{ item }">
-                          {{ item.gruppeBez }}
+                          
                         </template>
-                      </v-data-table></v-expansion-panel-content
-                    >
+                      </v-data-table>
+                      -->
+                    </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
               </v-card-text>
@@ -689,7 +685,7 @@ import IconCircle from "@/icons/IconCircle.vue";
 import AudioPlayer from "@/components/AudioPlayer.vue";
 
 import { getOrtName } from "@/helpers/helper";
-import { AntwortenFromAufgabe, AntwortenTags } from "@/api/dioe-public-api";
+import { AntwortenFromAufgabe, AntwortTokenStamp } from "@/api/dioe-public-api";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -718,7 +714,7 @@ type circleData = {
 type IAntwortenAudio = {
   name: string | null;
   tagid: number;
-  content: Array<AntwortenTags>;
+  content: Array<AntwortTokenStamp>;
 };
 
 @Component({
@@ -1112,7 +1108,7 @@ export default class MapView extends Vue {
 
   get antwortenAudio() {
     const arr = this.AM.antwortenAudio;
-    const res = [] as IAntwortenAudio[];
+    /*const res = [] as IAntwortenAudio[];
     [...new Set(arr.map((item) => item.tagId))].forEach((el) => {
       res.push({
         tagid: el,
@@ -1120,8 +1116,8 @@ export default class MapView extends Vue {
         name: arr.filter((e) => e.tagId === el)[0].tagName,
       });
     });
-    console.log(res);
-    return res;
+    // console.log(res);*/
+    return arr;
   }
 
   get allSaetze() {
@@ -1979,7 +1975,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

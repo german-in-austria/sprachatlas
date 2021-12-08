@@ -58,7 +58,7 @@ export interface Audio {
   components: {},
   name: "AudioPlayer",
 })
-export default class QueryCreator extends Vue {
+export default class AudioPlayer extends Vue {
   @Prop(String) readonly dateipfad!: string;
   @Prop(String) readonly audiofile!: string;
   @Prop({ type: Array, required: true }) readonly data!: Array<Audio>;
@@ -88,6 +88,8 @@ export default class QueryCreator extends Vue {
       sec += start.minutes * 60;
     }
     sec += start.seconds + start.milliseconds / 1000;
+    console.log("start: ", sec);
+    console.log(start);
     return sec;
   }
 
@@ -98,6 +100,8 @@ export default class QueryCreator extends Vue {
       sec += end.minutes * 60;
     }
     sec += end.seconds + end.milliseconds / 1000;
+    console.log("end: ", sec);
+    console.log(end);
     return sec;
   }
 

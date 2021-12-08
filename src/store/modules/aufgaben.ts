@@ -16,12 +16,12 @@ import {ISelectAufgabenResult} from "../../api/dioe-public-api/models/ISelectAuf
 import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenSetResult";
 import {ISelectAllAufgabenResult} from "../../api/dioe-public-api/models/ISelectAllAufgabenResult";
 import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
-import { AntwortenTags } from "../../api/dioe-public-api/models/AntwortenTags";
+import { AntwortTokenStamp } from "../../api/dioe-public-api/models/AntwortTokenStamp";
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
 
 export interface AufgabenState {
   aufgabenSet: Array<ISelectAufgabenSetResult>;
-  antwortenAudio: Array<AntwortenTags>
+  antwortenAudio: Array<AntwortTokenStamp>
   loading: boolean;
 }
 
@@ -35,7 +35,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     aufgabenSet = [] as Array<ISelectAufgabenSetResult>;
     aufgaben = [] as Array<ISelectAufgabenResult>;
     aufgabenFromSet = [] as Array<ISelectAufgabenFromSetResult>;
-    antwortenAudio = [] as Array<AntwortenTags>;
+    antwortenAudio = [] as Array<AntwortTokenStamp>;
     allAufgaben = [] as Array<ISelectAllAufgabenResult>;
     allSaetze = [] as Array<ISelectSatzResult>;
 
