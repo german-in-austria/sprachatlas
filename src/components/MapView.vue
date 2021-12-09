@@ -413,11 +413,11 @@
         </template>
         <template
           v-else-if="
-            antwortenAudio && antwortenAudio.length > 0 && !aufgabenLoading
+            antwortenAudio && antwortenAudio.length >= 0 && !aufgabenLoading
           "
         >
           <transition name="expand-slide" appear>
-            <v-card elevation="2">
+            <v-card v-if="antwortenAudio.length > 0" elevation="2">
               <v-card-title>
                 Verfügbare Audioaufnahmen für
                 {{ selectedOrt.ortName.split(",")[0] }}
@@ -468,6 +468,18 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
+              </v-card-text>
+            </v-card>
+            <v-card v-if="antwortenAudio.length > 0" elevation="2">
+              <v-card-title>
+                <v-spacer></v-spacer>
+                <v-btn icon color="indigo" @click="showAudio = !showAudio">
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </v-card-title>
+              <v-card-text>
+                Keine Aufnahmen verfügbar für
+                {{ selectedOrt.ortName.split(",")[0] }}
               </v-card-text>
             </v-card>
           </transition>
@@ -1975,7 +1987,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
