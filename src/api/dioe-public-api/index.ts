@@ -15,6 +15,7 @@ export type { ISelectAllAufgabenResult } from './models/ISelectAllAufgabenResult
 export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';
 export type { ISelectAufgabenResult } from './models/ISelectAufgabenResult';
 export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult';
+export type { ISelectMatchingTokensResult } from './models/ISelectMatchingTokensResult';
 export type { ISelectOrtTagsResult } from './models/ISelectOrtTagsResult';
 export type { ISelectPhaenBerResult } from './models/ISelectPhaenBerResult';
 export type { ISelectPhaenResult } from './models/ISelectPhaenResult';

@@ -9,6 +9,7 @@ import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResul
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
+import type { ISelectMatchingTokensResult } from '../models/ISelectMatchingTokensResult';
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
 import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
@@ -286,6 +287,30 @@ export class Service {
             path: `/antworten/saetze`,
             query: {
                 'q': q,
+            },
+        });
+        return result.body;
+    }
+
+    /**
+     * @param o
+     * @param p
+     * @param l
+     * @returns ISelectMatchingTokensResult Ok
+     * @throws ApiError
+     */
+    public static async getMatchingTokens(
+        o?: string,
+        p?: string,
+        l?: string,
+    ): Promise<Array<ISelectMatchingTokensResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/antworten/token`,
+            query: {
+                'o': o,
+                'p': p,
+                'l': l,
             },
         });
         return result.body;
