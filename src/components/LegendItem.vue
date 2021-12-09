@@ -121,7 +121,7 @@
             <v-list-item-content class="mx-auto">
               {{ d.name }}
               <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
-                <v-avatar v-on="on">
+                <v-avatar>
                   <icon-circle
                     :fillCol="para.color"
                     :strokeWidth="d.strokeWidth"
