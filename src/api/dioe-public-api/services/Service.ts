@@ -5,11 +5,14 @@ import type { antwortenDto } from '../models/antwortenDto';
 import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
 import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
 import type { aufgabenDto } from '../models/aufgabenDto';
+import type { AufgabeStamp } from '../models/AufgabeStamp';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
+import type { ISelectAllTeamsResult } from '../models/ISelectAllTeamsResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
 import type { ISelectMatchingTokensResult } from '../models/ISelectMatchingTokensResult';
+import type { ISelectOrtAufgabeResult } from '../models/ISelectOrtAufgabeResult';
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
 import type { ISelectPhaenBerResult } from '../models/ISelectPhaenBerResult';
 import type { ISelectPhaenResult } from '../models/ISelectPhaenResult';
@@ -178,66 +181,6 @@ export class Service {
     }
 
     /**
-     * @returns ISelectAllAufgabenResult Ok
-     * @throws ApiError
-     */
-    public static async getAllAufgaben(): Promise<Array<ISelectAllAufgabenResult>> {
-        const result = await __request({
-            method: 'GET',
-            path: `/aufgaben`,
-        });
-        return result.body;
-    }
-
-    /**
-     * @param requestBody
-     * @returns ISelectAufgabenResult Ok
-     * @throws ApiError
-     */
-    public static async getAufgabenPhaen(
-        requestBody: aufgabenDto,
-    ): Promise<Array<ISelectAufgabenResult>> {
-        const result = await __request({
-            method: 'POST',
-            path: `/aufgaben`,
-            body: requestBody,
-        });
-        return result.body;
-    }
-
-    /**
-     * @param requestBody
-     * @returns ISelectAufgabenSetResult Ok
-     * @throws ApiError
-     */
-    public static async getAufgabenSets(
-        requestBody: aufgabenDto,
-    ): Promise<Array<ISelectAufgabenSetResult>> {
-        const result = await __request({
-            method: 'POST',
-            path: `/aufgaben/sets`,
-            body: requestBody,
-        });
-        return result.body;
-    }
-
-    /**
-     * @param requestBody
-     * @returns ISelectAufgabenFromSetResult Ok
-     * @throws ApiError
-     */
-    public static async getTagOrte1(
-        requestBody: aufgabenDto,
-    ): Promise<Array<ISelectAufgabenFromSetResult>> {
-        const result = await __request({
-            method: 'POST',
-            path: `/aufgaben/setaufgabe`,
-            body: requestBody,
-        });
-        return result.body;
-    }
-
-    /**
      * @param sid
      * @param aid
      * @returns AntwortenFromAufgabe Ok
@@ -312,6 +255,110 @@ export class Service {
                 'p': p,
                 'l': l,
             },
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectAllAufgabenResult Ok
+     * @throws ApiError
+     */
+    public static async getAllAufgaben(): Promise<Array<ISelectAllAufgabenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/aufgaben`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectAufgabenResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenPhaen(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectAllTeamsResult Ok
+     * @throws ApiError
+     */
+    public static async getAllTeams(): Promise<Array<ISelectAllTeamsResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/aufgaben/teams`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectOrtAufgabeResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenOrte(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectOrtAufgabeResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben/orte`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectAufgabenSetResult Ok
+     * @throws ApiError
+     */
+    public static async getAufgabenSets(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenSetResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben/sets`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectAufgabenFromSetResult Ok
+     * @throws ApiError
+     */
+    public static async getTagOrte1(
+        requestBody: aufgabenDto,
+    ): Promise<Array<ISelectAufgabenFromSetResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben/setaufgabe`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns AufgabeStamp Ok
+     * @throws ApiError
+     */
+    public static async getAntByTags1(
+        requestBody: antwortenDto,
+    ): Promise<Array<AufgabeStamp>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/aufgaben/audio`,
+            body: requestBody,
         });
         return result.body;
     }

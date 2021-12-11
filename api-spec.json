@@ -342,164 +342,6 @@
 				"type": "object",
 				"additionalProperties": true
 			},
-			"ISelectAllAufgabenResult": {
-				"description": "'SelectAllAufgaben' return type",
-				"properties": {
-					"aufId": {
-						"type": "number",
-						"format": "double"
-					},
-					"beschreibung": {
-						"type": "string",
-						"nullable": true
-					},
-					"aufgabenstellung": {
-						"type": "string",
-						"nullable": true
-					},
-					"kontext": {
-						"type": "string",
-						"nullable": true
-					},
-					"artBezeichnung": {
-						"type": "string"
-					},
-					"asetName": {
-						"type": "string",
-						"nullable": true
-					},
-					"asetFokus": {
-						"type": "string",
-						"nullable": true
-					}
-				},
-				"required": [
-					"aufId",
-					"beschreibung",
-					"aufgabenstellung",
-					"kontext",
-					"artBezeichnung",
-					"asetName",
-					"asetFokus"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"ISelectAufgabenSetResult": {
-				"description": "'SelectAufgabenSet' return type",
-				"properties": {
-					"id": {
-						"type": "number",
-						"format": "double"
-					},
-					"kuerzel": {
-						"type": "string"
-					},
-					"nameAset": {
-						"type": "string",
-						"nullable": true
-					},
-					"fokus": {
-						"type": "string",
-						"nullable": true
-					},
-					"kommentar": {
-						"type": "string",
-						"nullable": true
-					}
-				},
-				"required": [
-					"id",
-					"kuerzel",
-					"nameAset",
-					"fokus",
-					"kommentar"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"aufgabenDto": {
-				"properties": {
-					"ids": {
-						"items": {
-							"type": "number",
-							"format": "double"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"ids"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"ISelectAufgabenResult": {
-				"description": "'SelectAufgaben' return type",
-				"properties": {
-					"id": {
-						"type": "number",
-						"format": "double"
-					},
-					"beschreibungAufgabe": {
-						"type": "string",
-						"nullable": true
-					},
-					"aufgabenstellung": {
-						"type": "string",
-						"nullable": true
-					}
-				},
-				"required": [
-					"id",
-					"beschreibungAufgabe",
-					"aufgabenstellung"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
-			"ISelectAufgabenFromSetResult": {
-				"description": "'SelectAufgabenFromSet' return type",
-				"properties": {
-					"id": {
-						"type": "number",
-						"format": "double"
-					},
-					"variante": {
-						"type": "number",
-						"format": "double"
-					},
-					"beschreibungAufgabe": {
-						"type": "string",
-						"nullable": true
-					},
-					"aufgabenstellung": {
-						"type": "string",
-						"nullable": true
-					},
-					"kuerzel": {
-						"type": "string"
-					},
-					"nameAset": {
-						"type": "string",
-						"nullable": true
-					},
-					"bezPhaenomen": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"id",
-					"variante",
-					"beschreibungAufgabe",
-					"aufgabenstellung",
-					"kuerzel",
-					"nameAset",
-					"bezPhaenomen"
-				],
-				"type": "object",
-				"additionalProperties": true
-			},
 			"Antwort": {
 				"properties": {
 					"startAntwort": {
@@ -739,6 +581,286 @@
 					"ortho",
 					"textInOrtho",
 					"splemma"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAllAufgabenResult": {
+				"description": "'SelectAllAufgaben' return type",
+				"properties": {
+					"aufId": {
+						"type": "number",
+						"format": "double"
+					},
+					"beschreibung": {
+						"type": "string",
+						"nullable": true
+					},
+					"aufgabenstellung": {
+						"type": "string",
+						"nullable": true
+					},
+					"kontext": {
+						"type": "string",
+						"nullable": true
+					},
+					"artBezeichnung": {
+						"type": "string"
+					},
+					"asetName": {
+						"type": "string",
+						"nullable": true
+					},
+					"asetFokus": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"aufId",
+					"beschreibung",
+					"aufgabenstellung",
+					"kontext",
+					"artBezeichnung",
+					"asetName",
+					"asetFokus"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAllTeamsResult": {
+				"description": "'SelectAllTeams' return type",
+				"properties": {
+					"teamId": {
+						"type": "number",
+						"format": "double"
+					},
+					"team": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"teamId",
+					"team"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectOrtAufgabeResult": {
+				"description": "'SelectOrtAufgabe' return type",
+				"properties": {
+					"numAufg": {
+						"type": "string",
+						"nullable": true
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"aufgabenstellung": {
+						"type": "string",
+						"nullable": true
+					},
+					"ortNamelang": {
+						"type": "string"
+					},
+					"lat": {
+						"type": "string",
+						"nullable": true
+					},
+					"lon": {
+						"type": "string",
+						"nullable": true
+					},
+					"osmId": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"numAufg",
+					"id",
+					"aufgabenstellung",
+					"ortNamelang",
+					"lat",
+					"lon",
+					"osmId"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"aufgabenDto": {
+				"properties": {
+					"ids": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"ids"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAufgabenSetResult": {
+				"description": "'SelectAufgabenSet' return type",
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"kuerzel": {
+						"type": "string"
+					},
+					"nameAset": {
+						"type": "string",
+						"nullable": true
+					},
+					"fokus": {
+						"type": "string",
+						"nullable": true
+					},
+					"kommentar": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"kuerzel",
+					"nameAset",
+					"fokus",
+					"kommentar"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAufgabenResult": {
+				"description": "'SelectAufgaben' return type",
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"beschreibungAufgabe": {
+						"type": "string",
+						"nullable": true
+					},
+					"aufgabenstellung": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"beschreibungAufgabe",
+					"aufgabenstellung"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAufgabenFromSetResult": {
+				"description": "'SelectAufgabenFromSet' return type",
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"variante": {
+						"type": "number",
+						"format": "double"
+					},
+					"beschreibungAufgabe": {
+						"type": "string",
+						"nullable": true
+					},
+					"aufgabenstellung": {
+						"type": "string",
+						"nullable": true
+					},
+					"kuerzel": {
+						"type": "string"
+					},
+					"nameAset": {
+						"type": "string",
+						"nullable": true
+					},
+					"bezPhaenomen": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"variante",
+					"beschreibungAufgabe",
+					"aufgabenstellung",
+					"kuerzel",
+					"nameAset",
+					"bezPhaenomen"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"Aufgabe": {
+				"properties": {
+					"startAufgabe": {
+						"type": "string"
+					},
+					"stopAufgabe": {
+						"type": "string"
+					},
+					"aufgabe": {
+						"type": "string"
+					},
+					"aufgabeId": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"startAufgabe",
+					"stopAufgabe",
+					"aufgabe",
+					"aufgabeId"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"AufgabeStamp": {
+				"properties": {
+					"dateipfad": {
+						"type": "string",
+						"nullable": true
+					},
+					"audiofile": {
+						"type": "string",
+						"nullable": true
+					},
+					"gruppeBez": {
+						"type": "string",
+						"nullable": true
+					},
+					"teamBez": {
+						"type": "string",
+						"nullable": true
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/Aufgabe"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"dateipfad",
+					"audiofile",
+					"gruppeBez",
+					"teamBez",
+					"data"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1068,122 +1190,6 @@
 				]
 			}
 		},
-		"/aufgaben": {
-			"get": {
-				"operationId": "GetAllAufgaben",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/ISelectAllAufgabenResult"
-									},
-									"type": "array"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": []
-			},
-			"post": {
-				"operationId": "GetAufgabenPhaen",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/ISelectAufgabenResult"
-									},
-									"type": "array"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/aufgabenDto"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/aufgaben/sets": {
-			"post": {
-				"operationId": "GetAufgabenSets",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/ISelectAufgabenSetResult"
-									},
-									"type": "array"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/aufgabenDto"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/aufgaben/setaufgabe": {
-			"post": {
-				"operationId": "GetTagOrte",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/ISelectAufgabenFromSetResult"
-									},
-									"type": "array"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/aufgabenDto"
-							}
-						}
-					}
-				}
-			}
-		},
 		"/antworten": {
 			"get": {
 				"operationId": "GetAntbyAufgaben",
@@ -1333,6 +1339,208 @@
 						}
 					}
 				]
+			}
+		},
+		"/aufgaben": {
+			"get": {
+				"operationId": "GetAllAufgaben",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAllAufgabenResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "GetAufgabenPhaen",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAufgabenResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/aufgabenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/aufgaben/teams": {
+			"get": {
+				"operationId": "GetAllTeams",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAllTeamsResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/aufgaben/orte": {
+			"post": {
+				"operationId": "GetAufgabenOrte",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectOrtAufgabeResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/aufgabenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/aufgaben/sets": {
+			"post": {
+				"operationId": "GetAufgabenSets",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAufgabenSetResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/aufgabenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/aufgaben/setaufgabe": {
+			"post": {
+				"operationId": "GetTagOrte",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAufgabenFromSetResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/aufgabenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/aufgaben/audio": {
+			"post": {
+				"operationId": "GetAntByTags",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/AufgabeStamp"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/antwortenDto"
+							}
+						}
+					}
+				}
 			}
 		}
 	},
