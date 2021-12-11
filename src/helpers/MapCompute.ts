@@ -1,10 +1,10 @@
 import { TagOrteResults } from "../static/apiModels";
 
-export const computePropCircle = (data: Array<TagOrteResults>, maxRadius: number): number => {
+export const computePropCircle = (data: Array<number>, maxRadius: number): number => {
   const radiusOfData: Array<number> = [];
   let max = 0
   for (const d of data) {
-    if(d.numTag > max) max = d.numTag;
+    if(d > max) max = d;
   }
   return maxRadius / max;
 };
