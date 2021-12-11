@@ -121,6 +121,11 @@
                         chips
                         multiple
                       ></v-select>
+                      <v-text-field
+                        v-model="paraLemma"
+                        label="Token eingeben"
+                      ></v-text-field>
+                      <v-autocomplete v-model="paraLemma" />
 
                       <v-text-field
                         v-model="paraLemma"
@@ -246,6 +251,7 @@
 import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
 import { legendMod } from "@/store/modules/legend";
+import { transModule } from "@/store/modules/transcripts";
 import { TagTree } from "@/api/dioe-public-api";
 import TagView from "@/components/TagView.vue";
 import draggable from "vuedraggable";
@@ -302,7 +308,7 @@ export default class QueryCreator extends Vue {
 
   range = [20, 70];
 
-  token = ["Orthographische Umschrift", "LU", "Phonetische", "Lemma"];
+  token = ["Orthographisch", "Phonetisch"];
   projects = ["PP11"];
   testItems = ["UND", "ODER"];
   gender = ["Männlich", "Weiblich"];
@@ -313,6 +319,7 @@ export default class QueryCreator extends Vue {
 
   TM = tagModule;
   LM = legendMod;
+  TaM = transModule;
 
   get jobs() {
     return this.TM.jobList;
