@@ -15,8 +15,10 @@ import {ISelectAufgabenFromSetResult} from "../../api/dioe-public-api/models/ISe
 import {ISelectAufgabenResult} from "../../api/dioe-public-api/models/ISelectAufgabenResult";
 import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenSetResult";
 import {ISelectAllAufgabenResult} from "../../api/dioe-public-api/models/ISelectAllAufgabenResult";
-import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
 import { AntwortTokenStamp } from "../../api/dioe-public-api/models/AntwortTokenStamp";
+import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
+import { ISelectOrtAufgabeResult } from "../../api/dioe-public-api/models/ISelectOrtAufgabeResult";
+
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
 
 export interface AufgabenState {
@@ -40,6 +42,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     allSaetze = [] as Array<ISelectSatzResult>;
 
     antworten = [] as Array<AntwortenFromAufgabe>;
+    aufgabenOrt = [] as Array<ISelectOrtAufgabeResult>
     loading = false;
 
     @Mutation
@@ -142,6 +145,17 @@ class Aufgaben extends VuexModule implements AufgabenState{
         const res = await api.dioePublic.getAntbyAufgaben(arg.sid, arg.aid);
         return {
             antworten: res,
+            loading: false
+        }
+    }
+
+    @MutationAction({ mutate: ['aufgabenOrt', 'loading']})
+    async fetchAufgabenOrt(arg: { ids: number[] }){
+        // @ts-ignore
+        this.commit('setLoading', true);
+        const res = await api.dioePublic.getAufgabenOrte(arg);
+        return {
+            aufgabenOrt: res,
             loading: false
         }
     }
