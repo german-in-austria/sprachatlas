@@ -7,6 +7,7 @@ import {
   getModule
 } from "vuex-module-decorators";
 import store from "@/store";
+import api from '@/api';
 import {
   getEinzelerhebungen,
   getTranscripts,
@@ -50,6 +51,7 @@ class Transcripts extends VuexModule {
     phon: string;
     lemma: string;
   }) {
+    // @ts-ignore
     this.commit("setLoading", true);
     const res = await api.dioePublic.getMatchingTokens(arg.ortho, arg.phon, arg.lemma);
     return {
