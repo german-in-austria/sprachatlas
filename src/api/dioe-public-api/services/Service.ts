@@ -352,7 +352,7 @@ export class Service {
      * @returns AufgabeStamp Ok
      * @throws ApiError
      */
-    public static async getAntByTags1(
+    public static async getAntAudioByOrt(
         requestBody: antwortenDto,
     ): Promise<Array<AufgabeStamp>> {
         const result = await __request({

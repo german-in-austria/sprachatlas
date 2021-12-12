@@ -1513,7 +1513,7 @@
 		},
 		"/aufgaben/audio": {
 			"post": {
-				"operationId": "GetAntByTags",
+				"operationId": "GetAntAudioByOrt",
 				"responses": {
 					"200": {
 						"description": "Ok",
