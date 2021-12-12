@@ -123,7 +123,7 @@ export interface LegendGlobal {
   stroke: boolean;
   strokeWidth: number;
   parameter: Parameter[] | null;
-  layer: L.LayerGroup | null;
+  layer: L.LayerGroup;
   vis: boolean;
   name: string
 }

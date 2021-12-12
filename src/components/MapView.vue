@@ -92,11 +92,12 @@
                       }}</v-list-item-subtitle>
                     </template>
                     <template v-else-if="item.type === 4">
-                      <v-list-item-title>{{
-                        item.name ? item.name : item.kontext
-                      }}</v-list-item-title>
+                      <v-list-item-title>
+                        {{ item.content.Aufgabenstellung }}</v-list-item-title
+                      >
                       <v-list-item-subtitle
-                        >{{ item.content.Aufgabenstellung }} - Aufgabenart:
+                        >{{ item.name ? item.name : item.kontext }} -
+                        Aufgabenart:
                         {{ item.content.artBezeichnung }}</v-list-item-subtitle
                       >
                     </template>
@@ -413,11 +414,16 @@
         </template>
         <template
           v-else-if="
-            antwortenAudio && antwortenAudio.length >= 0 && !aufgabenLoading
+            ((antwortenAudio && antwortenAudio.length >= 0) ||
+              (aufgabeSingleOrt && aufgabeSingleOrt.length >= 0)) &&
+            !aufgabenLoading
           "
         >
           <transition name="expand-slide" appear>
-            <v-card v-if="antwortenAudio.length > 0" elevation="2">
+            <v-card
+              v-if="antwortenAudio.length > 0 || aufgabeSingleOrt.length > 0"
+              elevation="2"
+            >
               <v-card-title>
                 Verfügbare Audioaufnahmen für
                 {{ selectedOrt.ortName.split(",")[0] }}
@@ -429,7 +435,7 @@
               <v-card-text>
                 <v-expansion-panels focusable>
                   <v-expansion-panel
-                    v-for="(d, idx) in antwortenAudio"
+                    v-for="(d, idx) in aufgabeSingleOrt.concat(antwortenAudio)"
                     :key="idx"
                   >
                     <v-expansion-panel-header>
@@ -697,23 +703,32 @@ import IconCircle from "@/icons/IconCircle.vue";
 import AudioPlayer from "@/components/AudioPlayer.vue";
 
 import { getOrtName } from "@/helpers/helper";
-import { AntwortenFromAufgabe, AntwortTokenStamp } from "@/api/dioe-public-api";
+import {
+  AntwortenFromAufgabe,
+  AntwortTokenStamp,
+  ISelectOrtAufgabeResult,
+} from "@/api/dioe-public-api";
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
 const standardFactor = 300;
 
-type singleTag = {
+type singleEntry = {
+  // value of the entry
   v: number;
   name: string;
+  // color
   c: string;
+  // radius for sideways
   r: number;
+  // id of the entry
   id: string;
+  // Chosen icon
   icon: Symbols;
 };
 
 type circleData = {
-  data: Array<singleTag>;
+  data: Array<singleEntry>;
   ortName: string;
   lat: number;
   lon: number;
@@ -1140,6 +1155,14 @@ export default class MapView extends Vue {
     return this.AM.antworten;
   }
 
+  get aufgabenOrt() {
+    return this.AM.aufgabenOrt;
+  }
+
+  get aufgabeSingleOrt() {
+    return this.AM.aufgabeSingleOrt;
+  }
+
   @Watch("searchInput")
   search(val: any) {
     if (!val) return;
@@ -1214,7 +1237,7 @@ export default class MapView extends Vue {
   onLegendChange(el: LegendGlobal) {
     if (el.type === SearchItems.Tag) {
       el.layer?.clearLayers();
-      this.displaySingleTagLegend(this.legendGlobalTag);
+      this.displayDataFromLegend(this.legendGlobalTag);
     } else if (el.type === SearchItems.Ort) {
       const lay = el.layer;
       if (lay) {
@@ -1314,7 +1337,7 @@ export default class MapView extends Vue {
         this.addSearchTerms(
           this.allAufgaben,
           SearchItems.Aufgaben,
-          "Beschreibung"
+          "Aufgabenstellung"
         );
         this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript");
         break;
@@ -1322,7 +1345,7 @@ export default class MapView extends Vue {
         this.addSearchTerms(
           this.allAufgaben,
           SearchItems.Aufgaben,
-          "Beschreibung"
+          "Aufgabenstellung"
         );
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
@@ -1381,7 +1404,7 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
   }
 
-  createRectIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
+  createRectIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
@@ -1395,7 +1418,7 @@ export default class MapView extends Vue {
     return rect;
   }
 
-  createTriIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
+  createTriIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
@@ -1409,7 +1432,10 @@ export default class MapView extends Vue {
     return rect;
   }
 
-  createCircleIcon(ort: circleData, data: singleTag[]): L.Icon<L.IconOptions> {
+  createCircleIcon(
+    ort: circleData,
+    data: singleEntry[]
+  ): L.Icon<L.IconOptions> {
     let s = ort.size;
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
@@ -1431,60 +1457,57 @@ export default class MapView extends Vue {
   }
 
   extractTagData(
-    tags: TagOrteResults[],
     color: string,
-    layer: L.LayerGroup,
-    vis: boolean,
+    icon: Symbols,
     size: number,
+    vis: boolean,
+    layer: L.LayerGroup,
     data: Array<circleData>,
-    icon: Symbols
+    osm: number,
+    lon: number,
+    lat: number,
+    ortName: string,
+    num: number,
+    name: string,
+    propSize: number,
+    id: string
   ): Array<circleData> {
     if (vis) {
-      const propFactor = computePropCircle(tags, 20 * this.kmPerPixel);
-      for (const tag of tags) {
-        const ort = data.findIndex(
-          (tD) =>
-            (tag.osmId && tag.osmId == tD.osm) ||
-            (tag.lat &&
-              tag.lat &&
-              tD.lon === Number(tag.lon) &&
-              tD.lat === Number(tag.lat))
-        );
-        if (ort > -1) {
-          // Element with geodata already exists in data
-          const curTag = data[ort];
-          if (isArray(curTag.data))
-            curTag.data.push({
-              v: tag.numTag,
-              name: tag.tagName,
+      const ort = data.findIndex(
+        (tD) => osm === tD.osm || (tD.lon === lon && tD.lat === lat)
+      );
+      if (ort > -1) {
+        // Element with geodata already exists in data
+        data[ort].data.push({
+          v: num,
+          name: name,
+          c: color,
+          r: propSize,
+          id: id,
+          icon: icon,
+        } as singleEntry);
+      } else {
+        // Element doesnt exist and needs to be added
+        const newTagData: circleData = {
+          lat: lat,
+          lon: lon,
+          osm: osm,
+          ortName: ortName,
+          layer: layer,
+          size: size,
+          strokeWidth: 1,
+          data: [
+            {
+              v: num,
+              name: name,
               c: color,
-              r: tag.numTag * propFactor,
-              id: tag.tagId,
+              r: propSize,
+              id: id,
               icon: icon,
-            } as singleTag);
-        } else {
-          // Element doesnt exist and needs to be added
-          const newTagData: circleData = {
-            lat: Number(tag.lat),
-            lon: Number(tag.lon),
-            osm: tag.osmId ? tag.osmId : -1,
-            ortName: tag.ortNamelang ? tag.ortNamelang : "",
-            layer: layer,
-            size: size,
-            strokeWidth: 1,
-            data: [
-              {
-                v: tag.numTag,
-                name: tag.tagName,
-                c: color,
-                r: tag.numTag * propFactor,
-                id: tag.tagId,
-                icon: icon,
-              },
-            ] as singleTag[],
-          };
-          data.push(newTagData);
-        }
+            },
+          ] as singleEntry[],
+        };
+        data.push(newTagData);
       }
     }
     return data;
@@ -1492,7 +1515,7 @@ export default class MapView extends Vue {
 
   createIcon(
     ort: circleData,
-    data: singleTag[],
+    data: singleEntry[],
     icon: Symbols
   ): L.Icon<L.IconOptions> {
     switch (icon) {
@@ -1508,7 +1531,25 @@ export default class MapView extends Vue {
     }
   }
 
-  addDataToMap(data: Array<circleData>) {
+  audioListener(ort: circleData, type: SearchItems) {
+    const ids = [];
+    for (const tag of ort.data) {
+      const id = tag.id ? Number(tag.id) : -1;
+      if (id != -1) ids.push(id);
+    }
+    this.selectedOrt = ort;
+    this.showAudio = true;
+    switch (type) {
+      case SearchItems.Tag:
+        this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+        break;
+      case SearchItems.Aufgaben:
+        this.AM.fetchAufgabenAudioOrt({ ids: ids, osmId: ort.osm });
+        break;
+    }
+  }
+
+  addDataToMap(data: Array<circleData>, type: SearchItems) {
     for (const ort of data) {
       if (this.showDataSideways) {
         let idx = 0;
@@ -1531,16 +1572,7 @@ export default class MapView extends Vue {
             riseOnHover: true,
           })
             .addTo(ort.layer)
-            .on("click", (e) => {
-              const ids = [];
-              for (const tag of ort.data) {
-                const id = tag.id ? Number(tag.id) : -1;
-                if (id != -1) ids.push(id);
-              }
-              this.selectedOrt = ort;
-              this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
-              this.showAudio = true;
-            });
+            .on("click", (e) => this.audioListener(ort, type));
           // @ts-ignore
           this.map.addLayer(ort.layer);
           idx++;
@@ -1552,46 +1584,75 @@ export default class MapView extends Vue {
           riseOnHover: true,
         })
           .addTo(ort.layer)
-          .on("click", (e) => {
-            const ids = [];
-            for (const tag of ort.data) {
-              const id = tag.id ? Number(tag.id) : -1;
-              if (id != -1) ids.push(id);
-            }
-            this.selectedOrt = ort;
-            this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
-            this.showAudio = true;
-          });
+          .on("click", (e) => this.audioListener(ort, type));
         // @ts-ignore
         this.map.addLayer(ort.layer);
       }
     }
   }
 
-  displaySingleTagLegend(tags: LegendGlobal[]) {
-    // Array for the extracted Tag data with geo data
-    const data = [] as Array<circleData>;
-    // Iterate through the array and sort by geo data
-    // Get the values for the diagram
-    for (const ele of tags) {
-      // Layer where the data is going to be displayed
-      const layer = ele.layer ? ele.layer : L.layerGroup();
-      layer.clearLayers();
-      const cont = ele.content as TagOrteResults[];
-      data.push.apply(
+  displayAufgabeFromLegend(
+    aufgabe: LegendGlobal,
+    data: Array<circleData>
+  ): Array<circleData> {
+    aufgabe.layer.clearLayers();
+    const cont = aufgabe.content as ISelectOrtAufgabeResult[];
+    const propFactor = computePropCircle(
+      cont.map((val) => Number(val.numAufg)),
+      20 * this.kmPerPixel
+    );
+    for (const aufg of cont) {
+      data = this.extractTagData(
+        aufgabe.color,
+        aufgabe.symbol,
+        aufgabe.size,
+        aufgabe.vis,
+        aufgabe.layer,
         data,
-        this.extractTagData(
-          cont,
-          ele.color,
-          layer,
-          ele.vis,
-          ele.size,
-          data,
-          ele.symbol
-        )
+        aufg.osmId ? Number(aufg.osmId) : -1,
+        Number(aufg.lon),
+        Number(aufg.lat),
+        aufg.ortNamelang,
+        aufg.numAufg ? Number(aufg.numAufg) : 1,
+        aufg.aufgabenstellung ? aufg.aufgabenstellung : "",
+        propFactor * Number(aufg.numAufg),
+        aufg.id.toString()
       );
     }
-    this.addDataToMap(data);
+    return data;
+    // this.addDataToMap(data);
+  }
+
+  displaySingleTagLegend(
+    tags: LegendGlobal,
+    data: Array<circleData>
+  ): Array<circleData> {
+    tags.layer.clearLayers();
+    const cont = tags.content as TagOrteResults[];
+    const propFactor = computePropCircle(
+      cont.map((val) => val.numTag),
+      20 * this.kmPerPixel
+    );
+    for (const tag of cont) {
+      data = this.extractTagData(
+        tags.color,
+        tags.symbol,
+        tags.size,
+        tags.vis,
+        tags.layer,
+        data,
+        tag.osmId ? tag.osmId : -1,
+        Number(tag.lon),
+        Number(tag.lat),
+        tag.ortNamelang ? tag.ortNamelang : "",
+        tag.numTag,
+        tag.tagName,
+        propFactor * tag.numTag,
+        tag.tagId ? tag.tagId : ""
+      );
+    }
+    return data;
+    // this.addDataToMap(data);
   }
 
   displayOrt(layer: L.LayerGroup) {
@@ -1666,22 +1727,35 @@ export default class MapView extends Vue {
             idToTag.get(p.id).includes(el.tagId)
           );
           q.content = tagData;
-          data.push.apply(
-            data,
-            this.extractTagData(
-              q.content,
-              p.color ? p.color : this.colors[this.colorid++],
-              layer,
-              p.visible && q.vis,
-              p.size ? p.size : 12,
-              data,
-              q.symbol
-            )
+          const propFactor = computePropCircle(
+            q.content.map((val: any) => val.numTag),
+            20 * this.kmPerPixel
           );
+          for (const t of q.content) {
+            data.push.apply(
+              data,
+              this.extractTagData(
+                p.color ? p.color : this.colors[this.colorid++],
+                q.symbol,
+                p.size ? p.size : 12,
+                p.visible && q.vis,
+                layer,
+                data,
+                t.osmId ? t.osmId : -1,
+                Number(t.lon),
+                Number(t.lat),
+                t.ortNamelang ? t.ortNamelang : "",
+                t.numTag,
+                t.tagName,
+                propFactor * t.numTag,
+                t.tagId ? t.tagId : ""
+              )
+            );
+          }
         });
       }
     }
-    this.addDataToMap(data);
+    this.addDataToMap(data, SearchItems.Tag);
   }
 
   drawSentence(legSentence: Array<LegendGlobal>) {
@@ -1710,10 +1784,10 @@ export default class MapView extends Vue {
   displayDataFromLegend(legend: LegendGlobal[]) {
     this.clearLayer();
     this.showLegend = true;
-    this.displaySingleTagLegend(this.legendGlobalTag);
     this.displayParameters(this.legendGlobalQuery);
+    let tagData: Array<circleData> = [];
+    let aufData: Array<circleData> = [];
     for (const l of legend) {
-      const layer = l.layer ? l.layer : L.layerGroup();
       switch (l.type) {
         case SearchItems.Ort:
           const ort: ApiLocSingleResponse = l.content;
@@ -1723,12 +1797,20 @@ export default class MapView extends Vue {
             l.color,
             l.strokeWidth,
             l.size,
-            layer
+            l.layer
           );
           circle.bindPopup(ort.ort_namelang.split(",")[0]);
           break;
+        case SearchItems.Tag:
+          this.displaySingleTagLegend(l, tagData);
+          break;
+        case SearchItems.Aufgaben:
+          this.displayAufgabeFromLegend(l, aufData);
+          break;
       }
     }
+    this.addDataToMap(tagData, SearchItems.Tag);
+    this.addDataToMap(aufData, SearchItems.Aufgaben);
   }
 
   async createTagLegend(layer: L.LayerGroup) {
@@ -1777,14 +1859,13 @@ export default class MapView extends Vue {
         this.resetMap();
         this.createTagLegend(newLayer).then((res) => {
           legendMod.addLegendEntry(res);
-          this.displaySingleTagLegend(this.legendGlobalTag);
+          this.displayDataFromLegend(this.legendGlobalTag);
         });
       } else if (this.searchTerm.type === SearchItems.Saetze) {
         const sid = this.searchTerm.content.id;
         const term = this.searchTerm.content.transkript;
         await this.AM.fetchAntworten({ sid: sid });
         const res = this.einzelAntworten;
-        console.log(term);
         this.resetMap();
         const legEntry = await this.LM.createLegendEntry({
           icon: Symbols.Circle,
@@ -1796,6 +1877,20 @@ export default class MapView extends Vue {
           type: this.searchTerm.type,
         });
         this.LM.addLegendEntry(legEntry);
+      } else if (this.searchTerm.type === SearchItems.Aufgaben) {
+        const content = this.searchTerm.content;
+        await this.AM.fetchAufgabenOrt({ ids: [content.aufId] });
+        const leg = await this.LM.createLegendEntry({
+          icon: Symbols.Circle,
+          layer: L.layerGroup(),
+          name: content.Aufgabenstellung,
+          color: this.colors[this.colorid++],
+          radius: 12,
+          content: this.aufgabenOrt,
+          type: this.searchTerm.type,
+        });
+        this.LM.addLegendEntry(leg);
+        this.displayDataFromLegend([leg]);
       }
       if (this.colorid >= this.colors.length) {
         this.colorid = 0;
@@ -1987,7 +2082,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
