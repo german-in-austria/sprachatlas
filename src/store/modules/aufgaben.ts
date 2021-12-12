@@ -19,6 +19,8 @@ import { AntwortTokenStamp } from "../../api/dioe-public-api/models/AntwortToken
 import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
 import { ISelectOrtAufgabeResult } from "../../api/dioe-public-api/models/ISelectOrtAufgabeResult";
 import { AufgabeStamp } from "../../api/dioe-public-api/models/AufgabeStamp";
+import { ISelectAllTeamsResult } from "../../api/dioe-public-api/models/ISelectAllTeamsResult";
+
 
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
 
@@ -45,6 +47,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     antworten = [] as Array<AntwortenFromAufgabe>;
     aufgabenOrt = [] as Array<ISelectOrtAufgabeResult>;
     aufgabeSingleOrt = [] as Array<AufgabeStamp>;
+    teams = [] as Array<ISelectAllTeamsResult>;
     loading = false;
 
     @Mutation
@@ -169,6 +172,17 @@ class Aufgaben extends VuexModule implements AufgabenState{
         const res = await api.dioePublic.getAntAudioByOrt(arg);
         return {
             aufgabeSingleOrt: res,
+            loading: false
+        }
+    }
+
+    @MutationAction({ mutate: ['teams', 'loading']})
+    async fetchAllTeams() {
+        // @ts-ignore
+        this.commit('setLoading', true);
+        const res = await api.dioePublic.getAllTeams();
+        return {
+            teams: res,
             loading: false
         }
     }

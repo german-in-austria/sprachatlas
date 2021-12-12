@@ -23,7 +23,9 @@
                 ></v-text-field>
                 <v-select
                   v-model="selProject"
-                  :items="projects"
+                  :items="teams"
+                  item-text="team"
+                  item-value="teamId"
                   label="Projekt"
                 ></v-select>
                 <v-expansion-panels>
@@ -267,6 +269,7 @@ import * as LZ from "lz-string";
 import { generateID } from "@/helpers/helper";
 import IconCircle from "@/icons/IconCircle.vue";
 import SymbolPicker from "@/components/SymbolPicker.vue";
+import { aufgabenModule } from "@/store/modules/aufgaben";
 
 @Component({
   components: { draggable, TagView, IconCircle, SymbolPicker },
@@ -319,6 +322,7 @@ export default class QueryCreator extends Vue {
 
   TM = tagModule;
   LM = legendMod;
+  AM = aufgabenModule;
   TaM = transModule;
 
   get jobs() {
@@ -351,6 +355,10 @@ export default class QueryCreator extends Vue {
 
   get legendLoad() {
     return this.LM.loading;
+  }
+
+  get teams() {
+    return this.AM.teams;
   }
 
   editLegName() {
@@ -447,6 +455,7 @@ export default class QueryCreator extends Vue {
   }
 
   beforeCreate() {
+    aufgabenModule.fetchAllTeams();
     if (tagModule.tagList == null) {
       console.log("fetching Tags");
       tagModule.fetchTags();
