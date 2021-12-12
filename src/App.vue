@@ -59,6 +59,7 @@ export default class App extends Vue {
   mounted() {
     initGeo();
     tagModule.fetchTags();
+    tagModule.fetchPresetTags();
     tagModule.fetchJobs();
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();

@@ -10,6 +10,7 @@ import store from '@/store'
 
 import { Parameter, Job, JobList, LegendList, TagSelection, TagOrteResults } from '@/static/apiModels';
 
+import { IGetPresetTagsResult } from "../../api/dioe-public-api/models/IGetPresetTagsResult";
 import { TagTree } from '@/api/dioe-public-api';
 import api from '@/api';
 import { getBerufe } from '@/api/erhebungen';
@@ -36,6 +37,7 @@ class Tags extends VuexModule implements TagState {
   legends: LegendList[] = [];
   jobList: Job[] = [];
   parameters: Parameter[] = [];
+  presetTags = [] as Array<IGetPresetTagsResult>;
   tagList: TagTree[] | null = null;
   loading = false;
 
@@ -192,6 +194,29 @@ class Tags extends VuexModule implements TagState {
     console.log('fetched data');
     return {
       jobList: response.data,
+      loading: false
+    }
+  }
+
+  @MutationAction({ mutate: ['presetTags', 'loading'] })
+  async fetchPresetTags () {
+    // @ts-ignore
+    this.commit('setLoading', true);
+    console.log('trying to fetch data')
+    const response = await api.dioePublic.getPresetTags();
+    console.log('fetched data');
+    return {
+      presetTags: response,
+      loading: false
+    }
+  }
+
+  @MutationAction({ mutate: ['tagOrteResults', 'loading']})
+  async fetchTagOrtePreset (presetID: number){
+    this.loading = true;
+    const res = await api.dioePublic.getTagsFromPreset({ids: [presetID]});
+    return {
+      tagOrteResults: res,
       loading: false
     }
   }
