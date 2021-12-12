@@ -1500,6 +1500,7 @@ export default class MapView extends Vue {
     icon: Symbols,
     size: number,
     vis: boolean,
+    stroke: number,
     layer: L.LayerGroup,
     data: Array<circleData>,
     osm: number,
@@ -1534,7 +1535,7 @@ export default class MapView extends Vue {
           ortName: ortName,
           layer: layer,
           size: size,
-          strokeWidth: 1,
+          strokeWidth: stroke,
           data: [
             {
               v: num,
@@ -1646,6 +1647,7 @@ export default class MapView extends Vue {
         aufgabe.symbol,
         aufgabe.size,
         aufgabe.vis,
+        aufgabe.strokeWidth,
         aufgabe.layer,
         data,
         aufg.osmId ? Number(aufg.osmId) : -1,
@@ -1678,6 +1680,7 @@ export default class MapView extends Vue {
         tags.symbol,
         tags.size,
         tags.vis,
+        tags.strokeWidth,
         tags.layer,
         data,
         tag.osmId ? tag.osmId : -1,
@@ -1778,6 +1781,7 @@ export default class MapView extends Vue {
                 q.symbol,
                 p.size ? p.size : 12,
                 p.visible && q.vis,
+                q.strokeWidth,
                 layer,
                 data,
                 t.osmId ? t.osmId : -1,
@@ -2141,7 +2145,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
