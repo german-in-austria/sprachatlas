@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type Aufgabe = {
-    startAufgabe: string;
-    stopAufgabe: string;
+    start: string;
+    stop: string;
     aufgabe: string;
     aufgabeId: number;
 }
