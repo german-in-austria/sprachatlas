@@ -104,6 +104,7 @@ export enum SearchItems {
   Query, // 3
   Aufgaben, // 4
   Saetze, // 5
+  Presets, // 7
   Alle // 6
 }
 

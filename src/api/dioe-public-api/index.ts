@@ -13,6 +13,7 @@ export type { AntwortTokenStamp } from './models/AntwortTokenStamp';
 export type { Aufgabe } from './models/Aufgabe';
 export type { aufgabenDto } from './models/aufgabenDto';
 export type { AufgabeStamp } from './models/AufgabeStamp';
+export type { IGetPresetTagsResult } from './models/IGetPresetTagsResult';
 export type { ISelectAllAufgabenResult } from './models/ISelectAllAufgabenResult';
 export type { ISelectAllTeamsResult } from './models/ISelectAllTeamsResult';
 export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';

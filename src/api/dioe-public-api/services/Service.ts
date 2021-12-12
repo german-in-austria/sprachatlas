@@ -6,6 +6,7 @@ import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
 import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { AufgabeStamp } from '../models/AufgabeStamp';
+import type { IGetPresetTagsResult } from '../models/IGetPresetTagsResult';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
 import type { ISelectAllTeamsResult } from '../models/ISelectAllTeamsResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
@@ -49,7 +50,7 @@ export class Service {
     ): Promise<Array<ISelectTagByIdResult>> {
         const result = await __request({
             method: 'GET',
-            path: `/tags/${tagId}`,
+            path: `/tags/id/${tagId}`,
         });
         return result.body;
     }
@@ -80,6 +81,34 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/tags/layers`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns IGetPresetTagsResult Ok
+     * @throws ApiError
+     */
+    public static async getPresetTags(): Promise<Array<IGetPresetTagsResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/tags/preset`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectOrtTagsResult Ok
+     * @throws ApiError
+     */
+    public static async getTagsFromPreset(
+        requestBody: tagDto,
+    ): Promise<Array<ISelectOrtTagsResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/tags/preset`,
+            body: requestBody,
         });
         return result.body;
     }
