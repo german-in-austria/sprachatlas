@@ -6,6 +6,7 @@
       class="mx-auto"
       max-width="300"
       min-width="250"
+      max-height="500"
     >
       <v-divider class="mx-4"></v-divider>
       <v-card-title
@@ -218,3 +219,14 @@ export default class LegendItem extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .v-card {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .v-card__text {
+    flex-grow: 1;
+    overflow: auto;
+  }
+</style>
