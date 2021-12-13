@@ -1570,7 +1570,7 @@ export default class MapView extends Vue {
     for (const ort of data) {
       if (this.showDataSideways) {
         let idx = 0;
-        const lonToPoint = this.map.latLngToContainerPoint([ort.lat, ort.lon]);
+        let lonToPoint = this.map.latLngToContainerPoint([ort.lat, ort.lon]);
         let rad = 0;
         for (const d of ort.data) {
           const circleIcon = this.createIcon(ort, [d], d.icon);
@@ -1583,6 +1583,7 @@ export default class MapView extends Vue {
             idx === 0 ? lonToPoint.x : rad + lonToPoint.x + s * 2,
             lonToPoint.y,
           ]);
+          lonToPoint = this.map.latLngToContainerPoint(lonOffset);
           rad = (s * 2) / this.kmPerPixel;
           const marker = L.marker(lonOffset, {
             icon: circleIcon,
@@ -1623,7 +1624,7 @@ export default class MapView extends Vue {
     const cont = aufgabe.content as ISelectOrtAufgabeResult[];
     const propFactor = computePropCircle(
       cont.map((val) => Number(val.numAufg)),
-      20 * this.kmPerPixel
+      20
     );
     for (const aufg of cont) {
       data = this.extractTagData(
@@ -2129,7 +2130,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
