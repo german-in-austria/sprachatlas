@@ -35,6 +35,10 @@
           <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
         </v-btn>
       </div>
+      <div class="text-center">
+        <div class="mx-2">Tag: {{ data[timestampId]["tagName"] }}</div>
+        <div class="mx-2">Ortho: {{ data[timestampId]["orthoText"] }}</div>
+      </div>
     </template>
   </v-layout>
 </template>
@@ -89,7 +93,11 @@ export default class AudioPlayer extends Vue {
     if (start.minutes) {
       sec += start.minutes * 60;
     }
-    sec += start.seconds + start.milliseconds / 1000;
+    sec += start.seconds;
+    if (start.milliseconds) {
+      sec += start.milliseconds / 1000;
+    }
+    console.log(sec);
     return sec;
   }
 
@@ -99,7 +107,11 @@ export default class AudioPlayer extends Vue {
     if (end.minutes) {
       sec += end.minutes * 60;
     }
-    sec += end.seconds + end.milliseconds / 1000;
+    sec += end.seconds;
+    if (end.milliseconds) {
+      sec += end.milliseconds / 1000;
+    }
+    console.log(sec);
     return sec;
   }
 
@@ -126,15 +138,20 @@ export default class AudioPlayer extends Vue {
     if (this.timestampId < 0) {
       this.timestampId = 0;
     }
-
+    this.completion = 0;
     track.currentTime = this.timestampStart;
-    if (track.paused) track.pause();
   }
 
   async play() {
     const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    console.log(track.paused);
     if (track.paused) {
-      track.currentTime = this.timestampStart;
+      if (
+        track.currentTime <= this.timestampStart ||
+        track.currentTime >= this.timestampEnd
+      ) {
+        track.currentTime = this.timestampStart;
+      }
       track.volume = 0;
       this.audioFadeIn(this.timestampStart);
       try {
@@ -192,13 +209,15 @@ export default class AudioPlayer extends Vue {
     const sound = document.getElementById(this.trackId) as HTMLAudioElement;
     sound.addEventListener("timeupdate", () => {
       this.time = sound.currentTime - this.timestampStart;
-      this.completion = (this.time / this.duration) * 100;
-      if (sound.currentTime >= this.timestampEnd && !this.repeat) {
-        this.audioFadeOut();
-        this.pause();
-      } else if (sound.currentTime >= this.timestampEnd && this.repeat) {
-        sound.currentTime = this.timestampStart;
-        this.completion = 0;
+      if (!sound.paused) {
+        this.completion = (this.time / this.duration) * 100;
+        if (sound.currentTime >= this.timestampEnd && !this.repeat) {
+          this.audioFadeOut();
+          this.pause();
+        } else if (sound.currentTime >= this.timestampEnd && this.repeat) {
+          sound.currentTime = this.timestampStart;
+          this.completion = 0;
+        }
       }
     });
   }
