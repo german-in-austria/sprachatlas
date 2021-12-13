@@ -36,8 +36,15 @@
         </v-btn>
       </div>
       <div class="text-center">
-        <div class="mx-2">Tag: {{ data[timestampId]["tagName"] }}</div>
-        <div class="mx-2">Ortho: {{ data[timestampId]["orthoText"] }}</div>
+        <template v-if="data[timestampId].tagName">
+          <div class="mx-2">Tag: {{ data[timestampId]["tagName"] }}</div>
+          <template v-if="data[timestampId].orthoText">
+            <div class="mx-2">Ortho: {{ data[timestampId]["orthoText"] }}</div>
+          </template>
+        </template>
+        <template v-if="data[timestampId].aufgabe">
+          <div class="mx-2">Aufgabe: {{ data[timestampId].aufgabe }}</div>
+        </template>
       </div>
     </template>
   </v-layout>
@@ -97,7 +104,6 @@ export default class AudioPlayer extends Vue {
     if (start.milliseconds) {
       sec += start.milliseconds / 1000;
     }
-    console.log(sec);
     return sec;
   }
 
@@ -111,7 +117,6 @@ export default class AudioPlayer extends Vue {
     if (end.milliseconds) {
       sec += end.milliseconds / 1000;
     }
-    console.log(sec);
     return sec;
   }
 
@@ -144,7 +149,6 @@ export default class AudioPlayer extends Vue {
 
   async play() {
     const track = document.getElementById(this.trackId) as HTMLAudioElement;
-    console.log(track.paused);
     if (track.paused) {
       if (
         track.currentTime <= this.timestampStart ||
