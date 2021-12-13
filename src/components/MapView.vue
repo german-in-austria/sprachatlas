@@ -416,7 +416,7 @@
         </v-btn>
       </v-flex>
     </v-layout>
-    <transition name="layout-slide">
+    <v-slide-y-reverse-transition tag="v-layout">
       <v-layout class="map-overlay erhebung" v-if="showAudio">
         <template v-if="aufgabenLoading">
           <v-skeleton-loader min-width="500" type="article, actions">
@@ -424,82 +424,61 @@
         </template>
         <template
           v-else-if="
-            (antwortenAudio && antwortenAudio.length >= 0) ||
-            (aufgabeSingleOrt && aufgabeSingleOrt.length >= 0) ||
+            ((antwortenAudio && antwortenAudio.length >= 0) ||
+              (aufgabeSingleOrt && aufgabeSingleOrt.length >= 0)) &&
             !aufgabenLoading
           "
         >
-          <transition name="expand-slide" appear>
-            <v-card
-              v-if="antwortenAudio.length > 0 || aufgabeSingleOrt.length > 0"
-              elevation="2"
-            >
-              <v-card-title>
-                Verfügbare Audioaufnahmen für
-                {{ selectedOrt.ortName.split(",")[0] }}
-                <v-spacer></v-spacer>
-                <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                  <v-icon>mdi-minus</v-icon>
-                </v-btn>
-              </v-card-title>
-              <v-card-text>
-                <v-expansion-panels focusable>
-                  <v-expansion-panel
-                    v-for="(d, idx) in aufgabeSingleOrt.concat(antwortenAudio)"
-                    :key="idx"
-                  >
-                    <v-expansion-panel-header>
-                      {{ d.gruppeBez }} - Team: {{ d.teamBez }}
-                    </v-expansion-panel-header>
+          <v-card
+            v-if="antwortenAudio.length > 0 || aufgabeSingleOrt.length > 0"
+            elevation="2"
+          >
+            <v-card-title>
+              Verfügbare Audioaufnahmen für
+              {{ selectedOrt.ortName.split(",")[0] }}
+              <v-spacer></v-spacer>
+              <v-btn icon color="indigo" @click="showAudio = !showAudio">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text>
+              <v-expansion-panels focusable>
+                <v-expansion-panel
+                  v-for="(d, idx) in aufgabeSingleOrt.concat(antwortenAudio)"
+                  :key="idx"
+                >
+                  <v-expansion-panel-header>
+                    {{ d.gruppeBez }} - Team: {{ d.teamBez }}
+                  </v-expansion-panel-header>
 
-                    <v-expansion-panel-content eager>
-                      <figure>
-                        <figcaption>Aufnahme anhören:</figcaption>
-                        <AudioPlayer
-                          class="mx-10"
-                          :dateipfad="d.dateipfad"
-                          :audiofile="d.audiofile"
-                          :data="d.data"
-                        />
-                      </figure>
-                      <!--
-                      <v-data-table
-                        v-if="d.data.length > 0"
-                        :headers="audioInf"
-                        :items="d"
-                        hide-default-footer
-                      >
-                        <template v-slot:[`item.audio`]="{ item }">
-                          
-                        </template>
-                        <template v-slot:[`item.trans`]="{ item }">
-                          Ortho: {{ item.tagName }} <br />Text Ortho:
-                          {{ item.orthoText }}
-                        </template>
-                        <template v-slot:[`item.komm`]="{ item }">
-                          
-                        </template>
-                      </v-data-table>
-                      -->
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-            </v-card>
-            <v-card v-else elevation="2">
-              <v-card-title>
-                Keine Aufnahmen verfügbar für
-                {{ selectedOrt.ortName.split(",")[0] }}
-                <v-spacer></v-spacer>
-                <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                  <v-icon>mdi-minus</v-icon>
-                </v-btn>
-              </v-card-title>
-            </v-card>
-          </transition>
+                  <v-expansion-panel-content eager>
+                    <figure>
+                      <figcaption>Aufnahme anhören:</figcaption>
+                      <AudioPlayer
+                        class="mx-10"
+                        :dateipfad="d.dateipfad"
+                        :audiofile="d.audiofile"
+                        :data="d.data"
+                      />
+                    </figure>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-card-text>
+          </v-card>
+          <v-card v-else elevation="2">
+            <v-card-title>
+              Keine Aufnahmen verfügbar für
+              {{ selectedOrt.ortName.split(",")[0] }}
+              <v-spacer></v-spacer>
+              <v-btn icon color="indigo" @click="showAudio = !showAudio">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </v-card-title>
+          </v-card>
         </template>
       </v-layout>
-    </transition>
+    </v-slide-y-reverse-transition>
     <v-layout class="map-overlay buttons">
       <template
         v-if="!showAudio && antwortenAudio && antwortenAudio.length > 0"
@@ -1605,28 +1584,35 @@ export default class MapView extends Vue {
             lonToPoint.y,
           ]);
           rad = (s * 2) / this.kmPerPixel;
-          L.marker(lonOffset, {
+          const marker = L.marker(lonOffset, {
             icon: circleIcon,
             riseOnHover: true,
           })
             .addTo(ort.layer)
             .on("click", (e) => this.audioListener(ort, type));
+          marker.on("mouseover", (e) => this.markerHover(ort, marker, e));
           // @ts-ignore
           this.map.addLayer(ort.layer);
           idx++;
         }
       } else {
         const circleIcon = this.createCircleIcon(ort, ort.data);
-        L.marker([ort.lat, ort.lon], {
+        const marker = L.marker([ort.lat, ort.lon], {
           icon: circleIcon,
           riseOnHover: true,
         })
           .addTo(ort.layer)
           .on("click", (e) => this.audioListener(ort, type));
+        marker.on("mouseover", (e) => this.markerHover(ort, marker, e));
+
         // @ts-ignore
         this.map.addLayer(ort.layer);
       }
     }
+  }
+
+  markerHover(ort: circleData, marker: L.Marker, e: L.LeafletEvent) {
+    marker.bindTooltip(ort.ortName).openTooltip();
   }
 
   displayAufgabeFromLegend(
@@ -2143,7 +2129,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
