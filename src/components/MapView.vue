@@ -1728,7 +1728,7 @@ export default class MapView extends Vue {
 
   async displayParameters(queries: LegendGlobal[]) {
     let idToTag = new Map();
-    const data = [] as Array<circleData>;
+    let data = [] as Array<circleData>;
     for (const q of queries) {
       let ids: Array<number> = [];
       const layer = q.layer ? q.layer : L.layerGroup();
@@ -1759,25 +1759,22 @@ export default class MapView extends Vue {
             20 * this.kmPerPixel
           );
           for (const t of q.content) {
-            data.push.apply(
+            data = this.extractTagData(
+              p.color ? p.color : this.colors[this.colorid++],
+              q.symbol,
+              p.size ? p.size : 12,
+              p.visible && q.vis,
+              q.strokeWidth,
+              layer,
               data,
-              this.extractTagData(
-                p.color ? p.color : this.colors[this.colorid++],
-                q.symbol,
-                p.size ? p.size : 12,
-                p.visible && q.vis,
-                q.strokeWidth,
-                layer,
-                data,
-                t.osmId ? t.osmId : -1,
-                Number(t.lon),
-                Number(t.lat),
-                t.ortNamelang ? t.ortNamelang : "",
-                t.numTag,
-                t.tagName,
-                propFactor * t.numTag,
-                t.tagId ? t.tagId : ""
-              )
+              t.osmId ? t.osmId : -1,
+              Number(t.lon),
+              Number(t.lat),
+              t.ortNamelang ? t.ortNamelang : "",
+              t.numTag,
+              t.tagName,
+              propFactor * t.numTag,
+              t.tagId ? t.tagId : ""
             );
           }
         });
@@ -2130,7 +2127,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
