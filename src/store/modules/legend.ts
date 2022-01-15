@@ -22,8 +22,7 @@ export interface LegendState {
 }
 
 @Module({
-  name: "legendMod",
-  namespaced: true,
+  name: "legendmodule",
   store,
   dynamic: true
 })
