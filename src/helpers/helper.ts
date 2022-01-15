@@ -14,6 +14,6 @@ export const generateID = () => {
 }
 
 export const selectColor = (num: number) => {
-    const angle = num * 137.5089; // use golden angle approximation
+    const angle = num * 137.508; // use golden angle approximation
     return `hsl(${angle},100%,75%)`;
 }
