@@ -662,6 +662,8 @@ import {
   drawRect,
   drawTriangle,
 } from "@/helpers/MapCompute";
+
+import { selectColor } from "@/helpers/helper";
 import LegendItem from "@/components/LegendItem.vue";
 
 import {
@@ -803,20 +805,6 @@ export default class MapView extends Vue {
 
   colorid = 0;
   iconId = 0;
-
-  colors = [
-    "#F00",
-    "#0F0",
-    "#00F",
-    "#0FF",
-    "#FF0",
-    "#0FF",
-    "#F0F",
-    "#FF0000",
-    "#FFFF00",
-    "#FF00FF",
-    "#FFAA99",
-  ];
 
   currentErhebung: ApiLocSingleResponse | null = null;
   _debounceId = 0;
@@ -1178,6 +1166,10 @@ export default class MapView extends Vue {
     if (this.iconId > Object.keys(Symbols).length) {
       this.iconId = 0;
     }
+  }
+
+  getColor() {
+    return selectColor(this.colorid++);
   }
 
   searchAufgabeByPhaen() {
@@ -1685,7 +1677,7 @@ export default class MapView extends Vue {
   displayOrt(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
-      const color = this.colors[this.colorid++];
+      const color = this.getColor();
       const radius = 20;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
@@ -1760,7 +1752,7 @@ export default class MapView extends Vue {
           );
           for (const t of q.content) {
             data = this.extractTagData(
-              p.color ? p.color : this.colors[this.colorid++],
+              p.color ? p.color : this.getColor(),
               q.symbol,
               p.size ? p.size : 12,
               p.visible && q.vis,
@@ -1842,7 +1834,7 @@ export default class MapView extends Vue {
   async createTagLegend(layer: L.LayerGroup) {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
-      const color = this.colors[this.colorid++];
+      const color = this.getColor();
       const radius = 20;
       return await this.loadTagOrt(tag).then(() => {
         const curr = this.tagOrtResult;
@@ -1899,7 +1891,7 @@ export default class MapView extends Vue {
             icon: Symbols.Circle,
             layer: L.layerGroup(),
             name: tag?.tagName ? tag.tagName : "",
-            color: this.colors[this.colorid++],
+            color: this.getColor(),
             radius: 20,
             content: this.tagOrtResult.filter((val) => val.tagId === id),
             type: SearchItems.Tag,
@@ -1917,7 +1909,7 @@ export default class MapView extends Vue {
           icon: Symbols.Circle,
           layer: L.layerGroup(),
           name: term,
-          color: this.colors[this.colorid++],
+          color: this.getColor(),
           radius: 20,
           content: res,
           type: this.searchTerm.type,
@@ -1930,16 +1922,13 @@ export default class MapView extends Vue {
           icon: Symbols.Circle,
           layer: L.layerGroup(),
           name: content.Aufgabenstellung,
-          color: this.colors[this.colorid++],
+          color: this.getColor(),
           radius: 12,
           content: this.aufgabenOrt,
           type: this.searchTerm.type,
         });
         this.LM.addLegendEntry(leg);
         this.displayDataFromLegend([leg]);
-      }
-      if (this.colorid >= this.colors.length) {
-        this.colorid = 0;
       }
       return true;
     } else {
@@ -2138,7 +2127,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
