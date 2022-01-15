@@ -1425,7 +1425,7 @@ export default class MapView extends Vue {
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
     }
-    const rad = s / this.kmPerPixel;
+    const rad = s;
     var rect = L.icon({
       iconSize: [rad, rad * 1.7],
       className: "circle-draw",
@@ -1439,7 +1439,7 @@ export default class MapView extends Vue {
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
     }
-    const rad = s / this.kmPerPixel;
+    const rad = s;
     var rect = L.icon({
       iconSize: [rad, rad],
       className: "circle-draw",
@@ -1456,7 +1456,7 @@ export default class MapView extends Vue {
     if (ort.data.length > 1 && this.showDataProp) {
       s = data[0].r;
     }
-    const rad = (s * 2) / this.kmPerPixel;
+    const rad = s;
     var circleIcon = L.icon({
       iconSize: [rad, rad],
       className: "circle-draw",
@@ -1584,7 +1584,7 @@ export default class MapView extends Vue {
             lonToPoint.y,
           ]);
           lonToPoint = this.map.latLngToContainerPoint(lonOffset);
-          rad = (s * 2) / this.kmPerPixel;
+          rad = s;
           const marker = L.marker(lonOffset, {
             icon: circleIcon,
             riseOnHover: true,
@@ -1686,7 +1686,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = this.colors[this.colorid++];
-      const radius = 50 * this.kmPerPixel;
+      const radius = 20;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
@@ -1815,6 +1815,7 @@ export default class MapView extends Vue {
     for (const l of legend) {
       switch (l.type) {
         case SearchItems.Ort:
+          l.layer.clearLayers();
           const ort: ApiLocSingleResponse = l.content;
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
@@ -1842,7 +1843,7 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const tag = this.searchTerm.content.tagId;
       const color = this.colors[this.colorid++];
-      const radius = 10;
+      const radius = 20;
       return await this.loadTagOrt(tag).then(() => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
@@ -1984,16 +1985,29 @@ export default class MapView extends Vue {
     this.$forceUpdate();
   }
 
-  computeMPerPixel(center: number, zoom: number) {
+  computeMPerPixel() {
+    const centerLatLng = this.map.getCenter();
+    const container = this.map.latLngToContainerPoint(centerLatLng);
+    var pointX = [container.x + 1, container.y]; // add one pixel to x
+    var pointY = [container.x, container.y + 1]; // add one pixel to y
+
+    // convert containerpoints to latlng's
+    var latLngC = this.map.containerPointToLatLng(container);
+    var latLngX = this.map.containerPointToLatLng(pointX);
+    var latLngY = this.map.containerPointToLatLng(pointY);
+
+    var distanceX = latLngC.distanceTo(latLngX); // calculate distance between c and x (latitude)
+    var distanceY = latLngC.distanceTo(latLngY);
+    this.kmPerPixel = distanceX / 1000;
     /*this.kmPerPixel =
       (40075016.686 * Math.abs(Math.cos((center * Math.PI) / 180))) /
       Math.pow(2, zoom + 8) /
       1000;
-      */
     this.kmPerPixel =
       (156543.03392 * Math.cos((center * Math.PI) / 180)) /
       Math.pow(2, zoom) /
       1000;
+      */
   }
 
   async loadTagOrt(tagId: number) {
@@ -2003,12 +2017,9 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log("Map mounted");
-    this.kmPerPixel =
-      (156543.03392 * Math.cos((defaultCenter[0] * Math.PI) / 180)) /
-      Math.pow(2, defaultZoom) /
-      1000;
+    this.computeMPerPixel();
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
-      erhebungModule.fetchErhebungen().then((res) => {
+      erhebungModule.fetchErhebungen().then(() => {
         this.changeSearchTerms();
       });
     }
@@ -2022,7 +2033,7 @@ export default class MapView extends Vue {
     }
 
     this.map.on("zoomend", (e: any) => {
-      this.computeMPerPixel(this.map.getCenter().lat, this.map.getZoom());
+      this.computeMPerPixel();
       this.displayDataFromLegend(legendMod.legend);
     });
   }
@@ -2127,7 +2138,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
