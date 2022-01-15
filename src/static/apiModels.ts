@@ -92,7 +92,7 @@ export interface JobList {
 }
 
 export enum Symbols {
-  Circle, 
+  Circle,
   Rect,
   Tri
 }
@@ -114,10 +114,16 @@ export interface LegendList {
   visible?: boolean;
 }
 
+export interface Hsl {
+  h: number;
+  s: number;
+  l: number;
+}
+
 export interface LegendGlobal {
   id: string;
   symbol: Symbols;
-  color: string;
+  color: Hsl;
   size: number;
   type: SearchItems | null;
   content: any;
@@ -126,7 +132,7 @@ export interface LegendGlobal {
   parameter: Parameter[] | null;
   layer: L.LayerGroup;
   vis: boolean;
-  name: string
+  name: string;
 }
 
 export interface Parameter {
@@ -316,13 +322,13 @@ export interface transRoute {
 }
 
 export interface PhaenBer {
-    id: number;
-    bez: string;
+  id: number;
+  bez: string;
 }
 
 export interface Phaen {
-    id: number;
-    bez: string;
-    besch: string;
-    bez_br: string;
+  id: number;
+  bez: string;
+  besch: string;
+  bez_br: string;
 }

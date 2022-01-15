@@ -663,7 +663,7 @@ import {
   drawTriangle,
 } from "@/helpers/MapCompute";
 
-import { selectColor } from "@/helpers/helper";
+import { selectColor, convertHslToStr } from "@/helpers/helper";
 import LegendItem from "@/components/LegendItem.vue";
 
 import {
@@ -1241,7 +1241,7 @@ export default class MapView extends Vue {
           if (l instanceof L.CircleMarker) {
             l.setRadius(el.size);
             l.setStyle({
-              color: el.color,
+              color: convertHslToStr(el.color.h, el.color.s, el.color.l),
               weight: el.strokeWidth,
             });
           }
@@ -1620,7 +1620,7 @@ export default class MapView extends Vue {
     );
     for (const aufg of cont) {
       data = this.extractTagData(
-        aufgabe.color,
+        convertHslToStr(aufgabe.color.h, aufgabe.color.s, aufgabe.color.l),
         aufgabe.symbol,
         aufgabe.size,
         aufgabe.vis,
@@ -1653,7 +1653,7 @@ export default class MapView extends Vue {
     );
     for (const tag of cont) {
       data = this.extractTagData(
-        tags.color,
+        convertHslToStr(tags.color.h, tags.color.s, tags.color.l),
         tags.symbol,
         tags.size,
         tags.vis,
@@ -1682,7 +1682,7 @@ export default class MapView extends Vue {
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
-        color,
+        convertHslToStr(color.h, color.s, color.l),
         1,
         radius,
         layer
@@ -1751,8 +1751,15 @@ export default class MapView extends Vue {
             20 * this.kmPerPixel
           );
           for (const t of q.content) {
+            var col = null;
+            if (p.color) {
+              col = p.color;
+            } else {
+              var newCol = this.getColor();
+              col = convertHslToStr(newCol.h, newCol.s, newCol.l);
+            }
             data = this.extractTagData(
-              p.color ? p.color : this.getColor(),
+              col,
               q.symbol,
               p.size ? p.size : 12,
               p.visible && q.vis,
@@ -1782,7 +1789,7 @@ export default class MapView extends Vue {
         const circle = this.addCircleMarkerToMap(
           Number(satz.lat),
           Number(satz.lon),
-          el.color,
+          convertHslToStr(el.color.h, el.color.s, el.color.l),
           1,
           el.size,
           el.layer ? el.layer : L.layerGroup()
@@ -1812,7 +1819,7 @@ export default class MapView extends Vue {
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
             Number(ort.lon),
-            l.color,
+            convertHslToStr(l.color.h, l.color.s, l.color.l),
             l.strokeWidth,
             l.size,
             l.layer
@@ -2127,7 +2134,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

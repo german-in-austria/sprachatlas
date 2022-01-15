@@ -20,6 +20,7 @@
         <v-list class="transparent">
           <v-list-item
             v-for="(d, i) in legendGlobal.filter((el) => el.type !== 3)"
+            :key="d.id"
           >
             <v-list-item-icon>
               <v-menu
@@ -32,7 +33,7 @@
                   <template v-if="d.symbol === 0 || propCircl">
                     <v-avatar v-on="on">
                       <icon-circle
-                        :fillCol="d.color"
+                        :fillCol="convertHsl(d.color)"
                         :strokeWidth="d.strokeWidth"
                       />
                     </v-avatar>
@@ -117,13 +118,14 @@
           </v-list-item>
           <v-list-item
             v-for="(d, i) in legendGlobal.filter((el) => el.type === 3)"
+            :key="d.id"
           >
             <v-list-item-content class="mx-auto">
               {{ d.name }}
               <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
                 <v-avatar>
                   <icon-circle
-                    :fillCol="para.color"
+                    :fillCol="convertHsl(para.color)"
                     :strokeWidth="d.strokeWidth"
                   />
                 </v-avatar>
@@ -169,7 +171,7 @@ import { legendMod } from "@/store/modules/legend";
 import { aufgabenModule } from "@/store/modules/aufgaben";
 import IconCircle from "@/icons/IconCircle.vue";
 
-import { LegendGlobal } from "../static/apiModels";
+import { LegendGlobal, Hsl } from "../static/apiModels";
 
 import {
   computePropCircle,
@@ -177,6 +179,8 @@ import {
   drawRect,
   drawTriangle,
 } from "@/helpers/MapCompute";
+
+import { convertHslToStr } from "@/helpers/helper";
 
 @Component({
   name: "LegendItem",
@@ -194,6 +198,20 @@ export default class LegendItem extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  convertHsl(col: Hsl) {
+    return convertHslToStr(col.h, col.s, col.l);
+  }
+
+  hslToObj(hsl: string) {
+    const vals = hsl.substring(4, hsl.length - 1).split(",");
+    return {
+      h: vals[0],
+      s: Number(vals[1].substring(0, vals[1].length - 1)) / 100,
+      l: Number(vals[2].substring(0, vals[2].length - 1)) / 100,
+      a: 1,
+    };
   }
 
   drawRect(size: number, border: number, color: string, encoded: boolean) {

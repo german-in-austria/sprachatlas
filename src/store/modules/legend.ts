@@ -13,7 +13,8 @@ import {
   SearchItems,
   Parameter,
   LegendGlobal,
-  Symbols
+  Symbols,
+  Hsl
 } from "../../static/apiModels";
 
 export interface LegendState {
@@ -84,7 +85,7 @@ class Legend extends VuexModule implements LegendState {
     icon: Symbols,
     layer: L.LayerGroup,
     name: string,
-    color: string,
+    color: Hsl,
     radius: number,
     content: any,
     type: SearchItems}
