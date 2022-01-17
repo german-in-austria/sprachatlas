@@ -1,3 +1,5 @@
+var colorid = 0;
+
 export const getOrtName = (name: string) => {
   if (name !== null) {
     const reg = /^([\w\sa-zA-Z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]*),\s(\w*)/;
@@ -26,8 +28,13 @@ export const generateID = () => {
   ).toUpperCase();
 };
 
-export const selectColor = (num: number) => {
-  const angle = num * 137.508; // use golden angle approximation
+export const selectColor = (num: number | null) => {
+  var angle = 0;
+  if (num !== null) {
+    angle = num * 137.508; // use golden angle approximation
+  } else {
+    angle = colorid++ * 137.508;
+  }
   //return `hsl(${angle},100%,75%)`;
   return {
     h: angle,
