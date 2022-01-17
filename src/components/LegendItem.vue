@@ -94,12 +94,26 @@
             <v-list-item-action>
               <v-container>
                 <v-row>
-                  <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
-                    <v-icon>mdi-cancel</v-icon>
-                  </v-btn>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        v-on="on"
+                        icon
+                        color="red"
+                        @click="deleteLegendEntry(d, i)"
+                      >
+                        <v-icon>mdi-cancel</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <span>Eintag löschen</span>
+                  </v-tooltip>
                   <v-btn
                     icon
                     color="grey"
+                    v-bind="attrs"
+                    v-on="on"
                     @click="
                       d.vis = !d.vis;
                       onLegendChange(d);
@@ -112,6 +126,22 @@
                       <v-icon>mdi-eye-off-outline</v-icon>
                     </template>
                   </v-btn>
+
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-if="d.type === 6"
+                        icon
+                        color="green"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="splitPreset(d, i)"
+                      >
+                        <v-icon>mdi-call-split</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Presettag aufteilen</span>
+                  </v-tooltip>
                 </v-row>
               </v-container>
             </v-list-item-action>
@@ -170,17 +200,15 @@ import { Prop, Vue } from "vue-property-decorator";
 import { legendMod } from "@/store/modules/legend";
 import { aufgabenModule } from "@/store/modules/aufgaben";
 import IconCircle from "@/icons/IconCircle.vue";
+import { IGetPresetOrtTagResult } from "@/api/dioe-public-api/models/IGetPresetOrtTagResult";
+import { tagModule } from "@/store/modules/tags";
 
-import { LegendGlobal, Hsl } from "../static/apiModels";
+import * as L from "leaflet";
+import { LegendGlobal, Hsl, SearchItems, Symbols } from "../static/apiModels";
 
-import {
-  computePropCircle,
-  drawCircleDiagram,
-  drawRect,
-  drawTriangle,
-} from "@/helpers/MapCompute";
+import { drawRect, drawTriangle } from "@/helpers/MapCompute";
 
-import { convertHslToStr } from "@/helpers/helper";
+import { selectColor, convertHslToStr } from "@/helpers/helper";
 
 @Component({
   name: "LegendItem",
@@ -198,6 +226,10 @@ export default class LegendItem extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  get tagOrteResults() {
+    return tagModule.tagOrteNum;
   }
 
   convertHsl(col: Hsl) {
@@ -234,6 +266,27 @@ export default class LegendItem extends Vue {
 
   updateVis() {
     this.$emit("update:vis", !this.vis);
+  }
+
+  async splitPreset(el: LegendGlobal, idx: number) {
+    const id = (el.content[0] as IGetPresetOrtTagResult).presetId;
+    await tagModule.fetchTagOrtePreset(id);
+    const tagIds = [...new Set(this.tagOrteResults.map((val) => val.tagId))];
+    for (const id of tagIds) {
+      const tag = this.tagOrteResults.find((val) => val.tagId === id);
+      const legEntry = await this.LM.createLegendEntry({
+        icon: Symbols.Circle,
+        layer: L.layerGroup(),
+        name: tag?.tagName ? tag.tagName : "",
+        color: selectColor(null),
+        radius: 20,
+        content: this.tagOrteResults.filter((val) => val.tagId === id),
+        type: SearchItems.Tag,
+      });
+      this.LM.addLegendEntry(legEntry);
+    }
+    this.deleteLegendEntry(el, idx);
+    this.$emit("callChange", el);
   }
 }
 </script>

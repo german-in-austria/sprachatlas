@@ -16,6 +16,7 @@ import {
   Symbols,
   Hsl
 } from "../../static/apiModels";
+import { selectColor } from "@/helpers/helper";
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -85,14 +86,14 @@ class Legend extends VuexModule implements LegendState {
     icon: Symbols,
     layer: L.LayerGroup,
     name: string,
-    color: Hsl,
+    color: Hsl | null,
     radius: number,
     content: any,
     type: SearchItems}
   ): LegendGlobal {
     const newLegend: LegendGlobal = {
       id: "",
-      color: arg.color,
+      color: arg.color ? arg.color : selectColor(null),
       size: arg.radius,
       type: arg.type,
       content: arg.content,

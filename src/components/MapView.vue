@@ -670,7 +670,6 @@ import {
   ApiLocationResponse,
   ApiLocSingleResponse,
   einzErhebung,
-  SingleErhebResponse,
   SearchItems,
   TagOrteResults,
   LegendGlobal,
@@ -1171,11 +1170,12 @@ export default class MapView extends Vue {
   }
 
   getColor() {
-    return selectColor(this.colorid++);
+    return selectColor(null);
   }
 
   searchAufgabeByPhaen() {
     this.optionTab = 1;
+    fetch;
     const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
     const cont = [] as number[];
     for (const ele of elements) {
@@ -1906,7 +1906,6 @@ export default class MapView extends Vue {
           type: SearchItems.Presets,
         });
         this.LM.addLegendEntry(legEntry);
-        console.log(this.legendGlobal);
         /*
         const tagIds = [...new Set(this.tagOrtResult.map((val) => val.tagId))];
         for (const id of tagIds) {
@@ -2151,7 +2150,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
