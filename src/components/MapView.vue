@@ -691,6 +691,8 @@ import IconBase from "@/icons/IconBase.vue";
 import IconCircle from "@/icons/IconCircle.vue";
 import AudioPlayer from "@/components/AudioPlayer.vue";
 
+import { IGetPresetOrtTagResult } from "@/api/dioe-public-api/models/IGetPresetOrtTagResult";
+
 import { getOrtName } from "@/helpers/helper";
 import {
   AntwortenFromAufgabe,
@@ -1826,6 +1828,7 @@ export default class MapView extends Vue {
           );
           circle.bindPopup(ort.ort_namelang.split(",")[0]);
           break;
+        case SearchItems.Presets:
         case SearchItems.Tag:
           this.displaySingleTagLegend(l, tagData);
           break;
@@ -1889,9 +1892,23 @@ export default class MapView extends Vue {
       } else if (this.searchTerm.type === SearchItems.Presets) {
         this.resetMap();
         const preset = this.searchTerm.content.id;
-        await this.TaM.fetchTagOrtePreset(preset);
+        await this.TaM.fetchPresetTagOrte(preset);
+        // cast result as PresetOrtTagResult
+        // @ts-ignore
+        const res = this.tagOrtResult as IGetPresetOrtTagResult[];
+        const legEntry = await this.LM.createLegendEntry({
+          icon: Symbols.Circle,
+          layer: L.layerGroup(),
+          name: res[0].presetName,
+          color: this.getColor(),
+          radius: 20,
+          content: res,
+          type: SearchItems.Presets,
+        });
+        this.LM.addLegendEntry(legEntry);
+        console.log(this.legendGlobal);
+        /*
         const tagIds = [...new Set(this.tagOrtResult.map((val) => val.tagId))];
-        console.log(tagIds);
         for (const id of tagIds) {
           const tag = this.tagOrtResult.find((val) => val.tagId === id);
           const legEntry = await this.LM.createLegendEntry({
@@ -1904,8 +1921,8 @@ export default class MapView extends Vue {
             type: SearchItems.Tag,
           });
           this.LM.addLegendEntry(legEntry);
-        }
-        this.displayDataFromLegend(this.legendGlobalTag);
+        }*/
+        this.displayDataFromLegend(this.legendGlobal);
       } else if (this.searchTerm.type === SearchItems.Saetze) {
         const sid = this.searchTerm.content.id;
         const term = this.searchTerm.content.transkript;
@@ -2134,7 +2151,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
