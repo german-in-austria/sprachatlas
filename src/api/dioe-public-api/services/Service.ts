@@ -6,6 +6,7 @@ import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
 import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { AufgabeStamp } from '../models/AufgabeStamp';
+import type { IGetPresetOrtTagResult } from '../models/IGetPresetOrtTagResult';
 import type { IGetPresetTagsResult } from '../models/IGetPresetTagsResult';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
 import type { ISelectAllTeamsResult } from '../models/ISelectAllTeamsResult';
@@ -140,6 +141,21 @@ export class Service {
             method: 'POST',
             path: `/tags/ort`,
             body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param tagId
+     * @returns IGetPresetOrtTagResult Ok
+     * @throws ApiError
+     */
+    public static async getPresetOrte(
+        tagId: number,
+    ): Promise<Array<IGetPresetOrtTagResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/tags/preset/ort/${tagId}`,
         });
         return result.body;
     }
