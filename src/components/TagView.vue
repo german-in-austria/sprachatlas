@@ -1,7 +1,12 @@
 <template>
   <div>
     <template v-if="!loading">
-      <v-btn depressed color="primary" @click="addTag()">
+      <v-btn
+        v-if="selectionTag.length === 0"
+        depressed
+        color="primary"
+        @click="addTag()"
+      >
         Neue Taggruppe hinzufügen</v-btn
       >
       <v-autocomplete
@@ -14,17 +19,20 @@
         label="Tags auswählen"
         return-object
       ></v-autocomplete>
-      <template v-for="(group, gkey) in selectionTag">
-        <v-chip-group column>
-          <template v-for="(tag, tkey) in group.tagGroup">
-            <v-menu top :close-on-content-click="true" :offset-y="true">
-              <template v-slot:activator="{ on, attrs }">
+      <v-row no-gutters>
+        <template v-for="(group, gkey) in selectionTag">
+          <div :class="{ tagGroup: true }">
+            <template v-for="(tag, tkey) in group.tagGroup">
+              <v-btn elevation="0" tile color="light-green">{{
+                tag.tagAbbrev
+              }}</v-btn>
+              <!--
+              <v-menu top :close-on-content-click="true" :offset-y="true">
                 <v-chip
                   class="ma-2"
                   color="green"
                   text-color="white"
-                  v-bind="attrs"
-                  v-on="on"
+                  @click="showContext"
                 >
                   {{ tag.tagAbbrev }}
                   <v-icon
@@ -34,18 +42,36 @@
                     >mdi-plus
                   </v-icon>
                 </v-chip>
-              </template>
-              <v-list>
-                <v-list-item link>
-                  <v-list-item-title @click="deleteTags(gkey, tag)"
-                    >Tag löschen</v-list-item-title
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </v-chip-group>
-      </template>
+                <v-list>
+                  <v-list-item link>
+                    <v-list-item-title @click="deleteTags(gkey, tag)"
+                      >Tag löschen</v-list-item-title
+                    >
+                  </v-list-item>
+                </v-list>
+              </v-menu>-->
+            </template>
+            <v-btn
+              v-if="group.children.length > 0"
+              icon
+              tile
+              dark
+              :class="{ addTag: true, addButton: true }"
+            >
+              <v-icon dark @click="addChildTag(group, gkey)">mdi-plus</v-icon>
+            </v-btn>
+          </div>
+        </template>
+        <v-btn
+          v-if="selectionTag.length > 0"
+          icon
+          tile
+          dark
+          :class="{ addTag: true, groupAdd: true }"
+        >
+          <v-icon dark @click="addTag()">mdi-plus</v-icon>
+        </v-btn>
+      </v-row>
     </template>
     <template v-else> Lade.... </template>
   </div>
@@ -96,6 +122,7 @@ export default class TagView extends Vue {
   }
 
   addChildTag(tag: TagSelection, idx: number) {
+    console.log("Test");
     this.selMode = true;
     this.itemTagList = tag.children;
     this.idx = idx;
@@ -156,8 +183,30 @@ export default class TagView extends Vue {
         this.selMode = false;
         this.itemTagList = null;
         this.TM.setTagSelection(this.selectionTag);
+        console.log(this.selectionTag);
       });
     }
   }
 }
 </script>
+<style scoped>
+  .groupAdd {
+    border-radius: 15px;
+    margin-left: 5px;
+  }
+
+  .addTag {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
+
+  .addButton {
+    margin-right: 5px;
+    background-color: grey;
+  }
+  .tagGroup {
+    border: 1px solid black;
+    padding: 0px 10px;
+    border-radius: 10px;
+  }
+</style>
