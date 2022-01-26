@@ -39,6 +39,7 @@ class Tags extends VuexModule implements TagState {
   parameters: Parameter[] = [];
   presetTags = [] as Array<IGetPresetTagsResult>;
   tagList: TagTree[] | null = null;
+  childrenTag: TagTree[] = [];
   loading = false;
 
   get byUniqueURL() {
@@ -120,6 +121,12 @@ class Tags extends VuexModule implements TagState {
   setTagSelection(tags: TagSelection[]) {
     this.tagSelection = tags;
   }
+
+  @Mutation
+  setChildrenTag(tags: TagTree[]) {
+    this.childrenTag = tags;
+  }
+
   
   @Mutation
   setJobList(list: Job[]){
