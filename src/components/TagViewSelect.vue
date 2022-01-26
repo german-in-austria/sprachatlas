@@ -60,11 +60,7 @@ export default class TagViewSelect extends Vue {
   }
 
   fetchChildren(id: number) {
-    console.log(this.tagSelection);
     if (this.tagSelection) {
-      console.log(id);
-      console.log(this.tagSelection.children);
-      console.log(this.children.find((el) => el.tagId === id)?.children);
       return this.tagSelection.children.find((el) => el.tagId === id)?.children;
     } else {
       return this.children.find((el) => el.tagId === id)?.children;
@@ -73,10 +69,6 @@ export default class TagViewSelect extends Vue {
 
   addChildTag() {
     this.TM.setChildrenTag(this.children);
-  }
-
-  mounted() {
-    console.log(this.tagSelectioAll);
   }
 }
 </script>

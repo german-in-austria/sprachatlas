@@ -54,11 +54,12 @@
               </v-menu>-->
         </template>
         <v-btn
-          v-if="selectionTag.length > 0"
-          icon
-          tile
+          v-if="selectedTags.length > 0"
+          fab
           dark
-          :class="{ addTag: true, groupAdd: true }"
+          small
+          class="ml-5"
+          :class="{ addTag: false, groupAdd: false }"
         >
           <v-icon dark @click="addTag()">mdi-plus</v-icon>
         </v-btn>
