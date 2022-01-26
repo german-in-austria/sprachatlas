@@ -20,13 +20,15 @@
         return-object
       ></v-autocomplete>
       <v-row no-gutters>
-        <template v-for="(group, gkey) in selectionTag">
-          <div :class="{ tagGroup: true }">
-            <template v-for="(tag, tkey) in group.tagGroup">
-              <v-btn elevation="0" tile color="light-green">{{
-                tag.tagAbbrev
-              }}</v-btn>
-              <!--
+        <template v-for="(group, gkey) in selectedTags">
+          <TagViewSelect
+            :generation="0"
+            :children="group.children"
+            :tagData="group.tagGroup[0]"
+            :tagSelection="group"
+          />
+
+          <!--
               <v-menu top :close-on-content-click="true" :offset-y="true">
                 <v-chip
                   class="ma-2"
@@ -50,17 +52,6 @@
                   </v-list-item>
                 </v-list>
               </v-menu>-->
-            </template>
-            <v-btn
-              v-if="group.children.length > 0"
-              icon
-              tile
-              dark
-              :class="{ addTag: true, addButton: true }"
-            >
-              <v-icon dark @click="addChildTag(group, gkey)">mdi-plus</v-icon>
-            </v-btn>
-          </div>
         </template>
         <v-btn
           v-if="selectionTag.length > 0"
@@ -81,10 +72,11 @@ import { Component, Vue } from "vue-property-decorator";
 import { tagModule } from "@/store/modules/tags";
 import { TagTree } from "@/api/dioe-public-api";
 import { SingleTag, TagSelection } from "@/static/apiModels";
+import TagViewSelect from "@/components/TagViewSelect.vue";
 
 @Component({
   // if you use components add them here
-  components: {},
+  components: { TagViewSelect },
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */
@@ -93,22 +85,32 @@ import { SingleTag, TagSelection } from "@/static/apiModels";
 export default class TagView extends Vue {
   TM = tagModule;
   selTag: TagTree | null = null;
-  selMode: boolean = false;
-  itemTagList: TagTree[] | null = null;
   idx: number = -1;
 
   selectionTag: TagSelection[] = [];
 
   get tagList() {
-    if (this.itemTagList === null || this.itemTagList === undefined) {
-      return this.TM.tags;
+    if (this.childrenTag.length > 0) {
+      return this.childrenTag;
     } else {
-      return this.itemTagList;
+      return this.TM.tagList;
     }
   }
 
   get loading() {
     return this.TM.loading;
+  }
+
+  get selMode() {
+    return this.TM.childrenTag.length > 0;
+  }
+
+  get childrenTag() {
+    return this.TM.childrenTag;
+  }
+
+  get selectedTags() {
+    return this.TM.tagSelection;
   }
 
   beforeCreate() {
@@ -121,16 +123,8 @@ export default class TagView extends Vue {
     this.selectionTag = [];
   }
 
-  addChildTag(tag: TagSelection, idx: number) {
-    console.log("Test");
-    this.selMode = true;
-    this.itemTagList = tag.children;
-    this.idx = idx;
-  }
-
   addTag() {
-    this.selMode = true;
-    this.itemTagList = null;
+    this.TM.setChildrenTag(this.TM.tagList ? this.TM.tagList : []);
   }
 
   deleteTags(idx: number, tag: SingleTag) {
@@ -147,21 +141,17 @@ export default class TagView extends Vue {
 
   updateTag() {
     if (this.selTag) {
-      if (
-        this.selTag.parentIds &&
-        this.selTag.parentIds.length > 0 &&
-        this.idx > -1
-      ) {
-        const parentId =
-          this.selTag.parentIds[this.selTag.parentIds.length - 1];
-        const element = this.selectionTag[this.idx];
+      if (this.selTag.parentIds && this.selTag.parentIds.length > 0) {
+        const parentId = this.selTag.parentIds[0];
+        const element = this.selectionTag.find(
+          (el) => el.parentId === parentId
+        );
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = this.selTag.tagId;
         cT.tagAbbrev = this.selTag.tagAbbrev;
         if (element) {
           element.tagGroup.push(cT);
           element.tagIds.push(cT.tagId);
-          element.children = this.selTag.children;
         }
       } else {
         const currTag = this.selTag;
@@ -174,16 +164,17 @@ export default class TagView extends Vue {
         tS.tagIds = [cT.tagId];
         tS.tagGroup = tG;
         tS.parentId = cT.tagId;
+        for (const t in this.selTag.children) {
+          this.selTag.children[t].parentIds = [tS.parentId];
+        }
         tS.children = this.selTag.children;
         this.selectionTag.push(tS);
       }
 
       this.$nextTick(() => {
         this.selTag = null;
-        this.selMode = false;
-        this.itemTagList = null;
         this.TM.setTagSelection(this.selectionTag);
-        console.log(this.selectionTag);
+        this.TM.setChildrenTag([]);
       });
     }
   }

@@ -1,18 +1,28 @@
 <template>
-  <v-row no-gutters>
-    <v-btn elevation="0" tile color="light-green">{{
-      tagData.tagAbbrev
-    }}</v-btn>
-    <v-btn
-      v-if="children.length > 0"
-      icon
-      tile
-      dark
-      :class="{ addTag: true, addButton: true }"
-    >
-      <v-icon dark @click="addChildTag(group, gkey)">mdi-plus</v-icon>
-    </v-btn>
-  </v-row>
+  <div :class="{ tagGroup: true }">
+    <v-row no-gutters>
+      <v-btn elevation="0" tile color="light-green">{{
+        tagData.tagAbbrev
+      }}</v-btn>
+      <template v-for="(tag, key) in tagSelection.tagGroup.slice(1)">
+        <TagViewSelect
+          :generation="generation + 1"
+          :children="fetchChildren(tag.tagId)"
+          :tagData="tag"
+          :tagSelection="tagSel(tag)"
+        />
+      </template>
+      <v-btn
+        v-if="children.length > 0"
+        icon
+        tile
+        dark
+        :class="{ addTag: true, addButton: true }"
+      >
+        <v-icon dark @click="addChildTag()">mdi-plus</v-icon>
+      </v-btn>
+    </v-row>
+  </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
@@ -34,6 +44,40 @@ export default class TagViewSelect extends Vue {
   @Prop() readonly children!: TagTree[];
   @Prop() readonly tagData!: SingleTag;
   @Prop() readonly generation!: number;
+  @Prop() readonly tagSelection!: TagSelection;
+
+  get tagSelectioAll() {
+    return this.TM.tagSelection;
+  }
+
+  tagSel(tag: SingleTag) {
+    return {
+      parentId: this.tagSelection.parentId,
+      children: this.fetchChildren(tag.tagId),
+      tagGroup: [],
+      tagIds: [],
+    } as TagSelection;
+  }
+
+  fetchChildren(id: number) {
+    console.log(this.tagSelection);
+    if (this.tagSelection) {
+      console.log(id);
+      console.log(this.tagSelection.children);
+      console.log(this.children.find((el) => el.tagId === id)?.children);
+      return this.tagSelection.children.find((el) => el.tagId === id)?.children;
+    } else {
+      return this.children.find((el) => el.tagId === id)?.children;
+    }
+  }
+
+  addChildTag() {
+    this.TM.setChildrenTag(this.children);
+  }
+
+  mounted() {
+    console.log(this.tagSelectioAll);
+  }
 }
 </script>
 <style scoped>
