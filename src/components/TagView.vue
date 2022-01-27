@@ -24,7 +24,7 @@
           <TagViewSelect
             :generation="0"
             :children="group.children"
-            :tagData="group.tagGroup[0]"
+            :tagData="group.tagGroup"
             :tagSelection="group"
           />
 
@@ -33,7 +33,7 @@
                 <v-chip
                   class="ma-2"
                   color="green"
-                  text-color="white"
+                  text-color="whitetag ? tag : ([] as Array<SingleTag>)"
                   @click="showContext"
                 >
                   {{ tag.tagAbbrev }}
@@ -131,8 +131,8 @@ export default class TagView extends Vue {
   deleteTags(idx: number, tag: SingleTag) {
     const element = this.selectionTag[idx];
     if (element) {
-      const idx = element.tagGroup.indexOf(tag, 0);
-      if (idx > -1) element.tagGroup.splice(idx);
+      //const idx = element.tagGroup(tag, 0);
+      //if (idx > -1) element.tagGroup.splice(idx);
     }
 
     if (tag.tagId === element.parentId) {
@@ -140,27 +140,43 @@ export default class TagView extends Vue {
     }
   }
 
+  findParentElement(parId: number, element: SingleTag): SingleTag {
+    if (element.tagId === parId) {
+      return element;
+    }
+    for (const c of element.children) {
+      return this.findParentElement(parId, c);
+    }
+
+    return {} as SingleTag;
+  }
+
   updateTag() {
     if (this.selTag) {
       if (this.selTag.parentIds && this.selTag.parentIds.length > 0) {
-        const parentId = this.selTag.parentIds[0];
-        const element = this.selectionTag.find(
-          (el) => el.parentId === parentId
+        const parentIds = this.selTag.parentIds;
+        const element = this.selectedTags.find((el) =>
+          parentIds.includes(el.parentId)
         );
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = this.selTag.tagId;
         cT.tagAbbrev = this.selTag.tagAbbrev;
         if (element) {
-          element.tagGroup.push(cT);
+          const parId = parentIds[0];
+          const parent = this.findParentElement(parId, element.tagGroup);
+          parent.children.push(cT);
+          console.log(parent);
+          // element.tagGroup.push(cT);
           element.tagIds.push(cT.tagId);
+          console.log(element);
         }
       } else {
         const currTag = this.selTag;
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = currTag.tagId;
         cT.tagAbbrev = currTag.tagAbbrev;
-
-        const tG: SingleTag[] = [cT];
+        cT.children = [];
+        const tG: SingleTag = cT;
         const tS: TagSelection = {} as TagSelection;
         tS.tagIds = [cT.tagId];
         tS.tagGroup = tG;
@@ -173,9 +189,9 @@ export default class TagView extends Vue {
       }
 
       this.$nextTick(() => {
-        this.selTag = null;
         this.TM.setTagSelection(this.selectionTag);
         this.TM.setChildrenTag([]);
+        this.selTag = null;
       });
     }
   }
