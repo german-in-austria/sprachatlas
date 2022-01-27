@@ -4,16 +4,16 @@
       <v-btn elevation="0" tile color="light-green">{{
         tagData.tagAbbrev
       }}</v-btn>
-      <template v-for="(tag, key) in tagSelection.tagGroup.slice(1)">
+      <template v-for="(tag, key) in tagSelection.tagGroup.children">
         <TagViewSelect
           :generation="generation + 1"
-          :children="fetchChildren(tag.tagId)"
+          :children="tag.children ? tag.children : []"
           :tagData="tag"
           :tagSelection="tagSel(tag)"
         />
       </template>
       <v-btn
-        v-if="children.length > 0"
+        v-if="tagSelection.children.length > 0"
         icon
         tile
         dark
@@ -44,7 +44,7 @@ export default class TagViewSelect extends Vue {
   @Prop() readonly children!: TagTree[];
   @Prop() readonly tagData!: SingleTag;
   @Prop() readonly generation!: number;
-  @Prop() readonly tagSelection!: TagSelection;
+  @Prop() private tagSelection!: TagSelection;
 
   get tagSelectioAll() {
     return this.TM.tagSelection;
@@ -54,8 +54,8 @@ export default class TagViewSelect extends Vue {
     return {
       parentId: this.tagSelection.parentId,
       children: this.fetchChildren(tag.tagId),
-      tagGroup: [],
-      tagIds: [],
+      tagGroup: tag,
+      tagIds: this.tagSelection.tagIds,
     } as TagSelection;
   }
 
@@ -68,7 +68,11 @@ export default class TagViewSelect extends Vue {
   }
 
   addChildTag() {
-    this.TM.setChildrenTag(this.children);
+    this.TM.setChildrenTag(this.tagSelection.children);
+  }
+
+  mounted() {
+    console.log(this.tagSelection);
   }
 }
 </script>
