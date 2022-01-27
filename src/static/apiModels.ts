@@ -12,10 +12,11 @@ export interface SingleInfResponse {
 export interface SingleTag {
   tagId: number;
   tagAbbrev: string;
+  children: SingleTag[];
 }
 
 export interface TagSelection {
-  tagGroup: SingleTag[];
+  tagGroup: SingleTag;
   parentId: number;
   children: Array<TagTree>;
   tagIds: number[];
