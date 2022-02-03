@@ -203,10 +203,12 @@
                                   multiple
                                 >
                                   <template v-for="(val, i) in filterMenuValue">
-                                    <v-list-item>
-                                      {{ val.content[val.name] }}
-                                    </v-list-item>
-                                    <v-divider></v-divider>
+                                    <div :key="i">
+                                      <v-list-item>
+                                        {{ val.content[val.name] }}
+                                      </v-list-item>
+                                      <v-divider></v-divider>
+                                    </div>
                                   </template>
                                 </v-list-item-group>
                               </v-list>
@@ -242,7 +244,7 @@
                                   <template v-for="(d, i) in aufgabenSet">
                                     <v-list-item
                                       link
-                                      :key="index"
+                                      :key="index + i"
                                       @click="openFilter(d.type)"
                                     >
                                       <v-list-item-title>
@@ -350,7 +352,7 @@
                   item.name
                 }}</v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  <div v-for="(para, i) in item.parameter">
+                  <div v-for="(para, i) in item.parameter" :key="i">
                     {{ para.name }}
                     <v-avatar :color="para.color" size="20"></v-avatar>
                   </div>
@@ -435,7 +437,7 @@
           >
             <v-card-title>
               Verfügbare Audioaufnahmen für
-              {{ selectedOrt.ortName.split(",")[0] }}
+              {{ selectedOrt.ortName.split(',')[0] }}
               <v-spacer></v-spacer>
               <v-btn icon color="indigo" @click="showAudio = !showAudio">
                 <v-icon>mdi-minus</v-icon>
@@ -469,7 +471,7 @@
           <v-card v-else elevation="2">
             <v-card-title>
               Keine Aufnahmen verfügbar für
-              {{ selectedOrt.ortName.split(",")[0] }}
+              {{ selectedOrt.ortName.split(',')[0] }}
               <v-spacer></v-spacer>
               <v-btn icon color="indigo" @click="showAudio = !showAudio">
                 <v-icon>mdi-minus</v-icon>
@@ -498,7 +500,7 @@
           </template>
           <span>
             Verfügbare Audioaufnahmen für
-            {{ selectedOrt.ortName.split(",")[0] }}
+            {{ selectedOrt.ortName.split(',')[0] }}
           </span>
         </v-tooltip>
       </template>
@@ -517,7 +519,7 @@
             <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
               item.Art_Erhebung
                 ? item.Art_Erhebung.Bezeichnung
-                : "Keine Art der Erhebung vorhanden"
+                : 'Keine Art der Erhebung vorhanden'
             }}</template>
           </v-data-table>
         </v-card-text>
@@ -627,14 +629,14 @@
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
-          :key="ort.id"
+          :key="ort.id + index"
           :lat-lng="[ort.lat, ort.lon]"
           :radius="4"
           @click="loadErheb(ort)"
         >
           <l-popup>
             <div>
-              {{ ort.ort_namelang.split(",")[0] }}
+              {{ ort.ort_namelang.split(',')[0] }}
             </div>
           </l-popup>
         </l-circle-marker>
@@ -643,7 +645,7 @@
   </div>
 </template>
 <script lang="ts">
-import * as L from "leaflet";
+import * as L from 'leaflet';
 import {
   LMap,
   LTileLayer,
@@ -651,20 +653,20 @@ import {
   LGeoJson,
   LCircleMarker,
   LPopup,
-  LIcon,
-} from "vue2-leaflet";
-import { Component, Vue, Watch } from "vue-property-decorator";
-import { geoStore } from "../store/geo";
-import * as geojson from "geojson";
+  LIcon
+} from 'vue2-leaflet';
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import { geoStore } from '../store/geo';
+import * as geojson from 'geojson';
 import {
   computePropCircle,
   drawCircleDiagram,
   drawRect,
-  drawTriangle,
-} from "@/helpers/MapCompute";
+  drawTriangle
+} from '@/helpers/MapCompute';
 
-import { selectColor, convertHslToStr } from "@/helpers/helper";
-import LegendItem from "@/components/LegendItem.vue";
+import { selectColor, convertHslToStr } from '@/helpers/helper';
+import LegendItem from '@/components/LegendItem.vue';
 
 import {
   ApiLocationResponse,
@@ -675,29 +677,29 @@ import {
   LegendGlobal,
   Phaen,
   Parameter,
-  Symbols,
-} from "../static/apiModels";
-import { erhebungModule } from "../store/modules/erhebungen";
-import { transModule } from "../store/modules/transcripts";
-import { phaeModule } from "@/store/modules/phaenomene";
-import { aufgabenModule } from "@/store/modules/aufgaben";
+  Symbols
+} from '../static/apiModels';
+import { erhebungModule } from '../store/modules/erhebungen';
+import { transModule } from '../store/modules/transcripts';
+import { phaeModule } from '@/store/modules/phaenomene';
+import { aufgabenModule } from '@/store/modules/aufgaben';
 
-import api from "../api/index";
-import { tagModule } from "@/store/modules/tags";
-import { legendMod } from "@/store/modules/legend";
-import { flatten, isArray, cloneDeep } from "lodash";
-import IconBase from "@/icons/IconBase.vue";
-import IconCircle from "@/icons/IconCircle.vue";
-import AudioPlayer from "@/components/AudioPlayer.vue";
+import api from '../api/index';
+import { tagModule } from '@/store/modules/tags';
+import { legendMod } from '@/store/modules/legend';
+import { flatten, isArray, cloneDeep } from 'lodash';
+import IconBase from '@/icons/IconBase.vue';
+import IconCircle from '@/icons/IconCircle.vue';
+import AudioPlayer from '@/components/AudioPlayer.vue';
 
-import { IGetPresetOrtTagResult } from "@/api/dioe-public-api/models/IGetPresetOrtTagResult";
+import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 
-import { getOrtName } from "@/helpers/helper";
+import { getOrtName } from '@/helpers/helper';
 import {
   AntwortenFromAufgabe,
   AntwortTokenStamp,
-  ISelectOrtAufgabeResult,
-} from "@/api/dioe-public-api";
+  ISelectOrtAufgabeResult
+} from '@/api/dioe-public-api';
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -746,8 +748,8 @@ type IAntwortenAudio = {
     IconBase,
     IconCircle,
     LegendItem,
-    AudioPlayer,
-  },
+    AudioPlayer
+  }
 })
 export default class MapView extends Vue {
   zoom: number = defaultZoom;
@@ -760,7 +762,7 @@ export default class MapView extends Vue {
   PM = phaeModule;
   LM = legendMod;
   AM = aufgabenModule;
-  searchInput: string = "";
+  searchInput: string = '';
   searchTerms: { type: SearchItems; content: any; name: string }[] = [];
   optionTab = 0;
   selectionMenu: boolean = false;
@@ -771,12 +773,12 @@ export default class MapView extends Vue {
   mapComp = null;
   selSearchModel = SearchItems.Alle;
   selSearchItem = [
-    { name: "Alles", value: SearchItems.Alle },
-    { name: "Nur Orte", value: SearchItems.Ort },
-    { name: "Tags", value: SearchItems.Tag },
-    { name: "Phänomene", value: SearchItems.Phaen },
-    { name: "Aufgaben", value: SearchItems.Aufgaben },
-    { name: "Presettags", value: SearchItems.Presets },
+    { name: 'Alles', value: SearchItems.Alle },
+    { name: 'Nur Orte', value: SearchItems.Ort },
+    { name: 'Tags', value: SearchItems.Tag },
+    { name: 'Phänomene', value: SearchItems.Phaen },
+    { name: 'Aufgaben', value: SearchItems.Aufgaben },
+    { name: 'Presettags', value: SearchItems.Presets }
   ];
   selGen = -1;
   generation = [
@@ -785,12 +787,12 @@ export default class MapView extends Vue {
     { name: 2, value: 2 },
     { name: 1, value: 1 },
     { name: 0, value: 0 },
-    { name: "Alle Generationen", value: -1 },
+    { name: 'Alle Generationen', value: -1 }
   ];
 
   filterOptionMenu = [
-    { name: "Phänomene", type: SearchItems.Phaen },
-    { name: "Tags", type: SearchItems.Tag },
+    { name: 'Phänomene', type: SearchItems.Phaen },
+    { name: 'Tags', type: SearchItems.Tag }
   ];
   filterMenuValue: Array<{ type: SearchItems; content: any; name: string }> =
     [];
@@ -820,58 +822,58 @@ export default class MapView extends Vue {
   mapOptions = {
     scrollWheelZoom: true,
     zoomControl: false,
-    renderer: L.canvas(),
+    renderer: L.canvas()
   };
 
   curZoom = {
     start: 0,
-    end: 0,
+    end: 0
   };
 
   headerErheb = [
-    { text: "Art der Erhebung", value: "Art_Erhebung" },
-    { text: "Bezeichnung der Erhebung", value: "Bezeichnung_Erhebung" },
+    { text: 'Art der Erhebung', value: 'Art_Erhebung' },
+    { text: 'Bezeichnung der Erhebung', value: 'Bezeichnung_Erhebung' }
   ];
 
   headerInf = [
-    { text: "Datum", value: "Datum" },
-    { text: "Aktionen", value: "actions" },
+    { text: 'Datum', value: 'Datum' },
+    { text: 'Aktionen', value: 'actions' }
   ];
 
   audioInf = [
-    { text: "Audio", value: "audio" },
-    { text: "Transkript", value: "trans" },
-    { text: "Kommentar", value: "komm" },
+    { text: 'Audio', value: 'audio' },
+    { text: 'Transkript', value: 'trans' },
+    { text: 'Kommentar', value: 'komm' }
   ];
 
   tileSets = [
     {
-      name: "Humanitarian Open Tiles",
-      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png ",
+      name: 'Humanitarian Open Tiles',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png '
     },
     {
-      name: "Wikimedia",
-      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png?lang=local",
+      name: 'Wikimedia',
+      url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png?lang=local'
     },
     {
-      name: "Minimal Ländergrenzen (hell)",
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+      name: 'Minimal Ländergrenzen (hell)',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
     },
     {
-      name: "Minimal Ländergrenzen (dunkel)",
-      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?lang=de",
+      name: 'Minimal Ländergrenzen (dunkel)',
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?lang=de',
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: "abcd",
-    },
+      subdomains: 'abcd'
+    }
   ];
 
   items = [
     { name: this.tileSets[0].name, value: 0 },
     { name: this.tileSets[1].name, value: 1 },
     { name: this.tileSets[2].name, value: 2 },
-    { name: this.tileSets[3].name, value: 3 },
+    { name: this.tileSets[3].name, value: 3 }
   ];
 
   /*
@@ -1156,13 +1158,13 @@ export default class MapView extends Vue {
     return this.AM.aufgabeSingleOrt;
   }
 
-  @Watch("searchInput")
+  @Watch('searchInput')
   search(val: any) {
     if (!val) return;
     this.fetchEntriesDebounced();
   }
 
-  @Watch("iconId")
+  @Watch('iconId')
   onIconIdChange() {
     if (this.iconId > Object.keys(Symbols).length) {
       this.iconId = 0;
@@ -1192,14 +1194,14 @@ export default class MapView extends Vue {
         this.changeFilterMenuValue(
           SearchItems.Phaen,
           this.phaen,
-          "bezPhaenomen"
+          'bezPhaenomen'
         );
         break;
       case SearchItems.Tag:
         this.changeFilterMenuValue(
           SearchItems.Tag,
           this.tagListFlat,
-          "tagName"
+          'tagName'
         );
         break;
     }
@@ -1215,7 +1217,7 @@ export default class MapView extends Vue {
         this.selSearchModel === SearchItems.Aufgaben
       )
         this.AM.fetchSaetze({ query: this.searchInput }).then(() =>
-          this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript")
+          this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript')
         );
       this.dbLoading = false;
     }, 500);
@@ -1244,7 +1246,7 @@ export default class MapView extends Vue {
             l.setRadius(el.size);
             l.setStyle({
               color: convertHslToStr(el.color.h, el.color.s, el.color.l),
-              weight: el.strokeWidth,
+              weight: el.strokeWidth
             });
           }
         });
@@ -1269,7 +1271,7 @@ export default class MapView extends Vue {
       this.searchTerms.push({
         type: type,
         content: curr,
-        name: curr[name],
+        name: curr[name]
       });
     }
   }
@@ -1287,7 +1289,7 @@ export default class MapView extends Vue {
     if (map.hasLayer(this.focusLayer)) {
       map.removeLayer(this.focusLayer);
       this.focusLayer?.clearLayers();
-      this.searchInput = "";
+      this.searchInput = '';
       this.searchTerm = null;
     }
   }
@@ -1296,7 +1298,7 @@ export default class MapView extends Vue {
     if (this.map.hasLayer(this.focusLayer)) {
       this.map.removeLayer(this.focusLayer);
       this.focusLayer?.clearLayers();
-      this.searchInput = "";
+      this.searchInput = '';
       this.searchTerm = null;
     }
   }
@@ -1323,43 +1325,43 @@ export default class MapView extends Vue {
     this.searchTerms = [];
     switch (this.selSearchModel) {
       case SearchItems.Ort:
-        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
+        this.addSearchTerms(this.erhebungen, SearchItems.Ort, 'ort_namelang');
         break;
       case SearchItems.Tag:
-        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
+        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, 'tagName');
         break;
       case SearchItems.Phaen:
-        this.addSearchTerms(this.phaen, SearchItems.Phaen, "bez");
+        this.addSearchTerms(this.phaen, SearchItems.Phaen, 'bez');
         break;
       case SearchItems.Aufgaben:
         this.addSearchTerms(
           this.allAufgaben,
           SearchItems.Aufgaben,
-          "Aufgabenstellung"
+          'Aufgabenstellung'
         );
-        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript");
+        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript');
         break;
       case SearchItems.Presets:
         this.addSearchTerms(
           this.tagListPreset,
           SearchItems.Presets,
-          "Bezeichnung"
+          'Bezeichnung'
         );
         break;
       case SearchItems.Alle:
         this.addSearchTerms(
           this.allAufgaben,
           SearchItems.Aufgaben,
-          "Aufgabenstellung"
+          'Aufgabenstellung'
         );
         this.addSearchTerms(
           this.tagListPreset,
           SearchItems.Presets,
-          "Bezeichnung"
+          'Bezeichnung'
         );
-        this.addSearchTerms(this.erhebungen, SearchItems.Ort, "ort_namelang");
-        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, "tagName");
-        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, "Transkript");
+        this.addSearchTerms(this.erhebungen, SearchItems.Ort, 'ort_namelang');
+        this.addSearchTerms(this.tagListFlat, SearchItems.Tag, 'tagName');
+        this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript');
         break;
     }
   }
@@ -1381,7 +1383,7 @@ export default class MapView extends Vue {
       this.$refs.searchTermAutoComplete.reset();
     } else {
       // Extend autocomplete with a error banner
-      console.log("Fehler beim Suchen");
+      console.log('Fehler beim Suchen');
     }
   }
 
@@ -1396,7 +1398,7 @@ export default class MapView extends Vue {
     const res = L.circleMarker([lat, lon], {
       color: color,
       radius: size,
-      weight: stroke,
+      weight: stroke
     }).addTo(layer);
     this.map.addLayer(layer);
     return res;
@@ -1422,8 +1424,8 @@ export default class MapView extends Vue {
     const rad = s;
     var rect = L.icon({
       iconSize: [rad, rad * 1.7],
-      className: "circle-draw",
-      iconUrl: this.drawRect(3, ort.strokeWidth, data[0].c, true),
+      className: 'circle-draw',
+      iconUrl: this.drawRect(3, ort.strokeWidth, data[0].c, true)
     });
     return rect;
   }
@@ -1436,8 +1438,8 @@ export default class MapView extends Vue {
     const rad = s;
     var rect = L.icon({
       iconSize: [rad, rad],
-      className: "circle-draw",
-      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true, 0.7),
+      className: 'circle-draw',
+      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true, 0.7)
     });
     return rect;
   }
@@ -1453,15 +1455,15 @@ export default class MapView extends Vue {
     const rad = s;
     var circleIcon = L.icon({
       iconSize: [rad, rad],
-      className: "circle-draw",
+      className: 'circle-draw',
       iconUrl: this.drawCircleDiagram(
         24,
         ort.strokeWidth,
-        "#000",
+        '#000',
         data[0].c,
         data,
         true
-      ),
+      )
     });
     return circleIcon;
   }
@@ -1495,7 +1497,7 @@ export default class MapView extends Vue {
           c: color,
           r: propSize,
           id: id,
-          icon: icon,
+          icon: icon
         } as singleEntry);
       } else {
         // Element doesnt exist and needs to be added
@@ -1514,9 +1516,9 @@ export default class MapView extends Vue {
               c: color,
               r: propSize,
               id: id,
-              icon: icon,
-            },
-          ] as singleEntry[],
+              icon: icon
+            }
+          ] as singleEntry[]
         };
         data.push(newTagData);
       }
@@ -1575,17 +1577,17 @@ export default class MapView extends Vue {
           }
           const lonOffset = this.map.containerPointToLatLng([
             idx === 0 ? lonToPoint.x : rad + lonToPoint.x + s * 2,
-            lonToPoint.y,
+            lonToPoint.y
           ]);
           lonToPoint = this.map.latLngToContainerPoint(lonOffset);
           rad = s;
           const marker = L.marker(lonOffset, {
             icon: circleIcon,
-            riseOnHover: true,
+            riseOnHover: true
           })
             .addTo(ort.layer)
-            .on("click", (e) => this.audioListener(ort, type));
-          marker.on("mouseover", (e) => this.markerHover(ort, marker, e));
+            .on('click', (e) => this.audioListener(ort, type));
+          marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
           // @ts-ignore
           this.map.addLayer(ort.layer);
           idx++;
@@ -1594,11 +1596,11 @@ export default class MapView extends Vue {
         const circleIcon = this.createCircleIcon(ort, ort.data);
         const marker = L.marker([ort.lat, ort.lon], {
           icon: circleIcon,
-          riseOnHover: true,
+          riseOnHover: true
         })
           .addTo(ort.layer)
-          .on("click", (e) => this.audioListener(ort, type));
-        marker.on("mouseover", (e) => this.markerHover(ort, marker, e));
+          .on('click', (e) => this.audioListener(ort, type));
+        marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
 
         // @ts-ignore
         this.map.addLayer(ort.layer);
@@ -1634,7 +1636,7 @@ export default class MapView extends Vue {
         Number(aufg.lat),
         aufg.ortNamelang,
         aufg.numAufg ? Number(aufg.numAufg) : 1,
-        aufg.aufgabenstellung ? aufg.aufgabenstellung : "",
+        aufg.aufgabenstellung ? aufg.aufgabenstellung : '',
         propFactor * Number(aufg.numAufg),
         aufg.id.toString()
       );
@@ -1665,11 +1667,11 @@ export default class MapView extends Vue {
         tag.osmId ? tag.osmId : -1,
         Number(tag.lon),
         Number(tag.lat),
-        tag.ortNamelang ? tag.ortNamelang : "",
+        tag.ortNamelang ? tag.ortNamelang : '',
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tag.tagId ? tag.tagId : ""
+        tag.tagId ? tag.tagId : ''
       );
     }
     return data;
@@ -1689,7 +1691,7 @@ export default class MapView extends Vue {
         radius,
         layer
       );
-      circle.bindPopup(ort.ort_namelang.split(",")[0]);
+      circle.bindPopup(ort.ort_namelang.split(',')[0]);
       this.loadErheb(ort);
 
       const newLegend = {
@@ -1699,17 +1701,17 @@ export default class MapView extends Vue {
         content: {
           lat: Number(ort.lat),
           lon: Number(ort.lon),
-          osmId: ort.osm_id,
+          osmId: ort.osm_id
         },
         stroke: true,
         strokeWidth: 1,
         parameter: null,
         vis: true,
         name:
-          ort.ort_namekurz === "" || ort.ort_namekurz === null
+          ort.ort_namekurz === '' || ort.ort_namekurz === null
             ? getOrtName(ort.ort_namelang).name
             : ort.ort_namekurz,
-        layer: layer,
+        layer: layer
       };
       return newLegend;
     }
@@ -1771,11 +1773,11 @@ export default class MapView extends Vue {
               t.osmId ? t.osmId : -1,
               Number(t.lon),
               Number(t.lat),
-              t.ortNamelang ? t.ortNamelang : "",
+              t.ortNamelang ? t.ortNamelang : '',
               t.numTag,
               t.tagName,
               propFactor * t.numTag,
-              t.tagId ? t.tagId : ""
+              t.tagId ? t.tagId : ''
             );
           }
         });
@@ -1796,7 +1798,7 @@ export default class MapView extends Vue {
           el.size,
           el.layer ? el.layer : L.layerGroup()
         );
-        circle.on("click", (e) => {
+        circle.on('click', (e) => {
           satz.data.forEach((antwort) => {
             // antwort.
           });
@@ -1826,7 +1828,7 @@ export default class MapView extends Vue {
             l.size,
             l.layer
           );
-          circle.bindPopup(ort.ort_namelang.split(",")[0]);
+          circle.bindPopup(ort.ort_namelang.split(',')[0]);
           break;
         case SearchItems.Presets:
         case SearchItems.Tag:
@@ -1851,7 +1853,7 @@ export default class MapView extends Vue {
         if (curr.length > 0) {
           // const divFactor = Math.sqrt(ele.numTag / Math.PI);
           const newLegend: LegendGlobal = {
-            id: "",
+            id: '',
             color: color,
             size: radius,
             type: SearchItems.Tag,
@@ -1862,7 +1864,7 @@ export default class MapView extends Vue {
             parameter: null,
             vis: true,
             name: curr[0].tagName,
-            layer: layer,
+            layer: layer
           };
           return newLegend;
         }
@@ -1903,7 +1905,7 @@ export default class MapView extends Vue {
           color: this.getColor(),
           radius: 20,
           content: res,
-          type: SearchItems.Presets,
+          type: SearchItems.Presets
         });
         this.LM.addLegendEntry(legEntry);
         /*
@@ -1935,7 +1937,7 @@ export default class MapView extends Vue {
           color: this.getColor(),
           radius: 20,
           content: res,
-          type: this.searchTerm.type,
+          type: this.searchTerm.type
         });
         this.LM.addLegendEntry(legEntry);
       } else if (this.searchTerm.type === SearchItems.Aufgaben) {
@@ -1948,7 +1950,7 @@ export default class MapView extends Vue {
           color: this.getColor(),
           radius: 12,
           content: this.aufgabenOrt,
-          type: this.searchTerm.type,
+          type: this.searchTerm.type
         });
         this.LM.addLegendEntry(leg);
         this.displayDataFromLegend([leg]);
@@ -1957,7 +1959,7 @@ export default class MapView extends Vue {
     } else {
       // TODO Add further error banner if data cant be loaded
       // Also proper message intern
-      console.log("Empty");
+      console.log('Empty');
       return false;
     }
   }
@@ -1980,7 +1982,7 @@ export default class MapView extends Vue {
 
   fetchTranscript(id: number) {
     console.log(id);
-    console.log("test output");
+    console.log('test output');
     const element = this.matchTranscriptID(id);
     console.log(element);
     this.TM.fetchSingleTranscript({ id: id, page: 0 });
@@ -1988,7 +1990,7 @@ export default class MapView extends Vue {
 
   loadInfErhebung(infs: any[]) {
     erhebungModule.fetchInfErhebungen({
-      infs: infs,
+      infs: infs
     });
   }
 
@@ -2028,7 +2030,7 @@ export default class MapView extends Vue {
 
   // lifecycle hook
   mounted() {
-    console.log("Map mounted");
+    console.log('Map mounted');
     this.computeMPerPixel();
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then(() => {
@@ -2044,7 +2046,7 @@ export default class MapView extends Vue {
       this.displayDataFromLegend(legendMod.legend);
     }
 
-    this.map.on("zoomend", (e: any) => {
+    this.map.on('zoomend', (e: any) => {
       this.computeMPerPixel();
       this.displayDataFromLegend(legendMod.legend);
     });
@@ -2066,7 +2068,7 @@ export default class MapView extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  @import "../../node_modules/leaflet/dist/leaflet.css";
+  @import '../../node_modules/leaflet/dist/leaflet.css';
 
   html {
     overflow: hidden;
@@ -2150,7 +2152,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
