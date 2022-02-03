@@ -4,8 +4,8 @@ module.exports = {
     env: {
      node: true
     },
-    plugins: ["es-beautifier"],
-    extends: ["plugin:vue/essential", "plugin:es-beautifier/standard", "@vue/typescript"],
+    plugins: [ "@typescript-eslint"],
+    extends: ["plugin:vue/essential", "@vue/typescript"],
     parserOptions: {
      parser: "@typescript-eslint/parser"
     },
