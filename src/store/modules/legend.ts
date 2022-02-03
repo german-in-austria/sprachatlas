@@ -5,18 +5,18 @@ import {
   Mutation,
   Action,
   getModule
-} from "vuex-module-decorators";
-import store from "@/store";
-import { generateID } from "@/helpers/helper";
-import Vue from "../../main";
+} from 'vuex-module-decorators';
+import store from '@/store';
+import { generateID } from '@/helpers/helper';
+import Vue from '../../main';
 import {
   SearchItems,
   Parameter,
   LegendGlobal,
   Symbols,
   Hsl
-} from "../../static/apiModels";
-import { selectColor } from "@/helpers/helper";
+} from '../../static/apiModels';
+import { selectColor } from '@/helpers/helper';
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -24,7 +24,7 @@ export interface LegendState {
 }
 
 @Module({
-  name: "legendmodule",
+  name: 'legendmodule',
   store,
   dynamic: true
 })
@@ -92,7 +92,7 @@ class Legend extends VuexModule implements LegendState {
     type: SearchItems}
   ): LegendGlobal {
     const newLegend: LegendGlobal = {
-      id: "",
+      id: '',
       color: arg.color ? arg.color : selectColor(null),
       size: arg.radius,
       type: arg.type,
@@ -113,9 +113,9 @@ class Legend extends VuexModule implements LegendState {
     const l = el.layer;
     l?.clearLayers();
     if (idx) {
-      this.context.commit("removeEntryByIdx", idx);
+      this.context.commit('removeEntryByIdx', idx);
     } else {
-      this.context.commit("removeEntryById", el.id);
+      this.context.commit('removeEntryById', el.id);
     }
   }
 }
