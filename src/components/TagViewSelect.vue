@@ -70,10 +70,6 @@ export default class TagViewSelect extends Vue {
   addChildTag() {
     this.TM.setChildrenTag(this.tagSelection.children);
   }
-
-  mounted() {
-    console.log(this.tagSelection);
-  }
 }
 </script>
 <style scoped>

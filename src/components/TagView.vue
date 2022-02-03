@@ -140,35 +140,54 @@ export default class TagView extends Vue {
     }
   }
 
-  findParentElement(parId: number, element: SingleTag): SingleTag {
+  findParentElement(parId: number, element: SingleTag): SingleTag | null {
+    if (!element) {
+      return null;
+    }
     if (element.tagId === parId) {
       return element;
     }
     for (const c of element.children) {
-      return this.findParentElement(parId, c);
+      const parent = this.findParentElement(parId, c);
+      if (parent) {
+        return parent;
+      }
     }
 
-    return {} as SingleTag;
+    return null;
   }
 
   updateTag() {
     if (this.selTag) {
       if (this.selTag.parentIds && this.selTag.parentIds.length > 0) {
         const parentIds = this.selTag.parentIds;
-        const element = this.selectedTags.find((el) =>
-          parentIds.includes(el.parentId)
-        );
+        // Find top element
+        const element = this.selectedTags.find((el) => {
+          if (
+            parentIds.some((ele) => {
+              return el.tagIds.includes(ele);
+            })
+          ) {
+            return true;
+          }
+        });
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = this.selTag.tagId;
         cT.tagAbbrev = this.selTag.tagAbbrev;
+        cT.children = [];
         if (element) {
-          const parId = parentIds[0];
-          const parent = this.findParentElement(parId, element.tagGroup);
-          parent.children.push(cT);
-          console.log(parent);
-          // element.tagGroup.push(cT);
-          element.tagIds.push(cT.tagId);
-          console.log(element);
+          let parent: SingleTag = {} as SingleTag;
+          parentIds.forEach((id) => {
+            const par = this.findParentElement(id, element.tagGroup);
+            if (par) {
+              parent = par;
+              return;
+            }
+          });
+          if (parent) {
+            parent.children.push(cT);
+            element.tagIds.push(cT.tagId);
+          }
         }
       } else {
         const currTag = this.selTag;
