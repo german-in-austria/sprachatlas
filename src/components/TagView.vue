@@ -26,6 +26,7 @@
             :children="group.children"
             :tagData="group.tagGroup"
             :tagSelection="group"
+            :key="gkey + group.parentId"
           />
 
           <!--
@@ -69,11 +70,11 @@
   </div>
 </template>
 <script lang = "ts">
-import { Component, Vue } from "vue-property-decorator";
-import { tagModule } from "@/store/modules/tags";
-import { TagTree } from "@/api/dioe-public-api";
-import { SingleTag, TagSelection } from "@/static/apiModels";
-import TagViewSelect from "@/components/TagViewSelect.vue";
+import { Component, Vue } from 'vue-property-decorator';
+import { tagModule } from '@/store/modules/tags';
+import { TagTree } from '@/api/dioe-public-api';
+import { SingleTag, TagSelection } from '@/static/apiModels';
+import TagViewSelect from '@/components/TagViewSelect.vue';
 
 @Component({
   // if you use components add them here
@@ -81,7 +82,7 @@ import TagViewSelect from "@/components/TagViewSelect.vue";
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */
-  name: "TagView",
+  name: 'TagView'
 })
 export default class TagView extends Vue {
   TM = tagModule;
@@ -126,18 +127,6 @@ export default class TagView extends Vue {
 
   addTag() {
     this.TM.setChildrenTag(this.TM.tagList ? this.TM.tagList : []);
-  }
-
-  deleteTags(idx: number, tag: SingleTag) {
-    const element = this.selectionTag[idx];
-    if (element) {
-      //const idx = element.tagGroup(tag, 0);
-      //if (idx > -1) element.tagGroup.splice(idx);
-    }
-
-    if (tag.tagId === element.parentId) {
-      this.selectionTag.splice(idx, 1);
-    }
   }
 
   findParentElement(parId: number, element: SingleTag): SingleTag | null {
