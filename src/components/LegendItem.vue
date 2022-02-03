@@ -43,7 +43,7 @@
                       <template v-if="d.symbol === 1">
                         <img :src="drawRect(7, d.strokeWidth, d.color, true)" />
                       </template>
-                      <template v-else="d.symbol === 2">
+                      <template v-else>
                         <img
                           :src="drawTriangle(7, d.strokeWidth, d.color, true)"
                         />
@@ -195,26 +195,26 @@
   </v-slide-x-reverse-transition>
 </template>
 <script lang="ts">
-import Component from "vue-class-component";
-import { Prop, Vue } from "vue-property-decorator";
-import { legendMod } from "@/store/modules/legend";
-import { aufgabenModule } from "@/store/modules/aufgaben";
-import IconCircle from "@/icons/IconCircle.vue";
-import { IGetPresetOrtTagResult } from "@/api/dioe-public-api/models/IGetPresetOrtTagResult";
-import { tagModule } from "@/store/modules/tags";
+import Component from 'vue-class-component';
+import { Prop, Vue } from 'vue-property-decorator';
+import { legendMod } from '@/store/modules/legend';
+import { aufgabenModule } from '@/store/modules/aufgaben';
+import IconCircle from '@/icons/IconCircle.vue';
+import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
+import { tagModule } from '@/store/modules/tags';
 
-import * as L from "leaflet";
-import { LegendGlobal, Hsl, SearchItems, Symbols } from "../static/apiModels";
+import * as L from 'leaflet';
+import { LegendGlobal, Hsl, SearchItems, Symbols } from '../static/apiModels';
 
-import { drawRect, drawTriangle } from "@/helpers/MapCompute";
+import { drawRect, drawTriangle } from '@/helpers/MapCompute';
 
-import { selectColor, convertHslToStr } from "@/helpers/helper";
+import { selectColor, convertHslToStr } from '@/helpers/helper';
 
 @Component({
-  name: "LegendItem",
+  name: 'LegendItem',
   components: {
-    IconCircle,
-  },
+    IconCircle
+  }
 })
 export default class LegendItem extends Vue {
   @Prop(Boolean) readonly vis!: boolean;
@@ -237,12 +237,12 @@ export default class LegendItem extends Vue {
   }
 
   hslToObj(hsl: string) {
-    const vals = hsl.substring(4, hsl.length - 1).split(",");
+    const vals = hsl.substring(4, hsl.length - 1).split(',');
     return {
       h: vals[0],
       s: Number(vals[1].substring(0, vals[1].length - 1)) / 100,
       l: Number(vals[2].substring(0, vals[2].length - 1)) / 100,
-      a: 1,
+      a: 1
     };
   }
 
@@ -257,15 +257,15 @@ export default class LegendItem extends Vue {
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
     this.AM.clearAntworten();
-    this.$emit("callChange", el);
+    this.$emit('callChange', el);
   }
 
   onLegendChange(el: LegendGlobal) {
-    this.$emit("callChange", el);
+    this.$emit('callChange', el);
   }
 
   updateVis() {
-    this.$emit("update:vis", !this.vis);
+    this.$emit('update:vis', !this.vis);
   }
 
   async splitPreset(el: LegendGlobal, idx: number) {
@@ -277,16 +277,16 @@ export default class LegendItem extends Vue {
       const legEntry = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
-        name: tag?.tagName ? tag.tagName : "",
+        name: tag?.tagName ? tag.tagName : '',
         color: selectColor(null),
         radius: 20,
         content: this.tagOrteResults.filter((val) => val.tagId === id),
-        type: SearchItems.Tag,
+        type: SearchItems.Tag
       });
       this.LM.addLegendEntry(legEntry);
     }
     this.deleteLegendEntry(el, idx);
-    this.$emit("callChange", el);
+    this.$emit('callChange', el);
   }
 }
 </script>
