@@ -684,10 +684,9 @@ import { transModule } from '../store/modules/transcripts';
 import { phaeModule } from '@/store/modules/phaenomene';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 
-import api from '../api/index';
 import { tagModule } from '@/store/modules/tags';
 import { legendMod } from '@/store/modules/legend';
-import { flatten, isArray, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import IconBase from '@/icons/IconBase.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
@@ -703,7 +702,6 @@ import {
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
-const standardFactor = 300;
 
 type singleEntry = {
   // value of the entry
@@ -798,8 +796,7 @@ export default class MapView extends Vue {
     [];
 
   currentErhebungen = null;
-  // TODO: Organsieren als Array mit Objekten
-  // Tag/Ort als ID des Layers
+
   focusLayer: L.LayerGroup | null = null;
 
   showIcon: boolean = false;
@@ -875,79 +872,6 @@ export default class MapView extends Vue {
     { name: this.tileSets[2].name, value: 2 },
     { name: this.tileSets[3].name, value: 3 }
   ];
-
-  /*
-   * Sprachatlas Feedback
-   * Proportionaler Kreis muss der Größe beim Zoom auch entsprechen
-   * Skalierbalken für das Einstellen der Größe
-   *
-   * Multiple Tag Suche mit einzeichnen von Kreisdiagramm (done)
-   *
-   * Predefined Tags für Ansichten
-   *
-   * Farben aussuchen für Symbole (done)
-   *
-   * Nach Phänomen filtern
-   * Und daraus Aufgaben heraussuchen
-   *
-   * O-te Generation für Tags
-   *
-   * Extra Filter um die Generationen von Tags auszuwählen
-   *
-   * Schöne Startseite gestalten
-   */
-
-  /*
-   * Suche bei den Tags nach Generation im Suchfeld
-   * + Phänomene
-   * Stattdessen generationen wise hineinladen
-   * Aufgabensets können generell wegegelassen werden => Feature für Wissenschaftler (Für später)
-   * Tags in Tagsets => Vorgefertigte Tags
-   *
-   */
-
-  /*
-   ToDo till SFB Days
-    - Preset Tagsets
-   Tag zusammenwerfen:
-    - Sozialdaten herauswerfen
-    - Tag funktionalität beibehalten
-    - 
-    Legende erstellen:
-    Vorschau bzw soziale Daten ausgrauen
-    Token suche (Als Expertenmodus vorschau)
-
-    An einem Ort
-    Aufnahmen zu einem Ort => nach Symbol
-
-    Design:
-    Saubere Gestaltung des gesamten Interface
-
-    Führungen durch das Tool:
-    - Stellen von Fragen
-    - Klang (Auswahl der verschiedenen Phänomenen; Ausschnitt aus den Tondateien, was da drinnen ist)
-    , Wortschatz
-    , Satzbau
-    - Orte selbst sollen nicht in der Legende stehen
-      => Ortsnamen ein- & ausblenden
-    Durchsuchen der untersuchten Gemeinden
-
-    Streamlining für den User
-
-    Sprachkarten sollen auf den Tags basieren (bzw auf deren Ebene)
-    Auswertung dafür (Über die Legende) mit Vorschau für den Expertenmodus
-
-    Suchfeld => Soll nicht in der Legende landen; Markiert werden wenn dieser gesucht wird
-    Extra box um die Orte ein & auszublenden
-
-    Legende ein & ausblenden
-
-    Suche:
-    visueller Hinweis für die Orte bei der Suche, damit diese unterscheidbar sind
-    Nadel Ort; Notetag für Tags / Palette; Phäno  
-    Fragebuch als Buch 
-
-   */
 
   selectedTileSet = 0;
 
@@ -1855,7 +1779,6 @@ export default class MapView extends Vue {
       return await this.loadTagOrt(tag).then(() => {
         const curr = this.tagOrtResult;
         if (curr.length > 0) {
-          // const divFactor = Math.sqrt(ele.numTag / Math.PI);
           const newLegend: LegendGlobal = {
             id: '',
             color: color,
@@ -1912,21 +1835,6 @@ export default class MapView extends Vue {
           type: SearchItems.Presets
         });
         this.LM.addLegendEntry(legEntry);
-        /*
-        const tagIds = [...new Set(this.tagOrtResult.map((val) => val.tagId))];
-        for (const id of tagIds) {
-          const tag = this.tagOrtResult.find((val) => val.tagId === id);
-          const legEntry = await this.LM.createLegendEntry({
-            icon: Symbols.Circle,
-            layer: L.layerGroup(),
-            name: tag?.tagName ? tag.tagName : "",
-            color: this.getColor(),
-            radius: 20,
-            content: this.tagOrtResult.filter((val) => val.tagId === id),
-            type: SearchItems.Tag,
-          });
-          this.LM.addLegendEntry(legEntry);
-        }*/
         this.displayDataFromLegend(this.legendGlobal);
       } else if (this.searchTerm.type === SearchItems.Saetze) {
         const sid = this.searchTerm.content.id;
@@ -2017,15 +1925,6 @@ export default class MapView extends Vue {
     var distanceX = latLngC.distanceTo(latLngX); // calculate distance between c and x (latitude)
     var distanceY = latLngC.distanceTo(latLngY);
     this.kmPerPixel = distanceX / 1000;
-    /*this.kmPerPixel =
-      (40075016.686 * Math.abs(Math.cos((center * Math.PI) / 180))) /
-      Math.pow(2, zoom + 8) /
-      1000;
-    this.kmPerPixel =
-      (156543.03392 * Math.cos((center * Math.PI) / 180)) /
-      Math.pow(2, zoom) /
-      1000;
-      */
   }
 
   async loadTagOrt(tagId: number) {
@@ -2156,7 +2055,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }

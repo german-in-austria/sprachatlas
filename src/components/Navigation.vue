@@ -10,7 +10,7 @@
   >
 </template>
 <script lang = "ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
   // if you use components add them here
@@ -18,7 +18,7 @@ import { Component, Vue } from "vue-property-decorator";
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */
-  name: "Navigation",
+  name: 'Navigation'
 })
 export default class Navigation extends Vue {}
 </script>

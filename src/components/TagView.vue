@@ -29,31 +29,6 @@
             :key="gkey + group.parentId"
             @deleteTag="onDelete"
           />
-
-          <!--
-              <v-menu top :close-on-content-click="true" :offset-y="true">
-                <v-chip
-                  class="ma-2"
-                  color="green"
-                  text-color="whitetag ? tag : ([] as Array<SingleTag>)"
-                  @click="showContext"
-                >
-                  {{ tag.tagAbbrev }}
-                  <v-icon
-                    v-if="tkey == selectionTag[gkey].tagGroup.length - 1"
-                    right
-                    @click="addChildTag(group, gkey)"
-                    >mdi-plus
-                  </v-icon>
-                </v-chip>
-                <v-list>
-                  <v-list-item link>
-                    <v-list-item-title @click="deleteTags(gkey, tag)"
-                      >Tag löschen</v-list-item-title
-                    >
-                  </v-list-item>
-                </v-list>
-              </v-menu>-->
         </template>
         <v-btn
           v-if="selectedTags.length > 0"
@@ -122,7 +97,7 @@ export default class TagView extends Vue {
     // Delete all child Ids from tagIDs
     // Delete the according child
     let parent = this.selectedTags.find((el) => el.tagIds.includes(val));
-    /*
+
     if (this.selectedTags.find((el) => el.parentId === val)) {
       const tag = this.selectedTags;
       tag.splice(
@@ -131,9 +106,8 @@ export default class TagView extends Vue {
       );
       return;
     }
-    */
+
     if (parent) {
-      // parent.tagIds.splice(parent.tagIds.indexOf(val), 1);
       const elements = this.findChildParentElement(val, parent.tagGroup);
       if (elements) {
         let tagIDs = [elements.child.tagId];
@@ -145,7 +119,6 @@ export default class TagView extends Vue {
           (el) => el.tagId !== val
         );
       }
-      // removeTagRecursive(id, parent.tagGroup);
     }
   }
 
