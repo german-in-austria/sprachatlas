@@ -102,7 +102,7 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
-                <TagView class="mt-10 mb-10" ref="tagView"></TagView>
+                <TagView class="mt-10 mb-10" ref="tagView" />
                 <SymbolPicker
                   ref="sym"
                   :color="paraColor ? paraColor.hex : parColor"
@@ -165,7 +165,7 @@
         <v-list rounded>
           <v-subheader> Legenden </v-subheader>
           <v-list-item-group color="primary">
-            <v-list-item v-for="(item, idx) in queryLegend">
+            <v-list-item v-for="(item, idx) in queryLegend" :key="idx">
               <v-list-item-content :key="idx" @click="viewLegend(idx, item)">
                 <v-list-item-title v-text="item.name">{{
                   item.name
@@ -220,7 +220,7 @@
                       ><h4>{{ curr.name }}</h4>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
-                      {{ "Suchanfrage" }}</v-expansion-panel-content
+                      {{ 'Suchanfrage' }}</v-expansion-panel-content
                     >
                   </v-expansion-panel>
                 </v-expansion-panels>
@@ -243,37 +243,33 @@
       </v-col>
     </v-row>
     <v-row> </v-row>
-    <v-row>
-      <v-col cols="4" offset-md="1"> </v-col>
-      <v-col cols="1" offset-md="1"> </v-col>
-    </v-row>
   </v-container>
 </template>
 <script lang="ts">
-import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
-import { tagModule } from "@/store/modules/tags";
-import { legendMod } from "@/store/modules/legend";
-import { transModule } from "@/store/modules/transcripts";
-import { TagTree } from "@/api/dioe-public-api";
-import TagView from "@/components/TagView.vue";
-import draggable from "vuedraggable";
+import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
+import { tagModule } from '@/store/modules/tags';
+import { legendMod } from '@/store/modules/legend';
+import { transModule } from '@/store/modules/transcripts';
+import { TagTree } from '@/api/dioe-public-api';
+import TagView from '@/components/TagView.vue';
+import draggable from 'vuedraggable';
 import {
   Job,
   Parameter,
   LegendList,
   SearchItems,
   LegendGlobal,
-  Symbols,
-} from "@/static/apiModels";
-import * as LZ from "lz-string";
-import { generateID } from "@/helpers/helper";
-import IconCircle from "@/icons/IconCircle.vue";
-import SymbolPicker from "@/components/SymbolPicker.vue";
-import { aufgabenModule } from "@/store/modules/aufgaben";
+  Symbols
+} from '@/static/apiModels';
+import * as LZ from 'lz-string';
+import { generateID } from '@/helpers/helper';
+import IconCircle from '@/icons/IconCircle.vue';
+import SymbolPicker from '@/components/SymbolPicker.vue';
+import { aufgabenModule } from '@/store/modules/aufgaben';
 
 @Component({
   components: { draggable, TagView, IconCircle, SymbolPicker },
-  name: "QueryTool",
+  name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {
   editLegendDialog: boolean = false;
@@ -285,9 +281,9 @@ export default class QueryCreator extends Vue {
   focusParameter: Parameter[] = [];
   focusLegId: number = -1;
 
-  paraName: string = "";
-  paraLemma: string = "";
-  selProject: string = "";
+  paraName: string = '';
+  paraLemma: string = '';
+  selProject: string = '';
   selTags: number[] = [];
   selToken: string[] = [];
   min: number = 0;
@@ -299,26 +295,26 @@ export default class QueryCreator extends Vue {
 
   paraColor: {
     hex: string;
-  } = { hex: "#F00" };
+  } = { hex: '#F00' };
 
-  selMobility: string = "";
-  selParents: string = "";
-  selEducation: string = "";
-  selGender: string = "";
-  selJob: string = "";
+  selMobility: string = '';
+  selParents: string = '';
+  selEducation: string = '';
+  selGender: string = '';
+  selJob: string = '';
   selEducationAll: Job | null | undefined = null;
-  legName: string = "";
+  legName: string = '';
 
   range = [20, 70];
 
-  token = ["Orthographisch", "Phonetisch"];
-  projects = ["PP11"];
-  testItems = ["UND", "ODER"];
-  gender = ["Männlich", "Weiblich"];
-  education = ["Pflichtschule", "Matura", "Studium"];
-  parents = ["Herkunft"];
-  job = ["Chemiker", "Tischler", "..."];
-  mobility = ["Auto", "Zug", "Pferd"];
+  token = ['Orthographisch', 'Phonetisch'];
+  projects = ['PP11'];
+  testItems = ['UND', 'ODER'];
+  gender = ['Männlich', 'Weiblich'];
+  education = ['Pflichtschule', 'Matura', 'Studium'];
+  parents = ['Herkunft'];
+  job = ['Chemiker', 'Tischler', '...'];
+  mobility = ['Auto', 'Zug', 'Pferd'];
 
   TM = tagModule;
   LM = legendMod;
@@ -362,7 +358,7 @@ export default class QueryCreator extends Vue {
   }
 
   editLegName() {
-    if (this.focusLegend.name !== "") this.LM.editLegendByID(this.focusLegend);
+    if (this.focusLegend.name !== '') this.LM.editLegendByID(this.focusLegend);
   }
 
   checkEducation(pk: number) {
@@ -381,9 +377,9 @@ export default class QueryCreator extends Vue {
   }
 
   createlegend() {
-    const name = "Unbennante Legende";
+    const name = 'Unbennante Legende';
     const emptyLegend = {
-      color: "#F00",
+      color: '#F00',
       size: 15,
       type: SearchItems.Query,
       content: null,
@@ -392,7 +388,7 @@ export default class QueryCreator extends Vue {
       parameter: null,
       layer: null,
       vis: true,
-      name: name,
+      name: name
     };
     this.LM.addLegendEntry(emptyLegend);
     this.legName = name;
@@ -415,7 +411,7 @@ export default class QueryCreator extends Vue {
 
   createParameter(clear: boolean) {
     if (this.paraName === null) {
-      this.paraName = "";
+      this.paraName = '';
     }
     if (this.focusLegend) {
       const ageRange = [this.range[0], this.range[1]];
@@ -427,14 +423,14 @@ export default class QueryCreator extends Vue {
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
         project: this.selProject,
-        gender: this.selGender === "Weiblich" ? true : false, // Boolean
+        gender: this.selGender === 'Weiblich' ? true : false, // Boolean
         education: this.selEducation, // ID
         parents: this.selParents,
         job: this.selJob,
         tagList: this.TM.tagSelection,
         token: this.selToken, //
         ageRange: ageRange, // Array 2 Number
-        color: this.paraColor === null ? "" : this.paraColor.hex,
+        color: this.paraColor === null ? '' : this.paraColor.hex
       };
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
@@ -457,7 +453,7 @@ export default class QueryCreator extends Vue {
   beforeCreate() {
     aufgabenModule.fetchAllTeams();
     if (tagModule.tagList == null) {
-      console.log("fetching Tags");
+      console.log('fetching Tags');
       tagModule.fetchTags();
     }
   }
@@ -466,22 +462,22 @@ export default class QueryCreator extends Vue {
     if (this.$route.query.parameters) {
       const para = this.$route.query.parameters;
       let legend = undefined;
-      if (typeof para === "string") {
+      if (typeof para === 'string') {
         const parameter = LZ.decompressFromEncodedURIComponent(para);
         legend = new Function(
-          "return [" + parameter?.substring(1, parameter.length - 1) + "];"
+          'return [' + parameter?.substring(1, parameter.length - 1) + '];'
         )();
         tagModule.clearLegend();
         legend.forEach((element: { name: string; parameter: Parameter[] }) => {
           tagModule.addLegend({
             name: element.name,
-            parameter: element.parameter,
+            parameter: element.parameter
           });
           // this.legName = element.name;
           tagModule.setParameters(element.parameter);
         });
       } else {
-        console.log("Queryparameter has wrong format");
+        console.log('Queryparameter has wrong format');
         if (this.$props.legendID) {
         }
       }
@@ -493,7 +489,7 @@ export default class QueryCreator extends Vue {
       }
     }
 
-    if (this.legName === "") {
+    if (this.legName === '') {
       // const legend = this.TM.legends.slice(-1)[0];
       // this.legName = "Unbenannte Legende";
     }
