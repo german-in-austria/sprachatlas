@@ -572,7 +572,7 @@
     </v-layout>
     <v-layout class="map-overlay legend">
       <LegendItem
-        v-on:callChange="onLegendChange"
+        v-on:callChange="splitTags"
         :vis.sync="showLegend"
         :propCircl="!showDataSideways"
       ></LegendItem>
@@ -1232,6 +1232,10 @@ export default class MapView extends Vue {
 
   clearFilterMenu() {
     this.filterMenuValue = [];
+  }
+
+  splitTags() {
+    this.displayDataFromLegend(this.legendGlobal);
   }
 
   onLegendChange(el: LegendGlobal) {
@@ -2152,7 +2156,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
