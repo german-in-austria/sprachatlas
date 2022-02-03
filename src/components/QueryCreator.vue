@@ -27,6 +27,7 @@
                   item-text="team"
                   item-value="teamId"
                   label="Projekt"
+                  clearable
                 ></v-select>
                 <v-expansion-panels>
                   <v-expansion-panel>
