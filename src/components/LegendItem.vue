@@ -112,8 +112,6 @@
                   <v-btn
                     icon
                     color="grey"
-                    v-bind="attrs"
-                    v-on="on"
                     @click="
                       d.vis = !d.vis;
                       onLegendChange(d);
