@@ -27,6 +27,7 @@
             :tagData="group.tagGroup"
             :tagSelection="group"
             :key="gkey + group.parentId"
+            @deleteTag="onDelete"
           />
 
           <!--
@@ -115,6 +116,39 @@ export default class TagView extends Vue {
     return this.TM.tagSelection;
   }
 
+  onDelete(val: number) {
+    // Steps
+    // Find according child
+    // Delete all child Ids from tagIDs
+    // Delete the according child
+    let parent = this.selectedTags.find((el) => el.tagIds.includes(val));
+    /*
+    if (this.selectedTags.find((el) => el.parentId === val)) {
+      const tag = this.selectedTags;
+      tag.splice(
+        this.selectedTags.findIndex((el) => el.parentId === val),
+        1
+      );
+      return;
+    }
+    */
+    if (parent) {
+      // parent.tagIds.splice(parent.tagIds.indexOf(val), 1);
+      const elements = this.findChildParentElement(val, parent.tagGroup);
+      if (elements) {
+        let tagIDs = [elements.child.tagId];
+        for (const c of elements.child.children) {
+          tagIDs.push(c.tagId);
+        }
+        parent.tagIds = parent.tagIds.filter((el) => !tagIDs.includes(el));
+        elements.parent.children = elements.parent.children.filter(
+          (el) => el.tagId !== val
+        );
+      }
+      // removeTagRecursive(id, parent.tagGroup);
+    }
+  }
+
   beforeCreate() {
     if (tagModule.tagList == null) {
       tagModule.fetchTags();
@@ -142,7 +176,23 @@ export default class TagView extends Vue {
         return parent;
       }
     }
+    return null;
+  }
 
+  findChildParentElement(parId: number, element: SingleTag) {
+    if (!element) {
+      return null;
+    }
+    for (const c of element.children) {
+      const child: any = this.findParentElement(parId, c);
+      if (child) {
+        if (c.tagId === child.tagId) {
+          return { parent: element, child: child };
+        } else {
+          return { parent: c, child: child };
+        }
+      }
+    }
     return null;
   }
 

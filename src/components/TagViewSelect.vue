@@ -26,6 +26,7 @@
           :children="tag.children ? tag.children : []"
           :tagData="tag"
           :tagSelection="tagSel(tag)"
+          @bus="bus"
         />
       </template>
       <v-btn
@@ -90,8 +91,15 @@ export default class TagViewSelect extends Vue {
     this.TM.setChildrenTag(this.tagSelection.children);
   }
 
+  bus(val: number) {
+    this.$emit('bus', val);
+    this.$emit('deleteTag', val);
+  }
+
   deleteTags() {
-    this.TM.deleteTag(this.tagData.tagId);
+    // this.TM.deleteTag(this.tagData.tagId);
+    this.$emit('bus', this.tagData.tagId);
+    this.$emit('deleteTag', this.tagData.tagId);
   }
 
   show(e: any) {
