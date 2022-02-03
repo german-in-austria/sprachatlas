@@ -1,4 +1,4 @@
-var colorid = 0;
+let colorid = 0;
 
 export const getOrtName = (name: string) => {
   if (name !== null) {
@@ -8,8 +8,8 @@ export const getOrtName = (name: string) => {
       return res.length > 2
         ? { name: res[1], bl: res[2] }
         : res.length === 2
-        ? { name: res[1] }
-        : { name: res[0] };
+          ? { name: res[1] }
+          : { name: res[0] };
     }
   }
   return { name };
@@ -29,7 +29,7 @@ export const generateID = () => {
 };
 
 export const selectColor = (num: number | null) => {
-  var angle = 0;
+  let angle = 0;
   if (num !== null) {
     angle = num * 137.508; // use golden angle approximation
   } else {
