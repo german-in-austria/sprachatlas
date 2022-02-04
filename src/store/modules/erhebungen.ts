@@ -5,16 +5,16 @@ import {
   Mutation,
   Action,
   getModule
-} from 'vuex-module-decorators'
-import store from '@/store'
+} from 'vuex-module-decorators';
+import store from '@/store';
 import {
   getAudioErhebung,
   getErhebungen
-} from '../../api/erhebungen'
+} from '../../api/erhebungen';
 
-import { AxiosResponse } from 'axios'
-import Vue from '../../main'
-import { ApiLocationResponse, ApiLocSingleResponse, SingleInfResponse, ApiInfErhResponse } from '../../static/apiModels'
+import { AxiosResponse } from 'axios';
+import Vue from '../../main';
+import { ApiLocationResponse, ApiLocSingleResponse, SingleInfResponse, ApiInfErhResponse } from '../../static/apiModels';
 
 export interface ErhebungState {
     currentOrt: ApiLocSingleResponse | null;
@@ -40,36 +40,36 @@ class Erhebungen extends VuexModule implements ErhebungState {
 
     @Mutation
     setCurrentOrt (ort: ApiLocSingleResponse | null) {
-      this.currentOrt = ort
+      this.currentOrt = ort;
     }
 
     @Mutation
     setLoading (loading: boolean) {
-      this.loading = loading
+      this.loading = loading;
     }
 
     @Mutation
     setInfLoading (loading: boolean) {
-      this.infLoading = loading
+      this.infLoading = loading;
     }
 
     @MutationAction({ mutate: ['erhebungen', 'loading'] })
     async fetchErhebungen () {
-      this.loading = true
-      console.log('trying to fetch data')
+      this.loading = true;
+      console.log('trying to fetch data');
       const response = await getErhebungen();
       
       console.log('fetched data');
       return {
         erhebungen: response.data.orte,
         loading: false
-      }
+      };
     }
 
     @MutationAction({ mutate: ['infErhebungen', 'infLoading'] })
     async fetchInfErhebungen(params: any) {
       this.infLoading = true;
-      let numbers: number[] = [];
+      const numbers: number[] = [];
       params.infs.forEach(function(value: any, index: any){
         numbers.push(value.id);
       });
@@ -79,9 +79,9 @@ class Erhebungen extends VuexModule implements ErhebungState {
       return {
         infErhebungen: response_inf.data,
         infLoading: false
-      }
+      };
     }
     
 }
 
-export const erhebungModule = getModule(Erhebungen)
+export const erhebungModule = getModule(Erhebungen);
