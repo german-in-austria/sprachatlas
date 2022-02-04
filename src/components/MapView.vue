@@ -1309,7 +1309,7 @@ export default class MapView extends Vue {
 
   async submitSearch() {
     if (this.searchTerm) {
-      if (await this.displayData(this.searchTerm)) {
+      if (await this.displayData(this.searchTerm, true)) {
         // clear data of autocomplete
         //@ts-ignore
         this.$refs.searchTermAutoComplete.reset();
@@ -1801,7 +1801,7 @@ export default class MapView extends Vue {
     });
   }
 
-  async displayData(term: SearchTerm) {
+  async displayData(term: SearchTerm, encode: boolean) {
     const newLayer = L.layerGroup();
     this.clearLayer();
     this.showLegend = true;
@@ -1877,7 +1877,7 @@ export default class MapView extends Vue {
       this.LM.addLegendEntry(newLeg);
       this.displayDataFromLegend([newLeg]);
     }
-    expData.pushNewLegend(newLeg, id);
+    if (encode) expData.pushNewLegend(newLeg, id);
     // Encode and export data afterwards to URL Bar
     // Remove certain parts of data
     return true;
@@ -1938,6 +1938,59 @@ export default class MapView extends Vue {
     await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
 
+  async fetchContent(id: number, type: SearchItems) {
+    if (type === SearchItems.Tag) {
+      await this.loadTagOrt(id);
+      return this.tagOrtResult;
+    } else if (type === SearchItems.Presets) {
+      return await this.TaM.fetchPresetTagOrte(id);
+      // cast result as PresetOrtTagResult
+      // @ts-ignore
+    } else if (type === SearchItems.Saetze) {
+      return await this.AM.fetchAntworten({ sid: id });
+    } else if (type === SearchItems.Aufgaben) {
+      return await this.AM.fetchAufgabenOrt({ ids: [id] });
+    }
+  }
+
+  /*
+   * Decode the components of the URI
+   * Happens by reading the data from the URI
+   * Afterwards converts the recieved data into the internal data structure
+   * 1. Create new Legend Entries
+   * 2. display these new entries on the map
+   */
+  async decodeURI() {
+    const legend = expData.fetchLegendFromUri();
+    if (legend) {
+      legend.forEach((l) => {});
+      for (const l of legend) {
+        // Same ID is already in use and in the map
+        if (
+          this.legendGlobal.some(
+            (el) => el.id === l.id && el.type === l.type && el.name === l.name
+          )
+        ) {
+          continue;
+        }
+
+        // Fetch the needed content for the legend
+        const res = await this.fetchContent(l.elementId, l.type);
+        // create the new entry
+        const lm = await this.LM.createLegendEntry({
+          icon: l.symbol,
+          layer: L.layerGroup(),
+          name: l.name,
+          color: l.color,
+          radius: l.size,
+          content: res,
+          type: l.type
+        });
+        this.LM.addLegendEntry(lm);
+      }
+    }
+  }
+
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
@@ -1952,14 +2005,11 @@ export default class MapView extends Vue {
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
 
-    const legend = expData.decode();
-    if (legend) {
-      this.LM.createLegendEntry;
-    }
-
-    if (this.legendGlobal.length > 0) {
-      this.displayDataFromLegend(legendMod.legend);
-    }
+    this.decodeURI().then(() => {
+      if (this.legendGlobal.length > 0) {
+        this.displayDataFromLegend(legendMod.legend);
+      }
+    });
 
     this.map.on('zoomend', (e: any) => {
       this.computeMPerPixel();
@@ -2067,7 +2117,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
