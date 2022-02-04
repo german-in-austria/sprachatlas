@@ -38,6 +38,15 @@ export const expData = {
     url.searchParams.set('legend', `${uri}`);
     window.history.pushState({}, '', url.toString());
   },
+  replaceUrl(uri: string) {
+    const url = new URL(window.location.href);
+    if(uri === '' || uri.length === 0){
+      url.searchParams.delete('legend');
+    }else{
+      url.searchParams.set('legend', `${uri}`);
+    }
+    window.history.replaceState({}, '', url.toString());
+  },
   encodeObject(obj: any){
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
@@ -51,5 +60,19 @@ export const expData = {
       enc = this.encodeObject([tL]);
     }
     this.pushURL(enc);
+  },
+  removeEntryFromUri(name: string, type: SearchItems) {
+    let leg = this.fetchLegendFromUri();
+    if(leg) {
+      leg = leg?.filter((el) => el.name !== name && el.type !== type);
+      let enc = '';
+      if(leg.length > 0){
+        enc = this.encodeObject(leg);
+        this.pushURL(enc);
+      }else{
+        this.replaceUrl(enc);
+      }
+    }
+
   }
 };

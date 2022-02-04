@@ -200,6 +200,7 @@ import { aufgabenModule } from '@/store/modules/aufgaben';
 import IconCircle from '@/icons/IconCircle.vue';
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { tagModule } from '@/store/modules/tags';
+import { expData } from '@/service/ExportBase';
 
 import * as L from 'leaflet';
 import { LegendGlobal, Hsl, SearchItems, Symbols } from '../static/apiModels';
@@ -254,6 +255,7 @@ export default class LegendItem extends Vue {
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
+    expData.removeEntryFromUri(el.name, el.type ? el.type : 0);
     this.AM.clearAntworten();
     this.$emit('callChange', el);
   }
