@@ -679,7 +679,8 @@ import {
   LegendGlobal,
   Phaen,
   Parameter,
-  Symbols
+  Symbols,
+  SearchTerm
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -763,7 +764,7 @@ export default class MapView extends Vue {
   LM = legendMod;
   AM = aufgabenModule;
   searchInput: string = '';
-  searchTerms: { type: SearchItems; content: any; name: string }[] = [];
+  searchTerms: Array<SearchTerm> = [];
   optionTab = 0;
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
@@ -816,7 +817,7 @@ export default class MapView extends Vue {
   showDiaReg = false;
   showDataSideways = false;
   showDataProp = false;
-  searchTerm: { type: SearchItems; content: any; name: string } | null = null;
+  searchTerm: SearchTerm | null = null;
   geoStore = geoStore;
   mapOptions = {
     scrollWheelZoom: true,
@@ -1142,10 +1143,10 @@ export default class MapView extends Vue {
         this.selSearchModel === SearchItems.Alle ||
         this.selSearchModel === SearchItems.Aufgaben
       )
-        this.AM.fetchSaetze({ query: this.searchInput }).then(() =>
+        /*this.AM.fetchSaetze({ query: this.searchInput }).then(() =>
           this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript')
-        );
-      this.dbLoading = false;
+        );*/
+        this.dbLoading = false;
     }, 500);
   }
 
@@ -1307,13 +1308,15 @@ export default class MapView extends Vue {
   }
 
   async submitSearch() {
-    if (await this.displayData()) {
-      // clear data of autocomplete
-      //@ts-ignore
-      this.$refs.searchTermAutoComplete.reset();
-    } else {
-      // Extend autocomplete with a error banner
-      console.log('Fehler beim Suchen');
+    if (this.searchTerm) {
+      if (await this.displayData(this.searchTerm)) {
+        // clear data of autocomplete
+        //@ts-ignore
+        this.$refs.searchTermAutoComplete.reset();
+      } else {
+        // Extend autocomplete with a error banner
+        console.log('Fehler beim Suchen');
+      }
     }
   }
 
@@ -1773,117 +1776,111 @@ export default class MapView extends Vue {
     this.addDataToMap(aufData, SearchItems.Aufgaben);
   }
 
-  async createTagLegend(layer: L.LayerGroup) {
-    if (this.searchTerm) {
-      const tag = this.searchTerm.content.tagId;
-      const color = this.getColor();
-      const radius = 20;
-      return await this.loadTagOrt(tag).then(() => {
-        const curr = this.tagOrtResult;
-        if (curr.length > 0) {
-          const newLegend: LegendGlobal = {
-            id: '',
-            color: color,
-            size: radius,
-            type: SearchItems.Tag,
-            content: curr,
-            symbol: this.iconId++,
-            stroke: true,
-            strokeWidth: 1,
-            parameter: null,
-            vis: true,
-            name: curr[0].tagName,
-            layer: layer
-          };
-          return newLegend;
-        }
-      });
-    }
+  async createTagLegend(layer: L.LayerGroup, tagId: number) {
+    const color = this.getColor();
+    const radius = 20;
+    return await this.loadTagOrt(tagId).then(() => {
+      const curr = this.tagOrtResult;
+      if (curr.length > 0) {
+        const newLegend: LegendGlobal = {
+          id: '',
+          color: color,
+          size: radius,
+          type: SearchItems.Tag,
+          content: curr,
+          symbol: this.iconId++,
+          stroke: true,
+          strokeWidth: 1,
+          parameter: null,
+          vis: true,
+          name: curr[0].tagName,
+          layer: layer
+        };
+        return newLegend;
+      }
+    });
   }
 
-  async displayData() {
+  async displayData(term: SearchTerm) {
     const newLayer = L.layerGroup();
     this.clearLayer();
     this.showLegend = true;
-    if (this.searchTerm) {
-      // Variable for the new Legend
-      // Is used for the export of the data
-      let newLeg: LegendGlobal = {} as LegendGlobal;
-      if (this.searchTerm.type === SearchItems.Ort) {
-        const leg = this.displayOrt(newLayer);
-        this.LM.addLegendEntry(leg);
-        newLeg = this.legendGlobal[-1];
-        this.setMapToPoint(
-          Number(newLeg?.content.lat),
-          Number(newLeg?.content.lon),
-          10
-        );
-      } else if (this.searchTerm.type === SearchItems.Tag) {
-        this.resetMap();
-        const res = await this.createTagLegend(newLayer);
-        legendMod.addLegendEntry(res);
-        this.displayDataFromLegend(this.legendGlobalTag);
-        if (res) newLeg = res;
-      } else if (this.searchTerm.type === SearchItems.Presets) {
-        this.resetMap();
-        const preset = this.searchTerm.content.id;
-        await this.TaM.fetchPresetTagOrte(preset);
-        // cast result as PresetOrtTagResult
-        // @ts-ignore
-        const res = this.tagOrtResult as IGetPresetOrtTagResult[];
-        newLeg = await this.LM.createLegendEntry({
-          icon: Symbols.Circle,
-          layer: L.layerGroup(),
-          name: res[0].presetName,
-          color: this.getColor(),
-          radius: 20,
-          content: res,
-          type: SearchItems.Presets
-        });
-        this.LM.addLegendEntry(newLeg);
-        this.displayDataFromLegend(this.legendGlobal);
-      } else if (this.searchTerm.type === SearchItems.Saetze) {
-        const sid = this.searchTerm.content.id;
-        const term = this.searchTerm.content.transkript;
-        await this.AM.fetchAntworten({ sid: sid });
-        const res = this.einzelAntworten;
-        this.resetMap();
-        newLeg = await this.LM.createLegendEntry({
-          icon: Symbols.Circle,
-          layer: L.layerGroup(),
-          name: term,
-          color: this.getColor(),
-          radius: 20,
-          content: res,
-          type: this.searchTerm.type
-        });
-        this.LM.addLegendEntry(newLeg);
-      } else if (this.searchTerm.type === SearchItems.Aufgaben) {
-        const content = this.searchTerm.content;
-        await this.AM.fetchAufgabenOrt({ ids: [content.aufId] });
-        newLeg = await this.LM.createLegendEntry({
-          icon: Symbols.Circle,
-          layer: L.layerGroup(),
-          name: content.Aufgabenstellung,
-          color: this.getColor(),
-          radius: 12,
-          content: this.aufgabenOrt,
-          type: this.searchTerm.type
-        });
-        this.LM.addLegendEntry(newLeg);
-        this.displayDataFromLegend([newLeg]);
-      }
-      console.log(this.legendGlobal);
-      expData.encode(newLeg);
-      // Encode and export data afterwards to URL Bar
-      // Remove certain parts of data
-      return true;
-    } else {
-      // TODO Add further error banner if data cant be loaded
-      // Also proper message intern
-      console.log('Empty');
-      return false;
+    // Variable for the new Legend
+    // Is used for the export of the data
+    let newLeg: LegendGlobal = {} as LegendGlobal;
+    // id of the elment in the database
+    let id: number = -1;
+    if (term.type === SearchItems.Ort) {
+      const leg = this.displayOrt(newLayer);
+      id = leg?.content.osmId ? leg?.content.osmId : -1;
+      this.LM.addLegendEntry(leg);
+      newLeg = this.legendGlobal[-1];
+      this.setMapToPoint(
+        Number(newLeg?.content.lat),
+        Number(newLeg?.content.lon),
+        10
+      );
+    } else if (term.type === SearchItems.Tag) {
+      this.resetMap();
+      id = term.content.tagId;
+      const res = await this.createTagLegend(newLayer, id);
+      legendMod.addLegendEntry(res);
+      this.displayDataFromLegend(this.legendGlobalTag);
+      if (res) newLeg = res;
+    } else if (term.type === SearchItems.Presets) {
+      this.resetMap();
+      const preset = (id = term.content.id);
+      await this.TaM.fetchPresetTagOrte(preset);
+      // cast result as PresetOrtTagResult
+      // @ts-ignore
+      const res = this.tagOrtResult as IGetPresetOrtTagResult[];
+      newLeg = await this.LM.createLegendEntry({
+        icon: Symbols.Circle,
+        layer: L.layerGroup(),
+        name: res[0].presetName,
+        color: this.getColor(),
+        radius: 20,
+        content: res,
+        type: SearchItems.Presets
+      });
+      this.LM.addLegendEntry(newLeg);
+      this.displayDataFromLegend(this.legendGlobal);
+    } else if (term.type === SearchItems.Saetze) {
+      const sid = (id = term.content.id);
+      const tranksript = term.content.transkript;
+      await this.AM.fetchAntworten({ sid: sid });
+      const res = this.einzelAntworten;
+      this.resetMap();
+      newLeg = await this.LM.createLegendEntry({
+        icon: Symbols.Circle,
+        layer: L.layerGroup(),
+        name: tranksript,
+        color: this.getColor(),
+        radius: 20,
+        content: res,
+        type: term.type
+      });
+      this.LM.addLegendEntry(newLeg);
+    } else if (term.type === SearchItems.Aufgaben) {
+      const content = term.content;
+      id = content.aufId;
+      await this.AM.fetchAufgabenOrt({ ids: [content.aufId] });
+      newLeg = await this.LM.createLegendEntry({
+        icon: Symbols.Circle,
+        layer: L.layerGroup(),
+        name: content.Aufgabenstellung,
+        color: this.getColor(),
+        radius: 12,
+        content: this.aufgabenOrt,
+        type: term.type
+      });
+      this.LM.addLegendEntry(newLeg);
+      this.displayDataFromLegend([newLeg]);
     }
+    expData.pushNewLegend(newLeg, id);
+    // Encode and export data afterwards to URL Bar
+    // Remove certain parts of data
+    return true;
   }
 
   matchTranscriptID(id: number) {
@@ -1954,6 +1951,11 @@ export default class MapView extends Vue {
     this.PM.fetchAllPhaen();
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
+
+    const legend = expData.decode();
+    if (legend) {
+      this.LM.createLegendEntry;
+    }
 
     if (this.legendGlobal.length > 0) {
       this.displayDataFromLegend(legendMod.legend);
@@ -2065,7 +2067,7 @@ export default class MapView extends Vue {
   }
 
   .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /* .slide-fade-leave-active below version 2.1.8 */ {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
