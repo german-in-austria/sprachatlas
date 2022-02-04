@@ -1,8 +1,8 @@
-import { TagTree } from "@/api/dioe-public-api";
+import { TagTree } from '@/api/dioe-public-api';
 
 type ServerTranscriptId = number;
 
-export type TokenTierType = "text" | "ortho" | "phon";
+export type TokenTierType = 'text' | 'ortho' | 'phon';
 
 export interface SingleInfResponse {
   id: number;
@@ -133,6 +133,26 @@ export interface LegendGlobal {
   parameter: Parameter[] | null;
   layer: L.LayerGroup;
   vis: boolean;
+  name: string;
+}
+
+export interface exportLegend {
+  id: string;
+  symbol: Symbols;
+  color: Hsl;
+  size: number;
+  type: SearchItems;
+  elementId: number;
+  stroke: boolean;
+  strokeWidth: number;
+  parameter: Parameter[] | null;
+  vis: boolean;
+  name: string;
+}
+
+export interface SearchTerm {
+  type: SearchItems;
+  content: any;
   name: string;
 }
 
