@@ -411,12 +411,63 @@
         <v-btn fab small class="zoom" @click="resetMap()">
           <v-icon>mdi-home</v-icon>
         </v-btn>
+        <v-tooltip right>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              class="zoom"
+              @click.stop="dialog = true"
+            >
+              <v-icon>mdi-export</v-icon>
+            </v-btn>
+          </template>
+          <span> Karteneinstellungen exportieren </span>
+        </v-tooltip>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn small fab @click="sideBar = !sideBar">
           <v-icon>mdi-layers</v-icon>
         </v-btn>
       </v-flex>
+    </v-layout>
+    <v-layout>
+      <v-dialog
+        max-width="500"
+        v-model="dialog"
+        transition="dialog-top-transition"
+      >
+        <v-card>
+          <v-card-title>
+            Export der Karteneinstellungen
+            <v-spacer></v-spacer>
+            <v-btn icon color="indigo" @click="dialog = !dialog">
+              <v-icon>mdi-minus</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-row align="center" justify="center">
+              <v-col>
+                {{ url }}
+              </v-col>
+              <v-col>
+                <v-btn small @click="copyClipboard(url)">
+                  <v-icon>mdi-content-copy</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer> </v-spacer>
+            <v-btn color="green darken-1" text @click="copyClipboard(url)"
+              >In die Zwischenablage kopieren</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-layout>
     <v-slide-y-reverse-transition tag="v-layout">
       <v-layout class="map-overlay erhebung" v-if="showAudio">
@@ -830,6 +881,8 @@ export default class MapView extends Vue {
     end: 0
   };
 
+  dialog = false;
+
   headerErheb = [
     { text: 'Art der Erhebung', value: 'Art_Erhebung' },
     { text: 'Bezeichnung der Erhebung', value: 'Bezeichnung_Erhebung' }
@@ -1083,6 +1136,10 @@ export default class MapView extends Vue {
 
   get aufgabeSingleOrt() {
     return this.AM.aufgabeSingleOrt;
+  }
+
+  get url() {
+    return window.location.href;
   }
 
   @Watch('searchInput')
@@ -1349,6 +1406,8 @@ export default class MapView extends Vue {
     this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
   }
 
+  showExport() {}
+
   createRectIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
     if (ort.data.length > 1 && this.showDataProp) {
@@ -1576,6 +1635,17 @@ export default class MapView extends Vue {
     }
     return data;
     // this.addDataToMap(data);
+  }
+
+  copyClipboard(str: string) {
+    navigator.clipboard.writeText(str).then(
+      () => {
+        // Success
+      },
+      () => {
+        // Fail
+      }
+    );
   }
 
   displaySingleTagLegend(
@@ -2116,8 +2186,8 @@ export default class MapView extends Vue {
     transition-property: width;
   }
 
-  .expand-slide-enter, .expand-slide-leave-to
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* .slide-fade-leave-active below version 2.1.8 */ {
+  .expand-slide-enter,
+  .expand-slide-leave-to {
     transition: max-height 0.25s ease-out;
     transition-property: width;
   }
