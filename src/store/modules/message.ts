@@ -54,9 +54,12 @@ class Message extends VuexModule implements MessageState {
   }
 
   @Mutation
-  closeMsg(time: number){
-    if(time === 0) return;
-    const ele = this.messageQueue.find((el) => el.time.getTime() === time);
+  setSingleShow(arg: {shw: boolean, id: number}){
+    if(arg.id <= 0) return;
+    const ele = this.messageQueue.find((el) => new Date(el.time).getTime() === new Date(arg.id).getTime());
+    if(ele){
+      ele.show = arg.shw;
+    }
   }
 
   @Mutation
@@ -97,7 +100,8 @@ class Message extends VuexModule implements MessageState {
       message: msg.message,
       icon: msg.icon,
       time: Date.now(),
-      type: MessageType.error
+      type: MessageType.error,
+      show: true
     });
   }
 
@@ -107,7 +111,8 @@ class Message extends VuexModule implements MessageState {
       message: msg.message,
       icon: msg.icon,
       time: Date.now(),
-      type: MessageType.info
+      type: MessageType.info,
+      show: true
     });
   }
 
@@ -117,7 +122,8 @@ class Message extends VuexModule implements MessageState {
       message: msg.message,
       icon: msg.icon,
       time: Date.now(),
-      type: MessageType.success
+      type: MessageType.success,
+      show: true
     });
   }
   
