@@ -20,6 +20,11 @@ interface MessageState {
   activationTime: Date | null;
 }
 
+const msgDebounce = debounce((activationTime: Date | null, id: number, context: any) => {
+  if(activationTime && Date.now() - activationTime.getTime() >= SNACK_BAR_TIMEOUT)
+    context.commit('setSingleShow', {shw: false, id: id});
+}, SNACK_BAR_TIMEOUT);
+
 @Module({
   name: 'messageHandler',
   store,
@@ -76,12 +81,8 @@ class Message extends VuexModule implements MessageState {
   }
 
   @Action
-  showDebounce() {
-    const msgDebounce = debounce(() => {
-      if(this.activationTime && Date.now() - this.activationTime.getTime() >= SNACK_BAR_TIMEOUT)
-        this.context.commit('setShow', false);
-    }, SNACK_BAR_TIMEOUT);
-    msgDebounce();
+  showDebounce(id: number) {
+    msgDebounce(new Date(id), id, this.context);
   }
 
   @Action
@@ -91,7 +92,7 @@ class Message extends VuexModule implements MessageState {
       if(this.activationTime && Date.now() - this.activationTime.getTime() >= SNACK_BAR_TIMEOUT)
         this.context.commit('setShow', false);
     }, 1000);
-    this.context.dispatch('showDebounce');
+    this.context.dispatch('showDebounce', msg.time);
   }
 
   @Action
