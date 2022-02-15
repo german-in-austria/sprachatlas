@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <Snackbar />
     <v-main
       class="pa-0"
       style="pa-0; postion: absolute; width: 100%; height: 100%"
@@ -23,23 +24,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import Home from "./views/Home.vue";
-import { initialize as initGeo } from "./store/geo";
-import { tagModule } from "@/store/modules/tags";
-import { aufgabenModule } from "@/store/modules/aufgaben";
-import Navigation from "@/components/Navigation.vue";
-import { getTranscripts } from "@/api/transcripts";
-import { ServerTranscriptListItem } from "./static/apiModels";
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import Home from './views/Home.vue';
+import Snackbar from '@/components/Snackbar.vue';
+import { initialize as initGeo } from './store/geo';
+import { tagModule } from '@/store/modules/tags';
+import { aufgabenModule } from '@/store/modules/aufgaben';
+import Navigation from '@/components/Navigation.vue';
+import { getTranscripts } from '@/api/transcripts';
 @Component({
   components: {
     Home,
     Navigation,
-  },
+    Snackbar
+  }
 })
 export default class App extends Vue {
   loggedIn: boolean = false;
-  errorMessage: string | null = "";
+  errorMessage: string | null = '';
 
   async loadTranscripts() {
     try {
@@ -47,12 +49,12 @@ export default class App extends Vue {
       const res = (await getTranscripts()).data;
       if (res.transcripts !== undefined) {
         this.loggedIn = true;
-      } else if ((res as any).error === "login") {
+      } else if ((res as any).error === 'login') {
         this.loggedIn = false;
       }
     } catch (e) {
       this.loggedIn = false;
-      this.errorMessage = "could not load transcripts from backend.";
+      this.errorMessage = 'could not load transcripts from backend.';
     }
   }
 
