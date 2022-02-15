@@ -18,9 +18,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Log from './Log.vue';
 import { messageHandler } from '@/store/modules/message';
 import Message from '@/components/Message.vue';
+
 @Component({
   components: { Message },
   name: 'Snackbar'
