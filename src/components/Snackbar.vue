@@ -9,12 +9,8 @@
       :timeout="-1"
       time
       :color="latestLogColor"
-      :value="showSnackbar"
+      :value="item.show"
     >
-      <!--
-      <v-layout column>
-        <Log plain="true" limit="1"></Log>
-      </v-layout>-->
       <Message :msg="item.message" :icon="item.icon" :date="item.time" />
     </v-snackbar>
   </div>
@@ -52,11 +48,10 @@ export default class Snackbar extends Vue {
   }
 
   mounted() {
-    /*
     messageHandler.setSuccessMsg({
       message: 'It works! asdasdas dasdioh sadjs adsnbd',
       icon: 'mdi-stop'
-    });*/
+    });
   }
 }
 </script>

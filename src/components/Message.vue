@@ -64,7 +64,7 @@ export default class Message extends Vue {
   progressTime: number = 0;
 
   closeMsg() {
-    messageHandler.closeMsg(this.date ? this.date : 0);
+    messageHandler.setSingleShow({ shw: false, id: this.date ? this.date : 0 });
   }
 
   created() {
