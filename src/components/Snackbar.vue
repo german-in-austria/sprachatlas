@@ -48,10 +48,11 @@ export default class Snackbar extends Vue {
   }
 
   mounted() {
+    /*
     messageHandler.setSuccessMsg({
       message: 'It works! asdasdas dasdioh sadjs adsnbd',
       icon: 'mdi-stop'
-    });
+    });*/
   }
 }
 </script>
