@@ -5,4 +5,5 @@ export interface MessageLog {
   time: Date;
   icon: string;
   type: MessageType;
+  show: boolean;
 }
