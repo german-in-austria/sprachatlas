@@ -37,9 +37,9 @@
       </div>
       <div class="text-center">
         <template v-if="data[timestampId].tagName">
-          <div class="mx-2">Tag: {{ data[timestampId]["tagName"] }}</div>
+          <div class="mx-2">Tag: {{ data[timestampId]['tagName'] }}</div>
           <template v-if="data[timestampId].orthoText">
-            <div class="mx-2">Ortho: {{ data[timestampId]["orthoText"] }}</div>
+            <div class="mx-2">Ortho: {{ data[timestampId]['orthoText'] }}</div>
           </template>
         </template>
         <template v-if="data[timestampId].aufgabe">
@@ -50,7 +50,7 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Component, PropSync, Vue, Prop, Watch } from "vue-property-decorator";
+import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
 
 export interface Audio {
   start: {
@@ -67,7 +67,7 @@ export interface Audio {
 
 @Component({
   components: {},
-  name: "AudioPlayer",
+  name: 'AudioPlayer'
 })
 export default class AudioPlayer extends Vue {
   @Prop(String) readonly dateipfad!: string;
@@ -133,7 +133,7 @@ export default class AudioPlayer extends Vue {
     return `https://dioedb.dioe.at/private-media/${path}/${file}`;
   }
 
-  @Watch("timestampId")
+  @Watch('timestampId')
   ontimestapid() {
     const track = document.getElementById(this.trackId) as HTMLAudioElement;
     if (this.timestampId >= this.data.length) {
@@ -161,7 +161,7 @@ export default class AudioPlayer extends Vue {
       try {
         await track.play();
       } catch (e) {
-        console.log("Pausing play");
+        console.log('Pausing play');
       }
     } else {
       await this.pause();
@@ -173,7 +173,7 @@ export default class AudioPlayer extends Vue {
     try {
       await track.pause();
     } catch (e) {
-      console.log("Pausing track");
+      console.log('Pausing track');
     }
   }
 
@@ -211,7 +211,7 @@ export default class AudioPlayer extends Vue {
 
   mounted() {
     const sound = document.getElementById(this.trackId) as HTMLAudioElement;
-    sound.addEventListener("timeupdate", () => {
+    sound.addEventListener('timeupdate', () => {
       this.time = sound.currentTime - this.timestampStart;
       if (!sound.paused) {
         this.completion = (this.time / this.duration) * 100;
