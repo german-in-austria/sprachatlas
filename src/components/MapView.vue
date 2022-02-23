@@ -737,7 +737,7 @@ import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
 import { phaeModule } from '@/store/modules/phaenomene';
 import { aufgabenModule } from '@/store/modules/aufgaben';
-
+import { messageHandler } from '@/store/modules/message';
 import { tagModule } from '@/store/modules/tags';
 import { legendMod } from '@/store/modules/legend';
 import { cloneDeep } from 'lodash';
@@ -814,6 +814,7 @@ export default class MapView extends Vue {
   PM = phaeModule;
   LM = legendMod;
   AM = aufgabenModule;
+  MM = messageHandler;
   searchInput: string = '';
   searchTerms: Array<SearchTerm> = [];
   optionTab = 0;
@@ -1367,11 +1368,18 @@ export default class MapView extends Vue {
   async submitSearch() {
     if (this.searchTerm) {
       if (await this.displayData(this.searchTerm, true)) {
+        this.MM.setSuccessMsg({
+          message: `${this.searchTerm.name} wurde hinzugefügt`,
+          icon: 'mdi-info'
+        });
         // clear data of autocomplete
         //@ts-ignore
         this.$refs.searchTermAutoComplete.reset();
       } else {
-        // Extend autocomplete with a error banner
+        this.MM.setErrorMsg({
+          message: `Fehler beim Hinzufügen von ${this.searchTerm.name}`,
+          icon: 'mdi-alert-outline'
+        });
         console.log('Fehler beim Suchen');
       }
     }
@@ -1883,7 +1891,7 @@ export default class MapView extends Vue {
     if (term.type === SearchItems.Ort) {
       const leg = this.displayOrt(newLayer);
       id = leg?.content.osmId ? leg?.content.osmId : -1;
-      if (this.LM.addLegendEntry(leg)) {
+      if (leg && leg !== undefined) {
         newLeg = this.legendGlobal[-1];
         this.setMapToPoint(
           Number(newLeg?.content.lat),
@@ -1895,8 +1903,10 @@ export default class MapView extends Vue {
       this.resetMap();
       id = term.content.tagId;
       const res = await this.createTagLegend(newLayer, id);
-      if (legendMod.addLegendEntry(res)) {
+      if (res && res !== undefined) {
+        legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobalTag);
+        console.log(res);
         if (res) newLeg = res;
       }
     } else if (term.type === SearchItems.Presets) {
@@ -1915,7 +1925,7 @@ export default class MapView extends Vue {
         content: res,
         type: SearchItems.Presets
       });
-      if (this.LM.addLegendEntry(newLeg)) {
+      if (res && res !== undefined) {
         this.displayDataFromLegend(this.legendGlobal);
       }
     } else if (term.type === SearchItems.Saetze) {
@@ -1950,7 +1960,7 @@ export default class MapView extends Vue {
       this.LM.addLegendEntry(newLeg);
       this.displayDataFromLegend([newLeg]);
     }
-    if (!newLeg.id) return false;
+    if (Object.keys(newLeg).length <= 0) return false;
     if (encode) expData.pushNewLegend(newLeg, id);
     // Encode and export data afterwards to URL Bar
     // Remove certain parts of data
