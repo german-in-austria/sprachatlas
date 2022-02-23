@@ -1490,7 +1490,11 @@ export default class MapView extends Vue {
         (tD) => osm === tD.osm || (tD.lon === lon && tD.lat === lat)
       );
       if (ort > -1) {
+        let s = data[ort].size;
+        s += size;
+        s /= 2;
         // Element with geodata already exists in data
+        data[ort].size = s;
         data[ort].data.push({
           v: num,
           name: name,
