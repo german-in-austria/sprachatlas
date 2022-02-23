@@ -1883,20 +1883,22 @@ export default class MapView extends Vue {
     if (term.type === SearchItems.Ort) {
       const leg = this.displayOrt(newLayer);
       id = leg?.content.osmId ? leg?.content.osmId : -1;
-      this.LM.addLegendEntry(leg);
-      newLeg = this.legendGlobal[-1];
-      this.setMapToPoint(
-        Number(newLeg?.content.lat),
-        Number(newLeg?.content.lon),
-        10
-      );
+      if (this.LM.addLegendEntry(leg)) {
+        newLeg = this.legendGlobal[-1];
+        this.setMapToPoint(
+          Number(newLeg?.content.lat),
+          Number(newLeg?.content.lon),
+          10
+        );
+      }
     } else if (term.type === SearchItems.Tag) {
       this.resetMap();
       id = term.content.tagId;
       const res = await this.createTagLegend(newLayer, id);
-      legendMod.addLegendEntry(res);
-      this.displayDataFromLegend(this.legendGlobalTag);
-      if (res) newLeg = res;
+      if (legendMod.addLegendEntry(res)) {
+        this.displayDataFromLegend(this.legendGlobalTag);
+        if (res) newLeg = res;
+      }
     } else if (term.type === SearchItems.Presets) {
       this.resetMap();
       const preset = (id = term.content.id);
@@ -1913,8 +1915,9 @@ export default class MapView extends Vue {
         content: res,
         type: SearchItems.Presets
       });
-      this.LM.addLegendEntry(newLeg);
-      this.displayDataFromLegend(this.legendGlobal);
+      if (this.LM.addLegendEntry(newLeg)) {
+        this.displayDataFromLegend(this.legendGlobal);
+      }
     } else if (term.type === SearchItems.Saetze) {
       const sid = (id = term.content.id);
       const tranksript = term.content.transkript;
@@ -1947,6 +1950,7 @@ export default class MapView extends Vue {
       this.LM.addLegendEntry(newLeg);
       this.displayDataFromLegend([newLeg]);
     }
+    if (!newLeg.id) return false;
     if (encode) expData.pushNewLegend(newLeg, id);
     // Encode and export data afterwards to URL Bar
     // Remove certain parts of data

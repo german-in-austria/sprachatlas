@@ -34,9 +34,12 @@ class Legend extends VuexModule implements LegendState {
 
   @Mutation
   addLegendEntry(e: any) {
-    e.id = generateID();
-    this.legend.push(e);
-    return e.id;
+    if(e || e !== undefined){
+      e.id = generateID();
+      this.legend.push(e);
+      return true;
+    }
+    return false;
   }
 
   @Mutation
