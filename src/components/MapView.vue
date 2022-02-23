@@ -1002,6 +1002,10 @@ export default class MapView extends Vue {
     return this.LM.loading;
   }
 
+  get isDarkMode() {
+    return this.$vuetify.theme.dark;
+  }
+
   get phaen() {
     return this.PM.phaen;
   }
@@ -1153,6 +1157,15 @@ export default class MapView extends Vue {
   onIconIdChange() {
     if (this.iconId > Object.keys(Symbols).length) {
       this.iconId = 0;
+    }
+  }
+
+  @Watch('isDarkMode')
+  onDarkModeChange() {
+    if (this.isDarkMode) {
+      this.selectedTileSet = 3;
+    } else {
+      this.selectedTileSet = 0;
     }
   }
 

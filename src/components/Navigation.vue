@@ -6,15 +6,18 @@
 
     <v-spacer></v-spacer>
     <v-btn text to="/"> Karte </v-btn>
-    <v-btn text to="/query"> Legende erstellen </v-btn></v-app-bar
-  >
+    <v-btn text to="/query"> Legende erstellen </v-btn>
+    <v-card-actions class="justify-center">
+      <Darkbtn class="mt-4" />
+    </v-card-actions>
+  </v-app-bar>
 </template>
 <script lang = "ts">
 import { Component, Vue } from 'vue-property-decorator';
-
+import Darkbtn from './Darkbtn.vue';
 @Component({
   // if you use components add them here
-  components: {},
+  components: { Darkbtn },
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */
