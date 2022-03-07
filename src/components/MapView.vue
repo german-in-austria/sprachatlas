@@ -142,7 +142,7 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col cols="2">
+            <v-col cols="1">
               <v-menu
                 :close-on-content-click="false"
                 :nudge-width="800"
@@ -269,6 +269,9 @@
                   </v-tabs-items>
                 </v-card>
               </v-menu>
+            </v-col>
+            <v-col cols="1">
+              <AgeRange />
             </v-col>
             <v-col>
               <v-spacer></v-spacer>
@@ -744,6 +747,7 @@ import { cloneDeep } from 'lodash';
 import IconBase from '@/icons/IconBase.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
+import AgeRange from '@/components/AgeRange.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 
@@ -800,7 +804,8 @@ type IAntwortenAudio = {
     IconBase,
     IconCircle,
     LegendItem,
-    AudioPlayer
+    AudioPlayer,
+    AgeRange
   }
 })
 export default class MapView extends Vue {
