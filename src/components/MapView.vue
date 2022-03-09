@@ -472,7 +472,7 @@
         </v-card>
       </v-dialog>
     </v-layout>
-    <v-slide-y-reverse-transition tag="v-layout">
+    <v-slide-y-reverse-transition tag="Changev-layout">
       <v-layout class="map-overlay erhebung" v-if="showAudio">
         <template v-if="aufgabenLoading">
           <v-skeleton-loader min-width="500" type="article, actions">
