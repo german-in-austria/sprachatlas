@@ -47,12 +47,12 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
-  setAgeRange(lower: number, upper: number){
-    if(lower >= 0 || upper >= 0){
+  setAgeRange(arg: {lower: number, upper: number}){
+    if(arg.lower >= 0 || arg.upper >= 0){
       this.filterByAge = true;
     }
-    if (lower < 0 && upper < 0 ) this.filterByAge = false;
-    this.ageRange = {lower:lower, upper:upper};
+    if (arg.lower < 0 && arg.upper < 0 ) this.filterByAge = false;
+    this.ageRange = {lower:arg.lower, upper:arg.upper};
   }
 
   @Mutation
