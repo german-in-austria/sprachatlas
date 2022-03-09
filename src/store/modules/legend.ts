@@ -21,6 +21,11 @@ import { selectColor } from '@/helpers/helper';
 export interface LegendState {
   legend: Array<LegendGlobal>;
   loading: boolean;
+  ageRange: {
+    lower: number;
+    upper: number;
+  };
+  filterByAge: boolean;
 }
 
 @Module({
@@ -31,12 +36,28 @@ export interface LegendState {
 class Legend extends VuexModule implements LegendState {
   loading = false;
   legend = [] as Array<LegendGlobal>;
+  ageRange = { lower: -1, upper: -1 };
+  filterByAge = false;
 
   @Mutation
   addLegendEntry(e: any) {
     e.id = generateID();
     this.legend.push(e);
 
+  }
+
+  @Mutation
+  setAgeRange(lower: number, upper: number){
+    if(lower >= 0 || upper >= 0){
+      this.filterByAge = true;
+    }
+    if (lower < 0 && upper < 0 ) this.filterByAge = false;
+    this.ageRange = {lower:lower, upper:upper};
+  }
+
+  @Mutation
+  setFilterByAge(val: boolean) {
+    this.filterByAge = val;
   }
 
   @Mutation
