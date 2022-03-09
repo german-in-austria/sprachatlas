@@ -116,7 +116,12 @@
         <v-card-actions class="pa-5">
           <v-row class="pa-5">
             <v-switch flat v-model="singleAge" label="Grenzen"></v-switch>
-            <v-switch flat v-model="onlyLower" label="Untere/Obere"></v-switch>
+            <v-switch
+              flat
+              v-if="singleAge"
+              v-model="onlyLower"
+              label="Untere/Obere"
+            ></v-switch>
           </v-row>
           <v-divider></v-divider>
           <v-row class="pa-5">
@@ -185,7 +190,7 @@ export default class AgeRange extends Vue {
   }
 
   removeAge() {
-    this.LM.setAgeRange(-1, -1);
+    this.LM.setAgeRange({ lower: -1, upper: -1 });
     this.MM.setSuccessMsg({
       message: 'Filter wurde entfernt',
       icon: 'mdi-info'
@@ -195,20 +200,22 @@ export default class AgeRange extends Vue {
   applyAge() {
     if (this.singleAge) {
       if (this.onlyLower) {
-        this.LM.setAgeRange(this.age, -1);
+        this.LM.setAgeRange({ lower: this.age, upper: -1 });
       } else {
-        this.LM.setAgeRange(-1, this.age);
+        this.LM.setAgeRange({ lower: -1, upper: this.age });
       }
       this.MM.setSuccessMsg({
         message: `Altersfilter wurde mit dem Wert ${this.age} hinzugefügt`,
         icon: 'mdi-info'
       });
     } else {
-      this.LM.setAgeRange(this.ages[0], this.ages[1]);
+      const res = { lower: this.ages[0], upper: this.ages[1] };
+      this.LM.setAgeRange(res);
       this.MM.setSuccessMsg({
         message: `Altersfilter wurde mit den Werten ${this.ages[0]} und ${this.ages[1]} hinzugefügt`,
         icon: 'mdi-info'
       });
+      console.log(this.LM.ageRange);
     }
   }
 }
