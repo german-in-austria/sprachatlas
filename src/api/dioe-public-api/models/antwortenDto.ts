@@ -5,4 +5,6 @@
 export type antwortenDto = {
     ids: Array<number>;
     osmId: number;
+    ageLower?: number;
+    ageUpper?: number;
 }
