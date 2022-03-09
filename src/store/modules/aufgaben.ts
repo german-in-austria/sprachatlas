@@ -5,21 +5,21 @@ import {
   Mutation,
   Action,
   getModule
-} from "vuex-module-decorators";
-import store from "@/store";
+} from 'vuex-module-decorators';
+import store from '@/store';
 import api from '@/api';
-import { generateID } from "@/helpers/helper";
-import Vue from "../../main";
-import {} from "../../static/apiModels";
-import {ISelectAufgabenFromSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenFromSetResult";
-import {ISelectAufgabenResult} from "../../api/dioe-public-api/models/ISelectAufgabenResult";
-import {ISelectAufgabenSetResult} from "../../api/dioe-public-api/models/ISelectAufgabenSetResult";
-import {ISelectAllAufgabenResult} from "../../api/dioe-public-api/models/ISelectAllAufgabenResult";
-import { AntwortTokenStamp } from "../../api/dioe-public-api/models/AntwortTokenStamp";
-import { ISelectSatzResult } from "../../api/dioe-public-api/models/ISelectSatzResult";
-import { ISelectOrtAufgabeResult } from "../../api/dioe-public-api/models/ISelectOrtAufgabeResult";
-import { AufgabeStamp } from "../../api/dioe-public-api/models/AufgabeStamp";
-import { ISelectAllTeamsResult } from "../../api/dioe-public-api/models/ISelectAllTeamsResult";
+import { generateID } from '@/helpers/helper';
+import Vue from '../../main';
+import {} from '../../static/apiModels';
+import {ISelectAufgabenFromSetResult} from '../../api/dioe-public-api/models/ISelectAufgabenFromSetResult';
+import {ISelectAufgabenResult} from '../../api/dioe-public-api/models/ISelectAufgabenResult';
+import {ISelectAufgabenSetResult} from '../../api/dioe-public-api/models/ISelectAufgabenSetResult';
+import {ISelectAllAufgabenResult} from '../../api/dioe-public-api/models/ISelectAllAufgabenResult';
+import { AntwortTokenStamp } from '../../api/dioe-public-api/models/AntwortTokenStamp';
+import { ISelectSatzResult } from '../../api/dioe-public-api/models/ISelectSatzResult';
+import { ISelectOrtAufgabeResult } from '../../api/dioe-public-api/models/ISelectOrtAufgabeResult';
+import { AufgabeStamp } from '../../api/dioe-public-api/models/AufgabeStamp';
+import { ISelectAllTeamsResult } from '../../api/dioe-public-api/models/ISelectAllTeamsResult';
 
 
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
@@ -31,7 +31,7 @@ export interface AufgabenState {
 }
 
 @Module({
-  name: "aufgabenModule",
+  name: 'aufgabenModule',
   namespaced: true,
   store,
   dynamic: true
@@ -52,139 +52,139 @@ class Aufgaben extends VuexModule implements AufgabenState{
 
     @Mutation
     clearAufgabenSet() {
-        this.aufgabenSet = [];
+      this.aufgabenSet = [];
     }
 
     @Mutation
     clearAufgaben() {
-        this.aufgaben = [];
+      this.aufgaben = [];
     }
 
     @Mutation
     clearAufgabenFromSet() {
-        this.aufgabenFromSet = [];
+      this.aufgabenFromSet = [];
     }
 
     @Mutation
     clearAntworten() {
-        this.antwortenAudio = [];
+      this.antwortenAudio = [];
     }
 
     @Mutation
     setLoading(val: boolean) {
-        this.loading = val;
+      this.loading = val;
     }
 
     @MutationAction({ mutate: ['aufgabenSet', 'loading']})
     async fetchAufgabenSet(arg: {ids: number[] }){
-        this.loading = true;
-        const res = await api.dioePublic.getAufgabenSets(arg);
-        return {
-            aufgabenSet: res,
-            loading: false
-        }
+      this.loading = true;
+      const res = await api.dioePublic.getAufgabenSets(arg);
+      return {
+        aufgabenSet: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['aufgaben', 'loading'] })
     async fetchAufgabeBasedPhaen(arg: {ids: number[] }){
-        this.loading = true;
-        const res = await api.dioePublic.getAufgabenPhaen(arg);
-        return {
-            aufgaben: res,
-            loading: false
-        }
+      this.loading = true;
+      const res = await api.dioePublic.getAufgabenPhaen(arg);
+      return {
+        aufgaben: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['aufgabenFromSet', 'loading'] })
     async fetchAufgabeBasedSet(arg: {ids: number[] }){
-        this.loading = true;
-        const res = await api.dioePublic.getTagOrte1(arg);
-        return {
-            aufgabenFromSet: res,
-            loading: false
-        }
+      this.loading = true;
+      const res = await api.dioePublic.getTagOrte1(arg);
+      return {
+        aufgabenFromSet: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
-    async fetchAntwortAudio(arg: {ids: number[], osmId: number }){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        console.log("Getting Antworten");
-        const res = await api.dioePublic.getAntByTags(arg);
-        console.log("Done!");
-        return {
-            antwortenAudio: res,
-            loading: false
-        }
+    async fetchAntwortAudio(arg: {ids: number[], osmId: number, ageLower: number, ageUpper: number }){
+      // @ts-ignore
+      this.commit('setLoading', true);
+      console.log('Getting Antworten');
+      const res = await api.dioePublic.getAntByTags(arg);
+      console.log('Done!');
+      return {
+        antwortenAudio: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['allAufgaben', 'loading'] })
     async fetchAllAufgaben(){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        console.log("Getting Antworten");
-        const res = await api.dioePublic.getAllAufgaben();
-        console.log("Done!");
-        return {
-            allAufgaben: res,
-            loading: false
-        }
+      // @ts-ignore
+      this.commit('setLoading', true);
+      console.log('Getting Antworten');
+      const res = await api.dioePublic.getAllAufgaben();
+      console.log('Done!');
+      return {
+        allAufgaben: res,
+        loading: false
+      };
 
     }
 
     @MutationAction({ mutate: ['allSaetze', 'loading'] })
     async fetchSaetze(arg: { query: string }){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        const res = await api.dioePublic.getSatz(arg.query);
-        return {
-            allSaetze: res,
-            loading: false
-        }
+      // @ts-ignore
+      this.commit('setLoading', true);
+      const res = await api.dioePublic.getSatz(arg.query);
+      return {
+        allSaetze: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['antworten', 'loading']})
     async fetchAntworten(arg: { sid?: number, aid?: number }){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        const res = await api.dioePublic.getAntbyAufgaben(arg.sid, arg.aid);
-        return {
-            antworten: res,
-            loading: false
-        }
+      // @ts-ignore
+      this.commit('setLoading', true);
+      const res = await api.dioePublic.getAntbyAufgaben(arg.sid, arg.aid);
+      return {
+        antworten: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['aufgabenOrt', 'loading']})
     async fetchAufgabenOrt(arg: { ids: number[] }){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        const res = await api.dioePublic.getAufgabenOrte(arg);
-        return {
-            aufgabenOrt: res,
-            loading: false
-        }
+      // @ts-ignore
+      this.commit('setLoading', true);
+      const res = await api.dioePublic.getAufgabenOrte(arg);
+      return {
+        aufgabenOrt: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['aufgabeSingleOrt', 'loading']})
-    async fetchAufgabenAudioOrt(arg: { ids: number[], osmId: number }){
-        // @ts-ignore
-        this.commit('setLoading', true);
-        const res = await api.dioePublic.getAntAudioByOrt(arg);
-        return {
-            aufgabeSingleOrt: res,
-            loading: false
-        }
+    async fetchAufgabenAudioOrt(arg: { ids: number[], osmId: number, ageLower: number, ageUpper: number }){
+      // @ts-ignore
+      this.commit('setLoading', true);
+      const res = await api.dioePublic.getAntAudioByOrt(arg);
+      return {
+        aufgabeSingleOrt: res,
+        loading: false
+      };
     }
 
     @MutationAction({ mutate: ['teams', 'loading']})
     async fetchAllTeams() {
-        // @ts-ignore
-        this.commit('setLoading', true);
-        const res = await api.dioePublic.getAllTeams();
-        return {
-            teams: res,
-            loading: false
-        }
+      // @ts-ignore
+      this.commit('setLoading', true);
+      const res = await api.dioePublic.getAllTeams();
+      return {
+        teams: res,
+        loading: false
+      };
     }
 }
 

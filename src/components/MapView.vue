@@ -1064,6 +1064,10 @@ export default class MapView extends Vue {
     return erhebungModule.loading;
   }
 
+  get ageRange() {
+    return legendMod.ageRange;
+  }
+
   get autoCompleteLoading() {
     return (
       this.EM.loading || this.TaM.loading || this.AM.loading || this.dbLoading
@@ -1576,10 +1580,20 @@ export default class MapView extends Vue {
     this.showAudio = true;
     switch (type) {
       case SearchItems.Tag:
-        this.AM.fetchAntwortAudio({ ids: ids, osmId: ort.osm });
+        this.AM.fetchAntwortAudio({
+          ids: ids,
+          osmId: ort.osm,
+          ageLower: this.ageRange.lower,
+          ageUpper: this.ageRange.upper
+        });
         break;
       case SearchItems.Aufgaben:
-        this.AM.fetchAufgabenAudioOrt({ ids: ids, osmId: ort.osm });
+        this.AM.fetchAufgabenAudioOrt({
+          ids: ids,
+          osmId: ort.osm,
+          ageLower: this.ageRange.lower,
+          ageUpper: this.ageRange.upper
+        });
         break;
     }
   }
