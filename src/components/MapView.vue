@@ -1790,7 +1790,7 @@ export default class MapView extends Vue {
           }
         }
 
-        await this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)] });
+        await this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)], erhArt: this.LM.erhArtFilter });
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
           const tagData = tags.filter((el) =>
