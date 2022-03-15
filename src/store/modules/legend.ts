@@ -21,11 +21,13 @@ import { selectColor } from '@/helpers/helper';
 export interface LegendState {
   legend: Array<LegendGlobal>;
   loading: boolean;
+  erhArtFilter: Array<number>;
   ageRange: {
     lower: number;
     upper: number;
   };
   filterByAge: boolean;
+  filterByArt: boolean;
 }
 
 @Module({
@@ -37,12 +39,25 @@ class Legend extends VuexModule implements LegendState {
   loading = false;
   legend = [] as Array<LegendGlobal>;
   ageRange = { lower: -1, upper: -1 };
+  erhArtFilter: Array<number> = [];
   filterByAge = false;
+  filterByArt = false;
 
   @Mutation
   addLegendEntry(e: any) {
     e.id = generateID();
     this.legend.push(e);
+
+  }
+
+  @Mutation
+  setErhArtFilter(ids: number[]) {
+    this.erhArtFilter = ids;
+    if(ids.length > 0) {
+      this.filterByArt = true;
+    }else{
+      this.filterByArt = false;
+    }
 
   }
 

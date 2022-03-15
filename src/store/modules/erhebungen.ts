@@ -7,19 +7,21 @@ import {
   getModule
 } from 'vuex-module-decorators';
 import store from '@/store';
+import api from '@/api';
+
 import {
   getAudioErhebung,
   getErhebungen
 } from '../../api/erhebungen';
 
-import { AxiosResponse } from 'axios';
-import Vue from '../../main';
 import { ApiLocationResponse, ApiLocSingleResponse, SingleInfResponse, ApiInfErhResponse } from '../../static/apiModels';
+import type { ISelectErhebungsartenResult } from '../../api/dioe-public-api/models/ISelectErhebungsartenResult';
 
 export interface ErhebungState {
     currentOrt: ApiLocSingleResponse | null;
     erhebungen: ApiLocationResponse | null;
     loading: boolean;
+    erhebungsarten: Array<ISelectErhebungsartenResult>;
 }
 
 @Module({
@@ -35,8 +37,12 @@ class Erhebungen extends VuexModule implements ErhebungState {
     infErhebungen: ApiInfErhResponse | null = null;
     loading = false;
     infLoading = false;
+
+    erhebungsarten: Array<ISelectErhebungsartenResult> = [];
     
-    
+    get erhebungsArten() {
+      return this.erhebungsarten;
+    }
 
     @Mutation
     setCurrentOrt (ort: ApiLocSingleResponse | null) {
@@ -79,6 +85,19 @@ class Erhebungen extends VuexModule implements ErhebungState {
       return {
         infErhebungen: response_inf.data,
         infLoading: false
+      };
+    }
+
+    @MutationAction({ mutate: ['erhebungsarten', 'loading'] })
+    async fetchErhebungsArten() {
+      // @ts-ignore
+      this.commit('setLoading', true);
+      console.log('trying to fetch data');
+      const response = await api.dioePublic.getErhebungsArten();
+      console.log('fetched data');
+      return {
+        erhebungsarten: response,
+        loading: false
       };
     }
     
