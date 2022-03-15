@@ -20,6 +20,7 @@ export type { ISelectAllTeamsResult } from './models/ISelectAllTeamsResult';
 export type { ISelectAufgabenFromSetResult } from './models/ISelectAufgabenFromSetResult';
 export type { ISelectAufgabenResult } from './models/ISelectAufgabenResult';
 export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult';
+export type { ISelectErhebungsartenResult } from './models/ISelectErhebungsartenResult';
 export type { ISelectMatchingTokensResult } from './models/ISelectMatchingTokensResult';
 export type { ISelectOrtAufgabeResult } from './models/ISelectOrtAufgabeResult';
 export type { ISelectOrtTagsResult } from './models/ISelectOrtTagsResult';

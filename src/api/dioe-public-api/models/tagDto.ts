@@ -4,4 +4,5 @@
 
 export type tagDto = {
     ids: Array<number>;
+    erhArt: Array<number>;
 }

@@ -13,6 +13,7 @@ import type { ISelectAllTeamsResult } from '../models/ISelectAllTeamsResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
+import type { ISelectErhebungsartenResult } from '../models/ISelectErhebungsartenResult';
 import type { ISelectMatchingTokensResult } from '../models/ISelectMatchingTokensResult';
 import type { ISelectOrtAufgabeResult } from '../models/ISelectOrtAufgabeResult';
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
@@ -300,6 +301,18 @@ export class Service {
                 'p': p,
                 'l': l,
             },
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectErhebungsartenResult Ok
+     * @throws ApiError
+     */
+    public static async getErhebungsArten(): Promise<Array<ISelectErhebungsartenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/antworten/arten`,
         });
         return result.body;
     }
