@@ -3,6 +3,7 @@
     v-model="menu"
     :close-on-content-click="false"
     :nudge-width="500"
+    max-width="500"
     offset-y
   >
     <template v-slot:activator="{ on: menu, attrs }">
@@ -48,9 +49,12 @@
           <v-list-item-content>
             <v-combobox
               v-model="chips"
-              :items="items"
+              :items="erhArten"
+              :loading="erhLoading"
               chips
               clearable
+              item-text="Bezeichnung"
+              item-value="id"
               label="Erhebungsarten auswählen"
               multiple
               prepend-icon="mdi-filter-variant"
@@ -64,9 +68,9 @@
                   @click="select"
                   @click:close="remove(item)"
                 >
-                  <strong>{{ item }}</strong
+                  <strong>{{ item.Bezeichnung }}</strong
                   >&nbsp;
-                  <span>(interest)</span>
+                  <span>(Erhebungsart)</span>
                 </v-chip>
               </template>
             </v-combobox>
@@ -92,7 +96,7 @@
           <v-btn class="mr-10" fab small color="error" @click="removeArt()"
             ><v-icon>mdi-arrow-u-left-top</v-icon></v-btn
           >
-          <v-btn fab small color="success" @click="applyAge()"
+          <v-btn fab small color="success" @click="applyFilter()"
             ><v-icon>mdi-check</v-icon></v-btn
           >
         </v-row>
@@ -116,9 +120,14 @@ export default class ErhebungsArt extends Vue {
   LM = legendMod;
   MM = messageHandler;
   erhArt: number[] = [];
+  chips: any[] = [];
 
   get filterByArt() {
     return this.LM.filterByArt;
+  }
+
+  get erhLoading() {
+    return erhebungModule.loading;
   }
 
   get erhArten() {
@@ -148,8 +157,13 @@ export default class ErhebungsArt extends Vue {
     });
   }
 
+  remove(item: any) {
+    this.chips.splice(this.chips.indexOf(item), 1);
+    this.chips = [...this.chips];
+  }
+
   applyFilter() {
-    this.LM.setErhArtFilter(this.erhArt);
+    this.LM.setErhArtFilter([].concat(...this.chips.map((val) => val.id)));
   }
 
   mounted() {
