@@ -215,7 +215,6 @@ export default class AgeRange extends Vue {
         message: `Altersfilter wurde mit den Werten ${this.ages[0]} und ${this.ages[1]} hinzugefügt`,
         icon: 'mdi-info'
       });
-      console.log(this.LM.ageRange);
     }
   }
 }
