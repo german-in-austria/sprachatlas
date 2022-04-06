@@ -76,6 +76,11 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
+  setFilterByArt(val: boolean) {
+    this.filterByArt = val;
+  }
+
+  @Mutation
   editLegendElement(idx: number, content: LegendGlobal) {
     this.legend[idx] = content;
   }
