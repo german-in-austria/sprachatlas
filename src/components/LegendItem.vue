@@ -270,7 +270,10 @@ export default class LegendItem extends Vue {
 
   async splitPreset(el: LegendGlobal, idx: number) {
     const id = (el.content[0] as IGetPresetOrtTagResult).presetId;
-    await tagModule.fetchTagOrtePreset(id);
+    await tagModule.fetchTagOrtePreset({
+      ids: [id],
+      erhArt: legendMod.erhArtFilter
+    });
     const tagIds = [...new Set(this.tagOrteResults.map((val) => val.tagId))];
     for (const id of tagIds) {
       const tag = this.tagOrteResults.find((val) => val.tagId === id);
