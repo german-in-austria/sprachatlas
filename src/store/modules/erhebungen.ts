@@ -40,10 +40,6 @@ class Erhebungen extends VuexModule implements ErhebungState {
 
     erhebungsarten: Array<ISelectErhebungsartenResult> = [];
     
-    get erhebungsArten() {
-      return this.erhebungsarten;
-    }
-
     @Mutation
     setCurrentOrt (ort: ApiLocSingleResponse | null) {
       this.currentOrt = ort;
