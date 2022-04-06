@@ -274,7 +274,7 @@
               <AgeRange />
             </v-col>
             <v-col>
-              <v-spacer></v-spacer>
+              <ErhebungsArt />
             </v-col>
             <v-col v-if="selSearchModel === 0">
               <v-select
@@ -748,6 +748,7 @@ import IconBase from '@/icons/IconBase.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
 import AgeRange from '@/components/AgeRange.vue';
+import ErhebungsArt from '@/components/ErhebungsArt.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 
@@ -805,7 +806,8 @@ type IAntwortenAudio = {
     IconCircle,
     LegendItem,
     AudioPlayer,
-    AgeRange
+    AgeRange,
+    ErhebungsArt
   }
 })
 export default class MapView extends Vue {
@@ -1790,7 +1792,10 @@ export default class MapView extends Vue {
           }
         }
 
-        await this.TaM.fetchTagOrteResultsMultiple({ ids: [...new Set(ids)], erhArt: this.LM.erhArtFilter });
+        await this.TaM.fetchTagOrteResultsMultiple({
+          ids: [...new Set(ids)],
+          erhArt: this.LM.erhArtFilter
+        });
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
           const tagData = tags.filter((el) =>
