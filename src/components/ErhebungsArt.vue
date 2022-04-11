@@ -105,8 +105,7 @@
   </v-menu>
 </template>
 <script lang="ts">
-import Component from 'vue-class-component';
-import { Prop, Vue } from 'vue-property-decorator';
+import { Prop, Vue, Component } from 'vue-property-decorator';
 import { legendMod } from '@/store/modules/legend';
 import { erhebungModule } from '@/store/modules/erhebungen';
 import { messageHandler } from '@/store/modules/message';
@@ -167,8 +166,10 @@ export default class ErhebungsArt extends Vue {
   }
 
   mounted() {
-    if (!this.erhArt || this.erhArt.length === 0)
-      erhebungModule.fetchErhebungsArten();
+    if (!this.erhArten || this.erhArten.length === 0) {
+      console.log('test');
+    }
+    erhebungModule.fetchErhebungsArten();
   }
 }
 </script>

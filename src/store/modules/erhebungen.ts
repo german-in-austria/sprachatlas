@@ -37,6 +37,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
     infErhebungen: ApiInfErhResponse | null = null;
     loading = false;
     infLoading = false;
+    erhLoading = false;
 
     erhebungsarten: Array<ISelectErhebungsartenResult> = [];
     
@@ -48,6 +49,11 @@ class Erhebungen extends VuexModule implements ErhebungState {
     @Mutation
     setLoading (loading: boolean) {
       this.loading = loading;
+    }
+
+    @Mutation
+    setErhLoading (loading: boolean) {
+      this.erhLoading = loading;
     }
 
     @Mutation
@@ -84,16 +90,16 @@ class Erhebungen extends VuexModule implements ErhebungState {
       };
     }
 
-    @MutationAction({ mutate: ['erhebungsarten', 'loading'] })
+    @MutationAction({ mutate: ['erhebungsarten', 'erhLoading'] })
     async fetchErhebungsArten() {
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.commit('setErhLoading', true);
       console.log('trying to fetch data');
       const response = await api.dioePublic.getErhebungsArten();
       console.log('fetched data');
       return {
         erhebungsarten: response,
-        loading: false
+        erhLoading: false
       };
     }
     
