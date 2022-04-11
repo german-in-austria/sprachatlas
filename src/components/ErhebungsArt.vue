@@ -126,7 +126,7 @@ export default class ErhebungsArt extends Vue {
   }
 
   get erhLoading() {
-    return erhebungModule.loading;
+    return erhebungModule.erhLoading;
   }
 
   get erhArten() {
