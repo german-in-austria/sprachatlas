@@ -35,7 +35,13 @@ class Erhebungen extends VuexModule implements ErhebungState {
     currentOrt: ApiLocSingleResponse | null = null;
 
     infErhebungen: ApiInfErhResponse | null = null;
+
+    // IMPORTANT: DO NOT TOUCH THIS VARIABLE
+    // Controls when map is loaded and if used by another function, leaflet will throw exceptions
+    // !!!
     loading = false;
+
+    // Use these two instead
     infLoading = false;
     erhLoading = false;
 
