@@ -162,7 +162,7 @@ export interface Parameter {
   id: string;
   visible: boolean;
   symbol: Symbols;
-  project?: string;
+  project?: number;
   description?: string;
   ageRange: number[];
   gender?: boolean;

@@ -196,7 +196,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['tagOrteResults', 'loading'] })
   async fetchTagOrteResultsMultiple(arg: {
     ids: number[];
-    erhArt: number[];
+    erhArt?: number[];
     ausbildung?: string;
     beruf_id?: number;
     weiblich?: boolean;

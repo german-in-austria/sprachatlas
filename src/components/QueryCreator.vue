@@ -298,7 +298,7 @@ export default class QueryCreator extends Vue {
 
   paraName: string = '';
   paraLemma: string = '';
-  selProject: string = '';
+  selProject: number = 0;
   selTags: number[] = [];
   selToken: string[] = [];
   selMaxEducation: string = '';
@@ -454,7 +454,6 @@ export default class QueryCreator extends Vue {
         color: this.paraColor === null ? '' : this.paraColor.hex,
         description: this.paraDesc
       };
-
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }

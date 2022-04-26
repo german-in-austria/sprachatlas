@@ -1804,10 +1804,15 @@ export default class MapView extends Vue {
           if (p.maxEducation) {
             query.ausbildung = p.maxEducation;
           }
+
+          if (p.project) {
+            query.project = p.project;
+          }
         }
         query.ids = [...new Set(ids)];
-        query.erhArt = this.LM.erhArtFilter;
-
+        if (this.LM.erhArtFilter.length > 0) {
+          query.erhArt = this.LM.erhArtFilter;
+        }
         await this.TaM.fetchTagOrteResultsMultiple(query);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
