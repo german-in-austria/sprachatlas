@@ -7,4 +7,7 @@ export type antwortenDto = {
     osmId: number;
     ageLower?: number;
     ageUpper?: number;
+    ausbildung?: string;
+    beruf_id?: number;
+    weiblich?: boolean;
 }

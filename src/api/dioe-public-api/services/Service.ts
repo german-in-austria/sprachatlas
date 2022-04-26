@@ -13,6 +13,7 @@ import type { ISelectAllTeamsResult } from '../models/ISelectAllTeamsResult';
 import type { ISelectAufgabenFromSetResult } from '../models/ISelectAufgabenFromSetResult';
 import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
+import type { ISelectAusbildungResult } from '../models/ISelectAusbildungResult';
 import type { ISelectErhebungsartenResult } from '../models/ISelectErhebungsartenResult';
 import type { ISelectMatchingTokensResult } from '../models/ISelectMatchingTokensResult';
 import type { ISelectOrtAufgabeResult } from '../models/ISelectOrtAufgabeResult';
@@ -417,6 +418,18 @@ export class Service {
             method: 'POST',
             path: `/aufgaben/audio`,
             body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns ISelectAusbildungResult Ok
+     * @throws ApiError
+     */
+    public static async getAllAusbildung(): Promise<Array<ISelectAusbildungResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/social/berufe`,
         });
         return result.body;
     }

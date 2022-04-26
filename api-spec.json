@@ -292,6 +292,16 @@
 							"format": "double"
 						},
 						"type": "array"
+					},
+					"ausbildung": {
+						"type": "string"
+					},
+					"beruf_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"weiblich": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -604,6 +614,16 @@
 					"ageUpper": {
 						"type": "number",
 						"format": "double"
+					},
+					"ausbildung": {
+						"type": "string"
+					},
+					"beruf_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"weiblich": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -960,6 +980,20 @@
 					"gruppeBez",
 					"teamBez",
 					"data"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectAusbildungResult": {
+				"description": "'SelectAusbildung' return type",
+				"properties": {
+					"ausbildungMax": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"ausbildungMax"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1746,6 +1780,28 @@
 						}
 					}
 				}
+			}
+		},
+		"/social/berufe": {
+			"get": {
+				"operationId": "GetAllAusbildung",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectAusbildungResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
 			}
 		}
 	},
