@@ -756,7 +756,8 @@ import { getOrtName } from '@/helpers/helper';
 import {
   AntwortenFromAufgabe,
   AntwortTokenStamp,
-  ISelectOrtAufgabeResult
+  ISelectOrtAufgabeResult,
+  tagDto
 } from '@/api/dioe-public-api';
 
 const defaultCenter = [47.64318610543658, 13.53515625];
@@ -1779,6 +1780,7 @@ export default class MapView extends Vue {
       const layer = q.layer ? q.layer : L.layerGroup();
       idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
+        const query = {} as tagDto;
         for (const p of q.parameter) {
           const id = p.id;
           if (p.tagList) {
@@ -1790,12 +1792,23 @@ export default class MapView extends Vue {
               ids = ids.concat(el.tagIds);
             });
           }
-        }
 
-        await this.TaM.fetchTagOrteResultsMultiple({
-          ids: [...new Set(ids)],
-          erhArt: this.LM.erhArtFilter
-        });
+          if (p.gender) {
+            query.weiblich = p.gender;
+          }
+
+          if (p.education) {
+            query.beruf_id = p.education;
+          }
+
+          if (p.maxEducation) {
+            query.ausbildung = p.maxEducation;
+          }
+        }
+        query.ids = [...new Set(ids)];
+        query.erhArt = this.LM.erhArtFilter;
+
+        await this.TaM.fetchTagOrteResultsMultiple(query);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
           const tagData = tags.filter((el) =>
