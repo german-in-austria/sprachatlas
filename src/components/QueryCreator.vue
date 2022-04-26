@@ -75,6 +75,14 @@
                         label="Geschlecht"
                       ></v-select>
                       <v-select
+                        v-model="selMaxEducation"
+                        :items="ausbildungsGrade"
+                        label="Höchster Bildungsgrad"
+                        item-text="ausbildungMax"
+                        item-value="ausbildungMax"
+                      >
+                      </v-select>
+                      <v-select
                         v-model="selEducation"
                         :items="jobs"
                         item-text="bezeichnung"
@@ -90,11 +98,12 @@
                         Standardkompetenz:
                         {{ selEducationAll.standardkompetenz }}
                       </span>
+                      <!--
                       <v-select
                         v-model="selParents"
                         :items="parents"
                         label="Eltern"
-                      ></v-select>
+                      ></v-select>-->
                       <v-select
                         v-model="selMobility"
                         :items="mobility"
@@ -143,6 +152,11 @@
                   hide-inputs
                   swatches-max-height="226"
                 ></v-color-picker>
+                <v-textarea
+                  name="beschreibung"
+                  label="Beschreibung für den Parameter"
+                  v-model="paraDesc"
+                ></v-textarea>
                 <v-card-actions>
                   <v-btn
                     @click="createParameter(true)"
@@ -287,6 +301,8 @@ export default class QueryCreator extends Vue {
   selProject: string = '';
   selTags: number[] = [];
   selToken: string[] = [];
+  selMaxEducation: string = '';
+  paraDesc: string = '';
   min: number = 0;
   max: number = 100;
 
@@ -300,7 +316,7 @@ export default class QueryCreator extends Vue {
 
   selMobility: string = '';
   selParents: string = '';
-  selEducation: string = '';
+  selEducation: number = -1;
   selGender: string = '';
   selJob: string = '';
   selEducationAll: Job | null | undefined = null;
@@ -312,7 +328,6 @@ export default class QueryCreator extends Vue {
   projects = ['PP11'];
   testItems = ['UND', 'ODER'];
   gender = ['Männlich', 'Weiblich'];
-  education = ['Pflichtschule', 'Matura', 'Studium'];
   parents = ['Herkunft'];
   job = ['Chemiker', 'Tischler', '...'];
   mobility = ['Auto', 'Zug', 'Pferd'];
@@ -324,6 +339,10 @@ export default class QueryCreator extends Vue {
 
   get jobs() {
     return this.TM.jobList;
+  }
+
+  get ausbildungsGrade() {
+    return this.LM.ausbildungsGrad;
   }
 
   get tags() {
@@ -426,13 +445,16 @@ export default class QueryCreator extends Vue {
         project: this.selProject,
         gender: this.selGender === 'Weiblich' ? true : false, // Boolean
         education: this.selEducation, // ID
+        maxEducation: this.selMaxEducation,
         parents: this.selParents,
         job: this.selJob,
         tagList: this.TM.tagSelection,
         token: this.selToken, //
         ageRange: ageRange, // Array 2 Number
-        color: this.paraColor === null ? '' : this.paraColor.hex
+        color: this.paraColor === null ? '' : this.paraColor.hex,
+        description: this.paraDesc
       };
+
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }
@@ -453,9 +475,14 @@ export default class QueryCreator extends Vue {
 
   beforeCreate() {
     aufgabenModule.fetchAllTeams();
+
     if (tagModule.tagList == null) {
       console.log('fetching Tags');
       tagModule.fetchTags();
+    }
+
+    if (!this.ausbildungsGrade || this.ausbildungsGrade.length < 0) {
+      legendMod.fetchAusbildung();
     }
   }
 
