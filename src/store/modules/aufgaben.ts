@@ -106,7 +106,14 @@ class Aufgaben extends VuexModule implements AufgabenState{
     }
 
     @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
-    async fetchAntwortAudio(arg: {ids: number[], osmId: number, ageLower: number, ageUpper: number }){
+    async fetchAntwortAudio(arg: { 
+      ids: number[], 
+      osmId: number, 
+      ageLower: number, 
+      ageUpper: number, 
+      ausbildung?: string,
+      beruf_id?: number,
+      weiblich?: boolean }){
       // @ts-ignore
       this.commit('setLoading', true);
       console.log('Getting Antworten');
