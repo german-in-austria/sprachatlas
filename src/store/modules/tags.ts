@@ -139,7 +139,6 @@ class Tags extends VuexModule implements TagState {
     this.childrenTag = tags;
   }
 
-  
   @Mutation
   setJobList(list: Job[]) {
     this.jobList = list;
@@ -195,7 +194,13 @@ class Tags extends VuexModule implements TagState {
   }
 
   @MutationAction({ mutate: ['tagOrteResults', 'loading'] })
-  async fetchTagOrteResultsMultiple(arg: { ids: number[], erhArt: number[] }) {
+  async fetchTagOrteResultsMultiple(arg: {
+    ids: number[];
+    erhArt: number[];
+    ausbildung?: string;
+    beruf_id?: number;
+    weiblich?: boolean;
+  }) {
     this.loading = true;
     const res = await api.dioePublic.getTagOrteMultiple(arg);
     return {
@@ -230,7 +235,7 @@ class Tags extends VuexModule implements TagState {
   }
 
   @MutationAction({ mutate: ['tagOrteResults', 'loading'] })
-  async fetchTagOrtePreset(arg: { ids: number[], erhArt: number[] }) {
+  async fetchTagOrtePreset(arg: { ids: number[]; erhArt: number[] }) {
     this.loading = true;
     const res = await api.dioePublic.getTagsFromPreset(arg);
     return {
