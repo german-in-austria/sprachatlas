@@ -163,9 +163,11 @@ export interface Parameter {
   visible: boolean;
   symbol: Symbols;
   project?: string;
+  description?: string;
   ageRange: number[];
   gender?: boolean;
-  education?: string;
+  education?: number;
+  maxEducation?: string;
   parents?: string;
   mobility?: string;
   job?: string;
