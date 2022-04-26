@@ -9,6 +9,8 @@ import {
 import store from '@/store';
 import { generateID } from '@/helpers/helper';
 import Vue from '../../main';
+import api from '@/api';
+
 import {
   SearchItems,
   Parameter,
@@ -17,6 +19,7 @@ import {
   Hsl
 } from '../../static/apiModels';
 import { selectColor } from '@/helpers/helper';
+import { ISelectAusbildungResult } from '@/api/dioe-public-api';
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -28,6 +31,7 @@ export interface LegendState {
   };
   filterByAge: boolean;
   filterByArt: boolean;
+  ausbildungsGrad: Array<ISelectAusbildungResult>;
 }
 
 @Module({
@@ -42,32 +46,31 @@ class Legend extends VuexModule implements LegendState {
   erhArtFilter: Array<number> = [];
   filterByAge = false;
   filterByArt = false;
+  ausbildungsGrad = [];
 
   @Mutation
   addLegendEntry(e: any) {
     e.id = generateID();
     this.legend.push(e);
-
   }
 
   @Mutation
   setErhArtFilter(ids: number[]) {
     this.erhArtFilter = ids;
-    if(ids.length > 0) {
+    if (ids.length > 0) {
       this.filterByArt = true;
-    }else{
+    } else {
       this.filterByArt = false;
     }
-
   }
 
   @Mutation
-  setAgeRange(arg: {lower: number, upper: number}){
-    if(arg.lower >= 0 || arg.upper >= 0){
+  setAgeRange(arg: { lower: number; upper: number }) {
+    if (arg.lower >= 0 || arg.upper >= 0) {
       this.filterByAge = true;
     }
-    if (arg.lower < 0 && arg.upper < 0 ) this.filterByAge = false;
-    this.ageRange = {lower:arg.lower, upper:arg.upper};
+    if (arg.lower < 0 && arg.upper < 0) this.filterByAge = false;
+    this.ageRange = { lower: arg.lower, upper: arg.upper };
   }
 
   @Mutation
@@ -124,14 +127,14 @@ class Legend extends VuexModule implements LegendState {
 
   @Action
   createLegendEntry(arg: {
-    icon: Symbols,
-    layer: L.LayerGroup,
-    name: string,
-    color: Hsl | null,
-    radius: number,
-    content: any,
-    type: SearchItems}
-  ): LegendGlobal {
+    icon: Symbols;
+    layer: L.LayerGroup;
+    name: string;
+    color: Hsl | null;
+    radius: number;
+    content: any;
+    type: SearchItems;
+  }): LegendGlobal {
     const newLegend: LegendGlobal = {
       id: '',
       color: arg.color ? arg.color : selectColor(null),
@@ -158,6 +161,14 @@ class Legend extends VuexModule implements LegendState {
     } else {
       this.context.commit('removeEntryById', el.id);
     }
+  }
+
+  @MutationAction({ mutate: ['ausbildungsGrad'] })
+  async fetchAusbildung() {
+    const res = await api.dioePublic.getAllAusbildung();
+    return {
+      ausbildungsGrad: res
+    };
   }
 }
 
