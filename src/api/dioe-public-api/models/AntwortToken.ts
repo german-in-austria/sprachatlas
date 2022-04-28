@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type AntwortToken = {
-    start: string;
-    stop: string;
+    start: any;
+    stop: any;
     tagId: number;
     tagName: string | null;
     ortho: string | null;

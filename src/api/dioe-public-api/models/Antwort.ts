@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type Antwort = {
-    start: string;
-    stop: string;
+    start: any;
+    stop: any;
     tagId: number;
     tagName: string | null;
 }
