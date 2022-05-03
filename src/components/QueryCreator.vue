@@ -107,6 +107,7 @@
                       ? formControl.paraColor.hex
                       : formControl.parColor
                   "
+                  :propSymbol="formControl.symbol"
                 />
                 <v-expansion-panels class="mb-10">
                   <v-expansion-panel>
@@ -148,7 +149,7 @@
                   label="Beschreibung für den Parameter"
                   v-model="paraDesc"
                 ></v-textarea>
-                <v-card-actions>
+                <v-card-actions v-if="!editMode">
                   <v-btn
                     @click="createParameter(true)"
                     depressed
@@ -162,6 +163,11 @@
                     color="primary"
                   >
                     Weiteren Parameter hinzufügen
+                  </v-btn>
+                </v-card-actions>
+                <v-card-actions v-else>
+                  <v-btn @click="editParameter()" depressed color="primary">
+                    Item bearbeiten
                   </v-btn>
                 </v-card-actions>
               </v-form>
@@ -220,16 +226,46 @@
                 :color="curr.color"
                 class="list-group-item item"
               >
-                <v-expansion-panels focusable>
-                  <v-expansion-panel outlined>
-                    <v-expansion-panel-header
-                      ><h4>{{ curr.name }}</h4>
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      {{ 'Suchanfrage' }}</v-expansion-panel-content
+                <v-row>
+                  <v-col cols="6">
+                    <v-expansion-panels focusable>
+                      <v-expansion-panel outlined>
+                        <v-expansion-panel-header
+                          ><h4>{{ curr.name }}</h4>
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          {{ 'Suchanfrage' }}</v-expansion-panel-content
+                        >
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </v-col>
+                  <v-col cols="1">
+                    <v-btn
+                      elevation="2"
+                      class="ml-2"
+                      fab
+                      dark
+                      small
+                      color="primary"
+                      @click="editItem(curr)"
                     >
-                  </v-expansion-panel>
-                </v-expansion-panels>
+                      <v-icon dark> mdi-square-edit-outline </v-icon>
+                    </v-btn>
+                  </v-col>
+                  <v-col cols="1">
+                    <v-btn
+                      elevation="2"
+                      class="ml-2"
+                      fab
+                      dark
+                      small
+                      color="error"
+                      @click="deleteItem(i)"
+                    >
+                      <v-icon dark> mdi-trash-can-outline </v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </v-timeline-item>
             </draggable>
           </v-timeline>
@@ -285,6 +321,7 @@ export default class QueryCreator extends Vue {
 
   focusLegend: LegendGlobal = {} as LegendGlobal;
   focusParameter: Parameter[] = [];
+  editPar: Parameter = {} as Parameter;
   focusLegId: number = -1;
 
   paraName: string = '';
@@ -302,6 +339,7 @@ export default class QueryCreator extends Vue {
     paraLemma: string;
     selProject: number;
     selTags: number[];
+    symbol: number;
     selToken: string[];
     selMaxEducation: string;
     paraDesc: string;
@@ -348,6 +386,8 @@ export default class QueryCreator extends Vue {
   LM = legendMod;
   AM = aufgabenModule;
   TaM = transModule;
+
+  editMode: boolean = false;
 
   get jobs() {
     return this.TM.jobList;
@@ -408,6 +448,28 @@ export default class QueryCreator extends Vue {
     if (!this.showTimeline) this.showTimeline = !this.showTimeline;
   }
 
+  deleteItem(id: number) {
+    this.focusParameter.splice(id, 1);
+  }
+
+  editItem(curr: Parameter) {
+    this.editMode = true;
+    this.dialog = true;
+    this.formControl.paraName = curr.name;
+    this.formControl.symbol = curr.symbol;
+    this.formControl.selParents = curr.parents ? curr.parents : '';
+    this.formControl.selProject = curr.project ? curr.project : 0;
+    this.formControl.paraDesc = curr.description ? curr.description : '';
+    this.formControl.paraColor.hex = curr.color ? curr.color : '#F00';
+    this.formControl.range = curr.ageRange;
+    this.formControl.selEducation = curr.education ? curr.education : -1;
+    this.formControl.selMaxEducation = curr.maxEducation
+      ? curr.maxEducation
+      : '';
+    this.TM.setTagSelection(curr.tagList ? curr.tagList : []);
+    this.editPar = curr;
+  }
+
   createlegend() {
     const name = 'Unbennante Legende';
     const emptyLegend = {
@@ -428,6 +490,42 @@ export default class QueryCreator extends Vue {
     this.focusLegend = this.globalLegend[this.globalLegend.length - 1];
     this.focusLegId = -1;
     this.showTimeline = true;
+  }
+
+  editParameter() {
+    const id = this.editPar.id;
+    if (this.focusLegend.parameter) {
+      let par = this.focusLegend.parameter.find((el) => el.id === id);
+      const parId = this.focusLegend.parameter.findIndex((el) => el.id === id);
+      const ageRange = [this.formControl.range[0], this.formControl.range[1]];
+      par = {
+        name: this.formControl.paraName,
+        content: null,
+        visible: true,
+        id: id,
+        // @ts-ignore
+        symbol: this.$refs.sym.symbol,
+        project: this.formControl.selProject,
+        gender: this.formControl.selGender === 'Weiblich' ? true : false, // Boolean
+        education: this.formControl.selEducation, // ID
+        maxEducation: this.formControl.selMaxEducation,
+        parents: this.formControl.selParents,
+        job: this.formControl.selJob,
+        tagList: this.TM.tagSelection,
+        token: this.formControl.selToken, //
+        ageRange: ageRange, // Array with 2 numbers
+        color:
+          this.formControl.paraColor === null
+            ? ''
+            : this.formControl.paraColor.hex,
+        description: this.formControl.paraDesc
+      };
+      this.focusLegend.parameter[parId] = par;
+      this.dialog = false;
+      this.editMode = false;
+      this.clearForm();
+      this.TM.setTagSelection([]);
+    }
   }
 
   openForm() {
@@ -485,6 +583,7 @@ export default class QueryCreator extends Vue {
       });*/
       if (clear) this.dialog = false;
       this.clearForm();
+      this.TM.setTagSelection([]);
     }
   }
 
