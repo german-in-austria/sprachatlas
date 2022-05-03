@@ -153,7 +153,7 @@
               <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
                 <v-avatar>
                   <icon-circle
-                    :fillCol="convertHsl(para.color)"
+                    :fillCol="convertHexToHsl(para.color)"
                     :strokeWidth="d.strokeWidth"
                   />
                 </v-avatar>
@@ -207,7 +207,11 @@ import { LegendGlobal, Hsl, SearchItems, Symbols } from '../static/apiModels';
 
 import { drawRect, drawTriangle } from '@/helpers/MapCompute';
 
-import { selectColor, convertHslToStr } from '@/helpers/helper';
+import {
+  selectColor,
+  convertHslToStr,
+  convertHexToHsl
+} from '@/helpers/helper';
 
 @Component({
   name: 'LegendItem',
@@ -233,6 +237,11 @@ export default class LegendItem extends Vue {
 
   convertHsl(col: Hsl) {
     return convertHslToStr(col.h, col.s, col.l);
+  }
+
+  convertHexToHsl(col: string) {
+    const hsl = convertHexToHsl(col);
+    return convertHslToStr(hsl[0] * 360, hsl[1], hsl[2]);
   }
 
   hslToObj(hsl: string) {
