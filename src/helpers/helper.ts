@@ -8,8 +8,8 @@ export const getOrtName = (name: string) => {
       return res.length > 2
         ? { name: res[1], bl: res[2] }
         : res.length === 2
-          ? { name: res[1] }
-          : { name: res[0] };
+        ? { name: res[1] }
+        : { name: res[0] };
     }
   }
   return { name };
@@ -17,6 +17,40 @@ export const getOrtName = (name: string) => {
 
 export const convertHslToStr = (a: number, s: number, l: number) => {
   return `hsl(${a},${s * 100}%,${l * 100}%)`;
+};
+
+export const convertHexToHsl = (str: string) => {
+  let r = parseInt(str.substring(1, 3), 16);
+  let g = parseInt(str.substring(3, 5), 16);
+  let b = parseInt(str.substring(5), 16);
+
+  (r /= 255), (g /= 255), (b /= 255);
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  let h: number = (max + min) / 2;
+  let s: number = h;
+  const l: number = h;
+
+  if (max == min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+
+  return [h, s, l];
 };
 
 export const generateID = () => {
