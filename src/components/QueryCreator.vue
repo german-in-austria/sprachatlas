@@ -6,23 +6,16 @@
           Neue Legende erstellen
         </v-btn>
         <v-dialog v-model="dialog" max-width="1000px">
-          <!--
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on">
-            Neues Item erstellen
-          </v-btn>
-        </template>-->
-
           <v-card>
             <v-card-title> Item erstellen </v-card-title>
             <v-card-text>
               <v-form ref="form">
                 <v-text-field
-                  v-model="paraName"
+                  v-model="formControl.paraName"
                   label="Name des Parameters"
                 ></v-text-field>
                 <v-select
-                  v-model="selProject"
+                  v-model="formControl.selProject"
                   :items="teams"
                   item-text="team"
                   item-value="teamId"
@@ -40,7 +33,7 @@
                     <v-expansion-panel-content>
                       <h3>Alter auswählen</h3>
                       <v-range-slider
-                        v-model="range"
+                        v-model="formControl.range"
                         :max="max"
                         :min="min"
                         hide-details
@@ -48,7 +41,7 @@
                       >
                         <template v-slot:prepend>
                           <v-text-field
-                            :value="range[0]"
+                            :value="formControl.range[0]"
                             class="mt-0 pt-0"
                             hide-details
                             single-line
@@ -59,7 +52,7 @@
                         </template>
                         <template v-slot:append>
                           <v-text-field
-                            :value="range[1]"
+                            :value="formControl.range[1]"
                             class="mt-0 pt-0"
                             hide-details
                             single-line
@@ -70,12 +63,12 @@
                         </template>
                       </v-range-slider>
                       <v-select
-                        v-model="selGender"
+                        v-model="formControl.selGender"
                         :items="gender"
                         label="Geschlecht"
                       ></v-select>
                       <v-select
-                        v-model="selMaxEducation"
+                        v-model="formControl.selMaxEducation"
                         :items="ausbildungsGrade"
                         label="Höchster Bildungsgrad"
                         item-text="ausbildungMax"
@@ -83,7 +76,7 @@
                       >
                       </v-select>
                       <v-select
-                        v-model="selEducation"
+                        v-model="formControl.selEducation"
                         :items="jobs"
                         item-text="bezeichnung"
                         item-value="pk"
@@ -98,14 +91,8 @@
                         Standardkompetenz:
                         {{ selEducationAll.standardkompetenz }}
                       </span>
-                      <!--
                       <v-select
-                        v-model="selParents"
-                        :items="parents"
-                        label="Eltern"
-                      ></v-select>-->
-                      <v-select
-                        v-model="selMobility"
+                        v-model="formControl.selMobility"
                         :items="mobility"
                         label="Mobilität"
                       ></v-select>
@@ -115,7 +102,11 @@
                 <TagView class="mt-10 mb-10" ref="tagView" />
                 <SymbolPicker
                   ref="sym"
-                  :color="paraColor ? paraColor.hex : parColor"
+                  :color="
+                    formControl.paraColor
+                      ? formControl.paraColor.hex
+                      : formControl.parColor
+                  "
                 />
                 <v-expansion-panels class="mb-10">
                   <v-expansion-panel>
@@ -127,27 +118,27 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <v-select
-                        v-model="selToken"
+                        v-model="formControl.selToken"
                         :items="token"
                         label="Token auswählen"
                         chips
                         multiple
                       ></v-select>
                       <v-text-field
-                        v-model="paraLemma"
+                        v-model="formControl.paraLemma"
                         label="Token eingeben"
                       ></v-text-field>
                       <v-autocomplete v-model="paraLemma" />
 
                       <v-text-field
-                        v-model="paraLemma"
+                        v-model="formControl.paraLemma"
                         label="Lemma eingeben"
                       ></v-text-field>
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
                 <v-color-picker
-                  v-model="paraColor"
+                  v-model="formControl.paraColor"
                   dot-size="19"
                   hide-inputs
                   swatches-max-height="226"
@@ -306,6 +297,27 @@ export default class QueryCreator extends Vue {
   min: number = 0;
   max: number = 100;
 
+  formControl: {
+    paraName: string;
+    paraLemma: string;
+    selProject: number;
+    selTags: number[];
+    selToken: string[];
+    selMaxEducation: string;
+    paraDesc: string;
+    min: number;
+    max: number;
+    paraColor: {
+      hex: string;
+    };
+    range: Array<number>;
+    selMobility: string;
+    selParents: string;
+    selEducation: number;
+    selGender: string;
+    selJob: string;
+  } = {} as any;
+
   @Prop(Number) readonly legendId: number | undefined;
 
   @Prop(Number) readonly focusItem: number | undefined;
@@ -434,25 +446,29 @@ export default class QueryCreator extends Vue {
       this.paraName = '';
     }
     if (this.focusLegend) {
-      const ageRange = [this.range[0], this.range[1]];
+      const ageRange = [this.formControl.range[0], this.formControl.range[1]];
+
       const newParameter: Parameter = {
-        name: this.paraName,
+        name: this.formControl.paraName,
         content: null,
         id: generateID(),
         visible: true,
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
-        project: this.selProject,
-        gender: this.selGender === 'Weiblich' ? true : false, // Boolean
-        education: this.selEducation, // ID
-        maxEducation: this.selMaxEducation,
-        parents: this.selParents,
-        job: this.selJob,
+        project: this.formControl.selProject,
+        gender: this.formControl.selGender === 'Weiblich' ? true : false, // Boolean
+        education: this.formControl.selEducation, // ID
+        maxEducation: this.formControl.selMaxEducation,
+        parents: this.formControl.selParents,
+        job: this.formControl.selJob,
         tagList: this.TM.tagSelection,
-        token: this.selToken, //
-        ageRange: ageRange, // Array 2 Number
-        color: this.paraColor === null ? '' : this.paraColor.hex,
-        description: this.paraDesc
+        token: this.formControl.selToken, //
+        ageRange: ageRange, // Array with 2 numbers
+        color:
+          this.formControl.paraColor === null
+            ? ''
+            : this.formControl.paraColor.hex,
+        description: this.formControl.paraDesc
       };
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
@@ -486,6 +502,7 @@ export default class QueryCreator extends Vue {
   }
 
   mounted() {
+    this.formControl.range = this.range;
     if (this.$route.query.parameters) {
       const para = this.$route.query.parameters;
       let legend = undefined;
