@@ -39,7 +39,7 @@
         <template v-if="data[timestampId].tagName">
           <div class="mx-2">Tag: {{ data[timestampId]['tagName'] }}</div>
           <template v-if="data[timestampId].orthoText">
-            <div class="mx-2">Ortho: {{ data[timestampId]['orthoText'] }}</div>
+            <div class="mx-2">Ortho: {{ data[timestampId]['ortho'] }}</div>
           </template>
         </template>
         <template v-if="data[timestampId].aufgabe">
