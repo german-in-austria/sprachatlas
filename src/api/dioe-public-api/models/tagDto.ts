@@ -9,4 +9,5 @@ export type tagDto = {
     beruf_id?: number;
     weiblich?: boolean;
     project?: number;
+    group?: boolean;
 }
