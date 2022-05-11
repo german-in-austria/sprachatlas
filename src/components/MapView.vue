@@ -1810,6 +1810,7 @@ export default class MapView extends Vue {
           }
         }
         query.ids = [...new Set(ids)];
+        query.group = true;
         if (this.LM.erhArtFilter.length > 0) {
           query.erhArt = this.LM.erhArtFilter;
         }
