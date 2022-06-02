@@ -1,21 +1,17 @@
 /* eslint-disable */
-const fs = require('fs')
+const fs = require('fs');
 
 module.exports = {
-  transpileDependencies: [
-    'vuetify',
-    'vuex-model-decorators'
-  ],
+  transpileDependencies: true,
   configureWebpack: {
     devtool: 'source-map',
-      devServer: {
-        open: 'Google Chrome',
-        host: 'localhost',
-        port: 8080,
-        https: true,
-        disableHostCheck: true,
+    devServer: {
+      open: 'Google Chrome',
+      host: 'localhost',
+      port: 8080,
+      https: true,
+      allowedHosts: 'all'
     },
     mode: 'development'
   }
-}
-
+};
