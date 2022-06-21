@@ -18,7 +18,17 @@ module.exports = {
     indent: ['error', 2, { SwitchCase: 1 }],
     // we want to avoid useless spaces
     'no-multi-spaces': ['error'],
-    'vue/html-indent': 'off',
+    'vue/html-indent': [
+      'error',
+      type,
+      {
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: []
+      }
+    ],
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'comma-dangle': ['error', 'never'],
