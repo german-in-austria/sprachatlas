@@ -4,11 +4,7 @@ module.exports = {
   env: {
     node: true
   },
-  plugins: ['@typescript-eslint'],
-  extends: ['plugin:vue/essential', '@vue/typescript'],
-  parserOptions: {
-    parser: '@typescript-eslint/parser'
-  },
+  extends: ['plugin:vue/essential', 'plugin:vue/recommended'],
   rules: {
     // we only want single quotes
     quotes: ['error', 'single'],
