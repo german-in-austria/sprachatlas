@@ -3,6 +3,7 @@ const fs = require('fs');
 
 module.exports = {
   transpileDependencies: true,
+  lintOnSave: true,
   configureWebpack: {
     devtool: 'source-map',
     devServer: {
