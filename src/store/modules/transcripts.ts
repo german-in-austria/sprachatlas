@@ -52,7 +52,7 @@ class Transcripts extends VuexModule {
     lemma: string;
   }) {
     // @ts-ignore
-    this.commit("setLoading", true);
+    this.context.commit("setLoading", true);
     const res = await api.dioePublic.getMatchingTokens(arg.ortho, arg.phon, arg.lemma);
     return {
       matchingTokens: res,
@@ -62,7 +62,7 @@ class Transcripts extends VuexModule {
 
   @MutationAction({ mutate: ["singleTranscript", "loading"] })
   async fetchSingleTranscript(arg: any) {
-    this.singleLoading = true;
+    this.context.commit('setLoading', true);
     console.log("trying to fetch data");
     const response = await getSingleTranscript(arg.id, arg.page);
     console.log("fetched data");
@@ -74,7 +74,8 @@ class Transcripts extends VuexModule {
 
   @MutationAction({ mutate: ["transcripts", "loading"] })
   async fetchTranscripts() {
-    this.loading = true;
+    this.context.commit('setLoading', true);
+
     console.log("trying to fetch data");
     const response = await getTranscripts();
     console.log("fetched data");
@@ -86,7 +87,8 @@ class Transcripts extends VuexModule {
 
   @MutationAction({ mutate: ["einzelErhebungen", "loading"] })
   async fetchEinzelerhebungen() {
-    this.loading = true;
+    this.context.commit('setLoading', true);
+
     console.log("trying to fetch data");
     const response = await getEinzelerhebungen();
     console.log("fetched data");

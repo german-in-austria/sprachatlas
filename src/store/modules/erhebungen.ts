@@ -69,7 +69,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
 
     @MutationAction({ mutate: ['erhebungen', 'loading'] })
     async fetchErhebungen () {
-      this.loading = true;
+      this.context.commit('setLoading', true);
       console.log('trying to fetch data');
       const response = await getErhebungen();
       
@@ -82,7 +82,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
 
     @MutationAction({ mutate: ['infErhebungen', 'infLoading'] })
     async fetchInfErhebungen(params: any) {
-      this.infLoading = true;
+      this.context.commit('setInfLoading', true);
       const numbers: number[] = [];
       params.infs.forEach(function(value: any, index: any){
         numbers.push(value.id);
@@ -99,7 +99,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
     @MutationAction({ mutate: ['erhebungsarten', 'erhLoading'] })
     async fetchErhebungsArten() {
       // @ts-ignore
-      this.commit('setErhLoading', true);
+      this.context.commit('setErhLoading', true);
       console.log('trying to fetch data');
       const response = await api.dioePublic.getErhebungsArten();
       console.log('fetched data');

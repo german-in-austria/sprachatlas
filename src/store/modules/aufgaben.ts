@@ -77,7 +77,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
 
     @MutationAction({ mutate: ['aufgabenSet', 'loading']})
     async fetchAufgabenSet(arg: {ids: number[] }){
-      this.loading = true;
+      this.context.commit('setLoading', true);;
       const res = await api.dioePublic.getAufgabenSets(arg);
       return {
         aufgabenSet: res,
@@ -87,7 +87,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
 
     @MutationAction({ mutate: ['aufgaben', 'loading'] })
     async fetchAufgabeBasedPhaen(arg: {ids: number[] }){
-      this.loading = true;
+      this.context.commit('setLoading', true);;
       const res = await api.dioePublic.getAufgabenPhaen(arg);
       return {
         aufgaben: res,
@@ -97,7 +97,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
 
     @MutationAction({ mutate: ['aufgabenFromSet', 'loading'] })
     async fetchAufgabeBasedSet(arg: {ids: number[] }){
-      this.loading = true;
+      this.context.commit('setLoading', true);;
       const res = await api.dioePublic.getTagOrte1(arg);
       return {
         aufgabenFromSet: res,
@@ -115,7 +115,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
       beruf_id?: number,
       weiblich?: boolean }){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       console.log('Getting Antworten');
       const res = await api.dioePublic.getAntByTags(arg);
       console.log('Done!');
@@ -128,7 +128,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['allAufgaben', 'loading'] })
     async fetchAllAufgaben(){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       console.log('Getting Antworten');
       const res = await api.dioePublic.getAllAufgaben();
       console.log('Done!');
@@ -142,7 +142,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['allSaetze', 'loading'] })
     async fetchSaetze(arg: { query: string }){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       const res = await api.dioePublic.getSatz(arg.query);
       return {
         allSaetze: res,
@@ -153,7 +153,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['antworten', 'loading']})
     async fetchAntworten(arg: { sid?: number, aid?: number }){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       const res = await api.dioePublic.getAntbyAufgaben(arg.sid, arg.aid);
       return {
         antworten: res,
@@ -164,7 +164,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['aufgabenOrt', 'loading']})
     async fetchAufgabenOrt(arg: { ids: number[] }){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       const res = await api.dioePublic.getAufgabenOrte(arg);
       return {
         aufgabenOrt: res,
@@ -175,7 +175,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['aufgabeSingleOrt', 'loading']})
     async fetchAufgabenAudioOrt(arg: { ids: number[], osmId: number, ageLower: number, ageUpper: number }){
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       const res = await api.dioePublic.getAntAudioByOrt(arg);
       return {
         aufgabeSingleOrt: res,
@@ -186,7 +186,7 @@ class Aufgaben extends VuexModule implements AufgabenState{
     @MutationAction({ mutate: ['teams', 'loading']})
     async fetchAllTeams() {
       // @ts-ignore
-      this.commit('setLoading', true);
+      this.context.commit('setLoading', true);
       const res = await api.dioePublic.getAllTeams();
       return {
         teams: res,

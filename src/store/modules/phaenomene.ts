@@ -28,10 +28,16 @@ class Phaenomene extends VuexModule implements PhaeState {
   phaen: Array<Phaen> = [];
   phaenBer: Array<PhaenBer> = [];
   loading = false;
+
+
+  @Mutation
+  setLoading(val: boolean) {
+    this.loading = val;
+  }
   
   @MutationAction({ mutate: ['phaenBer', 'loading'] })
   async fetchBereich () {
-    this.loading = true
+    this.context.commit('setLoading', true);
     console.log('trying to fetch data')
     const response = await api.dioePublic.getPhaenBer();
     console.log('fetched data');
@@ -43,7 +49,7 @@ class Phaenomene extends VuexModule implements PhaeState {
 
   @MutationAction({mutate: ['phaen', 'loading']})
   async fetchAllPhaen (){
-    this.loading = true;
+    this.context.commit('setLoading', true);
     const res = await api.dioePublic.getPhaen();
     return {
       phaen: res,
@@ -53,7 +59,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   
   @MutationAction({ mutate: ['phaen', 'loading'] })
   async fetchPhaenByBerId (arg: {berId: number}) {
-    this.loading = true
+    this.context.commit('setLoading', true);
     console.log('trying to fetch data')
     const response = await api.dioePublic.getSinglePhaen(arg.berId);
     console.log('fetched data');
