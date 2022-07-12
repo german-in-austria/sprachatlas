@@ -5,17 +5,17 @@ import {
   Mutation,
   Action,
   getModule
-} from 'vuex-module-decorators'
-import store from '@/store'
+} from 'vuex-module-decorators';
+import store from '@/store';
 
 import { Phaen, PhaenBer } from '@/static/apiModels';
 
 import api from '@/api';
 
 export interface PhaeState {
-    phaen: Array<Phaen>;
-    phaenBer: Array<PhaenBer>;
-    loading: boolean;
+  phaen: Array<Phaen>;
+  phaenBer: Array<PhaenBer>;
+  loading: boolean;
 }
 
 @Module({
@@ -29,45 +29,44 @@ class Phaenomene extends VuexModule implements PhaeState {
   phaenBer: Array<PhaenBer> = [];
   loading = false;
 
-
   @Mutation
   setLoading(val: boolean) {
     this.loading = val;
   }
-  
+
   @MutationAction({ mutate: ['phaenBer', 'loading'] })
-  async fetchBereich () {
+  async fetchBereich() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data')
+    console.log('trying to fetch data');
     const response = await api.dioePublic.getPhaenBer();
     console.log('fetched data');
     return {
       phaenBer: response,
       loading: false
-    }
+    };
   }
 
-  @MutationAction({mutate: ['phaen', 'loading']})
-  async fetchAllPhaen (){
+  @MutationAction({ mutate: ['phaen', 'loading'] })
+  async fetchAllPhaen() {
     this.context.commit('setLoading', true);
     const res = await api.dioePublic.getPhaen();
     return {
       phaen: res,
       loading: false
-    }
+    };
   }
-  
+
   @MutationAction({ mutate: ['phaen', 'loading'] })
-  async fetchPhaenByBerId (arg: {berId: number}) {
+  async fetchPhaenByBerId(arg: { berId: number }) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data')
+    console.log('trying to fetch data');
     const response = await api.dioePublic.getSinglePhaen(arg.berId);
     console.log('fetched data');
     return {
       phaen: response,
       loading: false
-    }
+    };
   }
 }
 
-export const phaeModule = getModule(Phaenomene)
+export const phaeModule = getModule(Phaenomene);
