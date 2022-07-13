@@ -6,8 +6,13 @@
         elevation="2"
         class="search-overlay justify-center rounded-lg"
       >
-        <v-container class="ma-0 pa-5">
-          <v-row>
+        <v-container class="ma-0" style="height: 80px">
+          <v-row style="padding-bottom: 5px">
+            <v-col cols="1">
+              <v-btn elevation="1" fab small>
+                <v-icon> mdi-minus </v-icon>
+              </v-btn>
+            </v-col>
             <v-col cols="6">
               <v-autocomplete
                 ref="searchTermAutoComplete"
@@ -149,7 +154,14 @@
                 offset-y
               >
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn class="mx-1" fab small v-bind="attrs" v-on="on">
+                  <v-btn
+                    elevation="1"
+                    class="mx-1"
+                    fab
+                    small
+                    v-bind="attrs"
+                    v-on="on"
+                  >
                     <v-icon> mdi-magnify </v-icon>
                   </v-btn>
                 </template>
@@ -288,7 +300,6 @@
             </v-col>
             <v-col>
               <v-select
-                solo
                 v-model="selSearchModel"
                 :items="selSearchItem"
                 v-on:change="changeSearchTerms()"
@@ -411,7 +422,7 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
-        <v-btn fab small class="zoom" @click="resetMap()">
+        <v-btn fab small class="zoom" @click="resetMap">
           <v-icon>mdi-home</v-icon>
         </v-btn>
         <v-tooltip right>
@@ -814,7 +825,7 @@ type IAntwortenAudio = {
 export default class MapView extends Vue {
   zoom: number = defaultZoom;
   kmPerPixel: number = 0;
-  center: number[] = defaultCenter;
+  center: L.LatLng = new L.LatLng(defaultCenter[0], defaultCenter[1]);
   sideBar: boolean = false;
   EM = erhebungModule;
   TM = transModule;
@@ -954,9 +965,8 @@ export default class MapView extends Vue {
     stopMin: number,
     stopSec: number
   ) {
-    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${
-      startMin * 60 + startSec
-    },${stopMin * 60 + stopSec}`;
+    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${startMin * 60 + startSec
+      },${stopMin * 60 + stopSec}`;
   }
 
   get aufgabenSet() {
@@ -1294,7 +1304,7 @@ export default class MapView extends Vue {
     this.currentErhebung = null;
     // @ts-ignore
     this.$refs.map.mapObject.closePopup();
-    this.center = defaultCenter;
+    this.resetMap();
     this.zoom = defaultZoom;
     // @ts-ignore
     this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
@@ -1428,18 +1438,18 @@ export default class MapView extends Vue {
   }
 
   setMapToPoint(lat: number, lon: number, zoom: number) {
-    this.center = [lat, lon];
+    this.center = new L.LatLng(lat, lon);
     this.zoom = zoom;
-    this.map.flyTo(this.center, zoom);
+    (this.map as L.Map).flyTo(new L.LatLng(lat, lon), zoom)
   }
 
   resetMap() {
     this.zoom = defaultZoom;
-    this.center = defaultCenter;
-    this.setMapToPoint(this.center[0], this.center[1], defaultZoom);
+    this.center = new L.LatLng(defaultCenter[0], defaultCenter[1]);
+    this.setMapToPoint(defaultCenter[0], defaultCenter[1], defaultZoom);
   }
 
-  showExport() {}
+  showExport() { }
 
   createRectIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
@@ -2107,7 +2117,7 @@ export default class MapView extends Vue {
   async decodeURI() {
     const legend = expData.fetchLegendFromUri();
     if (legend) {
-      legend.forEach((l) => {});
+      legend.forEach((l) => { });
       for (const l of legend) {
         // Same ID is already in use and in the map
         if (
@@ -2161,7 +2171,7 @@ export default class MapView extends Vue {
     });
   }
 
-  created() {}
+  created() { }
 
   beforeCreate() {
     // //this.l.log('Collections before created'); --logger does not exist yet. if needed define outside like in app
