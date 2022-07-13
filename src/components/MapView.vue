@@ -5,13 +5,25 @@
         outlined
         elevation="2"
         class="search-overlay justify-center rounded-lg"
+        v-if="showSearchBar"
       >
         <v-container class="ma-0" style="height: 80px">
-          <v-row style="padding-bottom: 5px">
-            <v-col cols="1">
-              <v-btn elevation="1" fab small>
-                <v-icon> mdi-minus </v-icon>
-              </v-btn>
+          <v-row style="padding-bottom: 5px" align-content="center">
+            <v-col cols="1" align="center" justify="center">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    icon
+                    v-bind="attrs"
+                    v-on="on"
+                    class="zoom"
+                    @click="showSearchBar = !showSearchBar"
+                  >
+                    <v-icon>mdi-minus</v-icon>
+                  </v-btn>
+                </template>
+                <span> Suchleiste verbergen</span>
+              </v-tooltip>
             </v-col>
             <v-col cols="6">
               <v-autocomplete
@@ -414,7 +426,7 @@
         </template>
       </div>
     </template>
-    <v-layout class="map-overlay pa-5">
+    <v-layout class="map-overlay btn-overlay pa-5">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
           <v-icon>mdi-plus</v-icon>
@@ -422,9 +434,10 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
-        <v-btn fab small class="zoom" @click="resetMap">
+        <v-btn fab small class="zoom" @click="resetMap()">
           <v-icon>mdi-home</v-icon>
         </v-btn>
+
         <v-tooltip right>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -439,6 +452,21 @@
             </v-btn>
           </template>
           <span> Karteneinstellungen exportieren </span>
+        </v-tooltip>
+        <v-tooltip right v-if="!showSearchBar">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              class="zoom"
+              @click="showSearchBar = !showSearchBar"
+            >
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+          </template>
+          <span> Suchleiste anzeigen</span>
         </v-tooltip>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
@@ -902,6 +930,8 @@ export default class MapView extends Vue {
   };
 
   dialog = false;
+
+  showSearchBar = true;
 
   headerErheb = [
     { text: 'Art der Erhebung', value: 'Art_Erhebung' },
@@ -1440,7 +1470,7 @@ export default class MapView extends Vue {
   setMapToPoint(lat: number, lon: number, zoom: number) {
     this.center = new L.LatLng(lat, lon);
     this.zoom = zoom;
-    (this.map as L.Map).flyTo(new L.LatLng(lat, lon), zoom)
+    (this.map as L.Map).flyTo(new L.LatLng(lat, lon), zoom);
   }
 
   resetMap() {
@@ -2203,6 +2233,10 @@ export default class MapView extends Vue {
     * {
       pointer-events: all;
     }
+  }
+
+  .btn-overlay {
+    top: 100px;
   }
 
   .drawer {
