@@ -708,12 +708,13 @@
         width: 100%;
         height: 100%;
       "
-      v-if="!loading"
-      :zoom="zoom"
-      :center="center"
+      v-show="!loading"
+      :zoom.sync="zoom"
+      :center.sync="center"
       :options="mapOptions"
       ref="map"
     >
+      <l-layer-group ref="points" />
       <l-tile-layer :url="tileSetUrl" />
 
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
@@ -738,7 +739,7 @@
   </div>
 </template>
 <script lang="ts">
-import * as L from 'leaflet';
+import L from 'leaflet';
 import {
   LMap,
   LTileLayer,
@@ -746,7 +747,8 @@ import {
   LGeoJson,
   LCircleMarker,
   LPopup,
-  LIcon
+  LIcon,
+  LLayerGroup
 } from 'vue2-leaflet';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { geoStore } from '../store/geo';
@@ -841,6 +843,7 @@ type IAntwortenAudio = {
     LGeoJson,
     LCircleMarker,
     LPopup,
+    LLayerGroup,
     LIcon,
     IconBase,
     IconCircle,
@@ -918,11 +921,8 @@ export default class MapView extends Vue {
   showDataProp = false;
   searchTerm: SearchTerm | null = null;
   geoStore = geoStore;
-  mapOptions = {
-    scrollWheelZoom: true,
-    zoomControl: false,
-    renderer: L.canvas()
-  };
+  // layerGroup: any = null;
+
 
   curZoom = {
     start: 0,
@@ -942,6 +942,16 @@ export default class MapView extends Vue {
     { text: 'Datum', value: 'Datum' },
     { text: 'Aktionen', value: 'actions' }
   ];
+
+  mapOptions = {
+    scrollWheelZoom: true,
+    zoomControl: false,
+    renderer: L.canvas(),
+    wheelPxPerZoomLevel: 150,
+    maxZoom: 12,
+    minZoom: 7
+  };
+
 
   audioInf = [
     { text: 'Audio', value: 'audio' },
@@ -1017,6 +1027,12 @@ export default class MapView extends Vue {
 
   get aufgabenLoading() {
     return this.AM.loading;
+  }
+
+
+  get layerGroup(): L.LayerGroup {
+    // @ts-ignore
+    return this.$refs.points.mapObject;
   }
 
   drawCircleDiagram(
@@ -1098,7 +1114,8 @@ export default class MapView extends Vue {
     }
   }
 
-  get map() {
+
+  get map(): L.Map {
     // @ts-ignore
     return this.$refs.map.mapObject;
   }
@@ -1348,15 +1365,6 @@ export default class MapView extends Vue {
     }
   }
 
-  clearLayer() {
-    if (this.map.hasLayer(this.focusLayer)) {
-      this.map.removeLayer(this.focusLayer);
-      this.focusLayer?.clearLayers();
-      this.searchInput = '';
-      this.searchTerm = null;
-    }
-  }
-
   removeLayer(l: L.LayerGroup) {
     if (this.map.hasLayer(l)) {
       this.map.removeLayer(l);
@@ -1463,14 +1471,15 @@ export default class MapView extends Vue {
       radius: size,
       weight: stroke
     }).addTo(layer);
-    this.map.addLayer(layer);
+    layer.addTo(this.layerGroup);
+    // this.map.addLayer(layer);
     return res;
   }
 
   setMapToPoint(lat: number, lon: number, zoom: number) {
     this.center = new L.LatLng(lat, lon);
     this.zoom = zoom;
-    (this.map as L.Map).flyTo(new L.LatLng(lat, lon), zoom);
+    // this.map.flyTo(new L.LatLng(lat, lon), zoom);
   }
 
   resetMap() {
@@ -1667,8 +1676,9 @@ export default class MapView extends Vue {
             .addTo(ort.layer)
             .on('click', (e) => this.audioListener(ort, type));
           marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
+          ort.layer.addTo(this.layerGroup);
           // @ts-ignore
-          this.map.addLayer(ort.layer);
+          // this.map.addLayer(ort.layer);
           idx++;
         }
       } else {
@@ -1680,9 +1690,7 @@ export default class MapView extends Vue {
           .addTo(ort.layer)
           .on('click', (e) => this.audioListener(ort, type));
         marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
-
-        // @ts-ignore
-        this.map.addLayer(ort.layer);
+        ort.layer.addTo(this.layerGroup);
       }
     }
   }
@@ -1921,7 +1929,7 @@ export default class MapView extends Vue {
   }
 
   displayDataFromLegend(legend: LegendGlobal[]) {
-    this.clearLayer();
+    // this.clearLayer();
     this.showLegend = true;
     this.displayParameters(this.legendGlobalQuery);
     let tagData: Array<circleData> = [];
@@ -1929,7 +1937,7 @@ export default class MapView extends Vue {
     for (const l of legend) {
       switch (l.type) {
         case SearchItems.Ort:
-          l.layer.clearLayers();
+          // l.layer.clearLayers();
           const ort: ApiLocSingleResponse = l.content;
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
@@ -1981,7 +1989,7 @@ export default class MapView extends Vue {
 
   async displayData(term: SearchTerm, encode: boolean) {
     const newLayer = L.layerGroup();
-    this.clearLayer();
+    // this.clearLayer();
     this.showLegend = true;
     // Variable for the new Legend
     // Is used for the export of the data
@@ -2105,8 +2113,8 @@ export default class MapView extends Vue {
   computeMPerPixel() {
     const centerLatLng = this.map.getCenter();
     const container = this.map.latLngToContainerPoint(centerLatLng);
-    var pointX = [container.x + 1, container.y]; // add one pixel to x
-    var pointY = [container.x, container.y + 1]; // add one pixel to y
+    var pointX = L.point([container.x + 1, container.y]); // add one pixel to x
+    var pointY = L.point([container.x, container.y + 1]); // add one pixel to y
 
     // convert containerpoints to latlng's
     var latLngC = this.map.containerPointToLatLng(container);
@@ -2178,7 +2186,6 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
-    this.computeMPerPixel();
     if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
       erhebungModule.fetchErhebungen().then(() => {
         this.changeSearchTerms();
@@ -2188,20 +2195,23 @@ export default class MapView extends Vue {
     this.PM.fetchAllPhaen();
     this.TM.fetchTranscripts();
     this.TM.fetchEinzelerhebungen();
-
-    this.decodeURI().then(() => {
-      if (this.legendGlobal.length > 0) {
-        this.displayDataFromLegend(legendMod.legend);
-      }
-    });
-
-    this.map.on('zoomend', (e: any) => {
-      this.computeMPerPixel();
-      this.displayDataFromLegend(legendMod.legend);
+    this.$nextTick(() => {
+      // @ts-ignore
+      this.$refs.map.mapObject.whenReady(() => {
+        // this.layerGroup = this.$refs.points.mapObject;
+        this.decodeURI().then(() => {
+          if (this.legendGlobal.length > 0) {
+            this.displayDataFromLegend(legendMod.legend);
+          }
+        });
+        this.computeMPerPixel();
+        this.map.on('zoomend', (e: any) => {
+          this.computeMPerPixel();
+          this.displayDataFromLegend(legendMod.legend);
+        });
+      });
     });
   }
-
-  created() { }
 
   beforeCreate() {
     // //this.l.log('Collections before created'); --logger does not exist yet. if needed define outside like in app
