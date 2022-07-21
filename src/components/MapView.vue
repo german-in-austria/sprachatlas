@@ -807,6 +807,7 @@ const defaultZoom = 8;
 type singleEntry = {
   // value of the entry
   v: number;
+  // name of the entry
   name: string;
   // color
   c: string;
@@ -816,6 +817,8 @@ type singleEntry = {
   id: string;
   // Chosen icon
   icon: Symbols;
+  // further parameters
+  para?: Parameter;
 };
 
 type circleData = {
@@ -1557,12 +1560,17 @@ export default class MapView extends Vue {
     num: number,
     name: string,
     propSize: number,
-    id: string
+    id: string,
+    parameters?: Parameter
   ): Array<circleData> {
     if (vis) {
       const ort = data.findIndex(
         (tD) => osm === tD.osm || (tD.lon === lon && tD.lat === lat)
       );
+      let para: null | Parameter = null;
+      if (parameters) {
+        para = parameters;
+      }
       if (ort > -1) {
         let s = data[ort].size;
         s += size;
@@ -1575,7 +1583,8 @@ export default class MapView extends Vue {
           c: color,
           r: propSize,
           id: id,
-          icon: icon
+          icon: icon,
+          para: para
         } as singleEntry);
       } else {
         // Element doesnt exist and needs to be added
@@ -1594,7 +1603,8 @@ export default class MapView extends Vue {
               c: color,
               r: propSize,
               id: id,
-              icon: icon
+              icon: icon,
+              para: para
             }
           ] as singleEntry[]
         };
@@ -1896,7 +1906,8 @@ export default class MapView extends Vue {
               t.numTag,
               t.tagName,
               propFactor * t.numTag,
-              t.tagId ? t.tagId : ''
+              t.tagId ? t.tagId : '',
+              p
             );
           }
         });
@@ -1931,6 +1942,7 @@ export default class MapView extends Vue {
   displayDataFromLegend(legend: LegendGlobal[]) {
     // this.clearLayer();
     this.showLegend = true;
+    this.layerGroup.clearLayers();
     this.displayParameters(this.legendGlobalQuery);
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
