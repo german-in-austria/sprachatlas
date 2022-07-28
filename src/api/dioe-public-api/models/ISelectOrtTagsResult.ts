@@ -6,12 +6,12 @@
  * 'SelectOrtTags' return type
  */
 export type ISelectOrtTagsResult = {
-    numTag: string | null;
-    tagName: string;
-    tagLang: string | null;
-    tagId: number;
-    osmId: string | null;
-    ortNamelang: string;
     lat: string | null;
     lon: string | null;
+    numTag: string | null;
+    ortNamelang: string;
+    osmId: string | null;
+    tagId: number;
+    tagLang: string | null;
+    tagName: string;
 }

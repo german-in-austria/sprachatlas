@@ -6,6 +6,6 @@
  * 'SelectAllTeams' return type
  */
 export type ISelectAllTeamsResult = {
-    teamId: number;
     team: string | null;
+    teamId: number;
 }

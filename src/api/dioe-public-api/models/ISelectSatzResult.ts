@@ -7,6 +7,6 @@
  */
 export type ISelectSatzResult = {
     id: number;
-    transkript: string | null;
     ipa: string | null;
+    transkript: string | null;
 }

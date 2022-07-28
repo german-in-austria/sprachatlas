@@ -6,6 +6,6 @@
  * 'SelectErhebungsarten' return type
  */
 export type ISelectErhebungsartenResult = {
-    id: number;
     bezeichnung: string;
+    id: number;
 }

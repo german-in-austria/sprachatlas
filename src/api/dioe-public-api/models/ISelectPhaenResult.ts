@@ -6,8 +6,8 @@
  * 'SelectPhaen' return type
  */
 export type ISelectPhaenResult = {
-    id: number;
-    bezPhaenomen: string;
     beschrPhaenomen: string | null;
     bezPhaenber: string;
+    bezPhaenomen: string;
+    id: number;
 }

@@ -6,11 +6,11 @@
  * 'SelectAllAufgaben' return type
  */
 export type ISelectAllAufgabenResult = {
+    artBezeichnung: string;
+    asetFokus: string | null;
+    asetName: string | null;
+    aufgabenstellung: string | null;
     aufId: number;
     beschreibung: string | null;
-    aufgabenstellung: string | null;
     kontext: string | null;
-    artBezeichnung: string;
-    asetName: string | null;
-    asetFokus: string | null;
 }

@@ -6,7 +6,7 @@
  * 'GetPresetTags' return type
  */
 export type IGetPresetTagsResult = {
-    id: number;
     bezeichnung: string;
+    id: number;
     kommentar: string | null;
 }

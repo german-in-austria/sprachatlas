@@ -10,4 +10,5 @@ export type tagDto = {
     weiblich?: boolean;
     project?: number;
     group?: boolean;
+    text?: Array<string>;
 }

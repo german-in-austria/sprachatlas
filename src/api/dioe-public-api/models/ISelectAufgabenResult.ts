@@ -6,7 +6,7 @@
  * 'SelectAufgaben' return type
  */
 export type ISelectAufgabenResult = {
-    id: number;
-    beschreibungAufgabe: string | null;
     aufgabenstellung: string | null;
+    beschreibungAufgabe: string | null;
+    id: number;
 }

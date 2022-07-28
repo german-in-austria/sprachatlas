@@ -8,6 +8,6 @@
 export type ISelectMatchingTokensResult = {
     id: number;
     ortho: string | null;
-    textInOrtho: string | null;
     splemma: string | null;
+    textInOrtho: string | null;
 }

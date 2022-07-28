@@ -6,6 +6,6 @@
  * 'SelectPhaenBer' return type
  */
 export type ISelectPhaenBerResult = {
-    id: number;
     bezPhaenber: string;
+    id: number;
 }
