@@ -1909,7 +1909,7 @@ export default class MapView extends Vue {
             data = this.extractTagData(
               col,
               q.symbol,
-              p.size ? p.size : 12,
+              p.size ? p.size : 25,
               p.visible && q.vis,
               q.strokeWidth,
               layer,
