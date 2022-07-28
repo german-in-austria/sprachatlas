@@ -172,6 +172,7 @@ export interface Parameter {
   mobility?: string;
   job?: string;
   tagList?: Array<TagSelection>;
+  textTokenList?: Array<string>;
   token?: string[];
   color?: string;
   operator?: string;

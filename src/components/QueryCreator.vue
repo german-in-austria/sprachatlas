@@ -119,6 +119,7 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <v-select
+                        disabled
                         v-model="formControl.selToken"
                         :items="token"
                         label="Token auswählen"
@@ -128,10 +129,27 @@
                       <v-text-field
                         v-model="formControl.paraLemma"
                         label="Token eingeben"
+                        clearable
+                        hint="Z.b. hat, hatte, ..."
+                        append-outer-icon="mdi-plus"
+                        @click:append-outer="addToken"
+                        @keydown.enter="addToken"
                       ></v-text-field>
+                      <v-chip
+                        v-for="(val, idx) in textToken"
+                        :key="idx"
+                        class="ma-2"
+                        close
+                        color="orange"
+                        text-color="white"
+                        @click:close="textToken.splice(idx, 1)"
+                      >
+                        {{ val }}
+                      </v-chip>
                       <v-autocomplete v-model="paraLemma" />
 
                       <v-text-field
+                        disabled
                         v-model="formControl.paraLemma"
                         label="Lemma eingeben"
                       ></v-text-field>
@@ -333,6 +351,7 @@ export default class QueryCreator extends Vue {
   paraDesc: string = '';
   min: number = 0;
   max: number = 100;
+  textToken: string[] = [];
 
   formControl: {
     paraName: string;
@@ -427,6 +446,11 @@ export default class QueryCreator extends Vue {
 
   get teams() {
     return this.AM.teams;
+  }
+
+  addToken() {
+    this.textToken.push(this.formControl.paraLemma);
+    this.formControl.paraLemma = "";
   }
 
   editLegName() {
@@ -545,7 +569,7 @@ export default class QueryCreator extends Vue {
     }
     if (this.focusLegend) {
       const ageRange = [this.formControl.range[0], this.formControl.range[1]];
-
+      console.log(this.textToken);
       const newParameter: Parameter = {
         name: this.formControl.paraName,
         content: null,
@@ -561,6 +585,7 @@ export default class QueryCreator extends Vue {
         job: this.formControl.selJob,
         tagList: this.TM.tagSelection,
         token: this.formControl.selToken, //
+        textTokenList: this.textToken,
         ageRange: ageRange, // Array with 2 numbers
         color:
           this.formControl.paraColor === null

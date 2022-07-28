@@ -1866,6 +1866,10 @@ export default class MapView extends Vue {
           if (p.project) {
             query.project = p.project;
           }
+
+          if (p.textTokenList && p.textTokenList.length > 0) {
+            query.text = p.textTokenList;
+          }
         }
         query.ids = [...new Set(ids)];
         query.group = true;
@@ -1875,8 +1879,19 @@ export default class MapView extends Vue {
         await this.TaM.fetchTagOrteResultsMultiple(query);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
-          const tagData = tags.filter((el) =>
-            idToTag.get(p.id).includes(el.tagId)
+          const tagIds = idToTag.get(p.id);
+          let idsSet: any = [];
+          if (!tagIds || tagIds.length === 0) {
+            idsSet = [...new Set(tags.map(item => item.tagId))];
+          }
+          const tagData = tags.filter((el) => {
+            if (tagIds && tagIds.length > 0) {
+              return idToTag.get(p.id).includes(el.tagId)
+            } else if (idsSet.length > 0) {
+              return idsSet.includes(el.tagId);
+            }
+            return false;
+          }
           );
           q.content = tagData;
           const propFactor = computePropCircle(
