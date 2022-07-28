@@ -11,4 +11,5 @@ export type tagDto = {
     project?: number;
     group?: boolean;
     text?: Array<string>;
+    ortho?: Array<string>;
 }
