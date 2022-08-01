@@ -133,7 +133,7 @@ export default class TagView extends Vue {
   }
 
   addTag() {
-    this.TM.setChildrenTag(this.TM.tagList ? this.TM.tagList : []);
+    this.TM.setChildrenTag(this.TM.tagList ? this.TM.tagList.filter((el) => el.tagGene === 0) : []);
   }
 
   findParentElement(parId: number, element: SingleTag): SingleTag | null {
