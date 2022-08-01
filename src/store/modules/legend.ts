@@ -91,13 +91,13 @@ class Legend extends VuexModule implements LegendState {
   @Mutation
   editLegendByID(content: LegendGlobal) {
     const sid = content.id;
-    const ele = this.legend.findIndex(el => el.id === sid);
+    const ele = this.legend.findIndex((el) => el.id === sid);
     this.legend[ele] = content;
   }
 
   @Mutation
   removeEntryById(sid: string) {
-    const idxEle = this.legend.findIndex(ele => ele.id === sid);
+    const idxEle = this.legend.findIndex((ele) => ele.id === sid);
     if (idxEle > -1) {
       this.legend.splice(idxEle, 1);
     }

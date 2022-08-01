@@ -1962,6 +1962,7 @@ export default class MapView extends Vue {
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
     for (const l of legend) {
+      console.log(l);
       switch (l.type) {
         case SearchItems.Ort:
           // l.layer.clearLayers();
@@ -1978,6 +1979,7 @@ export default class MapView extends Vue {
           break;
         case SearchItems.Presets:
         case SearchItems.Tag:
+          console.log(l);
           this.displaySingleTagLegend(l, tagData);
           break;
         case SearchItems.Aufgaben:
@@ -2050,7 +2052,7 @@ export default class MapView extends Vue {
       await this.TaM.fetchPresetTagOrte(preset);
       // cast result as PresetOrtTagResult
       // @ts-ignore
-      const res = this.tagOrtResult as IGetPresetOrtTagResult[];
+      const res = cloneDeep(this.tagOrtResult as IGetPresetOrtTagResult[]);
       newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
@@ -2060,7 +2062,10 @@ export default class MapView extends Vue {
         content: res,
         type: SearchItems.Presets
       });
+      legendMod.addLegendEntry(newLeg);
       if (res && res !== undefined) {
+        console.log('----------------- Displaying data ----------------');
+        console.log(this.legendGlobal);
         this.displayDataFromLegend(this.legendGlobal);
       }
     } else if (term.type === SearchItems.Saetze) {
@@ -2162,7 +2167,8 @@ export default class MapView extends Vue {
       await this.loadTagOrt(id);
       return this.tagOrtResult;
     } else if (type === SearchItems.Presets) {
-      return await this.TaM.fetchPresetTagOrte(id);
+      await this.TaM.fetchPresetTagOrte(id)
+      return this.tagOrtResult;
       // cast result as PresetOrtTagResult
       // @ts-ignore
     } else if (type === SearchItems.Saetze) {
@@ -2225,9 +2231,11 @@ export default class MapView extends Vue {
     this.$nextTick(() => {
       // @ts-ignore
       this.$refs.map.mapObject.whenReady(() => {
+        legendMod.setLegend([]);
         // this.layerGroup = this.$refs.points.mapObject;
         this.decodeURI().then(() => {
           if (this.legendGlobal.length > 0) {
+            console.log(this.legendGlobal);
             this.displayDataFromLegend(legendMod.legend);
           }
         });
