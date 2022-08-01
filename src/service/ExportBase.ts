@@ -17,9 +17,9 @@ export const expData = {
     const leg = this.decode(url.searchParams);
     return leg;
   },
-  decode(searchParams: URLSearchParams): Array<exportLegend> | null{
+  decode(searchParams: URLSearchParams): Array<exportLegend> | null {
     console.log('Decoding');
-    
+
     let leg: Array<exportLegend> | null = null;
     for (const e of searchParams.entries()) {
       if (e[0] === 'legend') {
@@ -40,39 +40,38 @@ export const expData = {
   },
   replaceUrl(uri: string) {
     const url = new URL(window.location.href);
-    if(uri === '' || uri.length === 0){
+    if (uri === '' || uri.length === 0) {
       url.searchParams.delete('legend');
-    }else{
+    } else {
       url.searchParams.set('legend', `${uri}`);
     }
     window.history.replaceState({}, '', url.toString());
   },
-  encodeObject(obj: any){
+  encodeObject(obj: any) {
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
   pushNewLegend(legend: LegendGlobal, id: number) {
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
     let enc = null;
-    if(leg){
+    if (leg) {
       enc = this.encodeObject(leg.concat(tL));
-    }else{
+    } else {
       enc = this.encodeObject([tL]);
     }
     this.pushURL(enc);
   },
   removeEntryFromUri(name: string, type: SearchItems) {
     let leg = this.fetchLegendFromUri();
-    if(leg) {
+    if (leg) {
       leg = leg?.filter((el) => el.name !== name && el.type !== type);
       let enc = '';
-      if(leg.length > 0){
+      if (leg.length > 0) {
         enc = this.encodeObject(leg);
         this.pushURL(enc);
-      }else{
+      } else {
         this.replaceUrl(enc);
       }
     }
-
   }
 };
