@@ -2048,7 +2048,7 @@ export default class MapView extends Vue {
       const res = await this.createTagLegend(newLayer, id);
       if (res && res !== undefined) {
         legendMod.addLegendEntry(res);
-        this.displayDataFromLegend(this.legendGlobalTag);
+        this.displayDataFromLegend(this.legendGlobal);
         if (res) newLeg = res;
       }
     } else if (term.type === SearchItems.Presets) {
@@ -2101,7 +2101,7 @@ export default class MapView extends Vue {
         type: term.type
       });
       this.LM.addLegendEntry(newLeg);
-      this.displayDataFromLegend([newLeg]);
+      this.displayDataFromLegend(this.legendGlobal);
     }
     if (Object.keys(newLeg).length <= 0) return false;
     if (encode) expData.pushNewLegend(newLeg, id);
