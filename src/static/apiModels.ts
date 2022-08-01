@@ -139,6 +139,7 @@ export interface LegendGlobal {
 export interface exportLegend {
   id: string;
   symbol: Symbols;
+  content?: any;
   color: Hsl;
   size: number;
   type: SearchItems;
