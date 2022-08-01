@@ -569,7 +569,6 @@ export default class QueryCreator extends Vue {
     }
     if (this.focusLegend) {
       const ageRange = [this.formControl.range[0], this.formControl.range[1]];
-      console.log(this.textToken);
       const newParameter: Parameter = {
         name: this.formControl.paraName,
         content: null,

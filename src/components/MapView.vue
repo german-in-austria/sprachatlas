@@ -2234,7 +2234,6 @@ export default class MapView extends Vue {
     this.$nextTick(() => {
       // @ts-ignore
       this.$refs.map.mapObject.whenReady(() => {
-        legendMod.setLegend([]);
         // this.layerGroup = this.$refs.points.mapObject;
         this.decodeURI().then(() => {
           if (this.legendGlobal.length > 0) {
