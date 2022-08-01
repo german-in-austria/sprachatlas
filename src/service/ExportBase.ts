@@ -6,7 +6,9 @@ export const expData = {
   transformLegend(legend: LegendGlobal, id: number): exportLegend {
     console.log('Exporting Legend');
     const expLegend: any = clone(legend) as any;
-    delete expLegend.content;
+    if (legend.type !== SearchItems.Ort) {
+      delete expLegend.content;
+    }
     delete expLegend.layer;
     const eL = expLegend as exportLegend;
     eL.elementId = id;

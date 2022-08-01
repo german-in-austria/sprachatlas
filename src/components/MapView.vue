@@ -1355,17 +1355,15 @@ export default class MapView extends Vue {
     // @ts-ignore
     this.$refs.map.mapObject.closePopup();
     this.resetMap();
-    this.zoom = defaultZoom;
     // @ts-ignore
-    this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
+    // this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
     // @ts-ignore
     const map = this.$refs.map.mapObject;
-    if (map.hasLayer(this.focusLayer)) {
-      map.removeLayer(this.focusLayer);
-      this.focusLayer?.clearLayers();
-      this.searchInput = '';
-      this.searchTerm = null;
-    }
+
+    this.focusLayer?.clearLayers();
+    this.searchInput = '';
+    this.searchTerm = null;
+
   }
 
   removeLayer(l: L.LayerGroup) {
@@ -1467,27 +1465,31 @@ export default class MapView extends Vue {
     color: string,
     stroke: number,
     size: number,
-    layer: L.LayerGroup
+    layer: L.LayerGroup,
+    ort: ApiLocSingleResponse
   ) {
     const res = L.circleMarker([lat, lon], {
-      color: color,
+      fillColor: color,
+      color: 'black',
       radius: size,
-      weight: stroke
-    }).addTo(layer);
+      weight: stroke,
+      opacity: 0.9,
+      fillOpacity: 0.9
+    }).addTo(layer).on('click', (e) => this.loadErheb(ort));;
     layer.addTo(this.layerGroup);
     // this.map.addLayer(layer);
     return res;
   }
 
   setMapToPoint(lat: number, lon: number, zoom: number) {
-    this.center = new L.LatLng(lat, lon);
-    this.zoom = zoom;
-    // this.map.flyTo(new L.LatLng(lat, lon), zoom);
+    this.map.flyTo(new L.LatLng(lat, lon), zoom);
+    //this.center = new L.LatLng(lat, lon);
+    //this.zoom = zoom;
   }
 
   resetMap() {
-    this.zoom = defaultZoom;
-    this.center = new L.LatLng(defaultCenter[0], defaultCenter[1]);
+    // this.zoom = defaultZoom;
+    // this.center = new L.LatLng(defaultCenter[0], defaultCenter[1]);
     this.setMapToPoint(defaultCenter[0], defaultCenter[1], defaultZoom);
   }
 
@@ -1790,14 +1792,15 @@ export default class MapView extends Vue {
     if (this.searchTerm) {
       const ort: ApiLocSingleResponse = this.searchTerm.content;
       const color = this.getColor();
-      const radius = 20;
+      const radius = 15;
       const circle = this.addCircleMarkerToMap(
         Number(ort.lat),
         Number(ort.lon),
         convertHslToStr(color.h, color.s, color.l),
         1,
         radius,
-        layer
+        layer,
+        ort
       );
       circle.bindPopup(ort.ort_namelang.split(',')[0]);
       this.loadErheb(ort);
@@ -1809,7 +1812,8 @@ export default class MapView extends Vue {
         content: {
           lat: Number(ort.lat),
           lon: Number(ort.lon),
-          osmId: ort.osm_id
+          osmId: ort.osm_id,
+          ort: getOrtName(ort.ort_namelang).name
         },
         stroke: true,
         strokeWidth: 1,
@@ -1941,7 +1945,8 @@ export default class MapView extends Vue {
           convertHslToStr(el.color.h, el.color.s, el.color.l),
           1,
           el.size,
-          el.layer ? el.layer : L.layerGroup()
+          el.layer ? el.layer : L.layerGroup(),
+          satz as any
         );
         circle.on('click', (e) => {
           satz.data.forEach((antwort) => {
@@ -1962,24 +1967,24 @@ export default class MapView extends Vue {
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
     for (const l of legend) {
-      console.log(l);
       switch (l.type) {
         case SearchItems.Ort:
           // l.layer.clearLayers();
-          const ort: ApiLocSingleResponse = l.content;
+          const ort: any = l.content;
+          const erh: any = (this.erhebungen as any as any[]).find((el) => el.osm_id === ort.osmId);
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
             Number(ort.lon),
             convertHslToStr(l.color.h, l.color.s, l.color.l),
             l.strokeWidth,
             l.size,
-            l.layer
+            l.layer,
+            erh
           );
-          circle.bindPopup(ort.ort_namelang.split(',')[0]);
+          circle.bindPopup(ort.ort.split(',')[0]);
           break;
         case SearchItems.Presets:
         case SearchItems.Tag:
-          console.log(l);
           this.displaySingleTagLegend(l, tagData);
           break;
         case SearchItems.Aufgaben:
@@ -2028,11 +2033,12 @@ export default class MapView extends Vue {
     if (term.type === SearchItems.Ort) {
       const leg = this.displayOrt(newLayer);
       id = leg?.content.osmId ? leg?.content.osmId : -1;
+      legendMod.addLegendEntry(leg);
       if (leg && leg !== undefined) {
-        newLeg = this.legendGlobal[-1];
+        newLeg = this.legendGlobal[this.legendGlobal.length - 1];
         this.setMapToPoint(
-          Number(newLeg?.content.lat),
-          Number(newLeg?.content.lon),
+          Number(leg.content.lat),
+          Number(leg.content.lon),
           10
         );
       }
@@ -2043,7 +2049,6 @@ export default class MapView extends Vue {
       if (res && res !== undefined) {
         legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobalTag);
-        console.log(res);
         if (res) newLeg = res;
       }
     } else if (term.type === SearchItems.Presets) {
@@ -2064,8 +2069,6 @@ export default class MapView extends Vue {
       });
       legendMod.addLegendEntry(newLeg);
       if (res && res !== undefined) {
-        console.log('----------------- Displaying data ----------------');
-        console.log(this.legendGlobal);
         this.displayDataFromLegend(this.legendGlobal);
       }
     } else if (term.type === SearchItems.Saetze) {
@@ -2188,7 +2191,7 @@ export default class MapView extends Vue {
   async decodeURI() {
     const legend = expData.fetchLegendFromUri();
     if (legend) {
-      legend.forEach((l) => { });
+      // legend.forEach((l) => { });
       for (const l of legend) {
         // Same ID is already in use and in the map
         if (
@@ -2208,8 +2211,8 @@ export default class MapView extends Vue {
           name: l.name,
           color: l.color,
           radius: l.size,
-          content: res,
-          type: l.type
+          content: l.type === SearchItems.Ort ? l.content : res,
+          type: l.type,
         });
         this.LM.addLegendEntry(lm);
       }
@@ -2235,7 +2238,6 @@ export default class MapView extends Vue {
         // this.layerGroup = this.$refs.points.mapObject;
         this.decodeURI().then(() => {
           if (this.legendGlobal.length > 0) {
-            console.log(this.legendGlobal);
             this.displayDataFromLegend(legendMod.legend);
           }
         });
