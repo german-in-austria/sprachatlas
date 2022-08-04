@@ -9,19 +9,22 @@ import {
 import store from '@/store';
 import api from '@/api';
 
-import {
-  getAudioErhebung,
-  getErhebungen
-} from '../../api/erhebungen';
+import { getAudioErhebung, getErhebungen } from '../../api/erhebungen';
 
-import { ApiLocationResponse, ApiLocSingleResponse, SingleInfResponse, ApiInfErhResponse } from '../../static/apiModels';
+import {
+  ApiLocationResponse,
+  ApiLocSingleResponse,
+  SingleInfResponse,
+  ApiInfErhResponse
+} from '../../static/apiModels';
 import type { ISelectErhebungsartenResult } from '../../api/dioe-public-api/models/ISelectErhebungsartenResult';
+import { ISelectInfErhebungenResult } from '@/api/dioe-public-api';
 
 export interface ErhebungState {
-    currentOrt: ApiLocSingleResponse | null;
-    erhebungen: ApiLocationResponse | null;
-    loading: boolean;
-    erhebungsarten: Array<ISelectErhebungsartenResult>;
+  currentOrt: ApiLocSingleResponse | null;
+  erhebungen: ApiLocationResponse | null;
+  loading: boolean;
+  erhebungsarten: Array<ISelectErhebungsartenResult>;
 }
 
 @Module({
@@ -31,84 +34,109 @@ export interface ErhebungState {
   dynamic: true
 })
 class Erhebungen extends VuexModule implements ErhebungState {
-    erhebungen: ApiLocationResponse | null = null;
-    currentOrt: ApiLocSingleResponse | null = null;
+  erhebungen: ApiLocationResponse | null = null;
+  currentOrt: ApiLocSingleResponse | null = null;
 
-    infErhebungen: ApiInfErhResponse | null = null;
+  infErhebungen: ApiInfErhResponse | null = null;
 
-    // IMPORTANT: DO NOT TOUCH THIS VARIABLE
-    // Controls when map is loaded and if used by another function, leaflet will throw exceptions
-    // !!!
-    loading = false;
+  // IMPORTANT: DO NOT TOUCH THIS VARIABLE
+  // Controls when map is loaded and if used by another function, leaflet will throw exceptions
+  // !!!
+  loading = false;
 
-    // Use these two instead
-    infLoading = false;
-    erhLoading = false;
+  // Use these two instead
+  infLoading = false;
+  erhLoading = false;
 
-    erhebungsarten: Array<ISelectErhebungsartenResult> = [];
-    
-    @Mutation
-    setCurrentOrt (ort: ApiLocSingleResponse | null) {
-      this.currentOrt = ort;
-    }
+  infOrtLoading = false;
 
-    @Mutation
-    setLoading (loading: boolean) {
-      this.loading = loading;
-    }
+  erhebungsarten: Array<ISelectErhebungsartenResult> = [];
 
-    @Mutation
-    setErhLoading (loading: boolean) {
-      this.erhLoading = loading;
-    }
+  infOrtsErhebungen: ISelectInfErhebungenResult[] = [];
 
-    @Mutation
-    setInfLoading (loading: boolean) {
-      this.infLoading = loading;
-    }
+  @Mutation
+  setCurrentOrt(ort: ApiLocSingleResponse | null) {
+    this.currentOrt = ort;
+  }
 
-    @MutationAction({ mutate: ['erhebungen', 'loading'] })
-    async fetchErhebungen () {
-      this.context.commit('setLoading', true);
-      console.log('trying to fetch data');
-      const response = await getErhebungen();
-      
-      console.log('fetched data');
-      return {
-        erhebungen: response.data.orte,
-        loading: false
-      };
-    }
+  @Mutation
+  setLoading(loading: boolean) {
+    this.loading = loading;
+  }
 
-    @MutationAction({ mutate: ['infErhebungen', 'infLoading'] })
-    async fetchInfErhebungen(params: any) {
-      this.context.commit('setInfLoading', true);
-      const numbers: number[] = [];
-      params.infs.forEach(function(value: any, index: any){
-        numbers.push(value.id);
-      });
-      const ids = numbers.join(',');
-      const response_inf = await getAudioErhebung(ids);
-      console.log('fetched data');
-      return {
-        infErhebungen: response_inf.data,
-        infLoading: false
-      };
-    }
+  @Mutation
+  setInfOrtLoading(loading: boolean) {
+    this.infOrtLoading = loading;
+  }
 
-    @MutationAction({ mutate: ['erhebungsarten', 'erhLoading'] })
-    async fetchErhebungsArten() {
-      // @ts-ignore
-      this.context.commit('setErhLoading', true);
-      console.log('trying to fetch data');
-      const response = await api.dioePublic.getErhebungsArten();
-      console.log('fetched data');
-      return {
-        erhebungsarten: response,
-        erhLoading: false
-      };
-    }
-    
+  @Mutation
+  setErhLoading(loading: boolean) {
+    this.erhLoading = loading;
+  }
+
+  @Mutation
+  setInfLoading(loading: boolean) {
+    this.infLoading = loading;
+  }
+
+  @Mutation
+  setInfOrtErhebungen(val: ISelectInfErhebungenResult[]) {
+    this.infOrtsErhebungen = val;
+  }
+
+  @MutationAction({ mutate: ['erhebungen', 'loading'] })
+  async fetchErhebungen() {
+    this.context.commit('setLoading', true);
+    console.log('trying to fetch data');
+    const response = await getErhebungen();
+
+    console.log('fetched data');
+    return {
+      erhebungen: response.data.orte,
+      loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['infErhebungen', 'infLoading'] })
+  async fetchInfErhebungen(params: any) {
+    this.context.commit('setInfLoading', true);
+    const numbers: number[] = [];
+    params.infs.forEach(function (value: any, index: any) {
+      numbers.push(value.id);
+    });
+    const ids = numbers.join(',');
+    const response_inf = await getAudioErhebung(ids);
+    console.log('fetched data');
+    return {
+      infErhebungen: response_inf.data,
+      infLoading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['infOrtsErhebungen', 'infOrtLoading'] })
+  async fetchOrtsInfErhebungen(args: { erhId: number; osm: string }) {
+    this.context.commit('setInfOrtLoading', true);
+    const res = await api.dioePublic.getInfErhebungen(
+      args.erhId,
+      Number(args.osm)
+    );
+    return {
+      infOrtLoading: false,
+      infOrtsErhebungen: res
+    };
+  }
+
+  @MutationAction({ mutate: ['erhebungsarten', 'erhLoading'] })
+  async fetchErhebungsArten() {
+    this.context.commit('setErhLoading', true);
+    console.log('trying to fetch data');
+    const response = await api.dioePublic.getErhebungsArten();
+    console.log('fetched data');
+    return {
+      erhebungsarten: response,
+      erhLoading: false
+    };
+  }
 }
 
 export const erhebungModule = getModule(Erhebungen);

@@ -607,7 +607,7 @@
             v-if="currentErhebung"
             :headers="headerErheb"
             :items="currentErhebung.erhebungen"
-            @click:row="loadInfErhebung(currentErhebung.inferhebungen)"
+            @click:row="loadInfErhebung"
           >
             <template v-slot:[`item.Art_Erhebung`]="{ item }">{{
               item.Art_Erhebung
@@ -622,46 +622,54 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-      <v-card
-        v-if="infErhebungen"
-        elevation="2"
-        class="text-xs-right"
-        offset-xs11
-      >
-        <v-card-text>
-          <h2>
-            Verfügbare Audioaufnahmen für {{ currentErhebung.ort_namelang }}
-          </h2>
-          <v-data-table
-            hide-default-footer
-            v-if="infErhebungen"
-            :headers="headerInf"
-            :items="infErhebungen.infErhebungen"
-          >
-            <template v-slot:[`item.Datum`]="{ item }">{{
-              item.Datum
-            }}</template>
-            <template
-              v-slot:[`item.actions`]="{ item }"
-              Konzept_von
-              v-on:click="fetchTranscript(item.transcript.id)"
+      <template v-if="infOrtLoading">
+        <v-skeleton-loader min-width="500" type="article, actions">
+        </v-skeleton-loader>
+      </template>
+      <template v-else>
+        <v-card
+          v-if="infOrtErhebungen.length > 0"
+          elevation="2"
+          class="text-xs-right"
+          offset-xs11
+        >
+          <v-card-text>
+            <h2>
+              Verfügbare Audioaufnahmen für {{ currentErhebung.ort_namelang }}
+            </h2>
+            <v-data-table
+              hide-default-footer
+              :headers="headerInf"
+              :items="infOrtErhebungen"
             >
-              <figure>
-                <figcaption>Aufnahme anhören:</figcaption>
-                <audio
-                  controls
-                  :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
-                ></audio>
-              </figure>
-              <template v-if="item.transcript">
-                <v-btn v-on:click="fetchTranscript(item.transcript.id)">
-                  Transkript laden
-                </v-btn>
+              <template v-slot:[`item.Datum`]="{ item }">{{
+                new Date(item.Datum).toLocaleString()
+              }}</template>
+              <template v-slot:[`item.Kommentar`]="{ item }">{{
+                item.Kommentar
+              }}</template>
+              <template
+                v-slot:[`item.actions`]="{ item }"
+                Konzept_von
+                v-on:click="fetchTranscript(item.transcript.id)"
+              >
+                <figure>
+                  <figcaption>Aufnahme anhören:</figcaption>
+                  <audio
+                    controls
+                    :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
+                  ></audio>
+                </figure>
+                <template v-if="item.transcript">
+                  <v-btn v-on:click="fetchTranscript(item.transcript.id)">
+                    Transkript laden
+                  </v-btn>
+                </template>
               </template>
-            </template>
-          </v-data-table>
-        </v-card-text>
-      </v-card>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </template>
     </v-layout>
     <v-layout class="map-overlay legend">
       <LegendItem
@@ -775,7 +783,8 @@ import {
   Phaen,
   Parameter,
   Symbols,
-  SearchTerm
+  SearchTerm,
+  SingleErhebResponse
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -943,6 +952,7 @@ export default class MapView extends Vue {
 
   headerInf = [
     { text: 'Datum', value: 'Datum' },
+    { text: 'Kommentar', value: 'Kommentar' },
     { text: 'Aktionen', value: 'actions' }
   ];
 
@@ -1176,6 +1186,10 @@ export default class MapView extends Vue {
     return this.TaM.tags;
   }
 
+  get infOrtLoading() {
+    return this.EM.infOrtLoading;
+  }
+
   get tagListFlat() {
     const curr = this.flattenTagsArray(this.TaM.tags);
     return curr;
@@ -1197,6 +1211,10 @@ export default class MapView extends Vue {
     });
     // console.log(res);*/
     return arr;
+  }
+
+  get infOrtErhebungen() {
+    return this.EM.infOrtsErhebungen;
   }
 
   get allSaetze() {
@@ -2134,10 +2152,17 @@ export default class MapView extends Vue {
     this.TM.fetchSingleTranscript({ id: id, page: 0 });
   }
 
-  loadInfErhebung(infs: any[]) {
+  loadInfErhebung(val: any) {
+    const id = val.id;
+    const osm = this.currentErhebung?.osm_id ? this.currentErhebung.osm_id : "0";
+    erhebungModule.fetchOrtsInfErhebungen({
+      osm: osm.toString(),
+      erhId: id
+    });
+    /*
     erhebungModule.fetchInfErhebungen({
       infs: infs
-    });
+    });*/
   }
 
   loadErheb(ort: ApiLocSingleResponse) {
