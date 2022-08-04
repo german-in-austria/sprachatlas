@@ -11,4 +11,6 @@ export type antwortenDto = {
     beruf_id?: number;
     weiblich?: boolean;
     group?: boolean;
+    text?: Array<string>;
+    ortho?: Array<string>;
 }

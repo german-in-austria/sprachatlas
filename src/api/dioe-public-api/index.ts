@@ -22,6 +22,7 @@ export type { ISelectAufgabenResult } from './models/ISelectAufgabenResult';
 export type { ISelectAufgabenSetResult } from './models/ISelectAufgabenSetResult';
 export type { ISelectAusbildungResult } from './models/ISelectAusbildungResult';
 export type { ISelectErhebungsartenResult } from './models/ISelectErhebungsartenResult';
+export type { ISelectInfErhebungenResult } from './models/ISelectInfErhebungenResult';
 export type { ISelectMatchingTokensResult } from './models/ISelectMatchingTokensResult';
 export type { ISelectOrtAufgabeResult } from './models/ISelectOrtAufgabeResult';
 export type { ISelectOrtTagsResult } from './models/ISelectOrtTagsResult';

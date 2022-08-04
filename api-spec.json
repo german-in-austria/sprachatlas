@@ -637,6 +637,18 @@
 					},
 					"group": {
 						"type": "boolean"
+					},
+					"text": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"ortho": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -713,6 +725,56 @@
 				"required": [
 					"bezeichnung",
 					"id"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
+			"ISelectInfErhebungenResult": {
+				"description": "'SelectInfErhebungen' return type",
+				"properties": {
+					"audiofile": {
+						"type": "string",
+						"nullable": true
+					},
+					"besonderheiten": {
+						"type": "string",
+						"nullable": true
+					},
+					"dateipfad": {
+						"type": "string",
+						"nullable": true
+					},
+					"datum": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"idErhId": {
+						"type": "number",
+						"format": "double"
+					},
+					"idTranscriptId": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"kommentar": {
+						"type": "string",
+						"nullable": true
+					},
+					"osmId": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"audiofile",
+					"besonderheiten",
+					"dateipfad",
+					"datum",
+					"idErhId",
+					"idTranscriptId",
+					"kommentar",
+					"osmId"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -1591,6 +1653,47 @@
 				},
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/antworten/inferh": {
+			"get": {
+				"operationId": "GetInfErhebungen",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ISelectInfErhebungenResult"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "erh",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "osm",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		},
 		"/aufgaben": {

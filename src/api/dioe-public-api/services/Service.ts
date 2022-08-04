@@ -15,6 +15,7 @@ import type { ISelectAufgabenResult } from '../models/ISelectAufgabenResult';
 import type { ISelectAufgabenSetResult } from '../models/ISelectAufgabenSetResult';
 import type { ISelectAusbildungResult } from '../models/ISelectAusbildungResult';
 import type { ISelectErhebungsartenResult } from '../models/ISelectErhebungsartenResult';
+import type { ISelectInfErhebungenResult } from '../models/ISelectInfErhebungenResult';
 import type { ISelectMatchingTokensResult } from '../models/ISelectMatchingTokensResult';
 import type { ISelectOrtAufgabeResult } from '../models/ISelectOrtAufgabeResult';
 import type { ISelectOrtTagsResult } from '../models/ISelectOrtTagsResult';
@@ -314,6 +315,27 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/antworten/arten`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param erh
+     * @param osm
+     * @returns ISelectInfErhebungenResult Ok
+     * @throws ApiError
+     */
+    public static async getInfErhebungen(
+        erh: number,
+        osm: number,
+    ): Promise<Array<ISelectInfErhebungenResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/antworten/inferh`,
+            query: {
+                'erh': erh,
+                'osm': osm,
+            },
         });
         return result.body;
     }
