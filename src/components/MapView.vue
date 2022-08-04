@@ -1977,7 +1977,7 @@ export default class MapView extends Vue {
     });
   }
 
-  displayDataFromLegend(legend: LegendGlobal[]) {
+  async displayDataFromLegend(legend: LegendGlobal[]) {
     // this.clearLayer();
     this.showLegend = true;
     this.layerGroup.clearLayers();
@@ -1989,6 +1989,9 @@ export default class MapView extends Vue {
         case SearchItems.Ort:
           // l.layer.clearLayers();
           const ort: any = l.content;
+          if (!this.erhebungen) {
+            await erhebungModule.fetchErhebungen()
+          }
           const erh: any = (this.erhebungen as any as any[]).find((el) => el.osm_id === ort.osmId);
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
