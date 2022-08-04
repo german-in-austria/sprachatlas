@@ -976,11 +976,11 @@ export default class MapView extends Vue {
     {
       name: 'Humanitarian Open Tiles',
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png '
-    },
+    }/*,
     {
       name: 'Wikimedia',
       url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png?lang=local'
-    },
+    }*/,
     {
       name: 'Minimal Ländergrenzen (hell)',
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
@@ -998,8 +998,8 @@ export default class MapView extends Vue {
   items = [
     { name: this.tileSets[0].name, value: 0 },
     { name: this.tileSets[1].name, value: 1 },
-    { name: this.tileSets[2].name, value: 2 },
-    { name: this.tileSets[3].name, value: 3 }
+    { name: this.tileSets[2].name, value: 2 }
+    //{ name: this.tileSets[3].name, value: 3 }
   ];
 
   selectedTileSet = 0;
