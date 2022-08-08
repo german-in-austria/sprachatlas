@@ -130,7 +130,9 @@ export const drawRect = (
 ) => {
   const hSize = size * 1.7;
   let out = '';
-  out += `<rect x="0" y="0" width="${size}" height="${hSize}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-opacity="0.8" stroke-width="${border}"/>`;
+  out += `<rect x="0" y="0" width="${size}" height="${hSize}" fill="${color}" fill-opacity="${opacity}" stroke="#000" stroke-opacity="0.8" stroke-width="${
+    border / 10
+  }"/>`;
   out =
     '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="' +
     size +
@@ -159,7 +161,7 @@ export const drawTriangle = (
   let out = '';
   out += `<polygon points="${
     size / 2
-  },0 ${size},${size} 0,${size}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-opacity="0.8" stroke-width="${
+  },0 ${size},${size} 0,${size}" fill="${color}" fill-opacity="${opacity}" stroke="#000" stroke-opacity="0.8" stroke-width="${
     border / 10
   }"/>`;
   out =

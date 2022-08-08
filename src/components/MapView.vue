@@ -1245,7 +1245,7 @@ export default class MapView extends Vue {
 
   @Watch('iconId')
   onIconIdChange() {
-    if (this.iconId > Object.keys(Symbols).length) {
+    if (this.iconId >= Object.keys(Symbols).length / 2) {
       this.iconId = 0;
     }
   }
@@ -1536,7 +1536,7 @@ export default class MapView extends Vue {
     var rect = L.icon({
       iconSize: [rad, rad],
       className: 'circle-draw',
-      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true, 0.7)
+      iconUrl: drawTriangle(3, ort.strokeWidth, data[0].c, true, 1.0)
     });
     return rect;
   }
@@ -1852,11 +1852,12 @@ export default class MapView extends Vue {
   // 2. Request für die Tagdaten durchführen
   // 3. Daten ins content feld vom Parameter einpflegen
 
-  async displayParameters(queries: LegendGlobal[]) {
+  async displayParameters(queries: LegendGlobal[], data: Array<circleData>) {
     let idToTag = new Map();
-    let data = [] as Array<circleData>;
+    // let data = [] as Array<circleData>;
+    const symbol = this.iconId++;
     for (const q of queries) {
-      q.symbol = this.iconId++;
+      q.symbol = symbol;
       let ids: Array<number> = [];
       const layer = q.layer ? q.layer : L.layerGroup();
       idToTag.set(q.id, [] as number[]);
@@ -1951,7 +1952,7 @@ export default class MapView extends Vue {
         });
       }
     }
-    this.addDataToMap(data, SearchItems.Tag);
+    // this.addDataToMap(data, SearchItems.Tag);
   }
 
   drawSentence(legSentence: Array<LegendGlobal>) {
@@ -1982,9 +1983,9 @@ export default class MapView extends Vue {
     // this.clearLayer();
     this.showLegend = true;
     this.layerGroup.clearLayers();
-    this.displayParameters(this.legendGlobalQuery);
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
+    await this.displayParameters(this.legendGlobalQuery, tagData);
     for (const l of legend) {
       switch (l.type) {
         case SearchItems.Ort:
