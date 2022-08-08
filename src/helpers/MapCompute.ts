@@ -157,7 +157,6 @@ export const drawTriangle = (
   opacity: number
 ) => {
   let out = '';
-  console.log(color);
   out += `<polygon points="${
     size / 2
   },0 ${size},${size} 0,${size}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-opacity="0.8" stroke-width="${
