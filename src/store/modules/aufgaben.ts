@@ -113,6 +113,8 @@ class Aufgaben extends VuexModule implements AufgabenState {
     ausbildung?: string;
     beruf_id?: number;
     weiblich?: boolean;
+    text?: string[];
+    ortho?: string[];
   }) {
     // @ts-ignore
     this.context.commit('setLoading', true);
