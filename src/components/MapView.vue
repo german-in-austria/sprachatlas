@@ -1856,6 +1856,7 @@ export default class MapView extends Vue {
     let idToTag = new Map();
     let data = [] as Array<circleData>;
     for (const q of queries) {
+      q.symbol = this.iconId++;
       let ids: Array<number> = [];
       const layer = q.layer ? q.layer : L.layerGroup();
       idToTag.set(q.id, [] as number[]);
