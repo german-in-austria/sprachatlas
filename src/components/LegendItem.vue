@@ -41,11 +41,27 @@
                   <template v-else>
                     <v-avatar tile v-on="on">
                       <template v-if="d.symbol === 1">
-                        <img :src="drawRect(7, d.strokeWidth, d.color, true)" />
+                        <img
+                          :src="
+                            drawRect(
+                              7,
+                              d.strokeWidth,
+                              convertHsl(d.color),
+                              true
+                            )
+                          "
+                        />
                       </template>
                       <template v-else>
                         <img
-                          :src="drawTriangle(7, d.strokeWidth, d.color, true)"
+                          :src="
+                            drawTriangle(
+                              7,
+                              d.strokeWidth,
+                              convertHsl(d.color),
+                              true
+                            )
+                          "
                         />
                       </template>
                     </v-avatar>
