@@ -34,7 +34,6 @@
                 :search-input.sync="searchInput"
                 solo
                 clearable
-                chips
                 deletable-chips
                 hide-no-data
                 label="Suche über alles"
@@ -112,9 +111,21 @@
                       }}</v-list-item-subtitle>
                     </template>
                     <template v-else-if="item.type === 4">
-                      <v-list-item-title>
-                        {{ item.content.Aufgabenstellung }}</v-list-item-title
-                      >
+                      <template v-if="item.content.aufgabenstellung !== ''">
+                        <v-list-item-title>
+                          {{ item.content.aufgabenstellung }}</v-list-item-title
+                        >
+                      </template>
+                      <template v-else-if="item.content.beschreibung !== ''">
+                        <v-list-item-title>
+                          {{ item.content.beschreibung }}</v-list-item-title
+                        >
+                      </template>
+                      <template v-else>
+                        <v-list-item-title>
+                          {{ item.content.kontext }}</v-list-item-title
+                        >
+                      </template>
                       <v-list-item-subtitle
                         >{{ item.name ? item.name : item.kontext }} -
                         Aufgabenart:
@@ -1418,11 +1429,7 @@ export default class MapView extends Vue {
         this.addSearchTerms(this.phaen, SearchItems.Phaen, 'bez');
         break;
       case SearchItems.Aufgaben:
-        this.addSearchTerms(
-          this.allAufgaben,
-          SearchItems.Aufgaben,
-          'Aufgabenstellung'
-        );
+        this.addAufgabenToTerms();
         this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript');
         break;
       case SearchItems.Presets:
@@ -1433,11 +1440,7 @@ export default class MapView extends Vue {
         );
         break;
       case SearchItems.Alle:
-        this.addSearchTerms(
-          this.allAufgaben,
-          SearchItems.Aufgaben,
-          'Aufgabenstellung'
-        );
+        this.addAufgabenToTerms();
         this.addSearchTerms(
           this.tagListPreset,
           SearchItems.Presets,
@@ -1448,6 +1451,27 @@ export default class MapView extends Vue {
         this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript');
         break;
     }
+  }
+
+  addAufgabenToTerms() {
+    const aufgaben = this.allAufgaben.filter(el => el.aufgabenstellung !== "");
+    const spt = this.allAufgaben.filter(el => el.aufgabenstellung === "" && el.beschreibung !== "");
+    const puzzle = this.allAufgaben.filter(el => el.aufgabenstellung === "" && el.beschreibung === "");
+    this.addSearchTerms(
+      aufgaben,
+      SearchItems.Aufgaben,
+      'aufgabenstellung'
+    );
+    this.addSearchTerms(
+      spt,
+      SearchItems.Aufgaben,
+      'beschreibung'
+    );
+    this.addSearchTerms(
+      puzzle,
+      SearchItems.Aufgaben,
+      'kontext'
+    );
   }
 
   changeTags() {
