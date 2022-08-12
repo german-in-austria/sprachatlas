@@ -195,7 +195,9 @@ class Aufgaben extends VuexModule implements AufgabenState {
     this.context.commit('setLoading', true);
     const res = await api.dioePublic.getAllTeams();
     return {
-      teams: res,
+      teams: res.filter((el: ISelectAllTeamsResult) =>
+        ['PP02', 'PP03', 'PP04'].includes(el.team ? el.team : '')
+      ),
       loading: false
     };
   }
