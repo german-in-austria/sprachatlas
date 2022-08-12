@@ -739,7 +739,12 @@
 
       <l-geo-json v-if="showBundesl" :geojson="bundeslaender" />
       <l-geo-json v-if="showGemeinden" :geojson="gemeinden" />
-      <l-geo-json v-if="showDiaReg" :geojson="dialektregionen" />
+      <l-geo-json
+        v-if="showDiaReg"
+        :geojson="dialektregionen"
+        :options="geoJsonOptions"
+        :options-style="styleFunction"
+      />
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
@@ -782,7 +787,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -1753,7 +1758,9 @@ export default class MapView extends Vue {
   }
 
   markerHover(ort: circleData, marker: L.Marker, e: L.LeafletEvent) {
-    marker.bindTooltip(ort.ortName).openTooltip();
+    let str = ort.ortName + "<br />";
+    str += ort.data.map(el => el.v + "<br />").join("");
+    marker.bindTooltip(str).openTooltip();
   }
 
   displayAufgabeFromLegend(
@@ -1788,6 +1795,38 @@ export default class MapView extends Vue {
     return data;
     // this.addDataToMap(data);
   }
+
+  styleFunction(feature: any) {
+    const col = this.getColor();
+    const fillColor = hslToHex(col.h, col.s * 100, col.l * 100);
+    return {
+      weight: 2,
+      color: "#ECEFF1",
+      opacity: 0.8,
+      fillColor: fillColor,
+      fillOpacity: 0.5
+    };
+
+  }
+
+  get geoJsonOptions() {
+    return {
+      onEachFeature: this.onEachFeatureFunction
+    };
+  }
+
+  get onEachFeatureFunction() {
+    return (feature: any, layer: any) => {
+      layer.bindTooltip(
+        "<div>Region: <br />" +
+        feature.properties.name +
+        "</div>",
+        { permanent: false, sticky: true }
+      );
+
+    };
+  }
+
 
   copyClipboard(str: string) {
     navigator.clipboard.writeText(str).then(
@@ -2141,13 +2180,13 @@ export default class MapView extends Vue {
       const content = term.content;
       id =
         this.searchTerms.filter((el: SearchTerm) => el.type === SearchItems.Aufgaben)
-          .filter((el: SearchTerm) => el.content.Aufgabenstellung === content.Aufgabenstellung)
+          .filter((el: SearchTerm) => el.content.aufgabenstellung === content.aufgabenstellung)
           .map((el) => el.content.aufId);
       await this.AM.fetchAufgabenOrt({ ids: id });
       newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
-        name: content.Aufgabenstellung,
+        name: content.aufgabenstellung,
         color: this.getColor(),
         radius: 30,
         content: this.aufgabenOrt,
