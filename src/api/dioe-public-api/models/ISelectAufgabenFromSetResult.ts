@@ -12,5 +12,7 @@ export type ISelectAufgabenFromSetResult = {
     id: number;
     kuerzel: string;
     nameAset: string | null;
+    phaenId: number;
+    setId: number;
     variante: number;
 }
