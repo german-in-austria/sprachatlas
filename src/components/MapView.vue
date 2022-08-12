@@ -2119,7 +2119,7 @@ export default class MapView extends Vue {
         layer: L.layerGroup(),
         name: content.Aufgabenstellung,
         color: this.getColor(),
-        radius: 12,
+        radius: 30,
         content: this.aufgabenOrt,
         type: term.type
       });
