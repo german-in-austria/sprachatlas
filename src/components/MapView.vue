@@ -543,7 +543,8 @@
                   :key="idx"
                 >
                   <v-expansion-panel-header>
-                    {{ d.gruppeBez }} - Team: {{ d.teamBez }}
+                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
+                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
                   </v-expansion-panel-header>
 
                   <v-expansion-panel-content eager>
@@ -801,6 +802,8 @@ import AgeRange from '@/components/AgeRange.vue';
 import ErhebungsArt from '@/components/ErhebungsArt.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
+import { isAufgabeStandard } from '@/helpers/helper';
+
 
 import { getOrtName } from '@/helpers/helper';
 import {
@@ -2113,7 +2116,11 @@ export default class MapView extends Vue {
     } else if (term.type === SearchItems.Aufgaben) {
       const content = term.content;
       id = content.aufId;
-      await this.AM.fetchAufgabenOrt({ ids: [content.aufId] });
+      const ids =
+        this.searchTerms.filter((el: SearchTerm) => el.type === SearchItems.Aufgaben)
+          .filter((el: SearchTerm) => el.content.Aufgabenstellung === content.Aufgabenstellung)
+          .map((el) => el.content.aufId);
+      await this.AM.fetchAufgabenOrt({ ids: ids });
       newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
@@ -2147,6 +2154,10 @@ export default class MapView extends Vue {
       console.log(id);
       return ele;
     }
+  }
+
+  getType(val: string): boolean {
+    return isAufgabeStandard(val);
   }
 
   fetchTranscript(id: number) {

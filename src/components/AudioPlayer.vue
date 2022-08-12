@@ -45,6 +45,7 @@
         </template>
         <template v-if="data[timestampId].aufgabe">
           <div class="mx-2">Aufgabe: {{ data[timestampId].aufgabe }}</div>
+          <div class="mx-2">Typ: {{ type ? 'Standard' : 'Dialekt' }}</div>
         </template>
       </div>
     </template>
@@ -52,6 +53,7 @@
 </template>
 <script lang="ts">
 import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
+import { isAufgabeStandard } from '@/helpers/helper';
 
 export interface Audio {
   start: {
@@ -87,6 +89,10 @@ export default class AudioPlayer extends Vue {
 
   get maxLength() {
     return this.data.length;
+  }
+
+  get type() {
+    return isAufgabeStandard(this.audiofile);
   }
 
   get duration() {
