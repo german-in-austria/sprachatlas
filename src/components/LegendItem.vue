@@ -283,6 +283,8 @@ export default class LegendItem extends Vue {
     expData.removeEntryFromUri(el.name, el.type ? el.type : 0);
     this.AM.clearAntworten();
     this.$emit('callChange', el);
+    if (this.legendGlobal.length === 0)
+      this.updateVis();
   }
 
   onLegendChange(el: LegendGlobal) {
