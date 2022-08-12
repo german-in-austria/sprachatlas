@@ -2055,7 +2055,7 @@ export default class MapView extends Vue {
     // Is used for the export of the data
     let newLeg: LegendGlobal = {} as LegendGlobal;
     // id of the elment in the database
-    let id: number = -1;
+    let id: number | number[] = -1;
     if (term.type === SearchItems.Ort) {
       const leg = this.displayOrt(newLayer);
       id = leg?.content.osmId ? leg?.content.osmId : -1;
@@ -2071,7 +2071,7 @@ export default class MapView extends Vue {
     } else if (term.type === SearchItems.Tag) {
       this.resetMap();
       id = term.content.tagId;
-      const res = await this.createTagLegend(newLayer, id);
+      const res = await this.createTagLegend(newLayer, id as number);
       if (res && res !== undefined) {
         legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobal);
@@ -2115,12 +2115,11 @@ export default class MapView extends Vue {
       this.LM.addLegendEntry(newLeg);
     } else if (term.type === SearchItems.Aufgaben) {
       const content = term.content;
-      id = content.aufId;
-      const ids =
+      id =
         this.searchTerms.filter((el: SearchTerm) => el.type === SearchItems.Aufgaben)
           .filter((el: SearchTerm) => el.content.Aufgabenstellung === content.Aufgabenstellung)
           .map((el) => el.content.aufId);
-      await this.AM.fetchAufgabenOrt({ ids: ids });
+      await this.AM.fetchAufgabenOrt({ ids: id });
       newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
@@ -2206,19 +2205,20 @@ export default class MapView extends Vue {
     await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
 
-  async fetchContent(id: number, type: SearchItems) {
+  async fetchContent(id: number | number[], type: SearchItems) {
     if (type === SearchItems.Tag) {
-      await this.loadTagOrt(id);
+      await this.loadTagOrt(id as number);
       return this.tagOrtResult;
     } else if (type === SearchItems.Presets) {
-      await this.TaM.fetchPresetTagOrte(id)
+      await this.TaM.fetchPresetTagOrte(id as number)
       return this.tagOrtResult;
       // cast result as PresetOrtTagResult
       // @ts-ignore
     } else if (type === SearchItems.Saetze) {
-      return await this.AM.fetchAntworten({ sid: id });
+      return await this.AM.fetchAntworten({ sid: id as number });
     } else if (type === SearchItems.Aufgaben) {
-      return await this.AM.fetchAufgabenOrt({ ids: [id] });
+      await this.AM.fetchAufgabenOrt({ ids: typeof (id) === "number" ? [id] : id });
+      return this.aufgabenOrt;
     }
   }
 

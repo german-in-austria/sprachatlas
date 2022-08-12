@@ -3,7 +3,7 @@ import { clone } from 'lodash';
 import * as LZ from 'lz-string';
 
 export const expData = {
-  transformLegend(legend: LegendGlobal, id: number): exportLegend {
+  transformLegend(legend: LegendGlobal, id: number | number[]): exportLegend {
     console.log('Exporting Legend');
     const expLegend: any = clone(legend) as any;
     if (legend.type !== SearchItems.Ort) {
@@ -52,7 +52,7 @@ export const expData = {
   encodeObject(obj: any) {
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
-  pushNewLegend(legend: LegendGlobal, id: number) {
+  pushNewLegend(legend: LegendGlobal, id: number | number[]) {
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
     let enc = null;

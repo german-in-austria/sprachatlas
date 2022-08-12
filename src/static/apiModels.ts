@@ -143,7 +143,7 @@ export interface exportLegend {
   color: Hsl;
   size: number;
   type: SearchItems;
-  elementId: number;
+  elementId: number | number[];
   stroke: boolean;
   strokeWidth: number;
   parameter: Parameter[] | null;
