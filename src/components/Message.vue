@@ -72,7 +72,11 @@ export default class Message extends Vue {
       const intvId = setInterval(() => {
         if (this.date) {
           const intv = Date.now() - this.date;
-          if (intv >= SNACK_BAR_TIMEOUT) clearInterval(intvId);
+          if (intv >= SNACK_BAR_TIMEOUT) {
+            console.log("Closing");
+            this.closeMsg();
+            clearInterval(intvId);
+          }
           this.progressTime = 100 * (intv / SNACK_BAR_TIMEOUT);
         } else {
           clearInterval(intvId);
