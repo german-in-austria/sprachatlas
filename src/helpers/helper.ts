@@ -2,7 +2,8 @@ let colorid = 0;
 
 export const getOrtName = (name: string) => {
   if (name !== null) {
-    const reg = /^([\w\sa-zA-Z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]*),\s(\w*)/;
+    const reg =
+      /^([\w\sa-zA-Z\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00df]*),\s(\w*)/;
     const res = reg.exec(name);
     if (res) {
       return res.length > 2
@@ -55,10 +56,7 @@ export const convertHexToHsl = (str: string) => {
 
 export const generateID = () => {
   return (
-    Date.now().toString(36) +
-    Math.random()
-      .toString(36)
-      .substr(2, 5)
+    Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
   ).toUpperCase();
 };
 
@@ -76,4 +74,11 @@ export const selectColor = (num: number | null) => {
     l: 0.75,
     a: 1
   };
+};
+
+/*
+ * Returns true if the aufgabe is standard, false if dialect
+ */
+export const isAufgabeStandard = (val: string): boolean => {
+  return val.search('(UED|SPTD)') > -1;
 };
