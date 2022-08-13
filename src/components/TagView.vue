@@ -27,6 +27,7 @@
             :tagData="group.tagGroup"
             :tagSelection="group"
             :key="gkey + group.parentId"
+            :color="color"
             @deleteTag="onDelete"
           />
         </template>
@@ -46,7 +47,7 @@
   </div>
 </template>
 <script lang = "ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { tagModule } from '@/store/modules/tags';
 import { TagTree } from '@/api/dioe-public-api';
 import { SingleTag, TagSelection } from '@/static/apiModels';
@@ -61,6 +62,8 @@ import TagViewSelect from '@/components/TagViewSelect.vue';
   name: 'TagView'
 })
 export default class TagView extends Vue {
+  @Prop({ default: '#F00', type: String }) readonly color!: string;
+
   TM = tagModule;
   selTag: TagTree | null = null;
   idx: number = -1;

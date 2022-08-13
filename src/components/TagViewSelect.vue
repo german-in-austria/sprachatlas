@@ -1,9 +1,14 @@
 <template>
   <div :class="{ tagGroup: true }">
     <v-row no-gutters>
-      <v-btn elevation="0" tile color="light-green" @contextmenu="show">{{
-        tagData.tagAbbrev
-      }}</v-btn>
+      <v-btn
+        elevation="0"
+        tile
+        :class="{ whiteText: textColor }"
+        :color="color"
+        @contextmenu="show"
+        >{{ tagData.tagAbbrev }}</v-btn
+      >
       <v-menu
         v-model="showMenu"
         :position-x="x"
@@ -25,6 +30,7 @@
           :generation="generation + 1"
           :children="tag.children ? tag.children : []"
           :tagData="tag"
+          :color="color"
           :tagSelection="tagSel(tag)"
           @bus="bus"
         />
@@ -46,6 +52,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { tagModule } from '@/store/modules/tags';
 import { TagTree } from '@/api/dioe-public-api';
 import { SingleTag, TagSelection } from '@/static/apiModels';
+import { convertHexToHsl } from '@/helpers/helper';
 
 @Component({
   // if you use components add them here
@@ -65,9 +72,17 @@ export default class TagViewSelect extends Vue {
   @Prop() readonly tagData!: SingleTag;
   @Prop() readonly generation!: number;
   @Prop() private tagSelection!: TagSelection;
+  @Prop({ default: '#F00', type: String }) readonly color!: string;
 
   get tagSelectioAll() {
     return this.TM.tagSelection;
+  }
+
+  get textColor(): boolean {
+    const hsl = convertHexToHsl(this.color);
+    console.log(hsl);
+    console.log(hsl[2] > 0.5);
+    return hsl[2] < 0.4;
   }
 
   tagSel(tag: SingleTag) {
@@ -114,6 +129,10 @@ export default class TagViewSelect extends Vue {
 }
 </script>
 <style scoped>
+  .whiteText {
+    color: white;
+  }
+
   .groupAdd {
     border-radius: 15px;
     margin-left: 5px;

@@ -99,7 +99,15 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
-                <TagView class="mt-10 mb-10" ref="tagView" />
+                <TagView
+                  :color="
+                    formControl.paraColor
+                      ? formControl.paraColor.hex
+                      : formControl.parColor
+                  "
+                  class="mt-10 mb-10"
+                  ref="tagView"
+                />
                 <SymbolPicker
                   ref="sym"
                   :color="
