@@ -80,8 +80,6 @@ export default class TagViewSelect extends Vue {
 
   get textColor(): boolean {
     const hsl = convertHexToHsl(this.color);
-    console.log(hsl);
-    console.log(hsl[2] > 0.5);
     return hsl[2] < 0.4;
   }
 
