@@ -782,7 +782,8 @@ import {
   computePropCircle,
   drawCircleDiagram,
   drawRect,
-  drawTriangle
+  drawTriangle,
+  drawCircle
 } from '@/helpers/MapCompute';
 
 import { expData } from '@/service/ExportBase';
@@ -1758,8 +1759,16 @@ export default class MapView extends Vue {
   }
 
   markerHover(ort: circleData, marker: L.Marker, e: L.LeafletEvent) {
-    let str = ort.ortName + "<br />";
-    str += ort.data.map(el => el.v + "<br />").join("");
+    let str = `<b>${ort.ortName}</b><br />`;
+    str += ort.data.map(el => {
+      let col = el.c;
+      console.log(el);
+      if (el.c.startsWith("hsl")) {
+        const hsl = col.substring(4, col.length - 1).replaceAll("%", "").split(",");
+        col = hslToHex(Number(hsl[0]), Number(hsl[1]), Number(hsl[2]));
+      }
+      return `${drawCircle(12, 0.5, col, false, 1.0)} ${el.name}: ${el.v} <br />`
+    }).join("");
     marker.bindTooltip(str).openTooltip();
   }
 
