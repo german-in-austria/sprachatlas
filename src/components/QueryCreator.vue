@@ -165,7 +165,7 @@
                   </v-expansion-panel>
                 </v-expansion-panels>
                 <v-color-picker
-                  v-model="formControl.paraColor.hex"
+                  v-model="formControl.paraColor"
                   dot-size="19"
                   hide-inputs
                   swatches-max-height="226"
@@ -613,6 +613,7 @@ export default class QueryCreator extends Vue {
         path: "query",
         query: { parameters: para },
       });*/
+      console.log(this.focusLegend);
       if (clear) this.dialog = false;
       this.clearForm();
       this.TM.setTagSelection([]);
@@ -668,6 +669,11 @@ export default class QueryCreator extends Vue {
       // const legend = this.TM.legends.slice(-1)[0];
       // this.legName = "Unbenannte Legende";
     }
+  }
+
+  destroyed() {
+    console.log(this.queryLegend);
+    console.log('Unmounting component');
   }
 }
 </script>

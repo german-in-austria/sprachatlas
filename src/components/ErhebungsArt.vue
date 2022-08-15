@@ -167,7 +167,6 @@ export default class ErhebungsArt extends Vue {
 
   mounted() {
     if (!this.erhArten || this.erhArten.length === 0) {
-      console.log('test');
     }
     erhebungModule.fetchErhebungsArten();
   }
