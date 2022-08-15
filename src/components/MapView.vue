@@ -1762,7 +1762,6 @@ export default class MapView extends Vue {
     let str = `<b>${ort.ortName}</b><br />`;
     str += ort.data.map(el => {
       let col = el.c;
-      console.log(el);
       if (el.c.startsWith("hsl")) {
         const hsl = col.substring(4, col.length - 1).replaceAll("%", "").split(",");
         col = hslToHex(Number(hsl[0]), Number(hsl[1]), Number(hsl[2]));

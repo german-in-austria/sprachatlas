@@ -165,7 +165,7 @@
                   </v-expansion-panel>
                 </v-expansion-panels>
                 <v-color-picker
-                  v-model="formControl.paraColor"
+                  v-model="formControl.paraColor.hex"
                   dot-size="19"
                   hide-inputs
                   swatches-max-height="226"
