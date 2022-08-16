@@ -128,8 +128,12 @@
                       </template>
                       <v-list-item-subtitle
                         >{{ item.name ? item.name : item.kontext }} -
-                        Aufgabenart:
-                        {{ item.content.artBezeichnung }}</v-list-item-subtitle
+
+                        {{
+                          item.content.artBezeichnung
+                            ? `Aufgabenart: ${item.content.artBezeichnung}`
+                            : `Aufgabensetname: ${item.content.asetName}`
+                        }}</v-list-item-subtitle
                       >
                     </template>
                     <template v-else-if="item.type === 5">
@@ -981,7 +985,7 @@ export default class MapView extends Vue {
     zoomControl: false,
     renderer: L.canvas(),
     wheelPxPerZoomLevel: 150,
-    maxZoom: 12,
+    maxZoom: 10,
     minZoom: 7
   };
 
@@ -2099,7 +2103,7 @@ export default class MapView extends Vue {
 
   async createTagLegend(layer: L.LayerGroup, tagId: number) {
     const color = this.getColor();
-    const radius = 20;
+    const radius = 30;
     return await this.loadTagOrt(tagId).then(() => {
       const curr = this.tagOrtResult;
       if (curr.length > 0) {
