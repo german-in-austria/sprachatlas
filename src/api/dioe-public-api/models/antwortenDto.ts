@@ -13,4 +13,5 @@ export type antwortenDto = {
     group?: boolean;
     text?: Array<string>;
     ortho?: Array<string>;
+    textInOrtho?: Array<string>;
 }
