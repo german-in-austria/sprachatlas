@@ -30,6 +30,7 @@
                 ref="searchTermAutoComplete"
                 v-model="searchTerm"
                 :items="searchTerms"
+                :filter="customFilter"
                 :loading="autoCompleteLoading"
                 :search-input.sync="searchInput"
                 solo
@@ -97,9 +98,8 @@
                     <template v-if="item.type === 0">
                       <v-list-item-title v-text="item.name"></v-list-item-title>
                       <v-list-item-subtitle
-                        >{{
-                          item.content.tagGene
-                        }}.Generation</v-list-item-subtitle
+                        >{{ item.content.tagGene }}.Generation - Kürzel:
+                        {{ item.content.tagAbbrev }}</v-list-item-subtitle
                       >
                     </template>
                     <template v-else-if="item.type === 1">
@@ -805,7 +805,8 @@ import {
   AntwortenFromAufgabe,
   AntwortTokenStamp,
   ISelectOrtAufgabeResult,
-  tagDto
+  tagDto,
+  TagTree
 } from '@/api/dioe-public-api';
 
 const defaultCenter = [47.64318610543658, 13.53515625];
@@ -1262,6 +1263,16 @@ export default class MapView extends Vue {
     }
   }
 
+
+  customFilter(item: SearchTerm, queryText: string, itemText: string) {
+    const query = queryText.toLowerCase();
+    if (item.type === SearchItems.Tag) {
+      const cont = item.content as TagTree;
+      return cont.tagAbbrev.toLowerCase().includes(query) || item.name.toLowerCase().includes(query);
+    }
+    return itemText.toLowerCase().includes(query);
+  }
+
   getColor() {
     return selectColor(null);
   }
@@ -1677,14 +1688,20 @@ export default class MapView extends Vue {
     this.selectedOrt = ort;
     this.showAudio = true;
     let max = Math.max(...(ort.data.map(el => el.para ? el.para.ageRange[1] : -1)), this.ageRange.upper);
-    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : 100)), this.ageRange.lower > -1 ? this.ageRange.lower : -1);
+    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : 100)));
+    if (this.ageRange.lower > -1) {
+      min = Math.min(min, this.ageRange.lower);
+    }
+    //console.log(type);
+
     switch (type) {
       case SearchItems.Tag:
         this.AM.fetchAntwortAudio({
           ids: ids,
           osmId: ort.osm,
           ageLower: min,
-          ageUpper: max
+          ageUpper: max,
+          text: ort.data[0].para?.textTokenList
         });
         break;
       case SearchItems.Aufgaben:
@@ -1693,6 +1710,7 @@ export default class MapView extends Vue {
           osmId: ort.osm,
           ageLower: min,
           ageUpper: max
+          //text: ort.data[0].para?.textTokenList
         });
         break;
     }
