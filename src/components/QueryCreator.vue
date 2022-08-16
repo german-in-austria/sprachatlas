@@ -334,6 +334,7 @@ import { generateID } from '@/helpers/helper';
 import IconCircle from '@/icons/IconCircle.vue';
 import SymbolPicker from '@/components/SymbolPicker.vue';
 import { aufgabenModule } from '@/store/modules/aufgaben';
+import { expData } from '@/service/ExportBase';
 
 @Component({
   components: { draggable, TagView, IconCircle, SymbolPicker },
@@ -672,7 +673,6 @@ export default class QueryCreator extends Vue {
   }
 
   destroyed() {
-    console.log(this.queryLegend);
     console.log('Unmounting component');
   }
 }

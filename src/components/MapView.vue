@@ -1261,6 +1261,10 @@ export default class MapView extends Vue {
     return window.location.href;
   }
 
+  get queryLegend() {
+    return this.LM.legend.filter((el) => el.type === SearchItems.Query);
+  }
+
   @Watch('searchInput')
   search(val: any) {
     if (!val) return;
@@ -1843,7 +1847,12 @@ export default class MapView extends Vue {
 
 
   copyClipboard(str: string) {
-    navigator.clipboard.writeText(str).then(
+    // Exporting queryLegend
+    if (this.queryLegend.length > 0) {
+      expData.removeEntryTypeFromUri(SearchItems.Query);
+      this.queryLegend.forEach(el => expData.pushNewLegend(el, -1));
+    }
+    navigator.clipboard.writeText(this.url).then(
       () => {
         // Success
       },
@@ -2330,8 +2339,9 @@ export default class MapView extends Vue {
           color: l.color,
           radius: l.size,
           content: l.type === SearchItems.Ort ? l.content : res,
-          type: l.type,
+          type: l.type
         });
+        lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
         this.LM.addLegendEntry(lm);
       }
     }

@@ -11,7 +11,9 @@ export const expData = {
     }
     delete expLegend.layer;
     const eL = expLegend as exportLegend;
-    eL.elementId = id;
+    if (id > -1) {
+      eL.elementId = id;
+    }
     return expLegend as exportLegend;
   },
   fetchLegendFromUri() {
@@ -67,6 +69,19 @@ export const expData = {
     let leg = this.fetchLegendFromUri();
     if (leg) {
       leg = leg?.filter((el) => el.name !== name && el.type !== type);
+      let enc = '';
+      if (leg.length > 0) {
+        enc = this.encodeObject(leg);
+        this.pushURL(enc);
+      } else {
+        this.replaceUrl(enc);
+      }
+    }
+  },
+  removeEntryTypeFromUri(type: SearchItems) {
+    let leg = this.fetchLegendFromUri();
+    if (leg) {
+      leg = leg?.filter((el) => el.type !== type);
       let enc = '';
       if (leg.length > 0) {
         enc = this.encodeObject(leg);
