@@ -492,38 +492,11 @@
     </v-layout>
     <v-layout>
       <v-dialog
-        max-width="500"
+        max-width="750"
         v-model="dialog"
         transition="dialog-top-transition"
       >
-        <v-card>
-          <v-card-title>
-            Export der Karteneinstellungen
-            <v-spacer></v-spacer>
-            <v-btn icon color="indigo" @click="dialog = !dialog">
-              <v-icon>mdi-minus</v-icon>
-            </v-btn>
-          </v-card-title>
-          <v-card-text>
-            <v-row align="center" justify="center">
-              <v-col>
-                {{ url }}
-              </v-col>
-              <v-col>
-                <v-btn small @click="copyClipboard(url)">
-                  <v-icon>mdi-content-copy</v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer> </v-spacer>
-            <v-btn color="green darken-1" text @click="copyClipboard(url)"
-              >In die Zwischenablage kopieren</v-btn
-            >
-          </v-card-actions>
-        </v-card>
+        <ExportMap :vis.sync="dialog" />
       </v-dialog>
     </v-layout>
     <v-slide-y-reverse-transition tag="Changev-layout">
@@ -821,6 +794,7 @@ import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
 import AgeRange from '@/components/AgeRange.vue';
 import ErhebungsArt from '@/components/ErhebungsArt.vue';
+import ExportMap from '@/components/ExportMap.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { isAufgabeStandard } from '@/helpers/helper';
@@ -886,7 +860,8 @@ type IAntwortenAudio = {
     LegendItem,
     AudioPlayer,
     AgeRange,
-    ErhebungsArt
+    ErhebungsArt,
+    ExportMap
   }
 })
 export default class MapView extends Vue {

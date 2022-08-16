@@ -1,3 +1,5 @@
+import { SearchItems } from '@/static/apiModels';
+
 let colorid = 0;
 
 export const getOrtName = (name: string) => {
@@ -94,4 +96,23 @@ export const selectColor = (num: number | null) => {
  */
 export const isAufgabeStandard = (val: string): boolean => {
   return val.search('(UED|SPTD)') > -1;
+};
+
+export const nameForSearchItems = (val: SearchItems): string => {
+  switch (val) {
+    case SearchItems.Tag:
+      return 'Tag';
+    case SearchItems.Ort:
+      return 'Ort';
+    case SearchItems.Phaen:
+      return 'Ort';
+    case SearchItems.Query:
+      return 'Query';
+    case SearchItems.Aufgaben:
+      return 'Aufgabe';
+    case SearchItems.Presets:
+      return 'Preset';
+    default:
+      return '';
+  }
 };
