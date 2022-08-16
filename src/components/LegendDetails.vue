@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row v-for="(leg, idx) in legendGlobal" align="center">
+    <v-row v-for="(leg, idx) in legendGlobal" align="center" :key="idx">
       <v-col>
         <v-avatar>
           <template v-if="leg.symbol === 0">
