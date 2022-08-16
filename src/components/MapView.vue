@@ -1697,10 +1697,8 @@ export default class MapView extends Vue {
     }
     this.selectedOrt = ort;
     this.showAudio = true;
-    let max = Math.max(...(ort.data.map(el => el.para ? el.para.ageRange[1] : 0)), this.ageRange.upper);
-    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : 100)), this.ageRange.lower > -1 ? this.ageRange.lower : 100);
-    // if(ort.data[0].para
-    // console.log(ort.data[0].para?.ageRange);
+    let max = Math.max(...(ort.data.map(el => el.para ? el.para.ageRange[1] : -1)), this.ageRange.upper);
+    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : 100)), this.ageRange.lower > -1 ? this.ageRange.lower : -1);
     switch (type) {
       case SearchItems.Tag:
         this.AM.fetchAntwortAudio({
