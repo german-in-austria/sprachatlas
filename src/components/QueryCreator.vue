@@ -614,7 +614,6 @@ export default class QueryCreator extends Vue {
         path: "query",
         query: { parameters: para },
       });*/
-      console.log(this.focusLegend);
       if (clear) this.dialog = false;
       this.clearForm();
       this.TM.setTagSelection([]);
