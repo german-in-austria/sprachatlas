@@ -157,6 +157,25 @@ export interface SearchTerm {
   name: string;
 }
 
+export type singleEntry = {
+  // value of the entry
+  v: number;
+  // name of the entry
+  name: string;
+  // color
+  c: string;
+  // radius for sideways
+  r: number;
+  // id of the entry
+  id: string;
+  // Chosen icon
+  icon: Symbols;
+  // further parameters
+  para?: Parameter;
+  // Type
+  t: SearchItems;
+};
+
 export interface Parameter {
   name: string;
   content: any;
