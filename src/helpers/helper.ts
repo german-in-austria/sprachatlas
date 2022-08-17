@@ -1,4 +1,4 @@
-import { SearchItems } from '@/static/apiModels';
+import { Hsl, SearchItems } from '@/static/apiModels';
 
 let colorid = 0;
 
@@ -16,6 +16,14 @@ export const getOrtName = (name: string) => {
     }
   }
   return { name };
+};
+
+export const convertStrToHsl = (str: string): Hsl => {
+  const hsl = str
+    .substring(4, str.length - 1)
+    .replaceAll('%', '')
+    .split(',');
+  return { h: Number(hsl[0]), s: Number(hsl[1]), l: Number(hsl[2]) } as Hsl;
 };
 
 export const convertHslToStr = (a: number, s: number, l: number) => {
