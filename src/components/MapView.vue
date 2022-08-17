@@ -1688,7 +1688,7 @@ export default class MapView extends Vue {
     this.selectedOrt = ort;
     this.showAudio = true;
     let max = Math.max(...(ort.data.map(el => el.para ? el.para.ageRange[1] : -1)), this.ageRange.upper);
-    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : 100)));
+    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : this.ageRange.lower)));
     if (this.ageRange.lower > -1) {
       min = Math.min(min, this.ageRange.lower);
     }
