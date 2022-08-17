@@ -962,7 +962,8 @@ export default class MapView extends Vue {
     renderer: L.canvas(),
     wheelPxPerZoomLevel: 150,
     maxZoom: 10,
-    minZoom: 7
+    minZoom: 7,
+    maxBounds: L.latLngBounds(L.latLng(46.0, 8.0), L.latLng(49.5, 19.0))
   };
 
 
