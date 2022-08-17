@@ -501,29 +501,38 @@
     </v-layout>
     <v-slide-y-reverse-transition tag="Changev-layout">
       <v-layout class="map-overlay erhebung" v-if="showAudio">
-        <template v-if="aufgabenLoading">
-          <v-skeleton-loader min-width="500" type="article, actions">
-          </v-skeleton-loader>
-        </template>
-        <template
-          v-else-if="
-            ((antwortenAudio && antwortenAudio.length >= 0) ||
-              (aufgabeSingleOrt && aufgabeSingleOrt.length >= 0)) &&
-            !aufgabenLoading
-          "
-        >
-          <v-card
-            v-if="antwortenAudio.length > 0 || aufgabeSingleOrt.length > 0"
-            elevation="2"
+        <v-card v-if="selectedOrt" elevation="2">
+          <template
+            v-if="
+              antwortenAudio.length > 0 ||
+              aufgabeSingleOrt.length > 0 ||
+              aufgabenLoading
+            "
           >
             <v-card-title>
-              Verfügbare Audioaufnahmen für
+              <DataSwitch
+                :ortName="selectedOrt.ortName.split(',')[0]"
+                :data="selectedOrt.data[selectedDataidx]"
+                :sideways="showDataSideways"
+                v-on:callChange="switchData"
+              />
+            </v-card-title>
+          </template>
+          <template v-else>
+            <v-card-title>
+              Keine Aufnahmen verfügbar für
               {{ selectedOrt.ortName.split(',')[0] }}
               <v-spacer></v-spacer>
               <v-btn icon color="indigo" @click="showAudio = !showAudio">
                 <v-icon>mdi-minus</v-icon>
               </v-btn>
             </v-card-title>
+          </template>
+          <template v-if="aufgabenLoading">
+            <v-skeleton-loader min-width="500" type="article, actions">
+            </v-skeleton-loader>
+          </template>
+          <template v-else>
             <v-card-text>
               <v-expansion-panels focusable>
                 <v-expansion-panel
@@ -549,23 +558,23 @@
                 </v-expansion-panel>
               </v-expansion-panels>
             </v-card-text>
-          </v-card>
-          <v-card v-else elevation="2">
-            <v-card-title>
-              Keine Aufnahmen verfügbar für
-              {{ selectedOrt.ortName.split(',')[0] }}
-              <v-spacer></v-spacer>
+            <v-card-actions>
               <v-btn icon color="indigo" @click="showAudio = !showAudio">
                 <v-icon>mdi-minus</v-icon>
               </v-btn>
-            </v-card-title>
-          </v-card>
-        </template>
+            </v-card-actions>
+          </template>
+        </v-card>
       </v-layout>
     </v-slide-y-reverse-transition>
     <v-layout class="map-overlay buttons">
       <template
-        v-if="!showAudio && antwortenAudio && antwortenAudio.length > 0"
+        v-if="
+          !showAudio &&
+          antwortenAudio &&
+          antwortenAudio.length > 0 &&
+          selectedOrt
+        "
       >
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
@@ -779,7 +788,7 @@ import {
   Parameter,
   Symbols,
   SearchTerm,
-  SingleErhebResponse
+  singleEntry
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -795,6 +804,7 @@ import AudioPlayer from '@/components/AudioPlayer.vue';
 import AgeRange from '@/components/AgeRange.vue';
 import ErhebungsArt from '@/components/ErhebungsArt.vue';
 import ExportMap from '@/components/ExportMap.vue';
+import DataSwitch from '@/components/DataSwitch.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { isAufgabeStandard } from '@/helpers/helper';
@@ -812,22 +822,6 @@ import {
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
 
-type singleEntry = {
-  // value of the entry
-  v: number;
-  // name of the entry
-  name: string;
-  // color
-  c: string;
-  // radius for sideways
-  r: number;
-  // id of the entry
-  id: string;
-  // Chosen icon
-  icon: Symbols;
-  // further parameters
-  para?: Parameter;
-};
 
 type circleData = {
   data: Array<singleEntry>;
@@ -862,7 +856,8 @@ type IAntwortenAudio = {
     AudioPlayer,
     AgeRange,
     ErhebungsArt,
-    ExportMap
+    ExportMap,
+    DataSwitch
   }
 })
 export default class MapView extends Vue {
@@ -882,6 +877,7 @@ export default class MapView extends Vue {
   optionTab = 0;
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
+  selectedDataidx: number = 0;
   showAudio: boolean = false;
   showLegend: boolean = false;
   phaenSelection = [];
@@ -1388,10 +1384,6 @@ export default class MapView extends Vue {
     // @ts-ignore
     this.$refs.map.mapObject.closePopup();
     this.resetMap();
-    // @ts-ignore
-    // this.$refs.map.mapObject.setView(defaultCenter, this.zoom);
-    // @ts-ignore
-    const map = this.$refs.map.mapObject;
 
     this.focusLayer?.clearLayers();
     this.searchInput = '';
@@ -1415,6 +1407,20 @@ export default class MapView extends Vue {
 
   getOrtNameTemplate(name: string): any {
     return getOrtName(name);
+  }
+
+  switchData(dir: boolean) {
+    if (this.selectedOrt) {
+      // increment the index
+      if (dir) {
+        this.selectedDataidx = this.selectedDataidx === this.selectedOrt.data.length - 1 ? 0 : this.selectedDataidx + 1;
+        // decrease the index
+      } else {
+        this.selectedDataidx = this.selectedDataidx === 0 ? this.selectedOrt.data.length - 1 : this.selectedDataidx - 1;
+      }
+      const d = this.selectedOrt.data[this.selectedDataidx];
+      this.loadData(d, this.selectedOrt.osm, d.t);
+    }
   }
 
   changeSearchTerms() {
@@ -1609,6 +1615,7 @@ export default class MapView extends Vue {
     name: string,
     propSize: number,
     id: string,
+    type: SearchItems,
     parameters?: Parameter
   ): Array<circleData> {
     if (vis) {
@@ -1632,7 +1639,8 @@ export default class MapView extends Vue {
           r: propSize,
           id: id,
           icon: icon,
-          para: para
+          para: para,
+          t: type
         } as singleEntry);
       } else {
         // Element doesnt exist and needs to be added
@@ -1652,7 +1660,8 @@ export default class MapView extends Vue {
               r: propSize,
               id: id,
               icon: icon,
-              para: para
+              para: para,
+              t: type
             }
           ] as singleEntry[]
         };
@@ -1681,34 +1690,46 @@ export default class MapView extends Vue {
   }
 
   audioListener(ort: circleData, type: SearchItems) {
-    const ids = [];
-    for (const tag of ort.data) {
-      const id = tag.id ? Number(tag.id) : -1;
-      if (id != -1) ids.push(id);
-    }
+    console.log(ort);
     this.selectedOrt = ort;
     this.showAudio = true;
-    let max = Math.max(...(ort.data.map(el => el.para ? el.para.ageRange[1] : -1)), this.ageRange.upper);
-    let min = Math.min(...(ort.data.map(el => el.para ? el.para.ageRange[0] : this.ageRange.lower)));
-    if (this.ageRange.lower > -1) {
-      min = Math.min(min, this.ageRange.lower);
+    this.loadData(ort.data[this.selectedDataidx], ort.osm, type);
+  }
+
+  loadData(data: singleEntry, osm: number, type: SearchItems) {
+    let ids = [] as number[];
+    console.log(data);
+    if (data.id !== "" && type !== SearchItems.Query) {
+      ids = [Number(data.id)];
+    }
+
+    let max = this.ageRange.upper;
+    let min = this.ageRange.lower;
+    let token = [] as string[];
+    if (data.para) {
+      const p = data.para;
+      max = Math.max(p.ageRange[1], max);
+      min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+      token = p.textTokenList ? p.textTokenList : [];
+      ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
     //console.log(type);
 
     switch (type) {
+      case SearchItems.Query:
       case SearchItems.Tag:
         this.AM.fetchAntwortAudio({
           ids: ids,
-          osmId: ort.osm,
+          osmId: osm,
           ageLower: min,
           ageUpper: max,
-          text: ort.data[0].para?.textTokenList
+          text: token
         });
         break;
       case SearchItems.Aufgaben:
         this.AM.fetchAufgabenAudioOrt({
           ids: ids,
-          osmId: ort.osm,
+          osmId: osm,
           ageLower: min,
           ageUpper: max
           //text: ort.data[0].para?.textTokenList
@@ -1801,7 +1822,8 @@ export default class MapView extends Vue {
         aufg.numAufg ? Number(aufg.numAufg) : 1,
         aufg.aufgabenstellung ? aufg.aufgabenstellung : '',
         propFactor * Number(aufg.numAufg),
-        aufg.id.toString()
+        aufg.id.toString(),
+        SearchItems.Aufgaben
       );
     }
     return data;
@@ -1882,7 +1904,8 @@ export default class MapView extends Vue {
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tag.tagId ? tag.tagId : ''
+        tag.tagId ? tag.tagId : '',
+        SearchItems.Tag
       );
     }
     return data;
@@ -2005,6 +2028,8 @@ export default class MapView extends Vue {
             q.content.map((val: any) => val.numTag),
             20 * this.kmPerPixel
           );
+          console.log(tags);
+          console.log(tagData);
           for (const t of q.content) {
             var col = null;
             if (p.color) {
@@ -2013,6 +2038,7 @@ export default class MapView extends Vue {
               var newCol = this.getColor();
               col = convertHslToStr(newCol.h, newCol.s, newCol.l);
             }
+            console.log(p);
             data = this.extractTagData(
               col,
               q.symbol,
@@ -2026,15 +2052,17 @@ export default class MapView extends Vue {
               Number(t.lat),
               t.ortNamelang ? t.ortNamelang : '',
               t.numTag,
-              t.tagName,
+              p.name,
               propFactor * t.numTag,
-              t.tagId ? t.tagId : '',
+              q.id,
+              SearchItems.Query,
               p
             );
           }
         });
       }
     }
+    console.log(data);
     // this.addDataToMap(data, SearchItems.Tag);
   }
 
@@ -2068,6 +2096,8 @@ export default class MapView extends Vue {
     this.layerGroup.clearLayers();
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
+    if (this.legendGlobalQuery.length > 0)
+      console.log(this.legendGlobalQuery);
     await this.displayParameters(this.legendGlobalQuery, tagData);
     for (const l of legend) {
       switch (l.type) {
@@ -2365,7 +2395,7 @@ export default class MapView extends Vue {
         this.computeMPerPixel();
         this.map.on('zoomend', (e: any) => {
           this.computeMPerPixel();
-          this.displayDataFromLegend(legendMod.legend);
+          // this.displayDataFromLegend(legendMod.legend);
         });
       });
     });
