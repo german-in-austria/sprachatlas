@@ -4,20 +4,17 @@
       <v-col>
         <v-avatar>
           <template v-if="leg.symbol === 0">
-            <icon-circle
-              :fillCol="convertHsl(leg.color)"
-              :strokeWidth="leg.strokeWidth"
-            />
+            <icon-circle :fillCol="convertHsl(leg.color)" :strokeWidth="1" />
           </template>
           <template v-else-if="leg.symbol === 1">
             <img
-              :src="drawRect(7, leg.strokeWidth, convertHsl(leg.color), true)"
+              :src="drawRect(20, leg.strokeWidth, convertHsl(leg.color), true)"
             />
           </template>
           <template v-else>
             <img
               :src="
-                drawTriangle(7, leg.strokeWidth, convertHsl(leg.color), true)
+                drawTriangle(20, leg.strokeWidth, convertHsl(leg.color), true)
               "
             />
           </template>
