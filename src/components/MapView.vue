@@ -1837,7 +1837,7 @@ export default class MapView extends Vue {
       weight: 2,
       color: "#ECEFF1",
       opacity: 0.8,
-      fillColor: fillColor,
+      fillColor: feature.properties.color ? feature.properties.color : fillColor,
       fillOpacity: 0.5
     };
 
@@ -1975,7 +1975,7 @@ export default class MapView extends Vue {
             p.tagList.forEach((el) => {
               idToTag.set(
                 id,
-                idToTag.has(id) ? idToTag.get(id).push(el.tagIds) : el.tagIds
+                idToTag.has(id) ? [...idToTag.get(id), ...el.tagIds] : [...el.tagIds]
               );
               ids = ids.concat(el.tagIds);
             });
@@ -2006,6 +2006,7 @@ export default class MapView extends Vue {
         if (this.LM.erhArtFilter.length > 0) {
           query.erhArt = this.LM.erhArtFilter;
         }
+
         await this.TaM.fetchTagOrteResultsMultiple(query);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
@@ -2062,7 +2063,6 @@ export default class MapView extends Vue {
         });
       }
     }
-    console.log(data);
     // this.addDataToMap(data, SearchItems.Tag);
   }
 
@@ -2097,8 +2097,7 @@ export default class MapView extends Vue {
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
     if (this.legendGlobalQuery.length > 0)
-      console.log(this.legendGlobalQuery);
-    await this.displayParameters(this.legendGlobalQuery, tagData);
+      await this.displayParameters(this.legendGlobalQuery, tagData);
     for (const l of legend) {
       switch (l.type) {
         case SearchItems.Ort:
