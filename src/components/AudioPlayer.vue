@@ -39,9 +39,16 @@
         <template v-if="data[timestampId].tagName">
           <div class="mx-2">Tag Kurz: {{ data[timestampId]['tagShort'] }}</div>
           <div class="mx-2">Tag-Name: {{ data[timestampId]['tagName'] }}</div>
-          <template v-if="data[timestampId].orthoText">
-            <div class="mx-2">Ortho: {{ data[timestampId]['ortho'] }}</div>
-          </template>
+        </template>
+        <template v-if="data[timestampId].orthoText">
+          <div class="mx-2">
+            Ortho:
+            {{
+              data[timestampId]['ortho'] === ''
+                ? data[timestampId]['orthoText']
+                : data[timestampId]['ortho']
+            }}
+          </div>
         </template>
         <template v-if="data[timestampId].aufgabe">
           <div class="mx-2">Aufgabe: {{ data[timestampId].aufgabe }}</div>
