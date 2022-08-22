@@ -1679,13 +1679,10 @@ export default class MapView extends Vue {
     switch (icon) {
       case Symbols.Circle:
         return this.createCircleIcon(ort, data);
-        break;
       case Symbols.Rect:
         return this.createRectIcon(ort, data);
-        break;
       case Symbols.Tri:
         return this.createTriIcon(ort, data);
-        break;
     }
   }
 
@@ -1704,8 +1701,8 @@ export default class MapView extends Vue {
     let max = this.ageRange.upper;
     let min = this.ageRange.lower;
     let token = [] as string[];
-    if (data.para) {
-      const p = data.para;
+    const p = data.para;
+    if (p) {
       max = Math.max(p.ageRange[1], max);
       min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
       token = p.textTokenList ? p.textTokenList : [];
@@ -1721,7 +1718,10 @@ export default class MapView extends Vue {
           osmId: osm,
           ageLower: min,
           ageUpper: max,
-          text: token
+          text: token,
+          ausbildung: p?.maxEducation,
+          beruf_id: p?.education,
+          weiblich: p?.gender
         });
         break;
       case SearchItems.Aufgaben:
