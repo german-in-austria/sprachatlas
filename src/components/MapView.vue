@@ -1690,7 +1690,6 @@ export default class MapView extends Vue {
   }
 
   audioListener(ort: circleData, type: SearchItems) {
-    console.log(ort);
     this.selectedOrt = ort;
     this.showAudio = true;
     this.loadData(ort.data[this.selectedDataidx], ort.osm, type);
@@ -1698,7 +1697,6 @@ export default class MapView extends Vue {
 
   loadData(data: singleEntry, osm: number, type: SearchItems) {
     let ids = [] as number[];
-    console.log(data);
     if (data.id !== "" && type !== SearchItems.Query) {
       ids = [Number(data.id)];
     }
@@ -2029,8 +2027,6 @@ export default class MapView extends Vue {
             q.content.map((val: any) => val.numTag),
             20 * this.kmPerPixel
           );
-          console.log(tags);
-          console.log(tagData);
           for (const t of q.content) {
             var col = null;
             if (p.color) {
@@ -2039,7 +2035,6 @@ export default class MapView extends Vue {
               var newCol = this.getColor();
               col = convertHslToStr(newCol.h, newCol.s, newCol.l);
             }
-            console.log(p);
             data = this.extractTagData(
               col,
               q.symbol,
