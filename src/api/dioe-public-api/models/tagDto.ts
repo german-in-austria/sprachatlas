@@ -12,4 +12,5 @@ export type tagDto = {
     group?: boolean;
     text?: Array<string>;
     ortho?: Array<string>;
+    case?: boolean;
 }
