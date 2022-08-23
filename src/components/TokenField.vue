@@ -1,15 +1,30 @@
 <template>
   <fieldset class="box">
     <legend>{{ header }}</legend>
-    <v-text-field
-      v-model="inputModel"
-      :label="label"
-      clearable
-      :hint="hint"
-      :append-outer-icon="appendIcon"
-      @click:append-outer="addToken"
-      @keydown.enter="addToken"
-    ></v-text-field>
+    <v-row>
+      <v-col cols="7">
+        <v-text-field
+          v-model="inputModel"
+          :label="label"
+          clearable
+          :hint="hint"
+          :append-outer-icon="appendIcon"
+          @click:append-outer="addToken"
+          @keydown.enter="addToken"
+        >
+        </v-text-field>
+      </v-col>
+      <v-col cols="2">
+        <v-select
+          v-model="state"
+          :items="itemState"
+          label="Kondition"
+        ></v-select>
+      </v-col>
+      <v-col cols="3">
+        <v-select v-model="caseSen" :items="itemCase"></v-select>
+      </v-col>
+    </v-row>
     <v-chip
       v-for="(val, idx) in textToken"
       :key="idx"
@@ -42,6 +57,11 @@ export default class TokenField extends Vue {
   @Prop({ type: String, default: 'mdi-plus' }) readonly appendIcon!: string;
   @Prop({ type: String, default: '#FF0000' }) readonly color!: string;
 
+  itemState = ['muss', 'nicht'];
+  itemCase = ['case-sensitive', 'case-insensitive', 'Regexp'];
+
+  state = 'muss';
+  caseSen = 'case-sensitive';
 
   inputModel: string = "";
   textToken: string[] = [];
@@ -62,7 +82,6 @@ export default class TokenField extends Vue {
     border: 1px solid black;
     border-radius: 10px;
     box-sizing: border-box;
-    grid-area: 1 / 2;
     padding: 20px;
   }
 
