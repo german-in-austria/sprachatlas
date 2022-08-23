@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { selectionObject } from './selectionObject';
+
 export type antwortenDto = {
     ids: Array<number>;
     osmId: number;
@@ -11,8 +13,8 @@ export type antwortenDto = {
     beruf_id?: number;
     weiblich?: boolean;
     group?: boolean;
-    text?: Array<string>;
-    ortho?: Array<string>;
-    textInOrtho?: Array<string>;
-    lemma?: Array<string>;
+    text?: Array<selectionObject>;
+    ortho?: Array<selectionObject>;
+    textInOrtho?: Array<selectionObject>;
+    lemma?: Array<selectionObject>;
 }

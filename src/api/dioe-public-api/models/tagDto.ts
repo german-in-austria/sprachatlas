@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { selectionObject } from './selectionObject';
+
 export type tagDto = {
     ids: Array<number>;
     erhArt?: Array<number>;
@@ -10,8 +12,8 @@ export type tagDto = {
     weiblich?: boolean;
     project?: number;
     group?: boolean;
-    text?: Array<string>;
-    ortho?: Array<string>;
+    text?: Array<selectionObject>;
+    ortho?: Array<selectionObject>;
     case?: boolean;
-    lemma?: Array<string>;
+    lemma?: Array<selectionObject>;
 }

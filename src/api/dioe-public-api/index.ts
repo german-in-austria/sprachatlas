@@ -34,6 +34,7 @@ export type { ISelectSinglePhaenResult } from './models/ISelectSinglePhaenResult
 export type { ISelectTagByIdResult } from './models/ISelectTagByIdResult';
 export type { ISelectTagsLayersResult } from './models/ISelectTagsLayersResult';
 export type { numberArray } from './models/numberArray';
+export type { selectionObject } from './models/selectionObject';
 export type { tagDto } from './models/tagDto';
 export type { TagTree } from './models/TagTree';
 
