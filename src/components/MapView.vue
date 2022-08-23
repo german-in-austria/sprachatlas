@@ -815,6 +815,7 @@ import {
   AntwortenFromAufgabe,
   AntwortTokenStamp,
   ISelectOrtAufgabeResult,
+  selectionObject,
   tagDto,
   TagTree
 } from '@/api/dioe-public-api';
@@ -1699,14 +1700,14 @@ export default class MapView extends Vue {
 
     let max = this.ageRange.upper;
     let min = this.ageRange.lower;
-    let token = [] as string[];
-    let lemma = [] as string[];
+    let token = [] as selectionObject[];
+    let lemma = [] as selectionObject[];
     const p = data.para;
     if (p) {
       max = Math.max(p.ageRange[1], max);
       min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
       token = p.textTokenList ? p.textTokenList : [];
-      lemma = p.lemmaList ? p.lemmaList as string[] : [];
+      lemma = p.lemmaList ? p.lemmaList : [];
       ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
     //console.log(type);
@@ -2001,7 +2002,7 @@ export default class MapView extends Vue {
           }
 
           if (p.lemmaList && p.lemmaList.length > 0) {
-            query.lemma = p.lemmaList as string[];
+            query.lemma = p.lemmaList;
           }
         }
         query.ids = [...new Set(ids)];
