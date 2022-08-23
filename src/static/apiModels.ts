@@ -198,12 +198,12 @@ export interface Parameter {
   mobility?: string;
   job?: string;
   tagList?: Array<TagSelection>;
-  textTokenList?: Array<string>;
   token?: string[];
   color?: string;
   operator?: string;
   size?: number;
-  lemmaList?: Array<String>;
+  textTokenList?: Array<selectionObject>;
+  lemmaList?: Array<selectionObject>;
 }
 
 export interface InfResponse {
