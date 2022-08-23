@@ -1,4 +1,4 @@
-import { TagTree } from '@/api/dioe-public-api';
+import { selectionObject, TagTree } from '@/api/dioe-public-api';
 
 type ServerTranscriptId = number;
 
@@ -7,12 +7,6 @@ export type TokenTierType = 'text' | 'ortho' | 'phon';
 export interface SingleInfResponse {
   id: number;
   hasTranskript: boolean;
-}
-
-export interface selectionObject {
-  val: string;
-  state: string;
-  case: string;
 }
 
 export interface SingleTag {
