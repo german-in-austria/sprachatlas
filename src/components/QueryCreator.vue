@@ -622,7 +622,7 @@ export default class QueryCreator extends Vue {
 
   beforeCreate() {
     aufgabenModule.fetchAllTeams();
-
+    tagModule.fetchJobs();
     if (tagModule.tagList == null) {
       console.log('fetching Tags');
       tagModule.fetchTags();
