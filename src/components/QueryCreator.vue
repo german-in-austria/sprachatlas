@@ -326,7 +326,8 @@ import {
   LegendList,
   SearchItems,
   LegendGlobal,
-  Symbols
+  Symbols,
+  selectionObject
 } from '@/static/apiModels';
 import * as LZ from 'lz-string';
 import { generateID } from '@/helpers/helper';
@@ -359,8 +360,8 @@ export default class QueryCreator extends Vue {
   paraDesc: string = '';
   min: number = 0;
   max: number = 100;
-  textToken: string[] = [];
-  textLemma: string[] = [];
+  textToken: selectionObject[] = [];
+  textLemma: selectionObject[] = [];
 
   formControl: {
     paraName: string;
