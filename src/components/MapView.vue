@@ -1388,7 +1388,6 @@ export default class MapView extends Vue {
     this.focusLayer?.clearLayers();
     this.searchInput = '';
     this.searchTerm = null;
-
   }
 
   removeLayer(l: L.LayerGroup) {
