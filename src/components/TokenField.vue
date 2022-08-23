@@ -41,7 +41,7 @@
 <script lang="ts">
 import { Prop, Vue, Component } from 'vue-property-decorator';
 import { expData } from '@/service/ExportBase';
-import { SearchItems } from '@/static/apiModels';
+import { SearchItems, selectionObject } from '@/static/apiModels';
 import { legendMod } from '@/store/modules/legend';
 import { messageHandler } from '@/store/modules/message';
 
@@ -64,12 +64,16 @@ export default class TokenField extends Vue {
   caseSen = 'case-sensitive';
 
   inputModel: string = "";
-  textToken: string[] = [];
+  selectedElements: selectionObject[] = [];
 
   addToken() {
-    this.textToken.push(this.inputModel);
+    this.selectedElements.push({
+      val: this.inputModel,
+      state: this.state,
+      case: this.caseSen
+    });
     this.inputModel = "";
-    this.$emit('update:elements', this.textToken);
+    this.$emit('update:elements', this.selectedElements);
   }
 
   mounted() {
