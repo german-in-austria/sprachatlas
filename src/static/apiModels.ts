@@ -197,6 +197,7 @@ export interface Parameter {
   color?: string;
   operator?: string;
   size?: number;
+  lemmaList?: Array<String>;
 }
 
 export interface InfResponse {
