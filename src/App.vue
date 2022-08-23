@@ -32,6 +32,7 @@ import { tagModule } from '@/store/modules/tags';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import Navigation from '@/components/Navigation.vue';
 import { getTranscripts } from '@/api/transcripts';
+import { getSingleInfErhebung } from './api/erhebungen';
 @Component({
   components: {
     Home,
@@ -46,8 +47,8 @@ export default class App extends Vue {
   async loadTranscripts() {
     try {
       this.errorMessage = null;
-      const res = (await getTranscripts()).data;
-      if (res.transcripts !== undefined) {
+      const res = (await getSingleInfErhebung(146)).data;
+      if (res.infErhebungen !== undefined) {
         this.loggedIn = true;
       } else if ((res as any).error === 'login') {
         this.loggedIn = false;
@@ -62,7 +63,6 @@ export default class App extends Vue {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
-    tagModule.fetchJobs();
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
   }

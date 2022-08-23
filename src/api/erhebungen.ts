@@ -6,6 +6,12 @@ export const getErhebungen = (): Promise<AxiosResponse<any>> => {
   return api.dioeDB.get('/restapi/getErhebungsorte');
 };
 
+export const getSingleInfErhebung = (
+  id: number
+): Promise<AxiosResponse<any>> => {
+  return api.dioeDB.get(`/restapi/getErhebungsorte/?inferhebung=${id}`);
+};
+
 export const getBerufe = (): Promise<AxiosResponse<any>> => {
   return api.dioeDB.get('/restapi/getBerufe');
 };
@@ -18,14 +24,13 @@ export const getAudioErhebung = (
     credentials: 'include',
     withCredentials: true
   };
-  return api.dioeDB.get(
-    'restapi/getErhebungsorte', {
-      params: PARAMS
-      /*
+  return api.dioeDB.get('restapi/getErhebungsorte', {
+    params: PARAMS
+    /*
       paramsSerializer: params => {
         return qs.stringify(params)
       }*/
-    });
+  });
 };
 // Audio request: <audio src="https://url.com/file.ogg#t=5.20,7.35">
 export const getSingleAudioFile = (
@@ -34,8 +39,5 @@ export const getSingleAudioFile = (
   start?: number,
   stop?: number
 ): Promise<AxiosResponse<any>> => {
-  return api.dioeDB.get(
-    `private-media/${path}/${filename}#t=${start},${stop}`
-  );
+  return api.dioeDB.get(`private-media/${path}/${filename}#t=${start},${stop}`);
 };
-
