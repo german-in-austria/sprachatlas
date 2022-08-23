@@ -400,7 +400,7 @@ export default class QueryCreator extends Vue {
   selEducationAll: Job | null | undefined = null;
   legName: string = '';
 
-  range = [20, 70];
+  range = [18, 90];
 
   token = ['Orthographisch', 'Phonetisch'];
   projects = ['PP11'];
@@ -586,7 +586,7 @@ export default class QueryCreator extends Vue {
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
         project: this.formControl.selProject,
-        gender: this.formControl.selGender === 'Weiblich' ? true : false, // Boolean
+        gender: this.formControl.selGender ? this.formControl.selGender === 'Weiblich' ? true : false : undefined, // Boolean
         education: this.formControl.selEducation, // ID
         maxEducation: this.formControl.selMaxEducation,
         parents: this.formControl.selParents,

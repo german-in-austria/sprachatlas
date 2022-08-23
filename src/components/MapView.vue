@@ -1708,7 +1708,6 @@ export default class MapView extends Vue {
       ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
     //console.log(type);
-
     switch (type) {
       case SearchItems.Query:
       case SearchItems.Tag:
@@ -1720,7 +1719,7 @@ export default class MapView extends Vue {
           text: token,
           ausbildung: p?.maxEducation,
           beruf_id: p?.education,
-          weiblich: p?.gender ? p.gender : undefined
+          weiblich: p?.gender !== undefined ? p.gender : undefined
         });
         break;
       case SearchItems.Aufgaben:
@@ -1978,7 +1977,7 @@ export default class MapView extends Vue {
             });
           }
 
-          if (p.gender) {
+          if (p.gender !== undefined) {
             query.weiblich = p.gender;
           }
 
