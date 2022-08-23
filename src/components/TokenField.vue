@@ -26,24 +26,25 @@
       </v-col>
     </v-row>
     <v-chip
-      v-for="(val, idx) in textToken"
+      v-for="(val, idx) in selectedElements"
       :key="idx"
       class="ma-2"
       close
       :color="color"
       text-color="white"
-      @click:close="textToken.splice(idx, 1)"
+      @click:close="selectedElements.splice(idx, 1)"
     >
-      {{ val }}
+      {{ val.val }}
     </v-chip>
   </fieldset>
 </template>
 <script lang="ts">
 import { Prop, Vue, Component } from 'vue-property-decorator';
 import { expData } from '@/service/ExportBase';
-import { SearchItems, selectionObject } from '@/static/apiModels';
+import { SearchItems } from '@/static/apiModels';
 import { legendMod } from '@/store/modules/legend';
 import { messageHandler } from '@/store/modules/message';
+import { selectionObject } from '@/api/dioe-public-api';
 
 
 @Component({

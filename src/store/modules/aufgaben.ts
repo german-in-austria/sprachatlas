@@ -22,6 +22,7 @@ import { AufgabeStamp } from '../../api/dioe-public-api/models/AufgabeStamp';
 import { ISelectAllTeamsResult } from '../../api/dioe-public-api/models/ISelectAllTeamsResult';
 
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
+import { selectionObject } from '@/api/dioe-public-api';
 
 export interface AufgabenState {
   aufgabenSet: Array<ISelectAufgabenSetResult>;
@@ -113,9 +114,9 @@ class Aufgaben extends VuexModule implements AufgabenState {
     ausbildung?: string;
     beruf_id?: number;
     weiblich?: boolean;
-    text?: string[];
-    ortho?: string[];
-    lemma?: string[];
+    text?: selectionObject[];
+    ortho?: selectionObject[];
+    lemma?: selectionObject[];
   }) {
     // @ts-ignore
     this.context.commit('setLoading', true);

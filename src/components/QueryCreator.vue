@@ -315,7 +315,7 @@ import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
 import { tagModule } from '@/store/modules/tags';
 import { legendMod } from '@/store/modules/legend';
 import { transModule } from '@/store/modules/transcripts';
-import { TagTree } from '@/api/dioe-public-api';
+import { selectionObject, TagTree } from '@/api/dioe-public-api';
 import TagView from '@/components/TagView.vue';
 import TokenField from '@/components/TokenField.vue';
 
@@ -326,8 +326,7 @@ import {
   LegendList,
   SearchItems,
   LegendGlobal,
-  Symbols,
-  selectionObject
+  Symbols
 } from '@/static/apiModels';
 import * as LZ from 'lz-string';
 import { generateID } from '@/helpers/helper';
