@@ -1720,7 +1720,7 @@ export default class MapView extends Vue {
           text: token,
           ausbildung: p?.maxEducation,
           beruf_id: p?.education,
-          weiblich: p?.gender
+          weiblich: p?.gender ? p.gender : undefined
         });
         break;
       case SearchItems.Aufgaben:
