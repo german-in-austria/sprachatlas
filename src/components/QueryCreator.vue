@@ -134,33 +134,30 @@
                         chips
                         multiple
                       ></v-select>
-                      <v-text-field
-                        v-model="formControl.paraLemma"
+                      <TokenField
+                        header="Tokensuche"
+                        :elements.sync="textToken"
                         label="Token eingeben"
-                        clearable
                         hint="Z.b. hat, hatte, ..."
-                        append-outer-icon="mdi-plus"
-                        @click:append-outer="addToken"
-                        @keydown.enter="addToken"
-                      ></v-text-field>
-                      <v-chip
-                        v-for="(val, idx) in textToken"
-                        :key="idx"
-                        class="ma-2"
-                        close
-                        color="orange"
-                        text-color="white"
-                        @click:close="textToken.splice(idx, 1)"
-                      >
-                        {{ val }}
-                      </v-chip>
-                      <v-autocomplete v-model="paraLemma" />
-
-                      <v-text-field
-                        disabled
-                        v-model="formControl.paraLemma"
+                        appendIcon="mdi-plus"
+                        :color="
+                          formControl.paraColor
+                            ? formControl.paraColor.hex
+                            : formControl.parColor
+                        "
+                      />
+                      <TokenField
+                        class="mt-5"
+                        header="Lemmasuche"
+                        :elements.sync="textLemma"
                         label="Lemma eingeben"
-                      ></v-text-field>
+                        appendIcon="mdi-plus"
+                        :color="
+                          formControl.paraColor
+                            ? formControl.paraColor.hex
+                            : formControl.parColor
+                        "
+                      />
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
@@ -320,6 +317,8 @@ import { legendMod } from '@/store/modules/legend';
 import { transModule } from '@/store/modules/transcripts';
 import { TagTree } from '@/api/dioe-public-api';
 import TagView from '@/components/TagView.vue';
+import TokenField from '@/components/TokenField.vue';
+
 import draggable from 'vuedraggable';
 import {
   Job,
@@ -337,7 +336,7 @@ import { aufgabenModule } from '@/store/modules/aufgaben';
 import { expData } from '@/service/ExportBase';
 
 @Component({
-  components: { draggable, TagView, IconCircle, SymbolPicker },
+  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField },
   name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {
@@ -361,6 +360,7 @@ export default class QueryCreator extends Vue {
   min: number = 0;
   max: number = 100;
   textToken: string[] = [];
+  textLemma: string[] = [];
 
   formControl: {
     paraName: string;
@@ -455,11 +455,6 @@ export default class QueryCreator extends Vue {
 
   get teams() {
     return this.AM.teams;
-  }
-
-  addToken() {
-    this.textToken.push(this.formControl.paraLemma);
-    this.formControl.paraLemma = "";
   }
 
   editLegName() {
@@ -594,6 +589,7 @@ export default class QueryCreator extends Vue {
         tagList: this.TM.tagSelection,
         token: this.formControl.selToken, //
         textTokenList: this.textToken,
+        lemmaList: this.textLemma,
         ageRange: ageRange, // Array with 2 numbers
         color:
           this.formControl.paraColor === null
