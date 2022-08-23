@@ -9,6 +9,12 @@ export interface SingleInfResponse {
   hasTranskript: boolean;
 }
 
+export interface selectionObject {
+  val: string;
+  state: string;
+  case: string;
+}
+
 export interface SingleTag {
   tagId: number;
   tagAbbrev: string;
