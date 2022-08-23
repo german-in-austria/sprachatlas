@@ -13,4 +13,5 @@ export type tagDto = {
     text?: Array<string>;
     ortho?: Array<string>;
     case?: boolean;
+    lemma?: Array<string>;
 }

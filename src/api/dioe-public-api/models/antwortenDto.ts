@@ -14,4 +14,5 @@ export type antwortenDto = {
     text?: Array<string>;
     ortho?: Array<string>;
     textInOrtho?: Array<string>;
+    lemma?: Array<string>;
 }

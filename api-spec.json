@@ -324,6 +324,12 @@
 					},
 					"case": {
 						"type": "boolean"
+					},
+					"lemma": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -669,6 +675,12 @@
 						"type": "array"
 					},
 					"textInOrtho": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lemma": {
 						"items": {
 							"type": "string"
 						},
