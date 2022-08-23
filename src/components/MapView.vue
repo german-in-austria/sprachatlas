@@ -1700,11 +1700,13 @@ export default class MapView extends Vue {
     let max = this.ageRange.upper;
     let min = this.ageRange.lower;
     let token = [] as string[];
+    let lemma = [] as string[];
     const p = data.para;
     if (p) {
       max = Math.max(p.ageRange[1], max);
       min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
       token = p.textTokenList ? p.textTokenList : [];
+      lemma = p.lemmaList ? p.lemmaList as string[] : [];
       ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
     //console.log(type);
@@ -1719,7 +1721,8 @@ export default class MapView extends Vue {
           text: token,
           ausbildung: p?.maxEducation,
           beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined
+          weiblich: p?.gender !== undefined ? p.gender : undefined,
+          lemma: lemma
         });
         break;
       case SearchItems.Aufgaben:
@@ -1995,6 +1998,10 @@ export default class MapView extends Vue {
 
           if (p.textTokenList && p.textTokenList.length > 0) {
             query.text = p.textTokenList;
+          }
+
+          if (p.lemmaList && p.lemmaList.length > 0) {
+            query.lemma = p.lemmaList as string[];
           }
         }
         query.ids = [...new Set(ids)];
