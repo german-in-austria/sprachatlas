@@ -115,6 +115,7 @@ class Aufgaben extends VuexModule implements AufgabenState {
     weiblich?: boolean;
     text?: string[];
     ortho?: string[];
+    lemma?: string[];
   }) {
     // @ts-ignore
     this.context.commit('setLoading', true);
