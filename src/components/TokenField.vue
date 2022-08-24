@@ -3,16 +3,19 @@
     <legend>{{ header }}</legend>
     <v-row>
       <v-col cols="7">
-        <v-text-field
-          v-model="inputModel"
-          :label="label"
-          clearable
-          :hint="hint"
-          :append-outer-icon="appendIcon"
-          @click:append-outer="addToken"
-          @keydown.enter="addToken"
-        >
-        </v-text-field>
+        <v-form v-model="validInput">
+          <v-text-field
+            v-model="inputModel"
+            :label="label"
+            clearable
+            :hint="hint"
+            :append-outer-icon="appendIcon"
+            @click:append-outer="addToken"
+            @keydown.enter="addToken"
+            :rules="caseSen === 'RegEx' ? [rules.regexp] : []"
+          >
+          </v-text-field>
+        </v-form>
       </v-col>
       <v-col cols="2">
         <v-select
@@ -69,7 +72,7 @@ export default class TokenField extends Vue {
   @Prop({ type: String, default: '#FF0000' }) readonly color!: string;
 
   itemState = ['muss', 'nicht'];
-  itemCase = ['case-sensitive', 'case-insensitive', 'Regexp'];
+  itemCase = ['case-sensitive', 'case-insensitive', 'RegEx'];
 
   state = 'muss';
   caseSen = 'case-sensitive';
@@ -77,7 +80,17 @@ export default class TokenField extends Vue {
   inputModel: string = "";
   selectedElements: selectionObject[] = [];
 
+  validInput: boolean = true;
+
+  rules = {
+    regexp: (value: string) => {
+      const pattern = /^\/.*?\/[gimy]{0,4}$/;
+      return pattern.test(value) || 'Ungültige RegEx'
+    }
+  };
+
   addToken() {
+    if (!this.validInput) return;
     this.selectedElements.push({
       val: this.inputModel,
       state: this.state,
