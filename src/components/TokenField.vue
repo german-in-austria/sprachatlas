@@ -34,18 +34,28 @@
       text-color="white"
       @click:close="selectedElements.splice(idx, 1)"
     >
+      <template v-if="val.state === 'nicht'">
+        <v-icon left> mdi-code-not-equal </v-icon>
+      </template>
+      <template v-else-if="val.state === 'muss'">
+        <v-icon left> mdi-equal-box </v-icon>
+      </template>
+      <template v-if="val.case === 'case-sensitive'">
+        <v-icon left> mdi-case-sensitive-alt </v-icon>
+      </template>
+      <template v-else-if="val.case === 'case-insensitive'">
+        <v-icon left> mdi-format-letter-case </v-icon>
+      </template>
+      <template v-else-if="val.case === 'Regexp'">
+        <v-icon left> mdi-regex </v-icon>
+      </template>
       {{ val.val }}
     </v-chip>
   </fieldset>
 </template>
 <script lang="ts">
 import { Prop, Vue, Component } from 'vue-property-decorator';
-import { expData } from '@/service/ExportBase';
-import { SearchItems } from '@/static/apiModels';
-import { legendMod } from '@/store/modules/legend';
-import { messageHandler } from '@/store/modules/message';
 import { selectionObject } from '@/api/dioe-public-api';
-
 
 @Component({
   name: 'TokenField',
