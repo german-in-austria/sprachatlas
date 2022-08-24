@@ -4,4 +4,5 @@
 
 export type aufgabenDto = {
     ids: Array<number>;
+    asetIds?: Array<number>;
 }

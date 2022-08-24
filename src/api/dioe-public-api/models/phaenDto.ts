@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Aufgabe = {
-    beschreibung: string;
-    id: number;
+export type phaenDto = {
+    ids: Array<number>;
 }

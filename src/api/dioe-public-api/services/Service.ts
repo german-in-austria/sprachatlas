@@ -4,6 +4,7 @@
 import type { antwortenDto } from '../models/antwortenDto';
 import type { AntwortenFromAufgabe } from '../models/AntwortenFromAufgabe';
 import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
+import type { Aset } from '../models/Aset';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { AufgabeStamp } from '../models/AufgabeStamp';
 import type { IGetPresetOrtTagResult } from '../models/IGetPresetOrtTagResult';
@@ -25,7 +26,9 @@ import type { ISelectSatzResult } from '../models/ISelectSatzResult';
 import type { ISelectSingleGenResult } from '../models/ISelectSingleGenResult';
 import type { ISelectSinglePhaenResult } from '../models/ISelectSinglePhaenResult';
 import type { ISelectTagByIdResult } from '../models/ISelectTagByIdResult';
+import type { ISelectTagByPhaenResult } from '../models/ISelectTagByPhaenResult';
 import type { ISelectTagsLayersResult } from '../models/ISelectTagsLayersResult';
+import type { phaenDto } from '../models/phaenDto';
 import type { tagDto } from '../models/tagDto';
 import type { TagTree } from '../models/TagTree';
 import { request as __request } from '../core/request';
@@ -224,6 +227,38 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/phaen/${berId}`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns ISelectTagByPhaenResult Ok
+     * @throws ApiError
+     */
+    public static async getTagsByPhaen(
+        requestBody: phaenDto,
+    ): Promise<Array<ISelectTagByPhaenResult>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/phaen/tags`,
+            body: requestBody,
+        });
+        return result.body;
+    }
+
+    /**
+     * @param requestBody
+     * @returns Aset Ok
+     * @throws ApiError
+     */
+    public static async getASetByPhaen(
+        requestBody: phaenDto,
+    ): Promise<Array<Aset>> {
+        const result = await __request({
+            method: 'POST',
+            path: `/phaen/aset`,
+            body: requestBody,
         });
         return result.body;
     }
