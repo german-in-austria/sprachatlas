@@ -85,7 +85,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   }
 
   @MutationAction({ mutate: ['phaenAufgaben', 'loading'] })
-  async fetchAsetByPhaen(arg: { ids: number[] }) {
+  async fetchAsetByPhaen(arg: { asetIds: number[]; ids: number[] }) {
     this.context.commit('setLoading', true);
     console.log('trying to fetch data');
     const response = await api.dioePublic.getASetByPhaen(arg);
