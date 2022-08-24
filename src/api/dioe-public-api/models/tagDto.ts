@@ -14,6 +14,5 @@ export type tagDto = {
     group?: boolean;
     text?: Array<selectionObject>;
     ortho?: Array<selectionObject>;
-    case?: boolean;
     lemma?: Array<selectionObject>;
 }
