@@ -11,6 +11,7 @@ import store from '@/store';
 import { Phaen, PhaenBer } from '@/static/apiModels';
 
 import api from '@/api';
+import { Aset, ISelectTagByPhaenResult } from '@/api/dioe-public-api';
 
 export interface PhaeState {
   phaen: Array<Phaen>;
@@ -27,6 +28,9 @@ export interface PhaeState {
 class Phaenomene extends VuexModule implements PhaeState {
   phaen: Array<Phaen> = [];
   phaenBer: Array<PhaenBer> = [];
+  phaenTags: Array<ISelectTagByPhaenResult> = [];
+  phaenAufgaben: Array<Aset> = [];
+
   loading = false;
 
   @Mutation
@@ -64,6 +68,30 @@ class Phaenomene extends VuexModule implements PhaeState {
     console.log('fetched data');
     return {
       phaen: response,
+      loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['phaenTags', 'loading'] })
+  async fetchTagByPhaen(arg: { ids: number[] }) {
+    this.context.commit('setLoading', true);
+    console.log('trying to fetch data');
+    const response = await api.dioePublic.getTagsByPhaen(arg);
+    console.log('fetched data');
+    return {
+      phaenTags: response,
+      loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['phaenAufgaben', 'loading'] })
+  async fetchAsetByPhaen(arg: { ids: number[] }) {
+    this.context.commit('setLoading', true);
+    console.log('trying to fetch data');
+    const response = await api.dioePublic.getASetByPhaen(arg);
+    console.log('fetched data');
+    return {
+      phaenAufgaben: response,
       loading: false
     };
   }
