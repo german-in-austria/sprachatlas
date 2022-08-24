@@ -25,7 +25,7 @@
                 <span> Suchleiste verbergen</span>
               </v-tooltip>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="6" class="mt-1">
               <v-autocomplete
                 ref="searchTermAutoComplete"
                 v-model="searchTerm"
@@ -174,7 +174,13 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col cols="1">
+            <v-col cols="1" class="mt-2">
+              <AgeRange />
+            </v-col>
+            <v-col class="mt-2">
+              <ErhebungsArt />
+            </v-col>
+            <v-col cols="1" class="mt-2">
               <v-menu
                 :close-on-content-click="false"
                 :nudge-width="800"
@@ -183,7 +189,7 @@
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     elevation="1"
-                    class="mx-1"
+                    class="mx-5"
                     fab
                     small
                     v-bind="attrs"
@@ -308,12 +314,6 @@
                   </v-tabs-items>
                 </v-card>
               </v-menu>
-            </v-col>
-            <v-col cols="1">
-              <AgeRange />
-            </v-col>
-            <v-col>
-              <ErhebungsArt />
             </v-col>
             <v-col v-if="selSearchModel === 0">
               <v-select
@@ -442,47 +442,53 @@
       </div>
     </template>
     <v-layout class="map-overlay btn-overlay pa-5">
-      <v-flex xs1>
-        <v-btn fab small class="zoom" @click="zoom = zoom + 1">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn fab small class="zoom" @click="zoom = zoom - 1">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
-        <v-btn fab small class="zoom" @click="resetMap()">
-          <v-icon>mdi-home</v-icon>
-        </v-btn>
+      <v-flex>
+        <v-row>
+          <v-btn fab small class="zoom" @click="zoom = zoom + 1">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+          <v-btn fab small class="zoom" @click="zoom = zoom - 1">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </v-row>
+        <v-row>
+          <v-btn fab small class="zoom" @click="resetMap()">
+            <v-icon>mdi-home</v-icon>
+          </v-btn>
 
-        <v-tooltip right>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              class="zoom"
-              @click.stop="dialog = true"
-            >
-              <v-icon>mdi-export</v-icon>
-            </v-btn>
-          </template>
-          <span> Karteneinstellungen exportieren </span>
-        </v-tooltip>
-        <v-tooltip right v-if="!showSearchBar">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              class="zoom"
-              @click="showSearchBar = !showSearchBar"
-            >
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </template>
-          <span> Suchleiste anzeigen</span>
-        </v-tooltip>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click.stop="dialog = true"
+              >
+                <v-icon>mdi-export</v-icon>
+              </v-btn>
+            </template>
+            <span> Karteneinstellungen exportieren </span>
+          </v-tooltip>
+        </v-row>
+        <v-row>
+          <v-tooltip right v-if="!showSearchBar">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click="showSearchBar = !showSearchBar"
+              >
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </template>
+            <span> Suchleiste anzeigen</span>
+          </v-tooltip>
+        </v-row>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn small fab @click="sideBar = !sideBar">
