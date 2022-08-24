@@ -2461,8 +2461,10 @@ export default class MapView extends Vue {
   .search-overlay {
     position: relative;
     z-index: 1;
-    width: 100%;
+    width: 80%;
     margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .erhebung {
