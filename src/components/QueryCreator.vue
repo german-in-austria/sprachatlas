@@ -180,7 +180,11 @@
                   >
                     Hinzufügen
                   </v-btn>
-                  <v-btn @click="clearForm()" depressed color="primary">
+                  <v-btn
+                    @click="createParameter(false)"
+                    depressed
+                    color="primary"
+                  >
                     Weiteren Parameter hinzufügen
                   </v-btn>
                 </v-card-actions>
@@ -563,7 +567,6 @@ export default class QueryCreator extends Vue {
     this.$refs.tagView.clear();
     this.textToken = [];
     this.textLemma = [];
-    console.log(this.textToken);
   }
 
   createParameter(clear: boolean) {

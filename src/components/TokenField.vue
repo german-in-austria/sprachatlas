@@ -100,9 +100,14 @@ export default class TokenField extends Vue {
     this.$emit('update:elements', this.selectedElements);
   }
 
-  mounted() {
-
+  updated() {
+    if (!this.state || this.state === '')
+      this.state = 'muss';
+    if (!this.caseSen || this.caseSen === '')
+      this.caseSen = 'case-sensitive';
   }
+
+
 }
 </script>
 <style scoped>
