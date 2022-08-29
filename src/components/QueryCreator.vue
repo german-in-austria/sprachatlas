@@ -136,7 +136,7 @@
                       ></v-select>
                       <TokenField
                         header="Tokensuche"
-                        :elements.sync="textToken"
+                        :selElements.sync="textToken"
                         label="Token eingeben"
                         hint="Z.b. hat, hatte, ..."
                         appendIcon="mdi-plus"
@@ -149,7 +149,7 @@
                       <TokenField
                         class="mt-5"
                         header="Lemmasuche"
-                        :elements.sync="textLemma"
+                        :selElements.sync="textLemma"
                         label="Lemma eingeben"
                         appendIcon="mdi-plus"
                         :color="
@@ -180,11 +180,7 @@
                   >
                     Hinzufügen
                   </v-btn>
-                  <v-btn
-                    @click="createParameter(false)"
-                    depressed
-                    color="primary"
-                  >
+                  <v-btn @click="clearForm()" depressed color="primary">
                     Weiteren Parameter hinzufügen
                   </v-btn>
                 </v-card-actions>
@@ -565,6 +561,9 @@ export default class QueryCreator extends Vue {
     this.$refs.form.reset();
     // @ts-ignore
     this.$refs.tagView.clear();
+    this.textToken = [];
+    this.textLemma = [];
+    console.log(this.textToken);
   }
 
   createParameter(clear: boolean) {

@@ -57,7 +57,7 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { Prop, Vue, Component } from 'vue-property-decorator';
+import { Prop, Vue, Component, PropSync } from 'vue-property-decorator';
 import { selectionObject } from '@/api/dioe-public-api';
 
 @Component({
@@ -70,6 +70,7 @@ export default class TokenField extends Vue {
   @Prop({ type: String, default: '' }) readonly hint!: string;
   @Prop({ type: String, default: 'mdi-plus' }) readonly appendIcon!: string;
   @Prop({ type: String, default: '#FF0000' }) readonly color!: string;
+  @PropSync('selElements') readonly selectedElements!: selectionObject[];
 
   itemState = ['muss', 'nicht'];
   itemCase = ['case-sensitive', 'case-insensitive', 'RegEx'];
@@ -78,7 +79,6 @@ export default class TokenField extends Vue {
   caseSen = 'case-sensitive';
 
   inputModel: string = "";
-  selectedElements: selectionObject[] = [];
 
   validInput: boolean = true;
 
