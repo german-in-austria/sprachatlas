@@ -162,7 +162,7 @@
                   </v-expansion-panel>
                 </v-expansion-panels>
                 <v-color-picker
-                  v-model="formControl.paraColor"
+                  v-model="formControl.paraColor.hex"
                   dot-size="19"
                   hide-inputs
                   swatches-max-height="226"
@@ -299,7 +299,12 @@
               small
               dark
               color="indigo"
-              @click.stop="dialog = true"
+              @click.stop="
+                dialog = true;
+                editMode = false;
+                clearForm();
+                initFormControl();
+              "
             >
               <v-icon dark> mdi-plus </v-icon>
             </v-btn>
@@ -387,10 +392,6 @@ export default class QueryCreator extends Vue {
   @Prop(Number) readonly legendId: number | undefined;
 
   @Prop(Number) readonly focusItem: number | undefined;
-
-  paraColor: {
-    hex: string;
-  } = { hex: '#F00' };
 
   selMobility: string = '';
   selParents: string = '';
@@ -488,14 +489,17 @@ export default class QueryCreator extends Vue {
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
-    this.formControl.paraColor.hex = curr.color ? curr.color : '#F00';
+    this.formControl.paraColor = { hex: curr.color ? curr.color : '#F00' };
     this.formControl.range = curr.ageRange;
     this.formControl.selEducation = curr.education ? curr.education : -1;
     this.formControl.selMaxEducation = curr.maxEducation
       ? curr.maxEducation
       : '';
     this.TM.setTagSelection(curr.tagList ? curr.tagList : []);
-    this.editPar = curr;
+    this.formControl.paraDesc = curr.description ? curr.description : '',
+      this.textToken = curr.textTokenList ? curr.textTokenList : [] as selectionObject[],
+      this.textLemma = curr.lemmaList ? curr.lemmaList : [] as selectionObject[],
+      this.editPar = curr;
   }
 
   createlegend() {
@@ -546,7 +550,9 @@ export default class QueryCreator extends Vue {
           this.formControl.paraColor === null
             ? ''
             : this.formControl.paraColor.hex,
-        description: this.formControl.paraDesc
+        description: this.formControl.paraDesc,
+        textTokenList: this.textToken,
+        lemmaList: this.textLemma,
       };
       this.focusLegend.parameter[parId] = par;
       this.dialog = false;
@@ -561,10 +567,15 @@ export default class QueryCreator extends Vue {
   }
 
   clearForm() {
-    // @ts-ignore
-    this.$refs.form.reset();
-    // @ts-ignore
-    this.$refs.tagView.clear();
+    if (this.$refs.form) {
+      // @ts-ignore
+      this.$refs.form.reset();
+    }
+    if (this.$refs.tagView) {
+      // @ts-ignore
+      this.$refs.tagView.clear();
+      this.TM.setTagSelection([]);
+    }
     this.textToken = [];
     this.textLemma = [];
   }
@@ -667,6 +678,14 @@ export default class QueryCreator extends Vue {
       // const legend = this.TM.legends.slice(-1)[0];
       // this.legName = "Unbenannte Legende";
     }
+  }
+
+  initFormControl() {
+    this.formControl.paraColor = { hex: '#F00' };
+  }
+
+  created() {
+    this.initFormControl();
   }
 
   destroyed() {
