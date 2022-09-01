@@ -256,6 +256,9 @@ export default class LegendItem extends Vue {
   }
 
   convertHexToHsl(col: string) {
+    if (col.length > 7) {
+      col = col.substring(0, 7);
+    }
     const hsl = convertHexToHsl(col);
     return convertHslToStr(hsl[0] * 360, hsl[1], hsl[2]);
   }
