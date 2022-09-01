@@ -286,15 +286,15 @@
                             <v-col>
                               <v-list flat>
                                 <v-list-item-group color="indigo">
-                                  <template v-for="(d, i) in aufgabenSet">
+                                  <template v-for="(d, i) in asetPhaen">
                                     <v-list-item
                                       link
                                       :key="index + i"
                                       @click="openFilter(d.type)"
                                     >
                                       <v-list-item-title>
-                                        Name: {{ d.nameAset }} Fokus:
-                                        {{ d.Fokus }}
+                                        Name: {{ d.name }} Fokus:
+                                        {{ d.fokus }}
                                       </v-list-item-title>
                                     </v-list-item>
                                   </template>
@@ -1091,6 +1091,10 @@ export default class MapView extends Vue {
     return this.PM.phaen;
   }
 
+  get phaenLoading() {
+    return this.PM.loading;
+  }
+
   get phaenBer() {
     return this.PM.phaenBer;
   }
@@ -1245,6 +1249,14 @@ export default class MapView extends Vue {
     return this.LM.legend.filter((el) => el.type === SearchItems.Query);
   }
 
+  get phaenTags() {
+    return this.PM.phaenTags;
+  }
+
+  get asetPhaen() {
+    return this.PM.phaenAufgaben;
+  }
+
   @Watch('searchInput')
   search(val: any) {
     if (!val) return;
@@ -1281,16 +1293,17 @@ export default class MapView extends Vue {
     return selectColor(null);
   }
 
-  searchAufgabeByPhaen() {
+  async searchAufgabeByPhaen() {
     this.optionTab = 1;
-    fetch;
     const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
     const cont = [] as number[];
     for (const ele of elements) {
       const e = ele.content as Phaen;
       cont.push(e.id);
     }
-    this.AM.fetchAufgabenSet({ ids: cont });
+    await this.PM.fetchAsetByPhaen({ ids: cont });
+    // this.AM.fetchAufgabenSet({ ids: cont });
+    console.log(this.asetPhaen);
   }
 
   openFilter(type: SearchItems) {
@@ -1961,12 +1974,13 @@ export default class MapView extends Vue {
 
   // Parameter darstellen
   // 1. Parameterdaten extrahieren
+  // 1a. Daten für den Request ans Backend vorbereiten
+  // => d.h. auch mehrere Legenden vorbereiten
   // 2. Request für die Tagdaten durchführen
   // 3. Daten ins content feld vom Parameter einpflegen
 
   async displayParameters(queries: LegendGlobal[], data: Array<circleData>) {
     let idToTag = new Map();
-    // let data = [] as Array<circleData>;
     const symbol = this.iconId++;
     for (const q of queries) {
       q.symbol = symbol;
@@ -1974,8 +1988,9 @@ export default class MapView extends Vue {
       const layer = q.layer ? q.layer : L.layerGroup();
       idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
-        const query = {} as tagDto;
+        const dto = [] as tagDto[];
         for (const p of q.parameter) {
+          const query = {} as tagDto;
           const id = p.id;
           if (p.tagList) {
             p.tagList.forEach((el) => {
@@ -2010,14 +2025,17 @@ export default class MapView extends Vue {
           if (p.lemmaList && p.lemmaList.length > 0) {
             query.lemma = p.lemmaList;
           }
-        }
-        query.ids = [...new Set(ids)];
-        query.group = true;
-        if (this.LM.erhArtFilter.length > 0) {
-          query.erhArt = this.LM.erhArtFilter;
+          query.group = true;
+          if (this.LM.erhArtFilter.length > 0) {
+            query.erhArt = this.LM.erhArtFilter;
+          }
+
+          query.ids = [...new Set(ids)];
+          dto.push(query);
+          console.log(queries);
         }
 
-        await this.TaM.fetchTagOrteResultsMultiple(query);
+        await this.TaM.fetchTagOrteResultsMultiple(dto);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
           const tagIds = idToTag.get(p.id);
@@ -2070,7 +2088,6 @@ export default class MapView extends Vue {
         });
       }
     }
-    // this.addDataToMap(data, SearchItems.Tag);
   }
 
   drawSentence(legSentence: Array<LegendGlobal>) {
