@@ -21,6 +21,8 @@
         <v-select
           v-model="state"
           :items="itemState"
+          item-text="text"
+          item-value="val"
           label="Kondition"
         ></v-select>
       </v-col>
@@ -72,10 +74,10 @@ export default class TokenField extends Vue {
   @Prop({ type: String, default: '#FF0000' }) readonly color!: string;
   @PropSync('selElements') readonly selectedElements!: selectionObject[];
 
-  itemState = ['muss', 'nicht'];
+  itemState = [{ text: 'genau', val: 'genau' }, { text: 'enthält', val: 'muss' }, { text: 'nicht', val: 'nicht' }];
   itemCase = ['case-sensitive', 'case-insensitive', 'RegEx'];
 
-  state = 'muss';
+  state = 'genau';
   caseSen = 'case-sensitive';
 
   inputModel: string = "";
