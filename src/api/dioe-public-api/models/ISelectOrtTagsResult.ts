@@ -11,7 +11,5 @@ export type ISelectOrtTagsResult = {
     numTag: string | null;
     ortNamelang: string;
     osmId: string | null;
-    tagId: number;
-    tagLang: string | null;
-    tagName: string;
+    tagName: string | null;
 }

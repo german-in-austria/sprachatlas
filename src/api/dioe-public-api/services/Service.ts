@@ -141,7 +141,7 @@ export class Service {
      * @throws ApiError
      */
     public static async getTagOrteMultiple(
-        requestBody: tagDto,
+        requestBody: Array<tagDto>,
     ): Promise<Array<ISelectOrtTagsResult>> {
         const result = await __request({
             method: 'POST',
