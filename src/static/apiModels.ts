@@ -31,6 +31,7 @@ export interface TagOrteResults {
   lat: string | null;
   lon: string | null;
   tagId: string | null;
+  para: string | null;
 }
 
 export interface einzErhebung {
