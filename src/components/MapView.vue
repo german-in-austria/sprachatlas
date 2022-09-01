@@ -1980,13 +1980,13 @@ export default class MapView extends Vue {
   // 3. Daten ins content feld vom Parameter einpflegen
 
   async displayParameters(queries: LegendGlobal[], data: Array<circleData>) {
-    let idToTag = new Map();
+    //let idToTag = new Map();
     const symbol = this.iconId++;
     for (const q of queries) {
       q.symbol = symbol;
       let ids: Array<number> = [];
       const layer = q.layer ? q.layer : L.layerGroup();
-      idToTag.set(q.id, [] as number[]);
+      //idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
         const dto = [] as tagDto[];
         for (const p of q.parameter) {
@@ -1994,10 +1994,10 @@ export default class MapView extends Vue {
           const id = p.id;
           if (p.tagList) {
             p.tagList.forEach((el) => {
-              idToTag.set(
+              /*idToTag.set(
                 id,
                 idToTag.has(id) ? [...idToTag.get(id), ...el.tagIds] : [...el.tagIds]
-              );
+              );*/
               ids = ids.concat(el.tagIds);
             });
           }
@@ -2029,15 +2029,17 @@ export default class MapView extends Vue {
           if (this.LM.erhArtFilter.length > 0) {
             query.erhArt = this.LM.erhArtFilter;
           }
-
+          query.para = p.id;
           query.ids = [...new Set(ids)];
           dto.push(query);
-          console.log(queries);
         }
 
         await this.TaM.fetchTagOrteResultsMultiple(dto);
         const tags = cloneDeep(this.tagOrtResult);
         q.parameter?.forEach((p: Parameter) => {
+          const paraId = p.id;
+          const returnData = tags.filter((el) => el.para === paraId);
+          /*
           const tagIds = idToTag.get(p.id);
           let idsSet: any = [];
           if (!tagIds || tagIds.length === 0) {
@@ -2051,8 +2053,8 @@ export default class MapView extends Vue {
             }
             return false;
           }
-          );
-          q.content = tagData;
+          );*/
+          q.content = returnData;
           const propFactor = computePropCircle(
             q.content.map((val: any) => val.numTag),
             20 * this.kmPerPixel
