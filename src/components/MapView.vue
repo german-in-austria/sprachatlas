@@ -1712,7 +1712,6 @@ export default class MapView extends Vue {
     if (data.id !== "" && type !== SearchItems.Query) {
       ids = [Number(data.id)];
     }
-    console.log(data);
     let max = this.ageRange.upper;
     let min = this.ageRange.lower;
     let token = [] as selectionObject[];
@@ -1725,7 +1724,6 @@ export default class MapView extends Vue {
       lemma = p.lemmaList ? p.lemmaList : [];
       ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
-    //console.log(type);
     switch (type) {
       case SearchItems.Query:
       case SearchItems.Tag:
@@ -1904,7 +1902,6 @@ export default class MapView extends Vue {
       20 * this.kmPerPixel
     );
     for (const tag of cont) {
-      console.log(this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0].tagId);
       data = this.extractTagData(
         convertHslToStr(tags.color.h, tags.color.s, tags.color.l),
         tags.symbol,
@@ -1925,7 +1922,6 @@ export default class MapView extends Vue {
       );
     }
     return data;
-    // this.addDataToMap(data);
   }
 
   displayOrt(layer: L.LayerGroup) {
@@ -2165,7 +2161,6 @@ export default class MapView extends Vue {
     } as tagDto;
     await this.TaM.fetchTagOrteResultsMultiple([dto]);
     const curr = cloneDeep(this.tagOrtResult);
-    console.log(curr);
     if (curr.length > 0) {
       const newLegend: LegendGlobal = {
         id: '',
