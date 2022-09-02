@@ -1,7 +1,12 @@
 <template>
   <v-container>
     <v-row align="center" justify="center">
-      <v-btn icon color="indigo" @click="changeData(false)">
+      <v-btn
+        icon
+        color="indigo"
+        @click="changeData(false)"
+        :disabled="singleData"
+      >
         <v-icon>mdi-arrow-left-bold</v-icon>
       </v-btn>
       <template v-if="data.icon === 0 || !sideways">
@@ -17,7 +22,12 @@
       </template>
       {{ data.name }} - Verfügbare Audioaufnahmen für
       {{ ortName }}
-      <v-btn icon color="indigo" @click="changeData(true)">
+      <v-btn
+        icon
+        color="indigo"
+        @click="changeData(true)"
+        :disabled="singleData"
+      >
         <v-icon>mdi-arrow-right-bold</v-icon>
       </v-btn>
     </v-row>
@@ -42,6 +52,7 @@ export default class DataSwitch extends Vue {
   @Prop(String) readonly ortName!: string;
   @Prop({ type: String, default: "" }) readonly typeLeg!: string;
   @Prop(Boolean) readonly sideways!: boolean;
+  @Prop({ type: Boolean, default: false }) readonly singleData!: boolean;
   @Prop() readonly data!: singleEntry;
 
 
