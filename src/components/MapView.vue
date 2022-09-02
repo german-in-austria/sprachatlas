@@ -520,6 +520,7 @@
                 :ortName="selectedOrt.ortName.split(',')[0]"
                 :data="selectedOrt.data[selectedDataidx]"
                 :sideways="showDataSideways"
+                :singleData="selectedOrt.data.length === 1"
                 v-on:callChange="switchData"
               />
             </v-card-title>
@@ -1149,6 +1150,10 @@ export default class MapView extends Vue {
     return legendMod.ageRange;
   }
 
+  get erhArt() {
+    return legendMod.erhArtFilter;
+  }
+
   get autoCompleteLoading() {
     return (
       this.EM.loading || this.TaM.loading || this.AM.loading || this.dbLoading
@@ -1209,15 +1214,6 @@ export default class MapView extends Vue {
 
   get antwortenAudio() {
     const arr = this.AM.antwortenAudio;
-    /*const res = [] as IAntwortenAudio[];
-    [...new Set(arr.map((item) => item.tagId))].forEach((el) => {
-      res.push({
-        tagid: el,
-        content: arr.filter((e) => e.tagId === el),
-        name: arr.filter((e) => e.tagId === el)[0].tagName,
-      });
-    });
-    // console.log(res);*/
     return arr;
   }
 
@@ -1716,7 +1712,7 @@ export default class MapView extends Vue {
     if (data.id !== "" && type !== SearchItems.Query) {
       ids = [Number(data.id)];
     }
-
+    console.log(data);
     let max = this.ageRange.upper;
     let min = this.ageRange.lower;
     let token = [] as selectionObject[];
@@ -1908,6 +1904,7 @@ export default class MapView extends Vue {
       20 * this.kmPerPixel
     );
     for (const tag of cont) {
+      console.log(this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0].tagId);
       data = this.extractTagData(
         convertHslToStr(tags.color.h, tags.color.s, tags.color.l),
         tags.symbol,
@@ -1923,7 +1920,7 @@ export default class MapView extends Vue {
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tag.tagId ? tag.tagId : '',
+        tag.tagId ? tag.tagId : this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0].tagId,
         SearchItems.Tag
       );
     }
@@ -2160,26 +2157,32 @@ export default class MapView extends Vue {
   async createTagLegend(layer: L.LayerGroup, tagId: number) {
     const color = this.getColor();
     const radius = 30;
-    return await this.loadTagOrt(tagId).then(() => {
-      const curr = this.tagOrtResult;
-      if (curr.length > 0) {
-        const newLegend: LegendGlobal = {
-          id: '',
-          color: color,
-          size: radius,
-          type: SearchItems.Tag,
-          content: curr,
-          symbol: this.iconId++,
-          stroke: true,
-          strokeWidth: 1,
-          parameter: null,
-          vis: true,
-          name: curr[0].tagName,
-          layer: layer
-        };
-        return newLegend;
-      }
-    });
+    const ageRange = this.ageRange;
+    const erhArt = this.erhArt;
+    const dto = {
+      erhArt: erhArt,
+      ids: [tagId]
+    } as tagDto;
+    await this.TaM.fetchTagOrteResultsMultiple([dto]);
+    const curr = cloneDeep(this.tagOrtResult);
+    console.log(curr);
+    if (curr.length > 0) {
+      const newLegend: LegendGlobal = {
+        id: '',
+        color: color,
+        size: radius,
+        type: SearchItems.Tag,
+        content: curr,
+        symbol: this.iconId++,
+        stroke: true,
+        strokeWidth: 1,
+        parameter: null,
+        vis: true,
+        name: curr[0].tagName,
+        layer: layer
+      };
+      return newLegend;
+    }
   }
 
   async displayData(term: SearchTerm, encode: boolean) {
