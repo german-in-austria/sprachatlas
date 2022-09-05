@@ -117,6 +117,7 @@ class Aufgaben extends VuexModule implements AufgabenState {
     text?: selectionObject[];
     ortho?: selectionObject[];
     lemma?: selectionObject[];
+    phaen?: number[];
   }) {
     // @ts-ignore
     this.context.commit('setLoading', true);
