@@ -371,10 +371,3 @@ export interface PhaenBer {
   id: number;
   bez: string;
 }
-
-export interface Phaen {
-  id: number;
-  bez: string;
-  besch: string;
-  bez_br: string;
-}
