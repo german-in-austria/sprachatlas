@@ -17,4 +17,5 @@ export type antwortenDto = {
     ortho?: Array<selectionObject>;
     textInOrtho?: Array<selectionObject>;
     lemma?: Array<selectionObject>;
+    phaen?: Array<number>;
 }

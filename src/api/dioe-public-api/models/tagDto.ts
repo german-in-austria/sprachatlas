@@ -14,6 +14,7 @@ export type tagDto = {
     weiblich?: boolean;
     project?: number;
     group?: boolean;
+    phaen?: Array<number>;
     text?: Array<selectionObject>;
     ortho?: Array<selectionObject>;
     lemma?: Array<selectionObject>;
