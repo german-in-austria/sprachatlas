@@ -8,13 +8,17 @@ import {
 } from 'vuex-module-decorators';
 import store from '@/store';
 
-import { Phaen, PhaenBer } from '@/static/apiModels';
+import { PhaenBer } from '@/static/apiModels';
 
 import api from '@/api';
-import { Aset, ISelectTagByPhaenResult } from '@/api/dioe-public-api';
+import {
+  Aset,
+  ISelectTagByPhaenResult,
+  ISelectPhaenResult
+} from '@/api/dioe-public-api';
 
 export interface PhaeState {
-  phaen: Array<Phaen>;
+  phaen: Array<ISelectPhaenResult>;
   phaenBer: Array<PhaenBer>;
   loading: boolean;
 }
@@ -26,7 +30,7 @@ export interface PhaeState {
   dynamic: true
 })
 class Phaenomene extends VuexModule implements PhaeState {
-  phaen: Array<Phaen> = [];
+  phaen: Array<ISelectPhaenResult> = [];
   phaenBer: Array<PhaenBer> = [];
   phaenTags: Array<ISelectTagByPhaenResult> = [];
   phaenAufgaben: Array<Aset> = [];
@@ -85,7 +89,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   }
 
   @MutationAction({ mutate: ['phaenAufgaben', 'loading'] })
-  async fetchAsetByPhaen(arg: { asetIds: number[]; ids: number[] }) {
+  async fetchAsetByPhaen(arg: { ids: number[] }) {
     this.context.commit('setLoading', true);
     console.log('trying to fetch data');
     const response = await api.dioePublic.getASetByPhaen(arg);
