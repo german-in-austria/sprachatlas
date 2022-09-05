@@ -2047,7 +2047,7 @@ export default class MapView extends Vue {
     const dto = {
       erhArt: erhArt,
       ids: [tagId],
-      phaenId: phaenId
+      phaen: phaenId
     } as tagDto;
     await this.TaM.fetchTagOrteResultsMultiple([dto]);
     const curr = cloneDeep(this.tagOrtResult);
@@ -2244,7 +2244,7 @@ export default class MapView extends Vue {
     } else if (type === SearchItems.Phaen) {
       const dto = {
         ids: [-1],
-        phaenId: id
+        phaen: id
       } as tagDto;
       await tagModule.fetchTagOrteResultsMultiple([dto]);
       return this.tagOrtResult;
