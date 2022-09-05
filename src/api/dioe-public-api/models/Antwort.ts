@@ -5,7 +5,6 @@
 export type Antwort = {
     start: any;
     stop: any;
-    tagId: number;
+    tagId: (number | Array<number>) | null;
     tagName: string | null;
-    tagShort: string | null;
 }

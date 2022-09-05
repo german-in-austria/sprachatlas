@@ -5,9 +5,8 @@
 export type AntwortToken = {
     start: any;
     stop: any;
-    tagId: number;
+    tagId: (number | Array<number>) | null;
     tagName: string | null;
-    tagShort: string | null;
     ortho: string | null;
     orthoText: string | null;
 }
