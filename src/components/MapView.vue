@@ -110,6 +110,14 @@
                         item.name
                       }}</v-list-item-subtitle>
                     </template>
+                    <template v-if="item.type === 2">
+                      <v-list-item-title v-text="item.name"></v-list-item-title>
+                      <v-list-item-subtitle
+                        v-if="item.content.bezPhaenber.length > 0"
+                        >Phänomenbereich:
+                        {{ item.content.bezPhaenber }}</v-list-item-subtitle
+                      >
+                    </template>
                     <template v-else-if="item.type === 4">
                       <template v-if="item.content.aufgabenstellung !== ''">
                         <v-list-item-title>
@@ -663,7 +671,6 @@ import {
   SearchItems,
   TagOrteResults,
   LegendGlobal,
-  Phaen,
   Parameter,
   Symbols,
   SearchTerm,
@@ -1275,7 +1282,7 @@ export default class MapView extends Vue {
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, 'tagName');
         break;
       case SearchItems.Phaen:
-        this.addSearchTerms(this.phaen, SearchItems.Phaen, 'bez');
+        this.addSearchTerms(this.phaen, SearchItems.Phaen, 'bezPhaenomen');
         break;
       case SearchItems.Aufgaben:
         this.addAufgabenToTerms();
@@ -1297,6 +1304,7 @@ export default class MapView extends Vue {
         );
         this.addSearchTerms(this.erhebungen, SearchItems.Ort, 'ort_namelang');
         this.addSearchTerms(this.tagListFlat, SearchItems.Tag, 'tagName');
+        this.addSearchTerms(this.phaen, SearchItems.Phaen, 'bezPhaenomen');
         this.addSearchTerms(this.allSaetze, SearchItems.Saetze, 'Transkript');
         break;
     }
@@ -1551,7 +1559,21 @@ export default class MapView extends Vue {
       lemma = p.lemmaList ? p.lemmaList : [];
       ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
     }
-    switch (type) {
+    switch (data.t) {
+      case SearchItems.Phaen:
+        this.AM.fetchAntwortAudio({
+          phaen: ids,
+          ids: [],
+          osmId: osm,
+          ageLower: min,
+          ageUpper: max,
+          text: token,
+          ausbildung: p?.maxEducation,
+          beruf_id: p?.education,
+          weiblich: p?.gender !== undefined ? p.gender : undefined,
+          lemma: lemma
+        });
+        break;
       case SearchItems.Query:
       case SearchItems.Tag:
         this.AM.fetchAntwortAudio({
@@ -1750,6 +1772,39 @@ export default class MapView extends Vue {
         propFactor * tag.numTag,
         tag.tagId ? tag.tagId : this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0].tagId,
         SearchItems.Tag
+      );
+    }
+    return data;
+  }
+
+  displayPhaenLegend(
+    phaen: LegendGlobal,
+    data: Array<circleData>
+  ): Array<circleData> {
+    phaen.layer.clearLayers();
+    const cont = phaen.content as TagOrteResults[];
+    const propFactor = computePropCircle(
+      cont.map((val) => val.numTag),
+      20 * this.kmPerPixel
+    );
+    for (const ph of cont) {
+      data = this.extractTagData(
+        convertHslToStr(phaen.color.h, phaen.color.s, phaen.color.l),
+        phaen.symbol,
+        phaen.size,
+        phaen.vis,
+        phaen.strokeWidth,
+        phaen.layer,
+        data,
+        ph.osmId ? ph.osmId : -1,
+        Number(ph.lon),
+        Number(ph.lat),
+        ph.ortNamelang ? ph.ortNamelang : '',
+        ph.numTag,
+        phaen.name,
+        propFactor * ph.numTag,
+        this.phaen.filter((el) => el.bezPhaenomen === phaen.name)[0].id.toString(),
+        SearchItems.Phaen
       );
     }
     return data;
@@ -1968,6 +2023,9 @@ export default class MapView extends Vue {
           );
           circle.bindPopup(ort.ort.split(',')[0]);
           break;
+        case SearchItems.Phaen:
+          this.displayPhaenLegend(l, tagData);
+          break;
         case SearchItems.Presets:
         case SearchItems.Tag:
           this.displaySingleTagLegend(l, tagData);
@@ -1981,14 +2039,15 @@ export default class MapView extends Vue {
     this.addDataToMap(aufData, SearchItems.Aufgaben);
   }
 
-  async createTagLegend(layer: L.LayerGroup, tagId: number) {
+  async createTagLegend(layer: L.LayerGroup, tagId: number, phaenId: number[], type: SearchItems, name?: string) {
     const color = this.getColor();
     const radius = 30;
     const ageRange = this.ageRange;
     const erhArt = this.erhArt;
     const dto = {
       erhArt: erhArt,
-      ids: [tagId]
+      ids: [tagId],
+      phaenId: phaenId
     } as tagDto;
     await this.TaM.fetchTagOrteResultsMultiple([dto]);
     const curr = cloneDeep(this.tagOrtResult);
@@ -1997,14 +2056,14 @@ export default class MapView extends Vue {
         id: '',
         color: color,
         size: radius,
-        type: SearchItems.Tag,
+        type: type,
         content: curr,
         symbol: this.iconId++,
         stroke: true,
         strokeWidth: 1,
         parameter: null,
         vis: true,
-        name: curr[0].tagName,
+        name: name === undefined ? curr[0].tagName : name,
         layer: layer
       };
       return newLegend;
@@ -2035,7 +2094,16 @@ export default class MapView extends Vue {
     } else if (term.type === SearchItems.Tag) {
       this.resetMap();
       id = term.content.tagId;
-      const res = await this.createTagLegend(newLayer, id as number);
+      const res = await this.createTagLegend(newLayer, id as number, [], SearchItems.Tag);
+      if (res && res !== undefined) {
+        legendMod.addLegendEntry(res);
+        this.displayDataFromLegend(this.legendGlobal);
+        if (res) newLeg = res;
+      }
+    } else if (term.type === SearchItems.Phaen) {
+      this.resetMap();
+      id = term.content.id;
+      const res = await this.createTagLegend(newLayer, -1, Array.isArray(id) ? id : [id], SearchItems.Phaen, term.content.bezPhaenomen);
       if (res && res !== undefined) {
         legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobal);
@@ -2172,6 +2240,13 @@ export default class MapView extends Vue {
   async fetchContent(id: number | number[], type: SearchItems) {
     if (type === SearchItems.Tag) {
       await this.loadTagOrt(id as number);
+      return this.tagOrtResult;
+    } else if (type === SearchItems.Phaen) {
+      const dto = {
+        ids: [-1],
+        phaenId: id
+      } as tagDto;
+      await tagModule.fetchTagOrteResultsMultiple([dto]);
       return this.tagOrtResult;
     } else if (type === SearchItems.Presets) {
       await this.TaM.fetchPresetTagOrte(id as number)
