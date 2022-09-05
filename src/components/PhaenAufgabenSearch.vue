@@ -78,24 +78,43 @@
           <v-card :loading="aufgabenLoading">
             <v-card-title>Aufgabensets</v-card-title>
             <v-divider></v-divider>
-            <v-container class="ma-0 pa-0">
-              <v-row class="mb-12" no-gutters>
-                <v-col>
-                  <v-list flat>
-                    <v-list-item-group color="indigo">
-                      <template v-for="(d, i) in asetPhaen">
-                        <v-list-item link :key="i" @click="openFilter(d.type)">
-                          <v-list-item-title>
-                            Name: {{ d.name }} Fokus:
-                            {{ d.fokus }}
-                          </v-list-item-title>
-                        </v-list-item>
-                      </template>
-                    </v-list-item-group>
-                  </v-list>
-                </v-col>
-              </v-row>
-            </v-container>
+            <v-card-text>
+              <v-container class="ma-0 pa-0">
+                <v-row class="mb-12" no-gutters>
+                  <v-col>
+                    <template v-if="asetPhaen.length > 0">
+                      <v-list flat>
+                        <v-list-item-group
+                          v-model="asetSelection"
+                          multiple
+                          color="indigo"
+                        >
+                          <template v-for="(d, i) in asetPhaen">
+                            <v-list-item :key="i" @click="openFilter(d.type)">
+                              <v-list-item-title>
+                                Name: {{ d.name }}
+                              </v-list-item-title>
+                            </v-list-item>
+                          </template>
+                        </v-list-item-group>
+                      </v-list>
+                    </template>
+                    <template v-else> Keine Aufgabensets vorhanden! </template>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                v-if="asetPhaen.length > 0"
+                @click="displayOnMap()"
+                :disabled="!asetSelection.length > 0"
+              >
+                Aufgabenset auf der Karte anzeigen
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-tab-item>
         <v-tab-item>
@@ -109,7 +128,7 @@
   </v-menu>
 </template>
 <script lang="ts">
-import { TagTree } from '@/api/dioe-public-api';
+import { Aset, TagTree } from '@/api/dioe-public-api';
 import { Phaen, SearchItems } from '@/static/apiModels';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { phaeModule } from '@/store/modules/phaenomene';
@@ -129,6 +148,7 @@ export default class PhaenAufgabenSearch extends Vue {
 
   filterMenuValue: Array<{ type: SearchItems; content: any; name: string }> = [];
   phaenSelection = [];
+  asetSelection = [];
 
   filterOptionMenu = [
     { name: 'Phänomene', type: SearchItems.Phaen },
@@ -147,8 +167,6 @@ export default class PhaenAufgabenSearch extends Vue {
   get aufgabenLoading() {
     return this.AM.loading;
   }
-
-
 
   changeFilterMenuValue(type: SearchItems, content: Array<any>, name: string) {
     this.filterMenuValue = [];
@@ -172,6 +190,16 @@ export default class PhaenAufgabenSearch extends Vue {
 
   clearFilterMenu() {
     this.filterMenuValue = [];
+  }
+
+  displayOnMap() {
+    const elements = this.asetSelection.map((x) => this.asetPhaen[x]);
+    const cont = [] as number[];
+    for (const ele of elements) {
+      const e = ele as Aset;
+      cont.push(e.id);
+    }
+    this.$emit('displayAsetOnMap', cont);
   }
 
   openFilter(type: SearchItems) {
