@@ -181,139 +181,10 @@
               <ErhebungsArt />
             </v-col>
             <v-col cols="1" class="mt-2">
-              <v-menu
-                :close-on-content-click="false"
-                :nudge-width="800"
-                offset-y
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    elevation="1"
-                    class="mx-5"
-                    fab
-                    small
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon> mdi-magnify </v-icon>
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-tabs
-                    background-color="indigo"
-                    dark
-                    grow
-                    v-model="optionTab"
-                  >
-                    <v-tab>Weitere Optionen </v-tab>
-                    <v-tab>Aufgabensets</v-tab>
-                    <v-tab>Aufgaben</v-tab>
-                  </v-tabs>
-                  <v-tabs-items v-model="optionTab">
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-title>Weitere Optionen</v-card-title>
-                        <v-divider></v-divider>
-                        <v-container class="ma-0 pa-0">
-                          <v-row class="mb-12" no-gutters>
-                            <v-col>
-                              <v-list flat>
-                                <v-list-item-group color="indigo">
-                                  <template
-                                    v-for="(d, index) in filterOptionMenu"
-                                  >
-                                    <v-list-item
-                                      link
-                                      :key="index"
-                                      @click="openFilter(d.type)"
-                                    >
-                                      <v-list-item-title>
-                                        {{ d.name }}
-                                      </v-list-item-title>
-                                      <v-icon> mdi-chevron-right </v-icon>
-                                    </v-list-item>
-                                  </template>
-                                </v-list-item-group>
-                              </v-list>
-                            </v-col>
-                            <v-col>
-                              <v-list
-                                max-height="300px"
-                                class="overflow-y-auto"
-                              >
-                                <v-list-item-group
-                                  v-if="filterMenuValue.length > 0"
-                                  v-model="phaenSelection"
-                                  color="indigo"
-                                  multiple
-                                >
-                                  <template v-for="(val, i) in filterMenuValue">
-                                    <div :key="i">
-                                      <v-list-item>
-                                        {{ val.content[val.name] }}
-                                      </v-list-item>
-                                      <v-divider></v-divider>
-                                    </div>
-                                  </template>
-                                </v-list-item-group>
-                              </v-list>
-                            </v-col>
-                          </v-row>
-                        </v-container>
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn
-                            color="primary"
-                            small
-                            @click="searchAufgabeByPhaen()"
-                            v-if="
-                              filterMenuValue.length > 0 &&
-                              filterMenuValue[0].type === 2 &&
-                              phaenSelection.length > 0
-                            "
-                          >
-                            Nach Aufgabensets suchen
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card :loading="aufgabenLoading">
-                        <v-card-title>Aufgabensets</v-card-title>
-                        <v-divider></v-divider>
-                        <v-container class="ma-0 pa-0">
-                          <v-row class="mb-12" no-gutters>
-                            <v-col>
-                              <v-list flat>
-                                <v-list-item-group color="indigo">
-                                  <template v-for="(d, i) in asetPhaen">
-                                    <v-list-item
-                                      link
-                                      :key="index + i"
-                                      @click="openFilter(d.type)"
-                                    >
-                                      <v-list-item-title>
-                                        Name: {{ d.name }} Fokus:
-                                        {{ d.fokus }}
-                                      </v-list-item-title>
-                                    </v-list-item>
-                                  </template>
-                                </v-list-item-group>
-                              </v-list>
-                            </v-col>
-                          </v-row>
-                        </v-container>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-title>Aufgaben</v-card-title>
-                        <v-divider></v-divider>
-                      </v-card>
-                    </v-tab-item>
-                  </v-tabs-items>
-                </v-card>
-              </v-menu>
+              <PhaenAufgabenSearch
+                icon="mdi-magnify"
+                :tagListFlat="tagListFlat"
+              />
             </v-col>
             <v-col v-if="selSearchModel === 0">
               <v-select
@@ -812,6 +683,7 @@ import AgeRange from '@/components/AgeRange.vue';
 import ErhebungsArt from '@/components/ErhebungsArt.vue';
 import ExportMap from '@/components/ExportMap.vue';
 import DataSwitch from '@/components/DataSwitch.vue';
+import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { isAufgabeStandard } from '@/helpers/helper';
@@ -865,7 +737,8 @@ type IAntwortenAudio = {
     AgeRange,
     ErhebungsArt,
     ExportMap,
-    DataSwitch
+    DataSwitch,
+    PhaenAufgabenSearch
   }
 })
 export default class MapView extends Vue {
@@ -882,7 +755,7 @@ export default class MapView extends Vue {
   MM = messageHandler;
   searchInput: string = '';
   searchTerms: Array<SearchTerm> = [];
-  optionTab = 0;
+
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
   selectedDataidx: number = 0;
@@ -908,13 +781,6 @@ export default class MapView extends Vue {
     { name: 0, value: 0 },
     { name: 'Alle Generationen', value: -1 }
   ];
-
-  filterOptionMenu = [
-    { name: 'Phänomene', type: SearchItems.Phaen },
-    { name: 'Tags', type: SearchItems.Tag }
-  ];
-  filterMenuValue: Array<{ type: SearchItems; content: any; name: string }> =
-    [];
 
   currentErhebungen = null;
 
@@ -1289,38 +1155,7 @@ export default class MapView extends Vue {
     return selectColor(null);
   }
 
-  async searchAufgabeByPhaen() {
-    this.optionTab = 1;
-    const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
-    const cont = [] as number[];
-    for (const ele of elements) {
-      const e = ele.content as Phaen;
-      cont.push(e.id);
-    }
-    await this.PM.fetchAsetByPhaen({ ids: cont });
-    // this.AM.fetchAufgabenSet({ ids: cont });
-    console.log(this.asetPhaen);
-  }
 
-  openFilter(type: SearchItems) {
-    this.phaenSelection = [];
-    switch (type) {
-      case SearchItems.Phaen:
-        this.changeFilterMenuValue(
-          SearchItems.Phaen,
-          this.phaen,
-          'bezPhaenomen'
-        );
-        break;
-      case SearchItems.Tag:
-        this.changeFilterMenuValue(
-          SearchItems.Tag,
-          this.tagListFlat,
-          'tagName'
-        );
-        break;
-    }
-  }
 
   async fetchEntriesDebounced() {
     // cancel pending call
@@ -1338,16 +1173,7 @@ export default class MapView extends Vue {
     }, 500);
   }
 
-  changeFilterMenuValue(type: SearchItems, content: Array<any>, name: string) {
-    this.filterMenuValue = [];
-    content.forEach((e) => {
-      this.filterMenuValue.push({ content: e, type: type, name: name });
-    });
-  }
 
-  clearFilterMenu() {
-    this.filterMenuValue = [];
-  }
 
   splitTags() {
     this.displayDataFromLegend(this.legendGlobal);
