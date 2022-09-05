@@ -37,7 +37,6 @@
       </div>
       <div class="text-center">
         <template v-if="data[timestampId].tagName">
-          <div class="mx-2">Tag Kurz: {{ data[timestampId]['tagShort'] }}</div>
           <div class="mx-2">Tag-Name: {{ data[timestampId]['tagName'] }}</div>
         </template>
         <template v-if="data[timestampId].orthoText">
