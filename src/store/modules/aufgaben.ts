@@ -165,7 +165,7 @@ class Aufgaben extends VuexModule implements AufgabenState {
   }
 
   @MutationAction({ mutate: ['aufgabenOrt', 'loading'] })
-  async fetchAufgabenOrt(arg: { ids: number[] }) {
+  async fetchAufgabenOrt(arg: { ids: number[]; asetIds?: number[] }) {
     // @ts-ignore
     this.context.commit('setLoading', true);
     const res = await api.dioePublic.getAufgabenOrte(arg);
