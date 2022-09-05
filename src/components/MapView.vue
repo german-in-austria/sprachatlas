@@ -184,6 +184,7 @@
               <PhaenAufgabenSearch
                 icon="mdi-magnify"
                 :tagListFlat="tagListFlat"
+                v-on:displayAsetOnMap="displayAset"
               />
             </v-col>
             <v-col v-if="selSearchModel === 0">
@@ -1715,6 +1716,10 @@ export default class MapView extends Vue {
         // Fail
       }
     );
+  }
+
+  async displayAset(asetIds: number[]) {
+    await this.AM.fetchAufgabenOrt({ ids: [], asetIds: asetIds });
   }
 
   displaySingleTagLegend(
