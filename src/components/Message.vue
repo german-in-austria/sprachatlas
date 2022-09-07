@@ -1,22 +1,5 @@
 <template>
   <div>
-    <!--
-    <v-list two-line dense>
-      <v-list-item>
-        <v-list-item-avatar
-          ><v-icon v-text="icon">{{ icon }}</v-icon></v-list-item-avatar
-        >
-        <v-list-item-content
-          ><v-list-item-title>{{ msg }}</v-list-item-title>
-          <template v-if="date">
-            <v-list-item-subtitle>
-              {{ new Date(date).toLocaleString() }}
-            </v-list-item-subtitle>
-          </template>
-        </v-list-item-content>
-        <v-list-item-action></v-list-item-action>
-      </v-list-item>
-    </v-list>-->
     <div>
       <h3>
         <v-row justify="center">
