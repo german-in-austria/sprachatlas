@@ -89,7 +89,11 @@
                           multiple
                           color="indigo"
                         >
-                          <template v-for="(d, i) in asetPhaen">
+                          <template
+                            v-for="(d, i) in asetPhaen.filter(
+                              (el) => el.id !== -1
+                            )"
+                          >
                             <v-list-item :key="i" @click="openFilter(d.type)">
                               <v-list-item-title>
                                 Name: {{ d.name }}
@@ -121,6 +125,50 @@
           <v-card>
             <v-card-title>Aufgaben</v-card-title>
             <v-divider></v-divider>
+            <v-card-text>
+              <v-container class="ma-0 pa-0">
+                <v-row class="mb-12" no-gutters>
+                  <v-col>
+                    <template v-if="asetPhaen.length > 0">
+                      <v-list max-height="300px" class="overflow-y-auto">
+                        <v-list-item-group
+                          v-model="aufgabenSelection"
+                          multiple
+                          color="indigo"
+                        >
+                          <template
+                            v-for="(d, i) in asetPhaen.filter(
+                              (el) => el.id === -1
+                            )[0].aufgaben"
+                          >
+                            <v-list-item :key="i" @click="openFilter(d.type)">
+                              <v-list-item-title>
+                                Aufgabenstellung:
+                                {{ d.aufgabenstellung }} <br />
+                                Beschreibung:
+                                {{ d.beschreibung }}
+                              </v-list-item-title>
+                            </v-list-item>
+                          </template>
+                        </v-list-item-group>
+                      </v-list>
+                    </template>
+                    <template v-else> Keine Aufgaben vorhanden! </template>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                v-if="asetPhaen.length > 0"
+                @click="displayAufgabeOnMap()"
+                :disabled="!aufgabenSelection.length > 0"
+              >
+                Ausgewählte Aufgaben auf der Karte anzeigen
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-tab-item>
       </v-tabs-items>
@@ -129,7 +177,7 @@
 </template>
 <script lang="ts">
 import { Aset, TagTree } from '@/api/dioe-public-api';
-import { Phaen, SearchItems } from '@/static/apiModels';
+import { SearchItems } from '@/static/apiModels';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { phaeModule } from '@/store/modules/phaenomene';
 import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
@@ -149,6 +197,7 @@ export default class PhaenAufgabenSearch extends Vue {
   filterMenuValue: Array<{ type: SearchItems; content: any; name: string }> = [];
   phaenSelection = [];
   asetSelection = [];
+  aufgabenSelection = [];
 
   filterOptionMenu = [
     { name: 'Phänomene', type: SearchItems.Phaen },
@@ -180,16 +229,28 @@ export default class PhaenAufgabenSearch extends Vue {
     const elements = this.phaenSelection.map((x) => this.filterMenuValue[x]);
     const cont = [] as number[];
     for (const ele of elements) {
-      const e = ele.content as Phaen;
+      const e = ele.content as Aset;
       cont.push(e.id);
     }
     await this.PM.fetchAsetByPhaen({ ids: cont });
     // this.AM.fetchAufgabenSet({ ids: cont });
-    console.log(this.asetPhaen);
+    if (this.asetPhaen.length === 1 && this.asetPhaen[0].id === -1) {
+      this.optionTab = 2;
+    }
   }
 
   clearFilterMenu() {
     this.filterMenuValue = [];
+  }
+
+  displayAufgabeOnMap() {
+    const elements = this.aufgabenSelection.map((x) => this.asetPhaen.filter(el => el.id === -1)[0].aufgaben[x]);
+    const cont = [] as number[];
+    console.log(this.aufgabenSelection);
+    for (const ele of elements) {
+      cont.push(ele.id);
+    }
+    this.$emit('displayAufgabenOnMap', cont);
   }
 
   displayOnMap() {
