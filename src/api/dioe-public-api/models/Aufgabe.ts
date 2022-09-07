@@ -4,5 +4,6 @@
 
 export type Aufgabe = {
     beschreibung: string;
+    aufgabenstellung?: string;
     id: number;
 }
