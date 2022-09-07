@@ -1861,13 +1861,12 @@ export default class MapView extends Vue {
   async displayParameters(queries: LegendGlobal[], data: Array<circleData>) {
     //let idToTag = new Map();
     const symbol = this.iconId++;
+    const dto = [] as tagDto[];
     for (const q of queries) {
       q.symbol = symbol;
       let ids: Array<number> = [];
-      const layer = q.layer ? q.layer : L.layerGroup();
       //idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
-        const dto = [] as tagDto[];
         for (const p of q.parameter) {
           const query = {} as tagDto;
           const id = p.id;
@@ -1912,9 +1911,13 @@ export default class MapView extends Vue {
           query.ids = [...new Set(ids)];
           dto.push(query);
         }
-
+      }
+    }
+    for (const q of queries) {
+      if (q.parameter) {
         await this.TaM.fetchTagOrteResultsMultiple(dto);
         const tags = cloneDeep(this.tagOrtResult);
+        const layer = q.layer ? q.layer : L.layerGroup();
         q.parameter?.forEach((p: Parameter) => {
           const paraId = p.id;
           const returnData = tags.filter((el) => el.para === paraId);
