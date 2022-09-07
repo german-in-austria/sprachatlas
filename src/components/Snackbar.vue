@@ -1,15 +1,16 @@
 <template>
   <div>
     <v-snackbar
-      v-for="(item, idx) of queue"
+      v-for="(item, idx) of queue.filter((el) => el.show)"
       :key="idx"
-      vertical
       bottom
       right
+      vertical
       :timeout="-1"
       time
       :color="latestLogColor"
       :value="item.show"
+      :style="`bottom: ${idx * 150}px`"
     >
       <Message :msg="item.message" :icon="item.icon" :date="item.time" />
     </v-snackbar>
@@ -48,11 +49,6 @@ export default class Snackbar extends Vue {
   }
 
   mounted() {
-    /*
-    messageHandler.setSuccessMsg({
-      message: 'It works! asdasdas dasdioh sadjs adsnbd',
-      icon: 'mdi-stop'
-    });*/
   }
 }
 </script>
