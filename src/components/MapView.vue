@@ -193,6 +193,7 @@
                 icon="mdi-magnify"
                 :tagListFlat="tagListFlat"
                 v-on:displayAsetOnMap="displayAset"
+                v-on:displayAufgabenOnMap="displayAufgaben"
               />
             </v-col>
             <v-col v-if="selSearchModel === 0">
@@ -1742,6 +1743,26 @@ export default class MapView extends Vue {
 
   async displayAset(asetIds: number[]) {
     await this.AM.fetchAufgabenOrt({ ids: [], asetIds: asetIds });
+  }
+
+  async displayAufgaben(ids: number[]) {
+    await this.AM.fetchAufgabenOrt({ ids: ids });
+    for (const id of ids) {
+      const content = this.aufgabenOrt.filter(e => e.id === id);
+      const newLeg = await this.LM.createLegendEntry({
+        icon: Symbols.Circle,
+        layer: L.layerGroup(),
+        name: id.toString(),
+        color: this.getColor(),
+        radius: 30,
+        content: content,
+        type: SearchItems.Aufgaben
+      });
+      this.LM.addLegendEntry(newLeg);
+      expData.pushNewLegend(newLeg, id)
+    }
+
+    this.displayDataFromLegend(this.legendGlobal);
   }
 
   displaySingleTagLegend(
