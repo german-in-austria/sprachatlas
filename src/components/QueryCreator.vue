@@ -7,7 +7,7 @@
         </v-btn>
         <v-dialog v-model="dialog" max-width="1000px">
           <v-card>
-            <v-card-title> Item erstellen </v-card-title>
+            <v-card-title> Parameter erstellen </v-card-title>
             <v-card-text>
               <v-form ref="form">
                 <v-text-field
@@ -190,7 +190,7 @@
                 </v-card-actions>
                 <v-card-actions v-else>
                   <v-btn @click="editParameter()" depressed color="primary">
-                    Item bearbeiten
+                    Parameter bearbeiten
                   </v-btn>
                 </v-card-actions>
               </v-form>
@@ -339,6 +339,7 @@ import IconCircle from '@/icons/IconCircle.vue';
 import SymbolPicker from '@/components/SymbolPicker.vue';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { expData } from '@/service/ExportBase';
+import { messageHandler } from '@/store/modules/message';
 
 @Component({
   components: { draggable, TagView, IconCircle, SymbolPicker, TokenField },
@@ -415,6 +416,7 @@ export default class QueryCreator extends Vue {
   LM = legendMod;
   AM = aufgabenModule;
   TaM = transModule;
+  MM = messageHandler;
 
   editMode: boolean = false;
 
@@ -557,6 +559,10 @@ export default class QueryCreator extends Vue {
       this.focusLegend.parameter[parId] = par;
       this.dialog = false;
       this.editMode = false;
+      this.MM.setSuccessMsg({
+        message: `Parameter ${this.formControl.paraName} wurde bearbeitet`,
+        icon: 'mdi-info'
+      });
       this.clearForm();
       this.TM.setTagSelection([]);
     }
@@ -615,6 +621,10 @@ export default class QueryCreator extends Vue {
       }
       this.focusLegend.parameter.push(newParameter);
       this.focusParameter = this.focusLegend.parameter;
+      this.MM.setSuccessMsg({
+        message: `Parameter ${this.formControl.paraName} wurde zu Legende ${this.focusLegend.name} hinzugefügt`,
+        icon: 'mdi-info'
+      });
       /*
       const para = LZ.compressToEncodedURIComponent(
         JSON.stringify(this.legends)
