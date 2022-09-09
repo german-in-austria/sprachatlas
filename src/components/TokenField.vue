@@ -42,7 +42,7 @@
       <template v-if="val.state === 'nicht'">
         <v-icon left> mdi-code-not-equal </v-icon>
       </template>
-      <template v-else-if="val.state === 'muss'">
+      <template v-else-if="val.state === 'genau'">
         <v-icon left> mdi-equal-box </v-icon>
       </template>
       <template v-if="val.case === 'case-sensitive'">

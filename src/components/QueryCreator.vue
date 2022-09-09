@@ -65,6 +65,7 @@
                       <v-select
                         v-model="formControl.selGender"
                         :items="gender"
+                        clearable
                         label="Geschlecht"
                       ></v-select>
                       <v-select
@@ -73,6 +74,7 @@
                         label="Höchster Bildungsgrad"
                         item-text="ausbildungMax"
                         item-value="ausbildungMax"
+                        clearable
                       >
                       </v-select>
                       <v-select
@@ -82,6 +84,7 @@
                         item-value="pk"
                         @change="checkEducation"
                         label="Berufsbezeichnung"
+                        clearable
                       ></v-select>
                       <span v-if="selEducationAll !== null">
                         Berufskategorie:
@@ -91,11 +94,6 @@
                         Standardkompetenz:
                         {{ selEducationAll.standardkompetenz }}
                       </span>
-                      <v-select
-                        v-model="formControl.selMobility"
-                        :items="mobility"
-                        label="Mobilität"
-                      ></v-select>
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
