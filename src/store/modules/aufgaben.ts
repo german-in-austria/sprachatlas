@@ -22,7 +22,7 @@ import { AufgabeStamp } from '../../api/dioe-public-api/models/AufgabeStamp';
 import { ISelectAllTeamsResult } from '../../api/dioe-public-api/models/ISelectAllTeamsResult';
 
 import type { AntwortenFromAufgabe } from '../../api/dioe-public-api/models/AntwortenFromAufgabe';
-import { selectionObject } from '@/api/dioe-public-api';
+import { antwortenDto, selectionObject } from '@/api/dioe-public-api';
 
 export interface AufgabenState {
   aufgabenSet: Array<ISelectAufgabenSetResult>;
@@ -106,19 +106,7 @@ class Aufgaben extends VuexModule implements AufgabenState {
   }
 
   @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
-  async fetchAntwortAudio(arg: {
-    ids: number[];
-    osmId: number;
-    ageLower: number;
-    ageUpper: number;
-    ausbildung?: string;
-    beruf_id?: number;
-    weiblich?: boolean;
-    text?: selectionObject[];
-    ortho?: selectionObject[];
-    lemma?: selectionObject[];
-    phaen?: number[];
-  }) {
+  async fetchAntwortAudio(arg: antwortenDto) {
     // @ts-ignore
     this.context.commit('setLoading', true);
     console.log('Getting Antworten');

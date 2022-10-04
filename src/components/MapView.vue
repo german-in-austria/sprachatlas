@@ -1564,6 +1564,7 @@ export default class MapView extends Vue {
       case SearchItems.Phaen:
         this.AM.fetchAntwortAudio({
           phaen: ids,
+          erhArt: this.erhArt,
           ids: [],
           osmId: osm,
           ageLower: min,
@@ -1586,6 +1587,8 @@ export default class MapView extends Vue {
           ausbildung: p?.maxEducation,
           beruf_id: p?.education,
           weiblich: p?.gender !== undefined ? p.gender : undefined,
+          project: p?.project,
+          erhArt: this.erhArt,
           lemma: lemma
         });
         break;
