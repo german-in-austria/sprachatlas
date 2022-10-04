@@ -154,6 +154,7 @@ export default class ErhebungsArt extends Vue {
       message: 'Filter wurde entfernt',
       icon: 'mdi-info'
     });
+    this.menu = false;
   }
 
   remove(item: any) {
@@ -163,6 +164,7 @@ export default class ErhebungsArt extends Vue {
 
   applyFilter() {
     this.LM.setErhArtFilter([].concat(...this.chips.map((val) => val.id)));
+    this.menu = false;
   }
 
   mounted() {
