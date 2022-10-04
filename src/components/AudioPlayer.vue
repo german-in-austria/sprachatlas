@@ -3,37 +3,61 @@
     <audio :id="trackId" :src="getAudioPath(dateipfad, audiofile)"></audio>
     <template>
       <div class="text-center">
-        <span class="mx-2">
-          <v-progress-circular :value="completion"></v-progress-circular
-        ></span>
-        <v-btn
-          class="mx-2"
-          fab
-          small
-          @click="timestampId--"
-          :disabled="timestampId === 0"
-        >
-          <v-icon>mdi-skip-backward</v-icon>
-        </v-btn>
-        <v-btn class="mx-2" fab small @click="play()">
-          <v-icon>mdi-play</v-icon>
-        </v-btn>
-        <v-btn class="mx-2" fab small @click="pause()">
-          <v-icon>mdi-pause</v-icon>
-        </v-btn>
-        <v-btn
-          class="mx-2"
-          fab
-          small
-          @click="timestampId++"
-          :disabled="timestampId >= maxLength - 1"
-        >
-          <v-icon>mdi-skip-forward</v-icon>
-        </v-btn>
-        <v-btn class="mx-2" fab small @click="repeat = !repeat">
-          <v-icon v-if="repeat">mdi-repeat</v-icon>
-          <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
-        </v-btn>
+        <v-container>
+          <v-row no-gutters align="center">
+            <v-col class="mr-2">
+              <v-checkbox
+                v-model="kontext"
+                label="Kontext"
+                color="info"
+                @change="changeTime()"
+              ></v-checkbox>
+            </v-col>
+            <v-col>
+              <span class="mx-2">
+                <v-progress-circular :value="completion"></v-progress-circular
+              ></span>
+            </v-col>
+            <v-col>
+              <v-btn
+                class="mx-2"
+                fab
+                small
+                @click="timestampId--"
+                :disabled="timestampId === 0"
+              >
+                <v-icon>mdi-skip-backward</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn class="mx-2" fab small @click="play()">
+                <v-icon>mdi-play</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn class="mx-2" fab small @click="pause()">
+                <v-icon>mdi-pause</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                class="mx-2"
+                fab
+                small
+                @click="timestampId++"
+                :disabled="timestampId >= maxLength - 1"
+              >
+                <v-icon>mdi-skip-forward</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn class="mx-2" fab small @click="repeat = !repeat">
+                <v-icon v-if="repeat">mdi-repeat</v-icon>
+                <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
       </div>
       <div class="text-center">
         <template v-if="data[timestampId].tagName">
@@ -95,6 +119,10 @@ export default class AudioPlayer extends Vue {
 
   fadeValue: number = 1;
 
+  kontextNum: number = 0;
+
+  kontext: boolean = false;
+
   get maxLength() {
     return this.data.length;
   }
@@ -119,7 +147,7 @@ export default class AudioPlayer extends Vue {
     if (start.milliseconds) {
       sec += start.milliseconds / 1000;
     }
-    const val = sec - this.fadeValue;
+    const val = sec - this.fadeValue - this.kontextNum;
     return val <= 0 ? sec : val;
   }
 
@@ -133,7 +161,8 @@ export default class AudioPlayer extends Vue {
     if (end.milliseconds) {
       sec += end.milliseconds / 1000;
     }
-    const val = sec + this.fadeValue;
+    const val = sec + this.fadeValue + this.kontextNum;
+    console.log(val > this.trackDuration);
     return val > this.trackDuration ? sec : val;
   }
 
@@ -149,6 +178,14 @@ export default class AudioPlayer extends Vue {
   get currTime() {
     const track = document.getElementById(this.trackId) as HTMLAudioElement;
     return track !== null ? track.currentTime : 0;
+  }
+
+  changeTime() {
+    if (this.kontext) {
+      this.kontextNum = 2;
+    } else {
+      this.kontextNum = 0;
+    }
   }
 
   fadeInVal(x: number) {
@@ -175,7 +212,7 @@ export default class AudioPlayer extends Vue {
       this.timestampId = 0;
     }
     this.completion = 0;
-    track.currentTime = this.timestampStart - this.fadeValue;
+    track.currentTime = this.timestampStart;
   }
 
   async play() {
@@ -183,7 +220,8 @@ export default class AudioPlayer extends Vue {
     if (track.paused) {
       if (
         track.currentTime <= this.timestampStart ||
-        track.currentTime >= this.timestampEnd
+        track.currentTime >= this.timestampEnd ||
+        this.completion >= 100
       ) {
         track.currentTime = this.timestampStart;
       }
@@ -248,7 +286,7 @@ export default class AudioPlayer extends Vue {
       this.time = sound.currentTime - this.timestampStart;
       if (!sound.paused) {
         this.completion = (this.time / this.duration) * 100;
-        if (sound.currentTime >= this.timestampEnd - this.fadeValue && !this.repeat) {
+        if (sound.currentTime >= this.timestampEnd && !this.repeat) {
           this.audioFadeOut();
           if (sound.currentTime >= this.timestampEnd) {
             this.pause();
