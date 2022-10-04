@@ -43,9 +43,9 @@
           <div class="mx-2">
             Ortho:
             {{
-              data[timestampId]['ortho'] === ''
-                ? data[timestampId]['orthoText']
-                : data[timestampId]['ortho']
+              data[timestampId]['orthoText'] === ''
+                ? data[timestampId]['ortho']
+                : data[timestampId]['orthoText']
             }}
           </div>
         </template>
