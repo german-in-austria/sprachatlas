@@ -6,6 +6,8 @@ import type { selectionObject } from './selectionObject';
 
 export type antwortenDto = {
     ids: Array<number>;
+    erhArt?: Array<number>;
+    project?: number;
     osmId: number;
     ageLower?: number;
     ageUpper?: number;

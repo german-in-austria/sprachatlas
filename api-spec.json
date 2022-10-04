@@ -781,6 +781,17 @@
 						},
 						"type": "array"
 					},
+					"erhArt": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array"
+					},
+					"project": {
+						"type": "number",
+						"format": "double"
+					},
 					"osmId": {
 						"type": "number",
 						"format": "double"
