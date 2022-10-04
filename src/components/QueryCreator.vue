@@ -633,6 +633,7 @@ export default class QueryCreator extends Vue {
       });*/
       if (clear) this.dialog = false;
       this.clearForm();
+      this.initFormControl();
       this.TM.setTagSelection([]);
     }
   }
