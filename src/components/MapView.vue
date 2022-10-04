@@ -1885,12 +1885,11 @@ export default class MapView extends Vue {
     const dto = [] as tagDto[];
     for (const q of queries) {
       q.symbol = symbol;
-      let ids: Array<number> = [];
       //idToTag.set(q.id, [] as number[]);
       if (q.parameter) {
         for (const p of q.parameter) {
           const query = {} as tagDto;
-          const id = p.id;
+          let ids: Array<number> = [];
           if (p.tagList) {
             p.tagList.forEach((el) => {
               /*idToTag.set(
