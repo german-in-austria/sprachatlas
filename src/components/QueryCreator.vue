@@ -478,7 +478,7 @@ export default class QueryCreator extends Vue {
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
-    this.formControl.paraColor.hex = this.parColor;
+    this.parColor = this.formControl.paraColor.hex = curr.color ? curr.color : '#F00';
     this.formControl.range = curr.ageRange;
     this.formControl.selEducation = curr.education ? curr.education : -1;
     this.formControl.selMaxEducation = curr.maxEducation
