@@ -86,7 +86,7 @@
                         label="Berufsbezeichnung"
                         clearable
                       ></v-select>
-                      <span v-if="selEducationAll !== null">
+                      <span v-if="selEducationAll !== null && selEducationAll">
                         Berufskategorie:
                         {{ selEducationAll.berufskategorie }}
                         Kommunikationsgrad:
@@ -101,7 +101,7 @@
                   :color="
                     formControl.paraColor
                       ? formControl.paraColor.hex
-                      : formControl.parColor
+                      : formControl.paraColor
                   "
                   class="mt-10 mb-10"
                   ref="tagView"
@@ -111,7 +111,7 @@
                   :color="
                     formControl.paraColor
                       ? formControl.paraColor.hex
-                      : formControl.parColor
+                      : formControl.paraColor
                   "
                   :propSymbol="formControl.symbol"
                 />
@@ -141,7 +141,7 @@
                         :color="
                           formControl.paraColor
                             ? formControl.paraColor.hex
-                            : formControl.parColor
+                            : formControl.paraColor
                         "
                       />
                       <TokenField
@@ -153,7 +153,7 @@
                         :color="
                           formControl.paraColor
                             ? formControl.paraColor.hex
-                            : formControl.parColor
+                            : formControl.paraColor
                         "
                       />
                     </v-expansion-panel-content>
@@ -200,9 +200,7 @@
           <v-list-item-group color="primary">
             <v-list-item v-for="(item, idx) in queryLegend" :key="idx">
               <v-list-item-content :key="idx" @click="viewLegend(idx, item)">
-                <v-list-item-title v-text="item.name">{{
-                  item.name
-                }}</v-list-item-title>
+                <v-list-item-title>{{ item.name }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -417,6 +415,7 @@ export default class QueryCreator extends Vue {
   MM = messageHandler;
 
   editMode: boolean = false;
+  dragging: boolean = false;
 
   get jobs() {
     return this.TM.jobList;
