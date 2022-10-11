@@ -97,22 +97,10 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
-                <TagView
-                  :color="
-                    formControl.paraColor
-                      ? formControl.paraColor.hex
-                      : formControl.paraColor
-                  "
-                  class="mt-10 mb-10"
-                  ref="tagView"
-                />
+                <TagView :color="parColor" class="mt-10 mb-10" ref="tagView" />
                 <SymbolPicker
                   ref="sym"
-                  :color="
-                    formControl.paraColor
-                      ? formControl.paraColor.hex
-                      : formControl.paraColor
-                  "
+                  :color="parColor"
                   :propSymbol="formControl.symbol"
                 />
                 <v-expansion-panels class="mb-10">
@@ -160,7 +148,7 @@
                   </v-expansion-panel>
                 </v-expansion-panels>
                 <v-color-picker
-                  v-model="formControl.paraColor.hex"
+                  v-model="parColor"
                   dot-size="19"
                   hide-inputs
                   swatches-max-height="226"
@@ -400,6 +388,8 @@ export default class QueryCreator extends Vue {
 
   range = [18, 90];
 
+  parColor: string = '#FF0000';
+
   token = ['Orthographisch', 'Phonetisch'];
   projects = ['PP11'];
   testItems = ['UND', 'ODER'];
@@ -488,7 +478,7 @@ export default class QueryCreator extends Vue {
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
-    this.formControl.paraColor = { hex: curr.color ? curr.color : '#F00' };
+    this.formControl.paraColor.hex = this.parColor;
     this.formControl.range = curr.ageRange;
     this.formControl.selEducation = curr.education ? curr.education : -1;
     this.formControl.selMaxEducation = curr.maxEducation
@@ -515,6 +505,7 @@ export default class QueryCreator extends Vue {
       vis: true,
       name: name
     };
+    this.parColor = emptyLegend.color;
     this.LM.addLegendEntry(emptyLegend);
     this.legName = name;
     this.focusParameter = [];
@@ -529,6 +520,7 @@ export default class QueryCreator extends Vue {
       let par = this.focusLegend.parameter.find((el) => el.id === id);
       const parId = this.focusLegend.parameter.findIndex((el) => el.id === id);
       const ageRange = [this.formControl.range[0], this.formControl.range[1]];
+      this.formControl.paraColor.hex = this.parColor;
       par = {
         name: this.formControl.paraName,
         content: null,
@@ -581,6 +573,7 @@ export default class QueryCreator extends Vue {
     }
     this.textToken = [];
     this.textLemma = [];
+    this.parColor = '#F00';
   }
 
   createParameter(clear: boolean) {
@@ -589,6 +582,7 @@ export default class QueryCreator extends Vue {
     }
     if (this.focusLegend) {
       const ageRange = [this.formControl.range[0], this.formControl.range[1]];
+      this.formControl.paraColor.hex = this.parColor;
       const newParameter: Parameter = {
         name: this.formControl.paraName,
         content: null,
@@ -689,6 +683,7 @@ export default class QueryCreator extends Vue {
   }
 
   initFormControl() {
+    this.parColor = '#F00';
     this.formControl.paraColor = { hex: '#F00' };
   }
 
