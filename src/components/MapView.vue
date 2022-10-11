@@ -424,7 +424,28 @@
             <v-card-text>
               <v-expansion-panels focusable>
                 <v-expansion-panel
-                  v-for="(d, idx) in aufgabeSingleOrt.concat(antwortenAudio)"
+                  v-for="(d, idx) in aufgabeSingleOrt"
+                  :key="idx"
+                >
+                  <v-expansion-panel-header>
+                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
+                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
+                  </v-expansion-panel-header>
+
+                  <v-expansion-panel-content eager>
+                    <figure>
+                      <figcaption>Aufnahme anhören:</figcaption>
+                      <AudioPlayer
+                        class="mx-10"
+                        :dateipfad="d.dateipfad"
+                        :audiofile="d.audiofile"
+                        :data="d.data"
+                      />
+                    </figure>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+                <v-expansion-panel
+                  v-for="(d, idx) in antwortenAudio"
                   :key="idx"
                 >
                   <v-expansion-panel-header>
@@ -622,7 +643,7 @@
       <template v-if="showGemeinden">
         <l-circle-marker
           v-for="(ort, index) in erhebungen"
-          :key="ort.id + index"
+          :key="index"
           :lat-lng="[ort.lat, ort.lon]"
           :radius="4"
           @click="loadErheb(ort)"
@@ -887,7 +908,7 @@ export default class MapView extends Vue {
   get erhebungen() {
     return erhebungModule.erhebungen
       ? erhebungModule.erhebungen
-      : ({} as ApiLocationResponse);
+      : ([] as ApiLocSingleResponse[]);
   }
 
   getAudioPath(
@@ -2213,8 +2234,8 @@ export default class MapView extends Vue {
     }
   }
 
-  getType(val: string): boolean {
-    return isAufgabeStandard(val);
+  getType(val: string | null): boolean {
+    return val ? isAufgabeStandard(val) : false;
   }
 
   fetchTranscript(id: number) {
@@ -2329,7 +2350,7 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
-    if (!this.erhebungen?.orte || this.erhebungen.orte.length === 0) {
+    if (!this.erhebungen || this.erhebungen.length === 0) {
       erhebungModule.fetchErhebungen().then(() => {
         this.changeSearchTerms();
       });
