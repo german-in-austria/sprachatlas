@@ -21,18 +21,17 @@
                 <v-col>
                   <v-list flat>
                     <v-list-item-group color="indigo">
-                      <template v-for="(d, index) in filterOptionMenu">
-                        <v-list-item
-                          link
-                          :key="index"
-                          @click="openFilter(d.type)"
-                        >
-                          <v-list-item-title>
-                            {{ d.name }}
-                          </v-list-item-title>
-                          <v-icon> mdi-chevron-right </v-icon>
-                        </v-list-item>
-                      </template>
+                      <v-list-item
+                        v-for="(d, index) in filterOptionMenu"
+                        :key="index"
+                        link
+                        @click="openFilter(d.type)"
+                      >
+                        <v-list-item-title>
+                          {{ d.name }}
+                        </v-list-item-title>
+                        <v-icon> mdi-chevron-right </v-icon>
+                      </v-list-item>
                     </v-list-item-group>
                   </v-list>
                 </v-col>
@@ -44,14 +43,12 @@
                       color="indigo"
                       multiple
                     >
-                      <template v-for="(val, i) in filterMenuValue">
-                        <div :key="i">
-                          <v-list-item>
-                            {{ val.content[val.name] }}
-                          </v-list-item>
-                          <v-divider></v-divider>
-                        </div>
-                      </template>
+                      <div v-for="(val, i) in filterMenuValue" :key="i">
+                        <v-list-item>
+                          {{ val.content[val.name] }}
+                        </v-list-item>
+                        <v-divider></v-divider>
+                      </div>
                     </v-list-item-group>
                   </v-list>
                 </v-col>
@@ -89,17 +86,16 @@
                           multiple
                           color="indigo"
                         >
-                          <template
+                          <v-list-item
                             v-for="(d, i) in asetPhaen.filter(
                               (el) => el.id !== -1
                             )"
+                            :key="i"
                           >
-                            <v-list-item :key="i" @click="openFilter(d.type)">
-                              <v-list-item-title>
-                                Name: {{ d.name }}
-                              </v-list-item-title>
-                            </v-list-item>
-                          </template>
+                            <v-list-item-title>
+                              Name: {{ d.name }}
+                            </v-list-item-title>
+                          </v-list-item>
                         </v-list-item-group>
                       </v-list>
                     </template>
@@ -114,7 +110,7 @@
                 color="primary"
                 v-if="asetPhaen.length > 0"
                 @click="displayOnMap()"
-                :disabled="!asetSelection.length > 0"
+                :disabled="!(asetSelection.length > 0)"
               >
                 Aufgabenset auf der Karte anzeigen
               </v-btn>
@@ -136,20 +132,19 @@
                           multiple
                           color="indigo"
                         >
-                          <template
+                          <v-list-item
                             v-for="(d, i) in asetPhaen.filter(
                               (el) => el.id === -1
                             )[0].aufgaben"
+                            :key="i"
                           >
-                            <v-list-item :key="i" @click="openFilter(d.type)">
-                              <v-list-item-title>
-                                Aufgabenstellung:
-                                {{ d.aufgabenstellung }} <br />
-                                Beschreibung:
-                                {{ d.beschreibung }}
-                              </v-list-item-title>
-                            </v-list-item>
-                          </template>
+                            <v-list-item-title>
+                              Aufgabenstellung:
+                              {{ d.aufgabenstellung }} <br />
+                              Beschreibung:
+                              {{ d.beschreibung }}
+                            </v-list-item-title>
+                          </v-list-item>
                         </v-list-item-group>
                       </v-list>
                     </template>
@@ -164,7 +159,7 @@
                 color="primary"
                 v-if="asetPhaen.length > 0"
                 @click="displayAufgabeOnMap()"
-                :disabled="!aufgabenSelection.length > 0"
+                :disabled="!(aufgabenSelection.length > 0)"
               >
                 Ausgewählte Aufgaben auf der Karte anzeigen
               </v-btn>
