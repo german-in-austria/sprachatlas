@@ -1,14 +1,23 @@
 <template>
   <div :class="{ tagGroup: true }">
     <v-row no-gutters>
-      <v-btn
-        elevation="0"
-        tile
-        :class="{ whiteText: textColor }"
-        :color="color"
-        @contextmenu="show"
-        >{{ tagData.tagAbbrev }}</v-btn
-      >
+      <v-tooltip v-model="hover" bottom :color="color">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            elevation="0"
+            v-bind="attrs"
+            v-on="on"
+            tile
+            :class="{ whiteText: textColor }"
+            :color="color"
+            @contextmenu="show"
+            >{{ tagData.tagAbbrev }}
+          </v-btn>
+        </template>
+        <v-expand-transition>
+          <div>{{ tagData.tagName }}</div>
+        </v-expand-transition>
+      </v-tooltip>
       <v-menu
         v-model="showMenu"
         :position-x="x"
@@ -24,17 +33,16 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <template v-for="(tag, key) in tagSelection.tagGroup.children">
-        <TagViewSelect
-          :key="key + generation"
-          :generation="generation + 1"
-          :children="tag.children ? tag.children : []"
-          :tagData="tag"
-          :color="color"
-          :tagSelection="tagSel(tag)"
-          @bus="bus"
-        />
-      </template>
+      <TagViewSelect
+        v-for="(tag, key) in tagSelection.tagGroup.children"
+        :key="key + generation"
+        :generation="generation + 1"
+        :children="tag.children ? tag.children : []"
+        :tagData="tag"
+        :color="color"
+        :tagSelection="tagSel(tag)"
+        @bus="bus"
+      />
       <v-btn
         v-if="tagSelection.children.length > 0"
         icon
@@ -65,13 +73,14 @@ import { convertHexToHsl } from '@/helpers/helper';
 export default class TagViewSelect extends Vue {
   TM = tagModule;
   showMenu: boolean = false;
+  hover: boolean = false;
   x = 0;
   y = 0;
 
   @Prop() readonly children!: TagTree[];
   @Prop() readonly tagData!: SingleTag;
   @Prop() readonly generation!: number;
-  @Prop() private tagSelection!: TagSelection;
+  @Prop() readonly tagSelection!: TagSelection;
   @Prop({ default: '#F00', type: String }) readonly color!: string;
 
   get tagSelectioAll() {

@@ -20,17 +20,16 @@
         return-object
       ></v-autocomplete>
       <v-row no-gutters>
-        <template v-for="(group, gkey) in selectedTags">
-          <TagViewSelect
-            :generation="0"
-            :children="group.children"
-            :tagData="group.tagGroup"
-            :tagSelection="group"
-            :key="gkey + group.parentId"
-            :color="color"
-            @deleteTag="onDelete"
-          />
-        </template>
+        <TagViewSelect
+          :generation="0"
+          v-for="(group, gkey) in selectedTags"
+          :key="gkey + group.parentId"
+          :children="group.children"
+          :tagData="group.tagGroup"
+          :tagSelection="group"
+          :color="color"
+          @deleteTag="onDelete"
+        />
         <v-btn
           v-if="selectedTags.length > 0"
           fab
@@ -189,6 +188,7 @@ export default class TagView extends Vue {
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = this.selTag.tagId;
         cT.tagAbbrev = this.selTag.tagAbbrev;
+        cT.tagName = this.selTag.tagName ? this.selTag.tagName : "";
         cT.children = [];
         if (element) {
           let parent: SingleTag = {} as SingleTag;
@@ -209,11 +209,13 @@ export default class TagView extends Vue {
         let cT: SingleTag = {} as SingleTag;
         cT.tagId = currTag.tagId;
         cT.tagAbbrev = currTag.tagAbbrev;
+        cT.tagName = this.selTag.tagName ? this.selTag.tagName : "";
         cT.children = [];
         const tG: SingleTag = cT;
         const tS: TagSelection = {} as TagSelection;
         tS.tagIds = [cT.tagId];
         tS.tagGroup = tG;
+        tS.tagName = cT.tagName;
         tS.parentId = cT.tagId;
         for (const t in this.selTag.children) {
           this.selTag.children[t].parentIds = [tS.parentId];
