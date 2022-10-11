@@ -96,6 +96,10 @@ export interface Audio {
     seconds: number;
     milliseconds: number;
   };
+  tagName?: string;
+  orthoText?: string;
+  ortho?: string;
+  aufgabe?: string;
 }
 
 @Component({
