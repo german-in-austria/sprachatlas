@@ -22,7 +22,7 @@ import { ISelectInfErhebungenResult } from '@/api/dioe-public-api';
 
 export interface ErhebungState {
   currentOrt: ApiLocSingleResponse | null;
-  erhebungen: ApiLocationResponse | null;
+  erhebungen: ApiLocSingleResponse[] | null;
   loading: boolean;
   erhebungsarten: Array<ISelectErhebungsartenResult>;
 }
@@ -34,7 +34,7 @@ export interface ErhebungState {
   dynamic: true
 })
 class Erhebungen extends VuexModule implements ErhebungState {
-  erhebungen: ApiLocationResponse | null = null;
+  erhebungen: ApiLocSingleResponse[] | null = null;
   currentOrt: ApiLocSingleResponse | null = null;
 
   infErhebungen: ApiInfErhResponse | null = null;

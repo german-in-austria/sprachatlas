@@ -241,7 +241,7 @@ export interface ServerTranscriptListItem {
 }
 
 export interface ApiLocationResponse {
-  orte: ApiLocSingleResponse[];
+  orte: ApiLocSingleResponse;
 }
 
 export interface ServerAnswer {
