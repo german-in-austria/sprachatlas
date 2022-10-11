@@ -20,8 +20,8 @@
       <template v-else>
         <img :src="drawTriangle(20, 1, data.c, true)" />
       </template>
-      {{ data.name }} - Verfügbare Audioaufnahmen für
-      {{ ortName }}
+      {{ data.name }} - {{ ortName }}
+      <template v-if="typeFile !== ''"> - Typ: {{ typeFile }} </template>
       <v-btn
         icon
         color="indigo"
@@ -40,7 +40,7 @@ import IconCircle from '@/icons/IconCircle.vue';
 import { drawRect, drawTriangle } from '@/helpers/MapCompute';
 
 
-import { Hsl, singleEntry } from '@/static/apiModels';
+import { Hsl, SearchItems, singleEntry } from '@/static/apiModels';
 
 @Component({
   components: {
@@ -54,7 +54,15 @@ export default class DataSwitch extends Vue {
   @Prop(Boolean) readonly sideways!: boolean;
   @Prop({ type: Boolean, default: false }) readonly singleData!: boolean;
   @Prop() readonly data!: singleEntry;
+  @Prop(String) readonly typeItem!: boolean;
 
+  get typeFile() {
+    if (this.data.t === SearchItems.Aufgaben) {
+      console.log(this.data.t);
+      return this.typeItem ? 'Standard' : 'Dialekt';
+    }
+    return ""
+  }
 
   changeData(dir: boolean) {
     this.$emit('callChange', dir);

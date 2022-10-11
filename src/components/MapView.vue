@@ -396,12 +396,17 @@
               aufgabenLoading
             "
           >
-            <v-card-title>
+            <v-card-title style="font-size: 18px">
               <DataSwitch
                 :ortName="selectedOrt.ortName.split(',')[0]"
                 :data="selectedOrt.data[selectedDataidx]"
                 :sideways="showDataSideways"
                 :singleData="selectedOrt.data.length === 1"
+                :type="
+                  aufgabeSingleOrt.length > 0
+                    ? getType(aufgabeSingleOrt[0].audiofile)
+                    : false
+                "
                 v-on:callChange="switchData"
               />
             </v-card-title>
@@ -1192,6 +1197,7 @@ export default class MapView extends Vue {
     clearTimeout(this._debounceId);
     this.dbLoading = true;
     this._debounceId = setTimeout(() => {
+      this.dbLoading = false;
       if (
         this.selSearchModel === SearchItems.Alle ||
         this.selSearchModel === SearchItems.Aufgaben
