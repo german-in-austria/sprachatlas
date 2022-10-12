@@ -27,7 +27,11 @@
         ></v-select>
       </v-col>
       <v-col cols="3">
-        <v-select v-model="caseSen" :items="itemCase"></v-select>
+        <v-select
+          v-model="caseSen"
+          label="Suchoptionen"
+          :items="itemCase"
+        ></v-select>
       </v-col>
     </v-row>
     <v-chip
