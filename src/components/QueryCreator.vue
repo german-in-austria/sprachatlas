@@ -126,11 +126,7 @@
                         label="Token eingeben"
                         hint="Z.b. hat, hatte, ..."
                         appendIcon="mdi-plus"
-                        :color="
-                          formControl.paraColor
-                            ? formControl.paraColor.hex
-                            : formControl.paraColor
-                        "
+                        :color="parColor"
                       />
                       <TokenField
                         class="mt-5"
@@ -138,11 +134,7 @@
                         :selElements.sync="textLemma"
                         label="Lemma eingeben"
                         appendIcon="mdi-plus"
-                        :color="
-                          formControl.paraColor
-                            ? formControl.paraColor.hex
-                            : formControl.paraColor
-                        "
+                        :color="parColor"
                       />
                     </v-expansion-panel-content>
                   </v-expansion-panel>
