@@ -1,48 +1,59 @@
 <template>
   <div>
-    <template v-if="!loading">
-      <v-btn
-        v-if="selectionTag.length === 0"
-        depressed
-        color="primary"
-        @click="addTag()"
-      >
-        Neue Taggruppe hinzufügen</v-btn
-      >
-      <v-autocomplete
-        @change="updateTag()"
-        v-if="selMode"
-        v-model="selTag"
-        :items="tagList"
-        item-text="tagName"
-        clearable
-        label="Tags auswählen"
-        return-object
-      ></v-autocomplete>
-      <v-row no-gutters>
-        <TagViewSelect
-          :generation="0"
-          v-for="(group, gkey) in selectedTags"
-          :key="gkey + group.parentId"
-          :children="group.children"
-          :tagData="group.tagGroup"
-          :tagSelection="group"
-          :color="color"
-          @deleteTag="onDelete"
-        />
-        <v-btn
-          v-if="selectedTags.length > 0"
-          fab
-          dark
-          small
-          class="ml-5"
-          :class="{ addTag: false, groupAdd: false }"
-        >
-          <v-icon dark @click="addTag()">mdi-plus</v-icon>
-        </v-btn>
-      </v-row>
-    </template>
-    <template v-else> Lade.... </template>
+    <v-tooltip :disabled="!disable" bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <div v-bind="attrs" v-on="on">
+          <template v-if="!loading">
+            <v-btn
+              v-if="selectionTag.length === 0"
+              depressed
+              color="primary"
+              @click="addTag()"
+              :disabled="disable"
+            >
+              Neue Taggruppe hinzufügen</v-btn
+            >
+            <v-autocomplete
+              @change="updateTag()"
+              :disabled="disable"
+              :v-if="selMode"
+              v-model="selTag"
+              :items="tagList"
+              item-text="tagName"
+              clearable
+              label="Tags auswählen"
+              return-object
+            ></v-autocomplete>
+            <v-row no-gutters>
+              <TagViewSelect
+                :generation="0"
+                v-for="(group, gkey) in selectedTags"
+                :key="gkey + group.parentId"
+                :children="group.children"
+                :tagData="group.tagGroup"
+                :tagSelection="group"
+                :color="color"
+                @deleteTag="onDelete"
+              />
+              <v-btn
+                v-if="selectedTags.length > 0"
+                fab
+                dark
+                small
+                class="ml-5"
+                :class="{ addTag: false, groupAdd: false }"
+              >
+                <v-icon dark @click="addTag()">mdi-plus</v-icon>
+              </v-btn>
+            </v-row>
+          </template>
+          <template v-else> Lade.... </template>
+        </div>
+      </template>
+      <span>
+        Suche nach Taggruppen ist nur ohne ausgewählten Lemma/Token möglich
+      </span>
+    </v-tooltip>
   </div>
 </template>
 <script lang = "ts">
@@ -62,6 +73,7 @@ import TagViewSelect from '@/components/TagViewSelect.vue';
 })
 export default class TagView extends Vue {
   @Prop({ default: '#F00', type: String }) readonly color!: string;
+  @Prop({ default: false, type: Boolean }) readonly disable!: boolean;
 
   TM = tagModule;
   selTag: TagTree | null = null;

@@ -97,7 +97,12 @@
                     </v-expansion-panel-content>
                   </v-expansion-panel>
                 </v-expansion-panels>
-                <TagView :color="parColor" class="mt-10 mb-10" ref="tagView" />
+                <TagView
+                  :disable="textLemma.length > 0 || textToken.length > 0"
+                  :color="parColor"
+                  class="mt-10 mb-10"
+                  ref="tagView"
+                />
                 <SymbolPicker
                   ref="sym"
                   :color="parColor"
