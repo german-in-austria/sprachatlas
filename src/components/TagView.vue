@@ -4,19 +4,10 @@
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on">
           <template v-if="!loading">
-            <v-btn
-              v-if="selectionTag.length === 0"
-              depressed
-              color="primary"
-              @click="addTag()"
-              :disabled="disable"
-            >
-              Neue Taggruppe hinzufügen</v-btn
-            >
             <v-autocomplete
               @change="updateTag()"
               :disabled="disable"
-              :v-if="selMode"
+              v-show="selMode"
               v-model="selTag"
               :items="tagList"
               item-text="tagName"
@@ -94,7 +85,7 @@ export default class TagView extends Vue {
   }
 
   get selMode() {
-    return this.TM.childrenTag.length > 0;
+    return this.tagList ? this.tagList.length > 0 : false;
   }
 
   get childrenTag() {
