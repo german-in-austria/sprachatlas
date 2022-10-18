@@ -16,26 +16,39 @@
               return-object
             ></v-autocomplete>
             <v-row no-gutters>
-              <TagViewSelect
-                :generation="0"
+              <v-col
                 v-for="(group, gkey) in selectedTags"
+                md="auto"
                 :key="gkey + group.parentId"
-                :children="group.children"
-                :tagData="group.tagGroup"
-                :tagSelection="group"
-                :color="color"
-                @deleteTag="onDelete"
-              />
-              <v-btn
-                v-if="selectedTags.length > 0"
-                fab
-                dark
-                small
-                class="ml-5"
-                :class="{ addTag: false, groupAdd: false }"
               >
-                <v-icon dark @click="addTag()">mdi-plus</v-icon>
-              </v-btn>
+                <TagViewSelect
+                  :generation="0"
+                  :children="group.children"
+                  :tagData="group.tagGroup"
+                  :tagSelection="group"
+                  :color="color"
+                  @deleteTag="onDelete"
+                />
+              </v-col>
+              <v-col>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      :v-show="selectedTags.length > 0"
+                      fab
+                      dark
+                      small
+                      class="ml-5"
+                      v-bind="attrs"
+                      v-on="on"
+                      :class="{ addTag: false, groupAdd: false }"
+                    >
+                      <v-icon dark @click="addTag()">mdi-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <span> Neuen Elterntag hinzufügen </span>
+                </v-tooltip>
+              </v-col>
             </v-row>
           </template>
           <template v-else> Lade.... </template>

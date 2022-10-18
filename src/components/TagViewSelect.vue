@@ -43,15 +43,22 @@
         :tagSelection="tagSel(tag)"
         @bus="bus"
       />
-      <v-btn
-        v-if="tagSelection.children.length > 0"
-        icon
-        tile
-        dark
-        :class="{ addTag: true, addButton: true }"
-      >
-        <v-icon dark @click="addChildTag()">mdi-plus</v-icon>
-      </v-btn>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-if="tagSelection.children.length > 0"
+            icon
+            tile
+            dark
+            v-bind="attrs"
+            v-on="on"
+            :class="{ addTag: true, addButton: true }"
+          >
+            <v-icon dark @click="addChildTag()">mdi-plus</v-icon>
+          </v-btn>
+        </template>
+        <span> Neuen Kindtag zu {{ tagData.tagAbbrev }} hinzufügen </span>
+      </v-tooltip>
     </v-row>
   </div>
 </template>
