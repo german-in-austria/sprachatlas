@@ -108,42 +108,56 @@
                   :color="parColor"
                   :propSymbol="formControl.symbol"
                 />
-                <v-expansion-panels class="mb-10">
-                  <v-expansion-panel>
-                    <v-expansion-panel-header>
-                      Lemma & Token
-                      <template v-slot:actions>
-                        <v-icon color="primary"> $expand </v-icon>
-                      </template>
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <v-select
-                        disabled
-                        v-model="formControl.selToken"
-                        :items="token"
-                        label="Token auswählen"
-                        chips
-                        multiple
-                      ></v-select>
-                      <TokenField
-                        header="Tokensuche"
-                        :selElements.sync="textToken"
-                        label="Token eingeben"
-                        hint="Z.b. hat, hatte, ..."
-                        appendIcon="mdi-plus"
-                        :color="parColor"
-                      />
-                      <TokenField
-                        class="mt-5"
-                        header="Lemmasuche"
-                        :selElements.sync="textLemma"
-                        label="Lemma eingeben"
-                        appendIcon="mdi-plus"
-                        :color="parColor"
-                      />
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
+                <v-tooltip :disabled="!hasTagSelection" bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <div v-bind="attrs" v-on="on">
+                      <v-expansion-panels
+                        :disabled="hasTagSelection"
+                        :value="hasTagSelection"
+                        class="mb-10"
+                      >
+                        <v-expansion-panel>
+                          <v-expansion-panel-header>
+                            Lemma & Token
+                            <template v-slot:actions>
+                              <v-icon color="primary"> $expand </v-icon>
+                            </template>
+                          </v-expansion-panel-header>
+                          <v-expansion-panel-content>
+                            <v-select
+                              disabled
+                              v-model="formControl.selToken"
+                              :items="token"
+                              label="Token auswählen"
+                              chips
+                              multiple
+                            ></v-select>
+                            <TokenField
+                              header="Tokensuche"
+                              :selElements.sync="textToken"
+                              label="Token eingeben"
+                              hint="Z.b. hat, hatte, ..."
+                              appendIcon="mdi-plus"
+                              :color="parColor"
+                            />
+                            <TokenField
+                              class="mt-5"
+                              header="Lemmasuche"
+                              :selElements.sync="textLemma"
+                              label="Lemma eingeben"
+                              appendIcon="mdi-plus"
+                              :color="parColor"
+                            />
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                      </v-expansion-panels>
+                    </div>
+                  </template>
+                  <span>
+                    Suche nach Lemma/Token ist nur ohne Taggruppe möglich
+                  </span>
+                </v-tooltip>
+
                 <v-color-picker
                   v-model="parColor"
                   dot-size="19"
@@ -406,6 +420,10 @@ export default class QueryCreator extends Vue {
 
   get jobs() {
     return this.TM.jobList;
+  }
+
+  get hasTagSelection() {
+    return this.TM.tagSelection.length > 0
   }
 
   get ausbildungsGrade() {
