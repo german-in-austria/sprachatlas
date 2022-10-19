@@ -1614,7 +1614,7 @@ export default class MapView extends Vue {
           ausbildung: p?.maxEducation,
           beruf_id: p?.education,
           weiblich: p?.gender !== undefined ? p.gender : undefined,
-          project: p?.project,
+          project: p?.project ? p.project : undefined,
           erhArt: this.erhArt,
           lemma: lemma
         });
