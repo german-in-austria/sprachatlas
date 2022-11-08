@@ -455,7 +455,8 @@
                 >
                   <v-expansion-panel-header>
                     {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
+                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
+                    {{ d.sigle }}
                   </v-expansion-panel-header>
 
                   <v-expansion-panel-content eager>
@@ -465,7 +466,7 @@
                         class="mx-10"
                         :dateipfad="d.dateipfad"
                         :audiofile="d.audiofile"
-                        :data="d.data"
+                        :data="d.res[0].data"
                       />
                     </figure>
                   </v-expansion-panel-content>
@@ -1515,7 +1516,7 @@ export default class MapView extends Vue {
           name: name,
           c: color,
           r: propSize,
-          id: id,
+          id: para ? para.id : id,
           icon: icon,
           para: para,
           t: type
@@ -1536,7 +1537,7 @@ export default class MapView extends Vue {
               name: name,
               c: color,
               r: propSize,
-              id: id,
+              id: para ? para.id : id,
               icon: icon,
               para: para,
               t: type
@@ -1607,6 +1608,7 @@ export default class MapView extends Vue {
       case SearchItems.Tag:
         this.AM.fetchAntwortAudio({
           ids: ids,
+          paraid: data.t === SearchItems.Tag ? '' : data.id,
           osmId: osm,
           ageLower: min,
           ageUpper: max,
@@ -2014,7 +2016,7 @@ export default class MapView extends Vue {
               t.numTag,
               p.name,
               propFactor * t.numTag,
-              q.id,
+              '',
               SearchItems.Query,
               p
             );
