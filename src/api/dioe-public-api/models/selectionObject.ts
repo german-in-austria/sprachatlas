@@ -6,4 +6,5 @@ export type selectionObject = {
     val: string;
     state: string;
     case: string;
+    sppos: string;
 }

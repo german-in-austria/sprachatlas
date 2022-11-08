@@ -10,6 +10,10 @@ export type AntwortTokenStamp = {
     audiofile: string | null;
     gruppeBez: string | null;
     teamBez: string | null;
+    sigle: string;
     age: number;
-    data: Array<(Antwort | AntwortToken)>;
+    res: Array<{
+        id: string,
+        data: Array<(Antwort | AntwortToken)>,
+    }>;
 }

@@ -290,7 +290,7 @@ export class Service {
      * @throws ApiError
      */
     public static async getAntByTags(
-        requestBody: antwortenDto,
+        requestBody: Array<antwortenDto>,
     ): Promise<Array<AntwortTokenStamp>> {
         const result = await __request({
             method: 'POST',

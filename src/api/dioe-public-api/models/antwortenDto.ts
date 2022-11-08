@@ -6,6 +6,7 @@ import type { selectionObject } from './selectionObject';
 
 export type antwortenDto = {
     ids: Array<number>;
+    paraid?: string;
     erhArt?: Array<number>;
     project?: number;
     osmId: number;
@@ -20,4 +21,5 @@ export type antwortenDto = {
     textInOrtho?: Array<selectionObject>;
     lemma?: Array<selectionObject>;
     phaen?: Array<number>;
+    sigle?: Array<string>;
 }
