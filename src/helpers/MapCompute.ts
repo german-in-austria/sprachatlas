@@ -62,12 +62,16 @@ export const drawCircleDiagram = (
   border: number,
   borderColor: string,
   color: string,
-  data: [{ v: number; c: string }],
-  encoded: boolean
+  data: [{ v: number; c: string; id: string }],
+  encoded: boolean,
+  padding: number = 1
 ) => {
-  const hSize = size * 0.5;
+  const viewport = size * padding;
+  const hSize = size * 0.5 * padding;
   const ihSize = (size - border * 2) * 0.5;
   let out = '';
+  //out += '<defs>';
+  /*
   out +=
     '<circle cx="' +
     hSize +
@@ -87,7 +91,7 @@ export const drawCircleDiagram = (
     ihSize +
     '" fill="' +
     color +
-    '" />';
+    '" />';*/
   const max: number = data
     .flat(Infinity)
     .reduce((a: any, b: any) => Number(a) + (Number(b.v) || 0), 0);
@@ -95,23 +99,28 @@ export const drawCircleDiagram = (
   let lAng = 0;
   data.forEach((el: any) => {
     const nAng = lAng + el.v * angMulti;
+    //out += `<filter id="${el.id}">`;
     out +=
-      '<path d="' +
+      '<path class="hover" d="' +
       describeArc(hSize, hSize, ihSize, lAng, nAng) +
       '" stroke-width="0" fill="' +
       (el.c || '#f00') +
-      '" />';
+      '" id="' +
+      el.id +
+      '"/>';
+    //out += `</filter>`;
     lAng = nAng;
   });
+  //out += '</defs>';
   out =
-    '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"  width="' +
-    size +
+    '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="graph" width="' +
+    viewport +
     '" height="' +
-    size +
+    viewport +
     '" viewBox="0 0 ' +
-    size +
+    viewport +
     ' ' +
-    size +
+    viewport +
     '">' +
     out +
     '</svg>';
