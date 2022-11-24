@@ -31,7 +31,7 @@ export default class CircleDiagram extends Vue {
     data: any,
     encoded: boolean
   ) {
-    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2);
+    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2, false);
   }
 
   createCircleIcon(val: { v: number; c: string, id: string }[], encode: boolean) {
@@ -65,6 +65,7 @@ export default class CircleDiagram extends Vue {
           const element = this.data.find(el => el.name === id);
           if (element) {
             el.textContent = `Name: ${element.name} - Anzahl: ${element.value.toString()}`;
+            console.log(el.textContent);
           }
         }
       }
@@ -95,7 +96,7 @@ export default class CircleDiagram extends Vue {
   }
 
   #text {
-    position: absolute;
+    position: fixed;
     background-color: white;
     padding: 5px;
     border-radius: 3px;
