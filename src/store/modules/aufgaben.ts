@@ -106,11 +106,13 @@ class Aufgaben extends VuexModule implements AufgabenState {
   }
 
   @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
-  async fetchAntwortAudio(arg: antwortenDto) {
+  async fetchAntwortAudio(arg: antwortenDto | antwortenDto[]) {
     // @ts-ignore
     this.context.commit('setLoading', true);
     console.log('Getting Antworten');
-    const res = await api.dioePublic.getAntByTags([arg]);
+    const res = await api.dioePublic.getAntByTags(
+      Array.isArray(arg) ? arg : [arg]
+    );
     console.log('Done!');
     return {
       antwortenAudio: res,
