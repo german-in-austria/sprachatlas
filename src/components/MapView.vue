@@ -433,8 +433,10 @@
                   :key="idx"
                 >
                   <v-expansion-panel-header>
-                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
+                    <div>
+                      {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
+                      {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
+                    </div>
                   </v-expansion-panel-header>
 
                   <v-expansion-panel-content eager>
@@ -457,6 +459,25 @@
                     {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
                     {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
                     {{ d.sigle }}
+                    <template>
+                      <v-tooltip right>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            icon
+                            @click.native.stop="evaluateData(d, idx)"
+                            v-bind="attrs"
+                            v-on="on"
+                            class="header"
+                          >
+                            <v-icon>mdi-chart-bar</v-icon>
+                          </v-btn>
+                        </template>
+                        <span> Variation auswerten</span>
+                      </v-tooltip>
+                    </template>
+                    <template v-slot:actions>
+                      <v-icon class="icon">$expand</v-icon>
+                    </template>
                   </v-expansion-panel-header>
 
                   <v-expansion-panel-content eager>
@@ -480,6 +501,7 @@
             </v-card-actions>
           </template>
         </v-card>
+        <variation-card :title="diagramTitle" :desc="diagramData" />
       </v-layout>
     </v-slide-y-reverse-transition>
     <v-layout class="map-overlay buttons">
@@ -620,15 +642,7 @@
       </v-tooltip>
     </div>
     <l-map
-      style="
-        z-index: 0;
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-      "
+      class="mapStyle"
       v-show="!loading"
       :zoom.sync="zoom"
       :center.sync="center"
@@ -702,7 +716,8 @@ import {
   Parameter,
   Symbols,
   SearchTerm,
-  singleEntry
+  singleEntry,
+  Description
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -720,6 +735,7 @@ import ErhebungsArt from '@/components/ErhebungsArt.vue';
 import ExportMap from '@/components/ExportMap.vue';
 import DataSwitch from '@/components/DataSwitch.vue';
 import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
+import VariationCard from './VariationCard.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { isAufgabeStandard } from '@/helpers/helper';
@@ -727,6 +743,7 @@ import { isAufgabeStandard } from '@/helpers/helper';
 
 import { getOrtName } from '@/helpers/helper';
 import {
+  antwortenDto,
   AntwortenFromAufgabe,
   AntwortTokenStamp,
   ISelectOrtAufgabeResult,
@@ -774,7 +791,8 @@ type IAntwortenAudio = {
     ErhebungsArt,
     ExportMap,
     DataSwitch,
-    PhaenAufgabenSearch
+    PhaenAufgabenSearch,
+    VariationCard
   }
 })
 export default class MapView extends Vue {
@@ -791,6 +809,9 @@ export default class MapView extends Vue {
   MM = messageHandler;
   searchInput: string = '';
   searchTerms: Array<SearchTerm> = [];
+
+  diagramData: Array<Description> = [];
+  diagramTitle: string = "";
 
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
@@ -2355,6 +2376,72 @@ export default class MapView extends Vue {
     }
   }
 
+  async evaluateData(d: AntwortTokenStamp, idx: number) {
+    this.diagramTitle = `Auswertung für sigle ${d.sigle}`;
+    let res: Array<Description> = [];
+    if (this.selectedOrt) {
+      const data = this.selectedOrt.data;
+      let dto: Array<antwortenDto> = [];
+      for (const key of data) {
+        let ids = [] as number[];
+        if (key.t !== SearchItems.Query) {
+          continue;
+        }
+        if (key.id !== "") {
+          ids = [Number(key.id)];
+        }
+        let token = [] as selectionObject[];
+        let lemma = [] as selectionObject[];
+        let max = this.ageRange.upper;
+        let min = this.ageRange.lower;
+        const p = key.para;
+        if (p) {
+          max = Math.max(p.ageRange[1], max);
+          min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+          token = p.textTokenList ? p.textTokenList : [];
+          lemma = p.lemmaList ? p.lemmaList : [];
+          ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
+        }
+        dto.push({
+          ids: ids,
+          paraid: key.id,
+          osmId: this.selectedOrt.osm,
+          ageLower: min,
+          ageUpper: max,
+          text: token,
+          ausbildung: p?.maxEducation,
+          beruf_id: p?.education,
+          weiblich: p?.gender !== undefined ? p.gender : undefined,
+          project: p?.project ? p.project : undefined,
+          erhArt: this.erhArt,
+          lemma: lemma
+        });
+      }
+      await this.AM.fetchAntwortAudio(dto);
+      const person = this.antwortenAudio.find(el => el.sigle === d.sigle);
+      person?.res.forEach(el => {
+        const d = data.find(e => e.id === el.id);
+        res.push({
+          color: d ? d.c : '#000',
+          name: d ? d.name : '',
+          value: el.data.length
+        })
+      })
+    }
+    this.diagramData = res;
+    /*
+    this.diagramData = [{
+      color: '#F00',
+      name: 'I1',
+      value: 20
+    },
+    {
+      color: '#0F0',
+      name: 'I2',
+      value: 60
+    }];*/
+  }
+
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
@@ -2455,7 +2542,8 @@ export default class MapView extends Vue {
     bottom: 0;
     margin-bottom: 50px;
     margin-left: 50px;
-    width: 50%;
+    width: 35%;
+    max-width: 45%;
     height: 35%;
   }
 
@@ -2498,6 +2586,16 @@ export default class MapView extends Vue {
     animation: 1s ease-out 0s 1 fadeIn;
   }
 
+  .mapStyle {
+    z-index: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .layout-slide-enter-active,
   .layout-slide-leave-active {
     -moz-transition-duration: 0.3s;
@@ -2513,5 +2611,16 @@ export default class MapView extends Vue {
   .layout-slide-fade-enter,
   .layout-slide-fade-leave-to {
     transform: translateY(100px);
+  }
+
+  .icon {
+    order: 0;
+  }
+  .header {
+    order: 1;
+  }
+
+  .v-expansion-panel-header__icon {
+    margin-left: auto;
   }
 </style>
