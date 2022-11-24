@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <div style="margin-top: 100px" v-html="createIcon(desc, 0, false)"></div>
+  <div v-if="inputData && inputData.length > 0">
+    <circle-diagram :data="inputData" />
     <v-list class="transparent">
-      <v-list-item v-for="(d, idx) in desc" :key="idx">
+      <v-list-item v-for="(d, idx) in inputData" :key="idx">
         <v-list-item-content class="mx-auto">
           <v-avatar>
             <icon-circle :fillCol="d.color" :strokeWidth="1" />
@@ -11,7 +11,6 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
-    <div id="text" style="display: none"></div>
   </div>
 </template>
 <script lang="ts">
@@ -23,45 +22,32 @@ import {
   drawTriangle,
   drawCircle
 } from '@/helpers/MapCompute';
-import { Symbols } from '@/static/apiModels';
+import { Description, Symbols } from '@/static/apiModels';
 import CircleDiagram from './CircleDiagram.vue';
 import IconCircle from '@/icons/IconCircle.vue';
-
-export interface Description {
-  color: string;
-  name: string;
-  value: number;
-}
 
 @Component({
   components: { CircleDiagram, IconCircle },
   name: 'GraphViewer'
 })
 export default class GraphViewer extends Vue {
+  @Prop({ type: Array }) readonly desc!: Array<Description>;
   /*
-  @Prop({
-    type: Array, required: false, default: [{
-      color: '#F00',
-      name: 'I1',
-      value: 20
-    },
-    {
-      color: '#0F0',
-      name: 'I2',
-      value: 60
-    }]
-  }) readonly desc!: Array<Description>;
-    */
-  desc: Array<Description> = [{
-    color: '#F00',
-    name: 'I1',
-    value: 20
-  },
-  {
-    color: '#0F0',
-    name: 'I2',
-    value: 60
-  }];
+desc: Array<Description> = [{
+  color: '#F00',
+  name: 'I1',
+  value: 20
+},
+{
+  color: '#0F0',
+  name: 'I2',
+  value: 60
+}];*/
+
+  get inputData() {
+    return this.desc ? this.desc : [] as Array<Description>
+  }
+
   icon: Symbols = Symbols.Circle;
 
   drawCircleDiagram(
@@ -106,53 +92,8 @@ export default class GraphViewer extends Vue {
   }
 
   mounted() {
-    //@ts-ignore
-    document.getElementById('graph').addEventListener('mousemove', (event: any) => {
-      const el = document.getElementById('text');
-      if (el) {
-        el.style.display = "inline";
-        el.style.top = (event.clientY + 20) + "px";
-        el.style.left = (event.clientX + 20) + "px";
-        const id = document.elementFromPoint(event.clientX, event.clientY)?.id;
-        if (id) {
-          const element = this.desc.find(el => el.name === id);
-          if (element) {
-            el.textContent = `Name: ${element.name} - Anzahl: ${element.value.toString()}`;
-          }
-        }
-        // console.log(document.elementFromPoint(event.clientX, event.clientY)?.id)
-      }
-    });
-
-    document.getElementById('graph')?.addEventListener('mouseleave', (e) => {
-      const el = document.getElementById('text');
-      if (el) {
-        el.style.display = "None";
-      }
-    });
   }
 }
 </script>
 <style lang="scss">
-  .hover {
-    transition: 0.5s ease-in-out;
-    transform-origin: 50% 50%;
-    cursor: pointer;
-  }
-
-  .hover:hover {
-    transform: scaleY(1.1) scaleX(1.1);
-  }
-
-  .hover p:hover {
-    cursor: pointer;
-  }
-
-  #text {
-    position: absolute;
-    background-color: white;
-    padding: 5px;
-    border-radius: 3px;
-    border: 1px solid black;
-  }
 </style>
