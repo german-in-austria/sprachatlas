@@ -24,6 +24,12 @@ export interface TagSelection {
   tagIds: number[];
 }
 
+export interface Description {
+  color: string;
+  name: string;
+  value: number;
+}
+
 export interface TagOrteResults {
   numTag: number;
   tagName: string;
