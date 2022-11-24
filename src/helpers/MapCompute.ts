@@ -64,34 +64,37 @@ export const drawCircleDiagram = (
   color: string,
   data: [{ v: number; c: string; id: string }],
   encoded: boolean,
-  padding: number = 1
+  padding: number = 1,
+  background: boolean = true
 ) => {
   const viewport = size * padding;
   const hSize = size * 0.5 * padding;
   const ihSize = (size - border * 2) * 0.5;
   let out = '';
   //out += '<defs>';
-  /*
-  out +=
-    '<circle cx="' +
-    hSize +
-    '" cy="' +
-    hSize +
-    '" r="' +
-    hSize +
-    '" fill="' +
-    borderColor +
-    '" />';
-  out +=
-    '<circle cx="' +
-    hSize +
-    '" cy="' +
-    hSize +
-    '" r="' +
-    ihSize +
-    '" fill="' +
-    color +
-    '" />';*/
+  if (background) {
+    out +=
+      '<circle cx="' +
+      hSize +
+      '" cy="' +
+      hSize +
+      '" r="' +
+      hSize +
+      '" fill="' +
+      borderColor +
+      '" />';
+    out +=
+      '<circle cx="' +
+      hSize +
+      '" cy="' +
+      hSize +
+      '" r="' +
+      ihSize +
+      '" fill="' +
+      color +
+      '" />';
+  }
+  /**/
   const max: number = data
     .flat(Infinity)
     .reduce((a: any, b: any) => Number(a) + (Number(b.v) || 0), 0);
