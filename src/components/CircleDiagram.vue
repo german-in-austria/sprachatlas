@@ -65,7 +65,6 @@ export default class CircleDiagram extends Vue {
           const element = this.data.find(el => el.name === id);
           if (element) {
             el.textContent = `Name: ${element.name} - Anzahl: ${element.value.toString()}`;
-            console.log(el.textContent);
           }
         }
       }
