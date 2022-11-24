@@ -58,7 +58,7 @@ desc: Array<Description> = [{
     data: any,
     encoded: boolean
   ) {
-    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2);
+    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2, false);
   }
 
   createCircleIcon(val: { v: number; c: string, id: string }[], encode: boolean) {
