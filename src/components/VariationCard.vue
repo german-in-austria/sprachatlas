@@ -1,7 +1,11 @@
 <template>
   <v-card class="card" v-if="desc.length > 0">
-    <v-card-title>{{ title }}</v-card-title>
-    <v-card-text> <graph-viewer :desc="desc" /> </v-card-text>
+    <v-card-title
+      ><span style="text-align: center; width: 100%">
+        {{ title }}
+      </span></v-card-title
+    >
+    <v-card-text align="center"> <graph-viewer :desc="desc" /> </v-card-text>
   </v-card>
 </template>
 <script lang="ts">
