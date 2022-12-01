@@ -387,8 +387,8 @@
       </v-dialog>
     </v-layout>
     <v-slide-y-reverse-transition tag="Changev-layout">
-      <v-layout class="map-overlay erhebung" v-if="showAudio">
-        <v-card v-if="selectedOrt" elevation="2">
+      <v-layout class="card-overlay" v-if="showAudio">
+        <v-card v-if="selectedOrt" class="audioCard elevation-2">
           <template
             v-if="
               antwortenAudio.length > 0 ||
@@ -464,7 +464,13 @@
                         <template v-slot:activator="{ on, attrs }">
                           <v-btn
                             icon
-                            @click.native.stop="evaluateData(d, idx)"
+                            @click.native.stop="
+                              evaluateData(
+                                d,
+                                idx,
+                                selectedOrt?.ortName.split(',')[0]
+                              )
+                            "
                             v-bind="attrs"
                             v-on="on"
                             class="header"
@@ -501,19 +507,25 @@
             </v-card-actions>
           </template>
         </v-card>
-        <component is="v-scale-transition" hide-on-leave>
+        <component
+          v-show="diagramData.length > 0"
+          is="v-scale-transition"
+          hide-on-leave
+        >
           <v-skeleton-loader
             v-if="varLoading"
-            min-width="500"
-            type="article, actions"
+            class="varCard"
+            type="article, actions, list-item-two-line"
           >
           </v-skeleton-loader>
-          <variation-card
+          <div
+            id="auswertung"
+            class="varCard"
+            @mousedown.left="dragElement($event)"
             v-else
-            style="margin-left: 10px"
-            :title="diagramTitle"
-            :desc="diagramData"
-          />
+          >
+            <variation-card :title="diagramTitle" :desc="diagramData" />
+          </div>
         </component>
       </v-layout>
     </v-slide-y-reverse-transition>
@@ -739,7 +751,7 @@ import { aufgabenModule } from '@/store/modules/aufgaben';
 import { messageHandler } from '@/store/modules/message';
 import { tagModule } from '@/store/modules/tags';
 import { legendMod } from '@/store/modules/legend';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, once } from 'lodash';
 import IconBase from '@/icons/IconBase.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
@@ -2398,8 +2410,8 @@ export default class MapView extends Vue {
     }
   }
 
-  async evaluateData(d: AntwortTokenStamp, idx: number) {
-    this.diagramTitle = `Auswertung für sigle ${d.sigle}`;
+  async evaluateData(d: AntwortTokenStamp, idx: number, ort: string | undefined) {
+    this.diagramTitle = `Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`;
     let res: Array<Description> = [];
     if (this.selectedOrt) {
       const currEle = this.selectedOrt?.data[this.selectedDataidx];
@@ -2462,6 +2474,53 @@ export default class MapView extends Vue {
     this.diagramData = res;
   }
 
+  moveListener(event: any) {
+    const el = document.getElementById('auswertung') as HTMLElement;
+    const rectX = event.currentTarget.rectX;
+    const rectY = event.currentTarget.rectY;
+    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+    let topVal = event.clientY - rectY;
+    let leftVal = event.clientX - rectX;
+    console.log(topVal);
+    console.log(leftVal);
+    if (leftVal >= 0 && leftVal + event.currentTarget.size.width <= vw) {
+      el.style.left = (event.clientX - rectX) + "px";
+    }
+
+    if (topVal >= 50 && topVal + event.currentTarget.size.height <= vh) {
+      el.style.top = (event.clientY - rectY) + "px";
+    }
+    el.style.cursor = 'grabbing';
+    el.classList.add('elevation-22');
+
+  }
+
+  dragElement(e: any) {
+    const element = document.getElementById('auswertung') as HTMLElement;
+    element.addEventListener('mousemove', this.moveListener);
+    const boundingBox = element.getBoundingClientRect();
+    console.log(boundingBox);
+    //@ts-ignore
+    element.rectX = e.clientX - boundingBox.left;
+    //@ts-ignore
+    element.rectY = e.clientY - boundingBox.top;
+    //@ts-ignore
+    element.size = { height: boundingBox.height, width: boundingBox.width };
+    document.addEventListener('mouseup', () => {
+      element.removeEventListener('mousemove', this.moveListener, false);
+      element.classList.remove('elevation-22');
+      element.style.cursor = "default";
+    }, { once: true });
+  }
+
+  stopDrag() {
+    const element = document.getElementById('auswertung') as HTMLElement;
+    element.classList.remove('elevation-22');
+    element.style.cursor = "default";
+    element.removeEventListener('mousemove', this.moveListener, false);
+  }
+
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
@@ -2513,7 +2572,7 @@ export default class MapView extends Vue {
   }
 
   .map-overlay {
-    position: absolute;
+    position: fixed;
     z-index: 1;
     width: 100%;
     left: 0;
@@ -2522,6 +2581,16 @@ export default class MapView extends Vue {
     * {
       pointer-events: all;
     }
+  }
+
+  .card-overlay {
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: 55%;
   }
 
   .btn-overlay {
@@ -2558,6 +2627,20 @@ export default class MapView extends Vue {
     margin-right: auto;
   }
 
+  .audioCard {
+    margin-bottom: 50px;
+    margin-left: 50px;
+    width: 600px;
+    height: 38%;
+    position: absolute;
+  }
+
+  .varCard {
+    left: 750px;
+    width: 400px;
+    // height: 38%;
+    position: fixed;
+  }
   .erhebung {
     bottom: 0;
     margin-bottom: 50px;
