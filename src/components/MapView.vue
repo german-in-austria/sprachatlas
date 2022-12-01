@@ -501,7 +501,20 @@
             </v-card-actions>
           </template>
         </v-card>
-        <variation-card :title="diagramTitle" :desc="diagramData" />
+        <component is="v-scale-transition" hide-on-leave>
+          <v-skeleton-loader
+            v-if="varLoading"
+            min-width="500"
+            type="article, actions"
+          >
+          </v-skeleton-loader>
+          <variation-card
+            v-else
+            style="margin-left: 10px"
+            :title="diagramTitle"
+            :desc="diagramData"
+          />
+        </component>
       </v-layout>
     </v-slide-y-reverse-transition>
     <v-layout class="map-overlay buttons">
@@ -1140,6 +1153,14 @@ export default class MapView extends Vue {
     return arr;
   }
 
+  get antVariation() {
+    return this.AM.antVariation;
+  }
+
+  get varLoading() {
+    return this.AM.varLoading;
+  }
+
   get infOrtErhebungen() {
     return this.EM.infOrtsErhebungen;
   }
@@ -1639,6 +1660,7 @@ export default class MapView extends Vue {
           weiblich: p?.gender !== undefined ? p.gender : undefined,
           project: p?.project ? p.project : undefined,
           erhArt: this.erhArt,
+          group: data.t === SearchItems.Query ? true : false,
           lemma: lemma
         });
         break;
@@ -2380,7 +2402,9 @@ export default class MapView extends Vue {
     this.diagramTitle = `Auswertung für sigle ${d.sigle}`;
     let res: Array<Description> = [];
     if (this.selectedOrt) {
-      const data = this.selectedOrt.data;
+      const currEle = this.selectedOrt?.data[this.selectedDataidx];
+      const val = d.res[0].data.length;
+      let data = this.selectedOrt.data.filter(el => el.id !== currEle.id);
       let dto: Array<antwortenDto> = [];
       for (const key of data) {
         let ids = [] as number[];
@@ -2417,29 +2441,25 @@ export default class MapView extends Vue {
           lemma: lemma
         });
       }
-      await this.AM.fetchAntwortAudio(dto);
-      const person = this.antwortenAudio.find(el => el.sigle === d.sigle);
+      await this.AM.fetchAntwortVariation(dto);
+      const person = this.antVariation.find(el => el.sigle === d.sigle);
+      res.push({
+        color: currEle.c,
+        name: currEle.name,
+        value: val
+      })
       person?.res.forEach(el => {
+        console.log(el);
         const d = data.find(e => e.id === el.id);
         res.push({
           color: d ? d.c : '#000',
           name: d ? d.name : '',
           value: el.data.length
         })
+
       })
     }
     this.diagramData = res;
-    /*
-    this.diagramData = [{
-      color: '#F00',
-      name: 'I1',
-      value: 20
-    },
-    {
-      color: '#0F0',
-      name: 'I2',
-      value: 60
-    }];*/
   }
 
   // lifecycle hook
