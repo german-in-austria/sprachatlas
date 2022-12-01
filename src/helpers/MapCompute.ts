@@ -83,16 +83,7 @@ export const drawCircleDiagram = (
       '" fill="' +
       borderColor +
       '" />';
-    out +=
-      '<circle cx="' +
-      hSize +
-      '" cy="' +
-      hSize +
-      '" r="' +
-      ihSize +
-      '" fill="' +
-      color +
-      '" />';
+    out += `<circle class="hover" id="${data[0].id}" cx="${hSize}" cy="${hSize}" r="${ihSize}" fill="${color}" />`;
   }
   /**/
   const max: number = data
