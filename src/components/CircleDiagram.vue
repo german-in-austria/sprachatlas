@@ -29,19 +29,25 @@ export default class CircleDiagram extends Vue {
     borderColor: string,
     color: string,
     data: any,
-    encoded: boolean
+    encoded: boolean,
+    background: boolean
   ) {
-    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2, false);
+    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2, background);
   }
 
   createCircleIcon(val: { v: number; c: string, id: string }[], encode: boolean) {
+    let col = '#000';
+    if (val.length < 2) {
+      col = val[0].c;
+    }
     return this.drawCircleDiagram(
-      200,
-      1,
-      '#000',
-      '#000',
+      100,
+      0,
+      col,
+      col,
       val,
-      encode
+      encode,
+      val.length < 2
     );
   }
 
