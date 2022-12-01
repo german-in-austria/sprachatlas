@@ -50,47 +50,6 @@ desc: Array<Description> = [{
 
   icon: Symbols = Symbols.Circle;
 
-  drawCircleDiagram(
-    size: number,
-    border: number,
-    borderColor: string,
-    color: string,
-    data: any,
-    encoded: boolean
-  ) {
-    return drawCircleDiagram(size, border, borderColor, color, data, encoded, 1.2, false);
-  }
-
-  createCircleIcon(val: { v: number; c: string, id: string }[], encode: boolean) {
-    return this.drawCircleDiagram(
-      200,
-      1,
-      '#000',
-      '#000',
-      val,
-      encode
-    );
-  }
-
-  createIcon(
-    data: Array<Description>,
-    icon: Symbols,
-    encode: boolean
-  ) {
-
-    switch (icon) {
-      default:
-      case Symbols.Circle:
-        return this.createCircleIcon(data.map((el) => { return { v: el.value, c: el.color, id: el.name } }), encode);
-      /*  
-      case Symbols.Rect:
-        return this.createRectIcon(data);
-      case Symbols.Tri:
-        return this.createTriIcon(data);
-      */
-    }
-  }
-
   mounted() {
   }
 }
