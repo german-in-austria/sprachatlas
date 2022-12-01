@@ -41,6 +41,8 @@ class Aufgaben extends VuexModule implements AufgabenState {
   aufgaben = [] as Array<ISelectAufgabenResult>;
   aufgabenFromSet = [] as Array<ISelectAufgabenFromSetResult>;
   antwortenAudio = [] as Array<AntwortTokenStamp>;
+  antVariation = [] as Array<AntwortTokenStamp>;
+  varLoading: boolean = false;
   allAufgaben = [] as Array<ISelectAllAufgabenResult>;
   allSaetze = [] as Array<ISelectSatzResult>;
 
@@ -73,6 +75,11 @@ class Aufgaben extends VuexModule implements AufgabenState {
   @Mutation
   setLoading(val: boolean) {
     this.loading = val;
+  }
+
+  @Mutation
+  setVarLoading(val: boolean) {
+    this.varLoading = val;
   }
 
   @MutationAction({ mutate: ['aufgabenSet', 'loading'] })
@@ -117,6 +124,19 @@ class Aufgaben extends VuexModule implements AufgabenState {
     return {
       antwortenAudio: res,
       loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['antVariation', 'varLoading'] })
+  async fetchAntwortVariation(arg: antwortenDto[]) {
+    // @ts-ignore
+    this.context.commit('setVarLoading', true);
+    console.log('Getting Antworten');
+    const res = await api.dioePublic.getAntByTags(arg);
+    console.log('Done!');
+    return {
+      antVariation: res,
+      varLoading: false
     };
   }
 
