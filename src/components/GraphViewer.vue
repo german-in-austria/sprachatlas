@@ -4,10 +4,14 @@
     <v-list class="transparent">
       <v-list-item v-for="(d, idx) in inputData" :key="idx">
         <v-list-item-content class="mx-auto">
-          <v-avatar>
-            <icon-circle :fillCol="d.color" :strokeWidth="1" />
-          </v-avatar>
-          {{ d.name }} - {{ d.value }}
+          <v-container>
+            <v-row align="center" justify="space-around">
+              Name: {{ d.name }} - Anzahl: {{ d.value }}
+              <v-avatar>
+                <icon-circle :fillCol="d.color" :strokeWidth="1" />
+              </v-avatar>
+            </v-row>
+          </v-container>
         </v-list-item-content>
       </v-list-item>
     </v-list>
