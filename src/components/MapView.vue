@@ -518,14 +518,11 @@
             type="article, actions, list-item-two-line"
           >
           </v-skeleton-loader>
-          <div
-            id="auswertung"
-            class="varCard"
-            @mousedown.left="dragElement($event)"
+          <dragable-card
             v-else
-          >
-            <variation-card :title="diagramTitle" :desc="diagramData" />
-          </div>
+            component="variation-card"
+            :props="{ title: diagramTitle, desc: diagramData }"
+          />
         </component>
       </v-layout>
     </v-slide-y-reverse-transition>
@@ -761,6 +758,7 @@ import ExportMap from '@/components/ExportMap.vue';
 import DataSwitch from '@/components/DataSwitch.vue';
 import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
 import VariationCard from './VariationCard.vue';
+import DragableCard from './DragableCard.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { isAufgabeStandard } from '@/helpers/helper';
@@ -817,7 +815,8 @@ type IAntwortenAudio = {
     ExportMap,
     DataSwitch,
     PhaenAufgabenSearch,
-    VariationCard
+    VariationCard,
+    DragableCard
   }
 })
 export default class MapView extends Vue {
@@ -2472,53 +2471,6 @@ export default class MapView extends Vue {
       })
     }
     this.diagramData = res;
-  }
-
-  moveListener(event: any) {
-    const el = document.getElementById('auswertung') as HTMLElement;
-    const rectX = event.currentTarget.rectX;
-    const rectY = event.currentTarget.rectY;
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
-    let topVal = event.clientY - rectY;
-    let leftVal = event.clientX - rectX;
-    console.log(topVal);
-    console.log(leftVal);
-    if (leftVal >= 0 && leftVal + event.currentTarget.size.width <= vw) {
-      el.style.left = (event.clientX - rectX) + "px";
-    }
-
-    if (topVal >= 50 && topVal + event.currentTarget.size.height <= vh) {
-      el.style.top = (event.clientY - rectY) + "px";
-    }
-    el.style.cursor = 'grabbing';
-    el.classList.add('elevation-22');
-
-  }
-
-  dragElement(e: any) {
-    const element = document.getElementById('auswertung') as HTMLElement;
-    element.addEventListener('mousemove', this.moveListener);
-    const boundingBox = element.getBoundingClientRect();
-    console.log(boundingBox);
-    //@ts-ignore
-    element.rectX = e.clientX - boundingBox.left;
-    //@ts-ignore
-    element.rectY = e.clientY - boundingBox.top;
-    //@ts-ignore
-    element.size = { height: boundingBox.height, width: boundingBox.width };
-    document.addEventListener('mouseup', () => {
-      element.removeEventListener('mousemove', this.moveListener, false);
-      element.classList.remove('elevation-22');
-      element.style.cursor = "default";
-    }, { once: true });
-  }
-
-  stopDrag() {
-    const element = document.getElementById('auswertung') as HTMLElement;
-    element.classList.remove('elevation-22');
-    element.style.cursor = "default";
-    element.removeEventListener('mousemove', this.moveListener, false);
   }
 
   // lifecycle hook
