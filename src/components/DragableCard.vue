@@ -1,9 +1,12 @@
 <template>
-  <div :id="id" class="varCard" @mousedown.left="dragElement($event)">
+  <div :id="id" class="box" @mousedown.left="dragElement($event)">
     <component :is="component" v-bind="props" />
   </div>
 </template>
 <script lang="ts">
+/*
+  Add component to list in case you want to use it
+*/
 import { generateID } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import VariationCard from './VariationCard.vue';
@@ -27,13 +30,14 @@ export default class DragableCard extends Vue {
     let topVal = event.clientY - rectY;
     let leftVal = event.clientX - rectX;
     if (leftVal >= 0 && leftVal + event.currentTarget.size.width <= vw) {
-      el.style.left = (event.clientX - rectX) + "px";
+      el.style.left = `${(event.clientX - rectX)}px`;
     }
 
     if (topVal >= 50 && topVal + event.currentTarget.size.height <= vh) {
-      el.style.top = (event.clientY - rectY) + "px";
+      el.style.top = `${(event.clientY - rectY)}px`;
     }
     el.style.cursor = 'grabbing';
+    el.style.zIndex = '100';
     el.classList.add('elevation-22');
 
   }
@@ -52,9 +56,22 @@ export default class DragableCard extends Vue {
       element.removeEventListener('mousemove', this.moveListener, false);
       element.classList.remove('elevation-22');
       element.style.cursor = "default";
+      element.style.left = "";
+      element.style.top = "";
+      element.classList.add('animation');
+      element.addEventListener('transitionend', () => {
+        element.classList.remove('animation');
+      }, { once: true })
     }, { once: true });
   }
 }
 </script>
 <style lang="scss" scoped>
+  .box {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .animation {
+    transition: all 1s ease-in-out;
+  }
 </style>
