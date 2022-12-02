@@ -629,13 +629,18 @@
         </v-card>
       </template>
     </v-layout>
-    <v-layout class="map-overlay legend">
-      <LegendItem
+    <dragable-card
+      class="legend"
+      component="legend-item"
+      :props="{ vis: showLegend, propCircl: showDataSideways }"
+    />
+    <!--
+            <LegendItem
         v-on:callChange="splitTags"
         :vis.sync="showLegend"
         :propCircl="!showDataSideways"
       ></LegendItem>
-    </v-layout>
+    -->
     <div
       class="map-overlay"
       style="left: 50%; top: 75%; transform: translate(-50%, -50%)"
@@ -2606,12 +2611,13 @@ export default class MapView extends Vue {
   }
 
   .legend {
-    bottom: 0;
+    top: 75%;
     margin-bottom: 50px;
     margin-right: 20px;
-    right: 20px;
-    left: 80%;
+    left: 75%;
     width: 20%;
+    position: fixed;
+    z-index: 2;
   }
 
   .zoom {

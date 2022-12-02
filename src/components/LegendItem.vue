@@ -169,7 +169,11 @@
               <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
                 <v-avatar>
                   <icon-circle
-                    :fillCol="convertHexToHsl(para.color)"
+                    :fillCol="
+                      convertHexToHsl(
+                        para.color !== undefined ? para.color : '#F00'
+                      )
+                    "
                     :strokeWidth="d.strokeWidth"
                   />
                 </v-avatar>
