@@ -520,6 +520,7 @@
           </v-skeleton-loader>
           <dragable-card
             v-else
+            class="varCard"
             component="variation-card"
             :props="{ title: diagramTitle, desc: diagramData }"
           />
@@ -2522,6 +2523,13 @@ export default class MapView extends Vue {
   html {
     overflow: hidden;
   }
+  .varCard {
+    top: 500px;
+    left: 750px;
+    width: 400px;
+    // height: 38%;
+    position: fixed;
+  }
 
   .map-overlay {
     position: fixed;
@@ -2582,17 +2590,12 @@ export default class MapView extends Vue {
   .audioCard {
     margin-bottom: 50px;
     margin-left: 50px;
+    top: 500px;
     width: 600px;
     height: 38%;
-    position: absolute;
-  }
-
-  .varCard {
-    left: 750px;
-    width: 400px;
-    // height: 38%;
     position: fixed;
   }
+
   .erhebung {
     bottom: 0;
     margin-bottom: 50px;
