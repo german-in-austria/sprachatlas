@@ -10,10 +10,10 @@
 import { generateID } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import VariationCard from './VariationCard.vue';
-
+import LegendItem from './LegendItem.vue';
 
 @Component({
-  components: { VariationCard },
+  components: { VariationCard, LegendItem },
   name: 'DragableCard'
 })
 export default class DragableCard extends Vue {
@@ -56,6 +56,7 @@ export default class DragableCard extends Vue {
       element.removeEventListener('mousemove', this.moveListener, false);
       element.classList.remove('elevation-22');
       element.style.cursor = "default";
+      /**/
       element.style.left = "";
       element.style.top = "";
       element.classList.add('animation');
