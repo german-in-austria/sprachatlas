@@ -123,7 +123,7 @@
                       </v-btn>
                     </template>
 
-                    <span>Eintag löschen</span>
+                    <span>Eintrag löschen</span>
                   </v-tooltip>
                   <v-btn
                     icon
