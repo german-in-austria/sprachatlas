@@ -633,14 +633,8 @@
       class="legend"
       component="legend-item"
       :props="{ vis: showLegend, propCircl: showDataSideways }"
+      :func="{ callChange: splitTags }"
     />
-    <!--
-            <LegendItem
-        v-on:callChange="splitTags"
-        :vis.sync="showLegend"
-        :propCircl="!showDataSideways"
-      ></LegendItem>
-    -->
     <div
       class="map-overlay"
       style="left: 50%; top: 75%; transform: translate(-50%, -50%)"
@@ -1268,8 +1262,6 @@ export default class MapView extends Vue {
         this.dbLoading = false;
     }, 500);
   }
-
-
 
   splitTags() {
     this.displayDataFromLegend(this.legendGlobal);
