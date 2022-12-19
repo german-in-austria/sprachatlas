@@ -1,6 +1,6 @@
 <template>
   <div :id="id" class="box" @mousedown.left="dragElement($event)">
-    <component :is="component" v-bind="props" />
+    <component :is="component" v-bind="props" v-on="func" />
   </div>
 </template>
 <script lang="ts">
@@ -20,6 +20,7 @@ export default class DragableCard extends Vue {
   @Prop({ type: String, default: generateID() }) readonly id!: string;
   @Prop(String) readonly component!: string;
   @Prop() readonly props!: any;
+  @Prop() readonly func!: any;
 
   moveListener(event: any) {
     const el = document.getElementById(this.id) as HTMLElement;
