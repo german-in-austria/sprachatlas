@@ -387,131 +387,25 @@
       </v-dialog>
     </v-layout>
     <v-slide-y-reverse-transition tag="Changev-layout">
-      <v-layout class="card-overlay" v-if="showAudio">
-        <v-card v-if="selectedOrt" class="audioCard elevation-2">
-          <template
-            v-if="
-              antwortenAudio.length > 0 ||
-              aufgabeSingleOrt.length > 0 ||
-              aufgabenLoading
-            "
-          >
-            <v-card-title style="font-size: 18px">
-              <DataSwitch
-                :ortName="selectedOrt.ortName.split(',')[0]"
-                :data="selectedOrt.data[selectedDataidx]"
-                :sideways="showDataSideways"
-                :singleData="selectedOrt.data.length === 1"
-                :type="
-                  aufgabeSingleOrt.length > 0
-                    ? getType(aufgabeSingleOrt[0].audiofile)
-                    : false
-                "
-                v-on:callChange="switchData"
-              />
-            </v-card-title>
-          </template>
-          <template v-else>
-            <v-card-title>
-              Keine Aufnahmen verfügbar für
-              {{ selectedOrt.ortName.split(',')[0] }}
-              <v-spacer></v-spacer>
-              <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </v-card-title>
-          </template>
-          <template v-if="aufgabenLoading">
-            <v-skeleton-loader min-width="500" type="article, actions">
-            </v-skeleton-loader>
-          </template>
-          <template v-else>
-            <v-card-text>
-              <v-expansion-panels focusable>
-                <v-expansion-panel
-                  v-for="(d, idx) in aufgabeSingleOrt"
-                  :key="idx"
-                >
-                  <v-expansion-panel-header>
-                    <div>
-                      {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                      {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
-                    </div>
-                  </v-expansion-panel-header>
-
-                  <v-expansion-panel-content eager>
-                    <figure>
-                      <figcaption>Aufnahme anhören:</figcaption>
-                      <AudioPlayer
-                        class="mx-10"
-                        :dateipfad="d.dateipfad"
-                        :audiofile="d.audiofile"
-                        :data="d.data"
-                      />
-                    </figure>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-                <v-expansion-panel
-                  v-for="(d, idx) in antwortenAudio"
-                  :key="idx"
-                >
-                  <v-expansion-panel-header>
-                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
-                    {{ d.sigle }}
-                    <template>
-                      <v-tooltip right>
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn
-                            icon
-                            @click.native.stop="
-                              evaluateData(
-                                d,
-                                idx,
-                                selectedOrt?.ortName.split(',')[0]
-                              )
-                            "
-                            v-bind="attrs"
-                            v-on="on"
-                            class="header"
-                          >
-                            <v-icon>mdi-chart-bar</v-icon>
-                          </v-btn>
-                        </template>
-                        <span> Variation auswerten</span>
-                      </v-tooltip>
-                    </template>
-                    <template v-slot:actions>
-                      <v-icon class="icon">$expand</v-icon>
-                    </template>
-                  </v-expansion-panel-header>
-
-                  <v-expansion-panel-content eager>
-                    <figure>
-                      <figcaption>Aufnahme anhören:</figcaption>
-                      <AudioPlayer
-                        class="mx-10"
-                        :dateipfad="d.dateipfad"
-                        :audiofile="d.audiofile"
-                        :data="d.res[0].data"
-                      />
-                    </figure>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </template>
-        </v-card>
-        <component
-          v-show="diagramData.length > 0"
-          is="v-scale-transition"
-          hide-on-leave
-        >
+      <dragable-card
+        v-if="showAudio"
+        class="audioCard card-overlay"
+        component="audio-card"
+        :props="{
+          showDataSideways: showDataSideways,
+          showAudio: showAudio,
+          selectedOrt: selectedOrt
+        }"
+        :func="{ callChange: changeShowAudio }"
+      />
+    </v-slide-y-reverse-transition>
+    <v-layout class="card-overlay" v-if="showAudio">
+      <component
+        is="v-scale-transition"
+        v-show="diagramTitle.length > 0"
+        hide-on-leave
+      >
+        <template>
           <v-skeleton-loader
             v-if="varLoading"
             class="varCard"
@@ -522,11 +416,14 @@
             v-else
             class="varCard"
             component="variation-card"
-            :props="{ title: diagramTitle, desc: diagramData }"
+            :props="{
+              title: diagramTitle,
+              desc: diagramData
+            }"
           />
-        </component>
-      </v-layout>
-    </v-slide-y-reverse-transition>
+        </template>
+      </component>
+    </v-layout>
     <v-layout class="map-overlay buttons">
       <template
         v-if="
@@ -632,7 +529,10 @@
     <dragable-card
       class="legend"
       component="legend-item"
-      :props="{ vis: showLegend, propCircl: showDataSideways }"
+      :props="{
+        vis: showLegend,
+        propCircl: showDataSideways
+      }"
       :func="{ callChange: splitTags }"
     />
     <div
@@ -725,7 +625,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -817,9 +717,6 @@ export default class MapView extends Vue {
   searchInput: string = '';
   searchTerms: Array<SearchTerm> = [];
 
-  diagramData: Array<Description> = [];
-  diagramTitle: string = "";
-
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
   selectedDataidx: number = 0;
@@ -867,8 +764,6 @@ export default class MapView extends Vue {
   showDataProp = false;
   searchTerm: SearchTerm | null = null;
   geoStore = geoStore;
-  // layerGroup: any = null;
-
 
   curZoom = {
     start: 0,
@@ -955,6 +850,14 @@ export default class MapView extends Vue {
   ) {
     return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${startMin * 60 + startSec
       },${stopMin * 60 + stopSec}`;
+  }
+
+  get diagramData() {
+    return this.AM.diagramData;
+  }
+
+  get diagramTitle() {
+    return this.AM.diagramTitle;
   }
 
   get aufgabenSet() {
@@ -1227,8 +1130,6 @@ export default class MapView extends Vue {
     return selectColor(null);
   }
 
-
-
   async fetchEntriesDebounced() {
     // cancel pending call
     clearTimeout(this._debounceId);
@@ -1319,20 +1220,6 @@ export default class MapView extends Vue {
 
   getOrtNameTemplate(name: string): any {
     return getOrtName(name);
-  }
-
-  switchData(dir: boolean) {
-    if (this.selectedOrt) {
-      // increment the index
-      if (dir) {
-        this.selectedDataidx = this.selectedDataidx === this.selectedOrt.data.length - 1 ? 0 : this.selectedDataidx + 1;
-        // decrease the index
-      } else {
-        this.selectedDataidx = this.selectedDataidx === 0 ? this.selectedOrt.data.length - 1 : this.selectedDataidx - 1;
-      }
-      const d = this.selectedOrt.data[this.selectedDataidx];
-      this.loadData(d, this.selectedOrt.osm, d.t);
-    }
   }
 
   changeSearchTerms() {
@@ -1459,6 +1346,10 @@ export default class MapView extends Vue {
   }
 
   showExport() { }
+
+  changeShowAudio() {
+    this.showAudio = !this.showAudio;
+  }
 
   createRectIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
@@ -2277,10 +2168,6 @@ export default class MapView extends Vue {
     }
   }
 
-  getType(val: string | null): boolean {
-    return val ? isAufgabeStandard(val) : false;
-  }
-
   fetchTranscript(id: number) {
     console.log(id);
     console.log('test output');
@@ -2390,70 +2277,6 @@ export default class MapView extends Vue {
     }
   }
 
-  async evaluateData(d: AntwortTokenStamp, idx: number, ort: string | undefined) {
-    this.diagramTitle = `Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`;
-    let res: Array<Description> = [];
-    if (this.selectedOrt) {
-      const currEle = this.selectedOrt?.data[this.selectedDataidx];
-      const val = d.res[0].data.length;
-      let data = this.selectedOrt.data.filter(el => el.id !== currEle.id);
-      let dto: Array<antwortenDto> = [];
-      for (const key of data) {
-        let ids = [] as number[];
-        if (key.t !== SearchItems.Query) {
-          continue;
-        }
-        if (key.id !== "") {
-          ids = [Number(key.id)];
-        }
-        let token = [] as selectionObject[];
-        let lemma = [] as selectionObject[];
-        let max = this.ageRange.upper;
-        let min = this.ageRange.lower;
-        const p = key.para;
-        if (p) {
-          max = Math.max(p.ageRange[1], max);
-          min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
-          token = p.textTokenList ? p.textTokenList : [];
-          lemma = p.lemmaList ? p.lemmaList : [];
-          ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
-        }
-        dto.push({
-          ids: ids,
-          paraid: key.id,
-          osmId: this.selectedOrt.osm,
-          ageLower: min,
-          ageUpper: max,
-          text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          project: p?.project ? p.project : undefined,
-          erhArt: this.erhArt,
-          lemma: lemma
-        });
-      }
-      await this.AM.fetchAntwortVariation(dto);
-      const person = this.antVariation.find(el => el.sigle === d.sigle);
-      res.push({
-        color: currEle.c,
-        name: currEle.name,
-        value: val
-      })
-      person?.res.forEach(el => {
-        console.log(el);
-        const d = data.find(e => e.id === el.id);
-        res.push({
-          color: d ? d.c : '#000',
-          name: d ? d.name : '',
-          value: el.data.length
-        })
-
-      })
-    }
-    this.diagramData = res;
-  }
-
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
@@ -2504,9 +2327,9 @@ export default class MapView extends Vue {
     overflow: hidden;
   }
   .varCard {
-    top: 500px;
-    left: 750px;
-    width: 400px;
+    bottom: 50px;
+    left: 45%;
+    max-width: 450px;
     // height: 38%;
     position: fixed;
   }
@@ -2524,13 +2347,13 @@ export default class MapView extends Vue {
   }
 
   .card-overlay {
-    height: 100%;
+    //height: 100%;
     position: fixed;
     z-index: 1;
-    width: 100%;
-    left: 0;
-    right: 0;
-    top: 55%;
+    //width: 100%;
+    //left: 0;
+    //right: 0;
+    // top: 55%;
   }
 
   .btn-overlay {
@@ -2568,12 +2391,11 @@ export default class MapView extends Vue {
   }
 
   .audioCard {
-    margin-bottom: 50px;
     margin-left: 50px;
-    top: 500px;
     width: 600px;
-    height: 38%;
     position: fixed;
+    bottom: 50px;
+    height: 35vh;
   }
 
   .erhebung {
@@ -2587,10 +2409,7 @@ export default class MapView extends Vue {
 
   .legend {
     top: 75%;
-    margin-bottom: 50px;
-    margin-right: 20px;
     left: 75%;
-    width: 20%;
     position: fixed;
     z-index: 2;
   }
