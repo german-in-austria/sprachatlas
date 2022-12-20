@@ -739,7 +739,8 @@ import {
   Symbols,
   SearchTerm,
   singleEntry,
-  Description
+  Description,
+  circleData
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -777,24 +778,6 @@ import {
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
-
-
-type circleData = {
-  data: Array<singleEntry>;
-  ortName: string;
-  lat: number;
-  lon: number;
-  osm: number;
-  layer: L.LayerGroup;
-  size: number;
-  strokeWidth: number;
-};
-
-type IAntwortenAudio = {
-  name: string | null;
-  tagid: number;
-  content: Array<AntwortTokenStamp>;
-};
 
 @Component({
   components: {
