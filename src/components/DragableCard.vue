@@ -11,13 +11,14 @@ import { generateID } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import VariationCard from './VariationCard.vue';
 import LegendItem from './LegendItem.vue';
+import AudioCard from './AudioCard.vue';
 
 @Component({
-  components: { VariationCard, LegendItem },
+  components: { VariationCard, LegendItem, AudioCard },
   name: 'DragableCard'
 })
 export default class DragableCard extends Vue {
-  @Prop({ type: String, default: generateID() }) readonly id!: string;
+  id!: string;
   @Prop(String) readonly component!: string;
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
@@ -65,6 +66,10 @@ export default class DragableCard extends Vue {
         element.classList.remove('animation');
       }, { once: true })
     }, { once: true });
+  }
+
+  beforeCreate() {
+    this.id = generateID();
   }
 }
 </script>
