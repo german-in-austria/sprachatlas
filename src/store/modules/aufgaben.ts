@@ -10,7 +10,7 @@ import store from '@/store';
 import api from '@/api';
 import { generateID } from '@/helpers/helper';
 import Vue from '../../main';
-import {} from '../../static/apiModels';
+import { Description } from '../../static/apiModels';
 import { ISelectAufgabenFromSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenFromSetResult';
 import { ISelectAufgabenResult } from '../../api/dioe-public-api/models/ISelectAufgabenResult';
 import { ISelectAufgabenSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenSetResult';
@@ -52,6 +52,9 @@ class Aufgaben extends VuexModule implements AufgabenState {
   teams = [] as Array<ISelectAllTeamsResult>;
   loading = false;
 
+  diagramTitle: string = '';
+  diagramData: Array<Description> = [];
+
   @Mutation
   clearAufgabenSet() {
     this.aufgabenSet = [];
@@ -80,6 +83,16 @@ class Aufgaben extends VuexModule implements AufgabenState {
   @Mutation
   setVarLoading(val: boolean) {
     this.varLoading = val;
+  }
+
+  @Mutation
+  setDiagramTitle(title: string) {
+    this.diagramTitle = title;
+  }
+
+  @Mutation
+  setDiagramData(data: Array<Description>) {
+    this.diagramData = data;
   }
 
   @MutationAction({ mutate: ['aufgabenSet', 'loading'] })

@@ -30,6 +30,17 @@ export interface Description {
   value: number;
 }
 
+export type circleData = {
+  data: Array<singleEntry>;
+  ortName: string;
+  lat: number;
+  lon: number;
+  osm: number;
+  layer: L.LayerGroup;
+  size: number;
+  strokeWidth: number;
+};
+
 export interface TagOrteResults {
   numTag: number;
   tagName: string;
