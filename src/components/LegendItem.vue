@@ -299,7 +299,7 @@ export default class LegendItem extends Vue {
   }
 
   updateVis() {
-    this.$emit('update:vis', !this.vis);
+    this.$emit('changeVis', !this.vis);
   }
 
   async splitPreset(el: LegendGlobal, idx: number) {

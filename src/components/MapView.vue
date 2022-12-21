@@ -369,6 +369,21 @@
             </template>
             <span> Suchleiste anzeigen</span>
           </v-tooltip>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click="resetPosition"
+              >
+                <v-icon>mdi-undo</v-icon>
+              </v-btn>
+            </template>
+            <span> Positionen zurücksetzen</span>
+          </v-tooltip>
         </v-row>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
@@ -397,6 +412,7 @@
           selectedOrt: selectedOrt
         }"
         :func="{ callChange: changeShowAudio }"
+        @interface="getInterface"
       />
     </v-slide-y-reverse-transition>
     <v-layout class="card-overlay" v-if="showAudio">
@@ -420,6 +436,7 @@
               title: diagramTitle,
               desc: diagramData
             }"
+            @interface="getInterface"
           />
         </template>
       </component>
@@ -533,7 +550,8 @@
         vis: showLegend,
         propCircl: showDataSideways
       }"
-      :func="{ callChange: splitTags }"
+      :func="{ callChange: splitTags, changeVis: changeLegVis }"
+      @interface="getInterface"
     />
     <div
       class="map-overlay"
@@ -1220,6 +1238,20 @@ export default class MapView extends Vue {
 
   getOrtNameTemplate(name: string): any {
     return getOrtName(name);
+  }
+
+  resetPosition() {
+    // @ts-ignore
+    this.$options.dragInterface.reset();
+  }
+
+  getInterface(dragInterface: any) {
+    // @ts-ignore
+    this.$options.dragInterface = dragInterface;
+  }
+
+  changeLegVis(val: boolean) {
+    this.showLegend = val;
   }
 
   changeSearchTerms() {
