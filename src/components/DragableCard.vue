@@ -58,18 +58,31 @@ export default class DragableCard extends Vue {
       element.removeEventListener('mousemove', this.moveListener, false);
       element.classList.remove('elevation-22');
       element.style.cursor = "default";
-      /**/
-      element.style.left = "";
-      element.style.top = "";
-      element.classList.add('animation');
-      element.addEventListener('transitionend', () => {
-        element.classList.remove('animation');
-      }, { once: true })
     }, { once: true });
+  }
+
+  resetPosition() {
+    const element = document.getElementById(this.id) as HTMLElement;
+    element.style.left = "";
+    element.style.top = "";
+    element.classList.add('animation');
+    element.addEventListener('transitionend', () => {
+      element.classList.remove('animation');
+    }, { once: true })
+  }
+
+  emitInterface() {
+    this.$emit('interface', {
+      reset: () => this.resetPosition()
+    });
   }
 
   beforeCreate() {
     this.id = generateID();
+  }
+
+  mounted() {
+    this.emitInterface();
   }
 }
 </script>
