@@ -209,6 +209,13 @@
           </v-list-item>
         </v-list>
       </v-card-text>
+      <v-card-actions>
+        <action-buttons
+          v-on:hideCard="updateVis()"
+          v-on:moveCard="$emit('moveCard', $event)"
+          color="indigo"
+        />
+      </v-card-actions>
     </v-card>
   </v-slide-x-reverse-transition>
 </template>
@@ -218,6 +225,7 @@ import { Prop, Vue } from 'vue-property-decorator';
 import { legendMod } from '@/store/modules/legend';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import IconCircle from '@/icons/IconCircle.vue';
+import ActionButtons from './ActionButtons.vue';
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { tagModule } from '@/store/modules/tags';
 import { expData } from '@/service/ExportBase';
@@ -236,7 +244,8 @@ import {
 @Component({
   name: 'LegendItem',
   components: {
-    IconCircle
+    IconCircle,
+    ActionButtons
   }
 })
 export default class LegendItem extends Vue {

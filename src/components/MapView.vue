@@ -411,7 +411,7 @@
           showAudio: showAudio,
           selectedOrt: selectedOrt
         }"
-        :func="{ callChange: changeShowAudio }"
+        :func="{ hideCard: changeShowAudio }"
         @interface="getInterface"
       />
     </v-slide-y-reverse-transition>
@@ -1242,12 +1242,15 @@ export default class MapView extends Vue {
 
   resetPosition() {
     // @ts-ignore
-    this.$options.dragInterface.reset();
+    this.$options.dragInterface.forEach(el => {
+      el.reset();
+    })
+    // this.$options.dragInterface.reset();
   }
 
   getInterface(dragInterface: any) {
     // @ts-ignore
-    this.$options.dragInterface = dragInterface;
+    this.$options.dragInterface.push(dragInterface);
   }
 
   changeLegVis(val: boolean) {
@@ -2340,6 +2343,8 @@ export default class MapView extends Vue {
   }
 
   beforeCreate() {
+    //@ts-ignore
+    this.$options.dragInterface = [];
     // //this.l.log('Collections before created'); --logger does not exist yet. if needed define outside like in app
   }
 
@@ -2359,10 +2364,9 @@ export default class MapView extends Vue {
     overflow: hidden;
   }
   .varCard {
-    bottom: 50px;
+    top: 71%;
     left: 45%;
     max-width: 450px;
-    // height: 38%;
     position: fixed;
   }
 
@@ -2423,10 +2427,9 @@ export default class MapView extends Vue {
   }
 
   .audioCard {
-    margin-left: 50px;
+    bottom: 50px;
     width: 600px;
     position: fixed;
-    bottom: 50px;
     height: 35vh;
   }
 

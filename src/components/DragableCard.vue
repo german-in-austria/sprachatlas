@@ -1,6 +1,11 @@
 <template>
-  <div :id="id" class="box" @mousedown.left="dragElement($event)">
-    <component :is="component" v-bind="props" v-on="func" />
+  <div :id="id" class="box">
+    <component
+      :is="component"
+      v-bind="props"
+      v-on="func"
+      v-on:moveCard="move"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -19,12 +24,17 @@ import AudioCard from './AudioCard.vue';
 })
 export default class DragableCard extends Vue {
   id!: string;
+  element!: HTMLElement;
   @Prop(String) readonly component!: string;
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
 
+  move(e: any) {
+    this.dragElement(e);
+  }
+
   moveListener(event: any) {
-    const el = document.getElementById(this.id) as HTMLElement;
+    const el = this.element;
     const rectX = event.currentTarget.rectX;
     const rectY = event.currentTarget.rectY;
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
@@ -45,7 +55,7 @@ export default class DragableCard extends Vue {
   }
 
   dragElement(e: any) {
-    const element = document.getElementById(this.id) as HTMLElement;
+    const element = this.element;
     element.addEventListener('mousemove', this.moveListener);
     const boundingBox = element.getBoundingClientRect();
     //@ts-ignore
@@ -57,14 +67,18 @@ export default class DragableCard extends Vue {
     document.addEventListener('mouseup', () => {
       element.removeEventListener('mousemove', this.moveListener, false);
       element.classList.remove('elevation-22');
-      element.style.cursor = "default";
+      //@ts-ignore
+      element.style.cursor = null;
     }, { once: true });
   }
 
   resetPosition() {
-    const element = document.getElementById(this.id) as HTMLElement;
-    element.style.left = "";
-    element.style.top = "";
+    console.log('Resetting position');
+    const element = this.element;
+    //@ts-ignore
+    element.style.left = null;
+    //@ts-ignore
+    element.style.top = null;
     element.classList.add('animation');
     element.addEventListener('transitionend', () => {
       element.classList.remove('animation');
@@ -83,6 +97,7 @@ export default class DragableCard extends Vue {
 
   mounted() {
     this.emitInterface();
+    this.element = document.getElementById(this.id) as HTMLElement;
   }
 }
 </script>

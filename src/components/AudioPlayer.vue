@@ -4,7 +4,7 @@
     <template>
       <div class="text-center">
         <v-container>
-          <v-row no-gutters align="center">
+          <v-row no-gutters>
             <v-col class="mr-2">
               <v-checkbox
                 v-model="kontext"
@@ -13,14 +13,15 @@
                 @change="changeTime()"
               ></v-checkbox>
             </v-col>
+          </v-row>
+          <v-row>
             <v-col>
-              <span class="mx-2">
+              <span>
                 <v-progress-circular :value="completion"></v-progress-circular
               ></span>
             </v-col>
             <v-col>
               <v-btn
-                class="mx-2"
                 fab
                 small
                 @click="timestampId--"
@@ -30,18 +31,17 @@
               </v-btn>
             </v-col>
             <v-col>
-              <v-btn class="mx-2" fab small @click="play()">
+              <v-btn fab small @click="play()">
                 <v-icon>mdi-play</v-icon>
               </v-btn>
             </v-col>
             <v-col>
-              <v-btn class="mx-2" fab small @click="pause()">
+              <v-btn fab small @click="pause()">
                 <v-icon>mdi-pause</v-icon>
               </v-btn>
             </v-col>
             <v-col>
               <v-btn
-                class="mx-2"
                 fab
                 small
                 @click="timestampId++"
@@ -51,32 +51,42 @@
               </v-btn>
             </v-col>
             <v-col>
-              <v-btn class="mx-2" fab small @click="repeat = !repeat">
+              <v-btn fab small @click="repeat = !repeat">
                 <v-icon v-if="repeat">mdi-repeat</v-icon>
                 <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
               </v-btn>
             </v-col>
           </v-row>
+          <v-row align="center" align-content="center">
+            <v-col>
+              <div class="text-center">
+                <template v-if="data[timestampId].tagName">
+                  <div class="mx-2">
+                    Tag-Name: {{ data[timestampId]['tagName'] }}
+                  </div>
+                </template>
+                <template v-if="data[timestampId].orthoText">
+                  <div class="mx-2">
+                    Ortho:
+                    {{
+                      data[timestampId]['orthoText'] === ''
+                        ? data[timestampId]['ortho']
+                        : data[timestampId]['orthoText']
+                    }}
+                  </div>
+                </template>
+                <template v-if="data[timestampId].aufgabe">
+                  <div class="mx-2">
+                    Aufgabe: {{ data[timestampId].aufgabe }}
+                  </div>
+                  <div class="mx-2">
+                    Typ: {{ type ? 'Standard' : 'Dialekt' }}
+                  </div>
+                </template>
+              </div>
+            </v-col>
+          </v-row>
         </v-container>
-      </div>
-      <div class="text-center">
-        <template v-if="data[timestampId].tagName">
-          <div class="mx-2">Tag-Name: {{ data[timestampId]['tagName'] }}</div>
-        </template>
-        <template v-if="data[timestampId].orthoText">
-          <div class="mx-2">
-            Ortho:
-            {{
-              data[timestampId]['orthoText'] === ''
-                ? data[timestampId]['ortho']
-                : data[timestampId]['orthoText']
-            }}
-          </div>
-        </template>
-        <template v-if="data[timestampId].aufgabe">
-          <div class="mx-2">Aufgabe: {{ data[timestampId].aufgabe }}</div>
-          <div class="mx-2">Typ: {{ type ? 'Standard' : 'Dialekt' }}</div>
-        </template>
       </div>
     </template>
   </v-layout>

@@ -7,7 +7,7 @@
         aufgabenLoading
       "
     >
-      <v-card-title fixed style="font-size: 18px; position: sticky">
+      <v-card-title fixed style="font-size: 18px">
         <DataSwitch
           :ortName="selectedOrt.ortName.split(',')[0]"
           :data="selectedOrt.data[selectedDataidx]"
@@ -102,9 +102,13 @@
         </v-expansion-panels>
       </v-card-text>
       <v-card-actions>
-        <v-btn icon color="indigo" @click="$emit('callChange')">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
+        <action-buttons
+          v-on:hideCard="$emit('hideCard', $event)"
+          v-on:moveCard="$emit('moveCard', $event)"
+          :pinned="false"
+          :showPin="true"
+          color="indigo"
+        />
       </v-card-actions>
     </template>
   </v-card>
@@ -117,7 +121,7 @@ import { loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import DataSwitch from './DataSwitch.vue';
 import AudioPlayer from './AudioPlayer.vue';
-
+import ActionButtons from './ActionButtons.vue';
 import { isAufgabeStandard } from '@/helpers/helper';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
@@ -125,7 +129,7 @@ import { antwortenDto, AntwortTokenStamp, selectionObject } from '@/api/dioe-pub
 
 
 @Component({
-  components: { DataSwitch, AudioPlayer },
+  components: { DataSwitch, AudioPlayer, ActionButtons },
   name: 'AudioCard'
 })
 export default class DragableCard extends Vue {
@@ -246,7 +250,7 @@ export default class DragableCard extends Vue {
   }
 
   .audio-card {
-    max-height: 100%;
+    height: 100%;
   }
 
   .v-card {
