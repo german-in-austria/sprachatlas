@@ -16,7 +16,8 @@ import {
   Parameter,
   LegendGlobal,
   Symbols,
-  Hsl
+  Hsl,
+  pinData
 } from '../../static/apiModels';
 import { selectColor } from '@/helpers/helper';
 import { ISelectAusbildungResult } from '@/api/dioe-public-api';
@@ -47,6 +48,17 @@ class Legend extends VuexModule implements LegendState {
   filterByAge = false;
   filterByArt = false;
   ausbildungsGrad = [];
+  pinnedData = [] as Array<pinData>;
+
+  @Mutation
+  addPinData(e: pinData) {
+    this.pinnedData.push(e);
+  }
+
+  @Mutation
+  removeElement(idx: number) {
+    this.pinnedData.splice(idx, 1);
+  }
 
   @Mutation
   addLegendEntry(e: any) {

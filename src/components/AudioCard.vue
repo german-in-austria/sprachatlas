@@ -105,6 +105,7 @@
         <action-buttons
           v-on:hideCard="$emit('hideCard', $event)"
           v-on:moveCard="$emit('moveCard', $event)"
+          v-on:pinCard="pinCard($event, true)"
           :pinned="false"
           :showPin="true"
           color="indigo"
@@ -115,9 +116,9 @@
 </template>
 <script lang="ts">
 import {
-  circleData, Description, SearchItems
+  circleData, Description, pinData, SearchItems
 } from '../static/apiModels';
-import { loadData } from '@/helpers/helper';
+import { generateID, loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import DataSwitch from './DataSwitch.vue';
 import AudioPlayer from './AudioPlayer.vue';
@@ -140,6 +141,7 @@ export default class DragableCard extends Vue {
   selectedDataidx: number = 0;
 
   AM = aufgabenModule;
+  LM = legendMod;
 
   get antwortenAudio() {
     return this.AM.antwortenAudio;
@@ -163,6 +165,15 @@ export default class DragableCard extends Vue {
 
   getType(val: string | null): boolean {
     return val ? isAufgabeStandard(val) : false;
+  }
+
+  pinCard(event: any, pinData: boolean) {
+    const data: pinData = {
+      id: generateID(),
+      selectedOrt: this.selectedOrt,
+      selectedDataIdx: this.selectedDataidx,
+      isPinned: pinData
+    };
   }
 
   switchData(dir: boolean) {

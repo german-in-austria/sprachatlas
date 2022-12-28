@@ -400,7 +400,7 @@ export interface pinData {
   id: string;
   selectedOrt: circleData;
   selectedDataIdx: number;
-  isPinnded: boolean;
-  antwortAudio: AntwortTokenStamp[];
-  aufgabeAudio: AufgabeStamp[];
+  isPinned: boolean;
+  antwortAudio?: AntwortTokenStamp[];
+  aufgabeAudio?: AufgabeStamp[];
 }
