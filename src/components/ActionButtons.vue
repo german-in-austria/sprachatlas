@@ -8,7 +8,7 @@
     </v-btn>
     <template v-if="showPin">
       <v-btn icon :color="color" @click="$emit('pinCard', $event)">
-        <v-icon v-if="!pinned">mdi-pin</v-icon>
+        <v-icon v-if="pinned">mdi-pin</v-icon>
         <v-icon v-else>mdi-pin-off</v-icon>
       </v-btn>
     </template>

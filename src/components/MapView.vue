@@ -418,7 +418,7 @@
     <v-layout class="card-overlay" v-if="showAudio">
       <component
         is="v-scale-transition"
-        v-show="diagramTitle.length > 0"
+        v-if="diagramTitle.length > 0"
         hide-on-leave
       >
         <template>
@@ -436,6 +436,7 @@
               title: diagramTitle,
               desc: diagramData
             }"
+            :func="{ hideCard: hideVarCard }"
             @interface="getInterface"
           />
         </template>
@@ -1508,6 +1509,10 @@ export default class MapView extends Vue {
       }
     }
     return data;
+  }
+
+  hideVarCard() {
+    this.AM.setDiagramTitle('');
   }
 
   createIcon(
