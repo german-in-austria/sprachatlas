@@ -1,4 +1,9 @@
-import { selectionObject, TagTree } from '@/api/dioe-public-api';
+import {
+  AntwortTokenStamp,
+  AufgabeStamp,
+  selectionObject,
+  TagTree
+} from '@/api/dioe-public-api';
 
 type ServerTranscriptId = number;
 
@@ -389,4 +394,13 @@ export interface transRoute {
 export interface PhaenBer {
   id: number;
   bez: string;
+}
+
+export interface pinData {
+  id: string;
+  selectedOrt: circleData;
+  selectedDataIdx: number;
+  isPinnded: boolean;
+  antwortAudio: AntwortTokenStamp[];
+  aufgabeAudio: AufgabeStamp[];
 }
