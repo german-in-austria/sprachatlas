@@ -12,9 +12,6 @@
       <v-card-title
         >Legende
         <v-spacer></v-spacer>
-        <v-btn icon color="indigo" @click="updateVis()">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
       </v-card-title>
       <v-card-text class="mx-auto">
         <v-list class="transparent">
