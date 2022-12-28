@@ -73,7 +73,6 @@ export default class DragableCard extends Vue {
   }
 
   resetPosition() {
-    console.log('Resetting position');
     const element = this.element;
     //@ts-ignore
     element.style.left = null;
