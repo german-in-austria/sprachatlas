@@ -409,7 +409,8 @@
         :props="{
           showDataSideways: showDataSideways,
           showAudio: showAudio,
-          selectedOrt: selectedOrt
+          selectedOrt: selectedOrt,
+          aufgabenLoading: aufgabenLoading
         }"
         :func="{ hideCard: changeShowAudio }"
         @interface="getInterface"
@@ -644,7 +645,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex, generateID } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID, loadData } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -1533,70 +1534,31 @@ export default class MapView extends Vue {
   audioListener(ort: circleData, type: SearchItems) {
     this.selectedOrt = ort;
     this.showAudio = true;
-    this.loadData(ort.data[this.selectedDataidx], ort.osm, type);
-  }
-
-  loadData(data: singleEntry, osm: number, type: SearchItems) {
-    let ids = [] as number[];
-    if (data.id !== "" && type !== SearchItems.Query) {
-      ids = [Number(data.id)];
-    }
-    let max = this.ageRange.upper;
-    let min = this.ageRange.lower;
-    let token = [] as selectionObject[];
-    let lemma = [] as selectionObject[];
-    const p = data.para;
-    if (p) {
-      max = Math.max(p.ageRange[1], max);
-      min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
-      token = p.textTokenList ? p.textTokenList : [];
-      lemma = p.lemmaList ? p.lemmaList : [];
-      ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
-    }
-    switch (data.t) {
-      case SearchItems.Phaen:
-        this.AM.fetchAntwortAudio({
-          phaen: ids,
-          erhArt: this.erhArt,
-          ids: [],
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max,
-          text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          lemma: lemma
-        });
-        break;
-      case SearchItems.Query:
-      case SearchItems.Tag:
-        this.AM.fetchAntwortAudio({
-          ids: ids,
-          paraid: data.t === SearchItems.Tag ? '' : data.id,
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max,
-          text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          project: p?.project ? p.project : undefined,
-          erhArt: this.erhArt,
-          group: data.t === SearchItems.Query ? true : false,
-          lemma: lemma
-        });
-        break;
-      case SearchItems.Aufgaben:
-        this.AM.fetchAufgabenAudioOrt({
-          ids: ids,
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max
-          //text: ort.data[0].para?.textTokenList
-        });
-        break;
-    }
+    const idx = this.selectedDataidx;
+    loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
+      switch (type) {
+        case SearchItems.Phaen:
+        case SearchItems.Query:
+        case SearchItems.Tag:
+          this.LM.pushNewData({
+            selOrt: ort,
+            selIdx: idx,
+            isPinned: false,
+            antwortAudio: this.antwortenAudio,
+            aufgabeAudio: undefined
+          });
+          break;
+        case SearchItems.Aufgaben:
+          this.LM.pushNewData({
+            selOrt: ort,
+            selIdx: idx,
+            isPinned: false,
+            antwortAudio: undefined,
+            aufgabeAudio: this.aufgabeSingleOrt
+          });
+          break;
+      }
+    });
   }
 
   addDataToMap(data: Array<circleData>, type: SearchItems) {

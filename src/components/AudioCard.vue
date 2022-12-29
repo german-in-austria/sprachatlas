@@ -137,6 +137,7 @@ export default class DragableCard extends Vue {
   @Prop() readonly selectedOrt!: circleData;
   @Prop(Boolean) readonly showDataSideways!: boolean;
   @Prop(Boolean) showAudio!: boolean;
+  @Prop(Boolean) readonly aufgabenLoading!: boolean;
 
   selectedDataidx: number = 0;
 
@@ -153,10 +154,6 @@ export default class DragableCard extends Vue {
 
   get antVariation() {
     return this.AM.antVariation;
-  }
-
-  get aufgabenLoading() {
-    return this.AM.loading;
   }
 
   get ageRange() {
