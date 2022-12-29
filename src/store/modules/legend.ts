@@ -17,10 +17,15 @@ import {
   LegendGlobal,
   Symbols,
   Hsl,
-  pinData
+  pinData,
+  circleData
 } from '../../static/apiModels';
 import { selectColor } from '@/helpers/helper';
-import { ISelectAusbildungResult } from '@/api/dioe-public-api';
+import {
+  AntwortTokenStamp,
+  AufgabeStamp,
+  ISelectAusbildungResult
+} from '@/api/dioe-public-api';
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
@@ -56,8 +61,41 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
+  pushNewData(arg: {
+    selOrt: circleData;
+    selIdx: number;
+    isPinned: boolean;
+    antwortAudio?: AntwortTokenStamp[];
+    aufgabeAudio?: AufgabeStamp[];
+  }) {
+    const data: pinData = {
+      id: generateID(),
+      selectedOrt: arg.selOrt,
+      selectedDataIdx: arg.selIdx,
+      isPinned: arg.isPinned,
+      antwortAudio: arg.antwortAudio,
+      aufgabeAudio: arg.aufgabeAudio
+    };
+    this.pinnedData.push(data);
+  }
+
+  @Mutation
   removeElement(idx: number) {
     this.pinnedData.splice(idx, 1);
+  }
+
+  @Mutation
+  resetPinnedData() {
+    this.pinnedData = [];
+  }
+
+  @Mutation
+  editPinnedByID(content: pinData) {
+    const id = content.id;
+    const ele = this.pinnedData.findIndex((el) => el.id === id);
+    if (ele > -1) {
+      this.pinnedData[ele] = content;
+    }
   }
 
   @Mutation
@@ -173,6 +211,11 @@ class Legend extends VuexModule implements LegendState {
     } else {
       this.context.commit('removeEntryById', el.id);
     }
+  }
+
+  @Action
+  editPinnedData(el: pinData) {
+    this.context.commit('editPinnedByID', el);
   }
 
   @MutationAction({ mutate: ['ausbildungsGrad'] })
