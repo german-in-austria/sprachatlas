@@ -1,13 +1,13 @@
 <template>
   <v-card class="elevation-2 audio-card">
-    <template
-      v-if="
-        antwortenAudio.length > 0 ||
-        aufgabeSingleOrt.length > 0 ||
-        aufgabenLoading
-      "
-    >
-      <v-card-title fixed style="font-size: 18px">
+    <v-card-title fixed style="font-size: 18px">
+      <template
+        v-if="
+          antwortenAudio.length > 0 ||
+          aufgabeSingleOrt.length > 0 ||
+          aufgabenLoading
+        "
+      >
         <DataSwitch
           :ortName="selectedOrt.ortName.split(',')[0]"
           :data="selectedOrt.data[selectedDataidx]"
@@ -20,15 +20,12 @@
           "
           v-on:callChange="switchData"
         />
-      </v-card-title>
-    </template>
-    <template v-else>
-      <v-card-title>
+      </template>
+      <template v-else>
         Keine Aufnahmen verfügbar für
         {{ selectedOrt.ortName.split(',')[0] }}
-        <v-spacer></v-spacer>
-      </v-card-title>
-    </template>
+      </template>
+    </v-card-title>
     <template v-if="aufgabenLoading">
       <v-skeleton-loader min-width="500" type="article, actions">
       </v-skeleton-loader>
