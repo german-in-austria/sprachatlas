@@ -109,7 +109,7 @@ export const isAufgabeStandard = (val: string): boolean => {
   return val.search('(UED|SPTD)') > -1;
 };
 
-export const loadData = (
+export const loadData = async (
   data: singleEntry,
   osm: number,
   type: SearchItems,
@@ -135,7 +135,7 @@ export const loadData = (
   }
   switch (data.t) {
     case SearchItems.Phaen:
-      AM.fetchAntwortAudio({
+      await AM.fetchAntwortAudio({
         phaen: ids,
         erhArt: erhArt,
         ids: [],
@@ -151,7 +151,7 @@ export const loadData = (
       break;
     case SearchItems.Query:
     case SearchItems.Tag:
-      AM.fetchAntwortAudio({
+      await AM.fetchAntwortAudio({
         ids: ids,
         paraid: data.t === SearchItems.Tag ? '' : data.id,
         osmId: osm,
@@ -168,7 +168,7 @@ export const loadData = (
       });
       break;
     case SearchItems.Aufgaben:
-      AM.fetchAufgabenAudioOrt({
+      await AM.fetchAufgabenAudioOrt({
         ids: ids,
         osmId: osm,
         ageLower: min,
