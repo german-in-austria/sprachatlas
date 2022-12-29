@@ -4,7 +4,7 @@
       :is="component"
       v-bind="props"
       v-on="func"
-      v-on:moveCard="move"
+      v-on:moveCard="dragElement"
     />
   </div>
 </template>
@@ -29,9 +29,6 @@ export default class DragableCard extends Vue {
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
 
-  move(e: any) {
-    this.dragElement(e);
-  }
 
   moveListener(event: any) {
     const el = this.element;
@@ -56,7 +53,7 @@ export default class DragableCard extends Vue {
 
   dragElement(e: any) {
     const element = this.element;
-    element.addEventListener('mousemove', this.moveListener);
+    element.addEventListener('mousemove', this.moveListener, false);
     const boundingBox = element.getBoundingClientRect();
     //@ts-ignore
     element.rectX = e.clientX - boundingBox.left;

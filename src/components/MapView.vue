@@ -451,33 +451,35 @@
       </component>
     </v-layout>
     <v-layout class="map-overlay buttons">
-      <template
-        v-if="
-          !showAudio &&
-          antwortenAudio &&
-          antwortenAudio.length > 0 &&
-          selectedOrt
-        "
-      >
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              small
-              rounded
-              class="drawer-down"
-              v-bind="attrs"
-              v-on="on"
-              @click="showAudio = !showAudio"
-            >
-              <v-icon>mdi-chevron-double-up</v-icon>
-            </v-btn>
-          </template>
-          <span>
-            Verfügbare Audioaufnahmen für
-            {{ selectedOrt.ortName.split(',')[0] }}
-          </span>
-        </v-tooltip>
-      </template>
+      <div v-for="(d, idx) in pinnedData" :key="idx">
+        <template
+          v-if="
+            !d.showCard &&
+            d.antwortAudio &&
+            d.antwortAudio.length > 0 &&
+            d.selectedOrt
+          "
+        >
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                small
+                rounded
+                class="drawer-down"
+                v-bind="attrs"
+                v-on="on"
+                @click="changeShowAudio(d.id)"
+              >
+                <v-icon>mdi-chevron-double-up</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              Verfügbare Audioaufnahmen für
+              {{ d.selectedOrt.ortName.split(',')[0] }}
+            </span>
+          </v-tooltip>
+        </template>
+      </div>
     </v-layout>
     <v-layout class="map-overlay erhebung" v-if="currentErhebung">
       <v-card elevation="2">
@@ -1397,7 +1399,8 @@ export default class MapView extends Vue {
   showExport() { }
 
   changeShowAudio(id: string) {
-    this.LM.editPinShowById({ dataId: id, show: false });
+    const show = this.pinnedData.filter(el => el.id === id)[0]?.showCard;
+    this.LM.editPinShowById({ dataId: id, show: !show });
     // d.showCard = !d.showCard;
     this.showAudio = !this.showAudio;
   }
@@ -2386,6 +2389,7 @@ export default class MapView extends Vue {
   .drawer-down {
     border-bottom-right-radius: 0em;
     border-bottom-left-radius: 0em;
+    margin-right: 15px;
   }
 
   .buttons {
