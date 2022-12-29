@@ -401,28 +401,30 @@
         <ExportMap :vis.sync="dialog" />
       </v-dialog>
     </v-layout>
-    <div v-for="(d, idx) in pinnedData" :key="idx">
-      <v-slide-y-reverse-transition tag="Changev-layout">
-        <dragable-card
-          v-if="d.showCard"
-          class="audioCard card-overlay"
-          component="audio-card"
-          :props="{
-            showDataSideways: showDataSideways,
-            showAudio: d.showCard,
-            selectedOrt: d.selectedOrt,
-            antwortenAudio: d.antwortAudio,
-            aufgabeSingleOrt: d.aufgabeAudio,
-            pinned: d.isPinned,
-            dataId: d.id
-          }"
-          :func="{
-            hideCard: changeShowAudio
-          }"
-          @interface="getInterface"
-        />
-      </v-slide-y-reverse-transition>
-    </div>
+    <v-layout class="card-overlay">
+      <div v-for="(d, idx) in pinnedData" :key="idx">
+        <v-slide-y-reverse-transition tag="Changev-layout">
+          <dragable-card
+            v-if="d.showCard"
+            class="audioCard"
+            component="audio-card"
+            :props="{
+              showDataSideways: showDataSideways,
+              showAudio: d.showCard,
+              selectedOrt: d.selectedOrt,
+              antwortenAudio: d.antwortAudio,
+              aufgabeSingleOrt: d.aufgabeAudio,
+              pinned: d.isPinned,
+              dataId: d.id
+            }"
+            :func="{
+              hideCard: changeShowAudio
+            }"
+            @interface="getInterface"
+          />
+        </v-slide-y-reverse-transition>
+      </div>
+    </v-layout>
     <v-layout class="card-overlay" v-if="showAudio">
       <component
         is="v-scale-transition"
@@ -2343,12 +2345,6 @@ export default class MapView extends Vue {
   html {
     overflow: hidden;
   }
-  .varCard {
-    top: 71%;
-    left: 45%;
-    max-width: 450px;
-    position: fixed;
-  }
 
   .map-overlay {
     position: fixed;
@@ -2408,10 +2404,18 @@ export default class MapView extends Vue {
   }
 
   .audioCard {
-    bottom: 50px;
-    width: 600px;
+    top: 60vh;
+    left: 10vw;
     position: fixed;
+    width: 600px;
     height: 35vh;
+  }
+
+  .varCard {
+    top: 71%;
+    left: 45%;
+    max-width: 450px;
+    position: fixed;
   }
 
   .erhebung {
