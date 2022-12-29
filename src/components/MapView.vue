@@ -401,21 +401,28 @@
         <ExportMap :vis.sync="dialog" />
       </v-dialog>
     </v-layout>
-    <v-slide-y-reverse-transition tag="Changev-layout">
-      <dragable-card
-        v-if="showAudio"
-        class="audioCard card-overlay"
-        component="audio-card"
-        :props="{
-          showDataSideways: showDataSideways,
-          showAudio: showAudio,
-          selectedOrt: selectedOrt,
-          aufgabenLoading: aufgabenLoading
-        }"
-        :func="{ hideCard: changeShowAudio }"
-        @interface="getInterface"
-      />
-    </v-slide-y-reverse-transition>
+    <div v-for="(d, idx) in pinnedData" :key="idx">
+      <v-slide-y-reverse-transition tag="Changev-layout">
+        <dragable-card
+          v-if="d.showCard || aufgabenLoading"
+          class="audioCard card-overlay"
+          component="audio-card"
+          :props="{
+            showDataSideways: showDataSideways,
+            showAudio: d.showCard,
+            selectedOrt: d.selectedOrt,
+            antwortenAudio: d.antwortAudio,
+            aufgabeSingleOrt: d.aufgabeAudio,
+            pinned: d.isPinned,
+            dataId: d.id
+          }"
+          :func="{
+            hideCard: changeShowAudio
+          }"
+          @interface="getInterface"
+        />
+      </v-slide-y-reverse-transition>
+    </div>
     <v-layout class="card-overlay" v-if="showAudio">
       <component
         is="v-scale-transition"
@@ -660,7 +667,8 @@ import {
   SearchTerm,
   singleEntry,
   Description,
-  circleData
+  circleData,
+  pinData
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -923,6 +931,10 @@ export default class MapView extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  get pinnedData() {
+    return this.LM.pinnedData;
   }
 
   get legendGlobalQuery() {
@@ -1384,7 +1396,9 @@ export default class MapView extends Vue {
 
   showExport() { }
 
-  changeShowAudio() {
+  changeShowAudio(id: string) {
+    this.LM.editPinShowById({ dataId: id, show: false });
+    // d.showCard = !d.showCard;
     this.showAudio = !this.showAudio;
   }
 
@@ -1531,33 +1545,29 @@ export default class MapView extends Vue {
     }
   }
 
-  audioListener(ort: circleData, type: SearchItems) {
+  async audioListener(ort: circleData, type: SearchItems) {
     this.selectedOrt = ort;
     this.showAudio = true;
     const idx = this.selectedDataidx;
+    let curr = await this.LM.pushNewData({
+      selOrt: ort,
+      selIdx: idx,
+      isPinned: false,
+      antwortAudio: [],
+      aufgabeAudio: []
+    });
     loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
       switch (type) {
         case SearchItems.Phaen:
         case SearchItems.Query:
         case SearchItems.Tag:
-          this.LM.pushNewData({
-            selOrt: ort,
-            selIdx: idx,
-            isPinned: false,
-            antwortAudio: this.antwortenAudio,
-            aufgabeAudio: undefined
-          });
+          curr.antwortAudio = this.antwortenAudio;
           break;
         case SearchItems.Aufgaben:
-          this.LM.pushNewData({
-            selOrt: ort,
-            selIdx: idx,
-            isPinned: false,
-            antwortAudio: undefined,
-            aufgabeAudio: this.aufgabeSingleOrt
-          });
+          curr.aufgabeAudio = this.aufgabeSingleOrt;
           break;
       }
+      this.LM.editPinnedByID(curr);
     });
   }
 

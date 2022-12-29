@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="selectedOrt" class="elevation-2 audio-card">
+  <v-card class="elevation-2 audio-card">
     <template
       v-if="
         antwortenAudio.length > 0 ||
@@ -27,9 +27,6 @@
         Keine Aufnahmen verfügbar für
         {{ selectedOrt.ortName.split(',')[0] }}
         <v-spacer></v-spacer>
-        <v-btn icon color="indigo" @click="showAudio = !showAudio">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
       </v-card-title>
     </template>
     <template v-if="aufgabenLoading">
@@ -103,10 +100,10 @@
       </v-card-text>
       <v-card-actions>
         <action-buttons
-          v-on:hideCard="$emit('hideCard', $event)"
+          v-on:hideCard="$emit('hideCard', dataId)"
           v-on:moveCard="$emit('moveCard', $event)"
-          v-on:pinCard="pinCard($event, true)"
-          :pinned="false"
+          v-on:pinCard="pinCard($event, !pinned)"
+          :pinned="pinned"
           :showPin="true"
           color="indigo"
         />
@@ -116,9 +113,9 @@
 </template>
 <script lang="ts">
 import {
-  circleData, Description, pinData, SearchItems
+  circleData, Description, SearchItems
 } from '../static/apiModels';
-import { generateID, loadData } from '@/helpers/helper';
+import { loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import DataSwitch from './DataSwitch.vue';
 import AudioPlayer from './AudioPlayer.vue';
@@ -126,7 +123,7 @@ import ActionButtons from './ActionButtons.vue';
 import { isAufgabeStandard } from '@/helpers/helper';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
-import { antwortenDto, AntwortTokenStamp, selectionObject } from '@/api/dioe-public-api';
+import { antwortenDto, AntwortTokenStamp, AufgabeStamp, selectionObject } from '@/api/dioe-public-api';
 
 
 @Component({
@@ -135,25 +132,25 @@ import { antwortenDto, AntwortTokenStamp, selectionObject } from '@/api/dioe-pub
 })
 export default class DragableCard extends Vue {
   @Prop() readonly selectedOrt!: circleData;
+  @Prop() readonly antwortenAudio!: AntwortTokenStamp[];
+  @Prop() readonly aufgabeSingleOrt!: AufgabeStamp[];
+
+  @Prop(String) readonly dataId!: string;
   @Prop(Boolean) readonly showDataSideways!: boolean;
   @Prop(Boolean) showAudio!: boolean;
-  @Prop(Boolean) readonly aufgabenLoading!: boolean;
+  @Prop(Boolean) readonly pinned!: boolean;
 
   selectedDataidx: number = 0;
 
   AM = aufgabenModule;
   LM = legendMod;
 
-  get antwortenAudio() {
-    return this.AM.antwortenAudio;
-  }
-
-  get aufgabeSingleOrt() {
-    return this.AM.aufgabeSingleOrt;
-  }
-
   get antVariation() {
     return this.AM.antVariation;
+  }
+
+  get aufgabenLoading() {
+    return this.AM.loading;
   }
 
   get ageRange() {
@@ -165,12 +162,7 @@ export default class DragableCard extends Vue {
   }
 
   pinCard(event: any, pinData: boolean) {
-    const data: pinData = {
-      id: generateID(),
-      selectedOrt: this.selectedOrt,
-      selectedDataIdx: this.selectedDataidx,
-      isPinned: pinData
-    };
+    this.LM.editPinnedShowById({ dataId: this.dataId, show: true, pinned: pinData });
   }
 
   switchData(dir: boolean) {
@@ -231,7 +223,8 @@ export default class DragableCard extends Vue {
         });
       }
       await this.AM.fetchAntwortVariation(dto);
-      const person = this.antVariation.find((el: any) => el.sigle === d.sigle);
+      const variation = this.antVariation;
+      const person = variation.find((el: any) => el.sigle === d.sigle);
       res.push({
         color: currEle.c,
         name: currEle.name,

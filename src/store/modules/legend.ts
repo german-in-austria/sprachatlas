@@ -61,25 +61,6 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
-  pushNewData(arg: {
-    selOrt: circleData;
-    selIdx: number;
-    isPinned: boolean;
-    antwortAudio?: AntwortTokenStamp[];
-    aufgabeAudio?: AufgabeStamp[];
-  }) {
-    const data: pinData = {
-      id: generateID(),
-      selectedOrt: arg.selOrt,
-      selectedDataIdx: arg.selIdx,
-      isPinned: arg.isPinned,
-      antwortAudio: arg.antwortAudio,
-      aufgabeAudio: arg.aufgabeAudio
-    };
-    this.pinnedData.push(data);
-  }
-
-  @Mutation
   removeElement(idx: number) {
     this.pinnedData.splice(idx, 1);
   }
@@ -96,6 +77,30 @@ class Legend extends VuexModule implements LegendState {
     if (ele > -1) {
       this.pinnedData[ele] = content;
     }
+  }
+
+  @Mutation
+  editPinnedShowById(arg: { dataId: string; show: boolean; pinned: boolean }) {
+    const id = arg.dataId;
+    const ele = this.pinnedData.findIndex((el) => el.id === id);
+    if (ele > -1) {
+      this.pinnedData[ele].isPinned = arg.pinned;
+      this.pinnedData[ele].showCard = arg.show;
+    }
+  }
+
+  @Mutation
+  editPinShowById(arg: { dataId: string; show: boolean }) {
+    const id = arg.dataId;
+    const ele = this.pinnedData.findIndex((el) => el.id === id);
+    if (ele > -1) {
+      this.pinnedData[ele].showCard = arg.show;
+    }
+  }
+
+  @Mutation
+  removeUnPinnedData() {
+    this.pinnedData = this.pinnedData.filter((el) => el.isPinned);
   }
 
   @Mutation
@@ -211,6 +216,32 @@ class Legend extends VuexModule implements LegendState {
     } else {
       this.context.commit('removeEntryById', el.id);
     }
+  }
+
+  @Action
+  pushNewData(arg: {
+    selOrt: circleData;
+    selIdx: number;
+    isPinned: boolean;
+    antwortAudio: AntwortTokenStamp[];
+    aufgabeAudio: AufgabeStamp[];
+  }): pinData {
+    const data: pinData = {
+      id: generateID(),
+      selectedOrt: arg.selOrt,
+      selectedDataIdx: arg.selIdx,
+      isPinned: arg.isPinned,
+      showCard: true,
+      antwortAudio: arg.antwortAudio,
+      aufgabeAudio: arg.aufgabeAudio
+    };
+    if (this.pinnedData.length === 1 && !this.pinnedData[0].isPinned) {
+      this.context.commit('removeElement', 0);
+    } else if (this.pinnedData.length > 1) {
+      this.context.commit('removeUnPinnedData');
+    }
+    this.context.commit('addPinData', data);
+    return data;
   }
 
   @Action
