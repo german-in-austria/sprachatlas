@@ -404,7 +404,7 @@
     <div v-for="(d, idx) in pinnedData" :key="idx">
       <v-slide-y-reverse-transition tag="Changev-layout">
         <dragable-card
-          v-if="d.showCard || aufgabenLoading"
+          v-if="d.showCard"
           class="audioCard card-overlay"
           component="audio-card"
           :props="{

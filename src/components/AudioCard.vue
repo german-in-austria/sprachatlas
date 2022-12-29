@@ -150,7 +150,7 @@ export default class DragableCard extends Vue {
   }
 
   get aufgabenLoading() {
-    return this.AM.loading;
+    return this.AM.loading && (this.antwortenAudio.length === 0 && this.aufgabeSingleOrt.length === 0);
   }
 
   get ageRange() {
