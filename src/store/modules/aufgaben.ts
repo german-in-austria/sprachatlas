@@ -10,7 +10,7 @@ import store from '@/store';
 import api from '@/api';
 import { generateID } from '@/helpers/helper';
 import Vue from '../../main';
-import {} from '../../static/apiModels';
+import { Description, pinDataVar } from '../../static/apiModels';
 import { ISelectAufgabenFromSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenFromSetResult';
 import { ISelectAufgabenResult } from '../../api/dioe-public-api/models/ISelectAufgabenResult';
 import { ISelectAufgabenSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenSetResult';
@@ -41,6 +41,8 @@ class Aufgaben extends VuexModule implements AufgabenState {
   aufgaben = [] as Array<ISelectAufgabenResult>;
   aufgabenFromSet = [] as Array<ISelectAufgabenFromSetResult>;
   antwortenAudio = [] as Array<AntwortTokenStamp>;
+  antVariation = [] as Array<AntwortTokenStamp>;
+  varLoading: boolean = false;
   allAufgaben = [] as Array<ISelectAllAufgabenResult>;
   allSaetze = [] as Array<ISelectSatzResult>;
 
@@ -49,6 +51,9 @@ class Aufgaben extends VuexModule implements AufgabenState {
   aufgabeSingleOrt = [] as Array<AufgabeStamp>;
   teams = [] as Array<ISelectAllTeamsResult>;
   loading = false;
+
+  diagramTitle: string = '';
+  diagramData: Array<Description> = [];
 
   @Mutation
   clearAufgabenSet() {
@@ -73,6 +78,21 @@ class Aufgaben extends VuexModule implements AufgabenState {
   @Mutation
   setLoading(val: boolean) {
     this.loading = val;
+  }
+
+  @Mutation
+  setVarLoading(val: boolean) {
+    this.varLoading = val;
+  }
+
+  @Mutation
+  setDiagramTitle(title: string) {
+    this.diagramTitle = title;
+  }
+
+  @Mutation
+  setDiagramData(data: Array<Description>) {
+    this.diagramData = data;
   }
 
   @MutationAction({ mutate: ['aufgabenSet', 'loading'] })
@@ -106,15 +126,30 @@ class Aufgaben extends VuexModule implements AufgabenState {
   }
 
   @MutationAction({ mutate: ['antwortenAudio', 'loading'] })
-  async fetchAntwortAudio(arg: antwortenDto) {
+  async fetchAntwortAudio(arg: antwortenDto | antwortenDto[]) {
     // @ts-ignore
     this.context.commit('setLoading', true);
     console.log('Getting Antworten');
-    const res = await api.dioePublic.getAntByTags([arg]);
+    const res = await api.dioePublic.getAntByTags(
+      Array.isArray(arg) ? arg : [arg]
+    );
     console.log('Done!');
     return {
       antwortenAudio: res,
       loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['antVariation', 'varLoading'] })
+  async fetchAntwortVariation(arg: antwortenDto[]) {
+    // @ts-ignore
+    this.context.commit('setVarLoading', true);
+    console.log('Getting Antworten');
+    const res = await api.dioePublic.getAntByTags(arg);
+    console.log('Done!');
+    return {
+      antVariation: res,
+      varLoading: false
     };
   }
 

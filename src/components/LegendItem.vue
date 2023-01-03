@@ -12,9 +12,6 @@
       <v-card-title
         >Legende
         <v-spacer></v-spacer>
-        <v-btn icon color="indigo" @click="updateVis()">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
       </v-card-title>
       <v-card-text class="mx-auto">
         <v-list class="transparent">
@@ -123,7 +120,7 @@
                       </v-btn>
                     </template>
 
-                    <span>Eintag löschen</span>
+                    <span>Eintrag löschen</span>
                   </v-tooltip>
                   <v-btn
                     icon
@@ -169,7 +166,11 @@
               <v-list-item v-for="(para, idx) in d.parameter" :key="idx">
                 <v-avatar>
                   <icon-circle
-                    :fillCol="convertHexToHsl(para.color)"
+                    :fillCol="
+                      convertHexToHsl(
+                        para.color !== undefined ? para.color : '#F00'
+                      )
+                    "
                     :strokeWidth="d.strokeWidth"
                   />
                 </v-avatar>
@@ -205,6 +206,13 @@
           </v-list-item>
         </v-list>
       </v-card-text>
+      <v-card-actions>
+        <action-buttons
+          v-on:hideCard="updateVis()"
+          v-on:moveCard="$emit('moveCard', $event)"
+          color="indigo"
+        />
+      </v-card-actions>
     </v-card>
   </v-slide-x-reverse-transition>
 </template>
@@ -214,6 +222,7 @@ import { Prop, Vue } from 'vue-property-decorator';
 import { legendMod } from '@/store/modules/legend';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import IconCircle from '@/icons/IconCircle.vue';
+import ActionButtons from './ActionButtons.vue';
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 import { tagModule } from '@/store/modules/tags';
 import { expData } from '@/service/ExportBase';
@@ -232,7 +241,8 @@ import {
 @Component({
   name: 'LegendItem',
   components: {
-    IconCircle
+    IconCircle,
+    ActionButtons
   }
 })
 export default class LegendItem extends Vue {
@@ -295,7 +305,7 @@ export default class LegendItem extends Vue {
   }
 
   updateVis() {
-    this.$emit('update:vis', !this.vis);
+    this.$emit('changeVis', !this.vis);
   }
 
   async splitPreset(el: LegendGlobal, idx: number) {

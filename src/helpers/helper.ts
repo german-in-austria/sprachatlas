@@ -1,4 +1,7 @@
-import { Hsl, SearchItems } from '@/static/apiModels';
+import { selectionObject } from '@/api/dioe-public-api';
+import { Hsl, SearchItems, singleEntry } from '@/static/apiModels';
+import { aufgabenModule } from '@/store/modules/aufgaben';
+import { legendMod } from '@/store/modules/legend';
 
 let colorid = 0;
 
@@ -104,6 +107,76 @@ export const selectColor = (num: number | null) => {
  */
 export const isAufgabeStandard = (val: string): boolean => {
   return val.search('(UED|SPTD)') > -1;
+};
+
+export const loadData = async (
+  data: singleEntry,
+  osm: number,
+  type: SearchItems,
+  ageRange: { lower: number; upper: number }
+) => {
+  const AM = aufgabenModule;
+  const erhArt = legendMod.erhArtFilter;
+  let ids = [] as number[];
+  if (data.id !== '' && type !== SearchItems.Query) {
+    ids = [Number(data.id)];
+  }
+  let max = ageRange.upper;
+  let min = ageRange.lower;
+  let token = [] as selectionObject[];
+  let lemma = [] as selectionObject[];
+  const p = data.para;
+  if (p) {
+    max = Math.max(p.ageRange[1], max);
+    min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+    token = p.textTokenList ? p.textTokenList : [];
+    lemma = p.lemmaList ? p.lemmaList : [];
+    ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
+  }
+  switch (data.t) {
+    case SearchItems.Phaen:
+      await AM.fetchAntwortAudio({
+        phaen: ids,
+        erhArt: erhArt,
+        ids: [],
+        osmId: osm,
+        ageLower: min,
+        ageUpper: max,
+        text: token,
+        ausbildung: p?.maxEducation,
+        beruf_id: p?.education,
+        weiblich: p?.gender !== undefined ? p.gender : undefined,
+        lemma: lemma
+      });
+      break;
+    case SearchItems.Query:
+    case SearchItems.Tag:
+      await AM.fetchAntwortAudio({
+        ids: ids,
+        paraid: data.t === SearchItems.Tag ? '' : data.id,
+        osmId: osm,
+        ageLower: min,
+        ageUpper: max,
+        text: token,
+        ausbildung: p?.maxEducation,
+        beruf_id: p?.education,
+        weiblich: p?.gender !== undefined ? p.gender : undefined,
+        project: p?.project ? p.project : undefined,
+        erhArt: erhArt,
+        group: data.t === SearchItems.Query ? true : false,
+        lemma: lemma
+      });
+      break;
+    case SearchItems.Aufgaben:
+      await AM.fetchAufgabenAudioOrt({
+        ids: ids,
+        osmId: osm,
+        ageLower: min,
+        ageUpper: max
+        //text: ort.data[0].para?.textTokenList
+      });
+      break;
+  }
 };
 
 export const nameForSearchItems = (val: SearchItems): string => {

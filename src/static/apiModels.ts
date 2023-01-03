@@ -1,4 +1,9 @@
-import { selectionObject, TagTree } from '@/api/dioe-public-api';
+import {
+  AntwortTokenStamp,
+  AufgabeStamp,
+  selectionObject,
+  TagTree
+} from '@/api/dioe-public-api';
 
 type ServerTranscriptId = number;
 
@@ -23,6 +28,23 @@ export interface TagSelection {
   children: Array<TagTree>;
   tagIds: number[];
 }
+
+export interface Description {
+  color: string;
+  name: string;
+  value: number;
+}
+
+export type circleData = {
+  data: Array<singleEntry>;
+  ortName: string;
+  lat: number;
+  lon: number;
+  osm: number;
+  layer: L.LayerGroup;
+  size: number;
+  strokeWidth: number;
+};
 
 export interface TagOrteResults {
   numTag: number;
@@ -372,4 +394,22 @@ export interface transRoute {
 export interface PhaenBer {
   id: number;
   bez: string;
+}
+
+export interface pinData {
+  id: string;
+  selectedOrt: circleData;
+  selectedDataIdx: number;
+  isPinned: boolean;
+  showCard: boolean;
+  antwortAudio: AntwortTokenStamp[];
+  aufgabeAudio: AufgabeStamp[];
+}
+
+export interface pinDataVar {
+  id: string;
+  diagramTitle: string;
+  diagramData: Array<Description>;
+  isPinned: boolean;
+  isShown: boolean;
 }

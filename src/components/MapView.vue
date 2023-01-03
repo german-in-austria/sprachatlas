@@ -369,6 +369,21 @@
             </template>
             <span> Suchleiste anzeigen</span>
           </v-tooltip>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click="resetPosition"
+              >
+                <v-icon>mdi-undo</v-icon>
+              </v-btn>
+            </template>
+            <span> Positionen zurücksetzen</span>
+          </v-tooltip>
         </v-row>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
@@ -386,130 +401,100 @@
         <ExportMap :vis.sync="dialog" />
       </v-dialog>
     </v-layout>
-    <v-slide-y-reverse-transition tag="Changev-layout">
-      <v-layout class="map-overlay erhebung" v-if="showAudio">
-        <v-card v-if="selectedOrt" elevation="2">
-          <template
-            v-if="
-              antwortenAudio.length > 0 ||
-              aufgabeSingleOrt.length > 0 ||
-              aufgabenLoading
-            "
-          >
-            <v-card-title style="font-size: 18px">
-              <DataSwitch
-                :ortName="selectedOrt.ortName.split(',')[0]"
-                :data="selectedOrt.data[selectedDataidx]"
-                :sideways="showDataSideways"
-                :singleData="selectedOrt.data.length === 1"
-                :type="
-                  aufgabeSingleOrt.length > 0
-                    ? getType(aufgabeSingleOrt[0].audiofile)
-                    : false
-                "
-                v-on:callChange="switchData"
-              />
-            </v-card-title>
-          </template>
-          <template v-else>
-            <v-card-title>
-              Keine Aufnahmen verfügbar für
-              {{ selectedOrt.ortName.split(',')[0] }}
-              <v-spacer></v-spacer>
-              <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </v-card-title>
-          </template>
-          <template v-if="aufgabenLoading">
-            <v-skeleton-loader min-width="500" type="article, actions">
-            </v-skeleton-loader>
-          </template>
-          <template v-else>
-            <v-card-text>
-              <v-expansion-panels focusable>
-                <v-expansion-panel
-                  v-for="(d, idx) in aufgabeSingleOrt"
-                  :key="idx"
-                >
-                  <v-expansion-panel-header>
-                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
-                  </v-expansion-panel-header>
-
-                  <v-expansion-panel-content eager>
-                    <figure>
-                      <figcaption>Aufnahme anhören:</figcaption>
-                      <AudioPlayer
-                        class="mx-10"
-                        :dateipfad="d.dateipfad"
-                        :audiofile="d.audiofile"
-                        :data="d.data"
-                      />
-                    </figure>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-                <v-expansion-panel
-                  v-for="(d, idx) in antwortenAudio"
-                  :key="idx"
-                >
-                  <v-expansion-panel-header>
-                    {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                    {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
-                    {{ d.sigle }}
-                  </v-expansion-panel-header>
-
-                  <v-expansion-panel-content eager>
-                    <figure>
-                      <figcaption>Aufnahme anhören:</figcaption>
-                      <AudioPlayer
-                        class="mx-10"
-                        :dateipfad="d.dateipfad"
-                        :audiofile="d.audiofile"
-                        :data="d.res[0].data"
-                      />
-                    </figure>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn icon color="indigo" @click="showAudio = !showAudio">
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </template>
-        </v-card>
-      </v-layout>
-    </v-slide-y-reverse-transition>
+    <v-layout class="card-overlay">
+      <div v-for="(d, idx) in pinnedData" :key="idx">
+        <v-slide-y-reverse-transition tag="Changev-layout">
+          <dragable-card
+            v-if="d.showCard"
+            class="audioCard"
+            component="audio-card"
+            :props="{
+              showDataSideways: showDataSideways,
+              showAudio: d.showCard,
+              selectedOrt: d.selectedOrt,
+              antwortenAudio: d.antwortAudio,
+              aufgabeSingleOrt: d.aufgabeAudio,
+              pinned: d.isPinned,
+              dataId: d.id
+            }"
+            :func="{
+              hideCard: changeShowAudio
+            }"
+            @interface="getInterface"
+          />
+        </v-slide-y-reverse-transition>
+      </div>
+    </v-layout>
+    <v-layout class="card-overlay">
+      <div v-for="(d, idx) in pinnedVarCards" :key="idx">
+        <component is="v-slide-y-reverse-transition">
+          <dragable-card
+            v-if="d.isShown"
+            class="varCard"
+            component="variation-card"
+            :props="{
+              data: d,
+              loading: varLoading
+            }"
+            :func="{ hideCard: hideVarCard }"
+            @interface="getInterface"
+          />
+        </component>
+      </div>
+    </v-layout>
     <v-layout class="map-overlay buttons">
-      <template
-        v-if="
-          !showAudio &&
-          antwortenAudio &&
-          antwortenAudio.length > 0 &&
-          selectedOrt
-        "
-      >
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              small
-              rounded
-              class="drawer-down"
-              v-bind="attrs"
-              v-on="on"
-              @click="showAudio = !showAudio"
-            >
-              <v-icon>mdi-chevron-double-up</v-icon>
-            </v-btn>
-          </template>
-          <span>
-            Verfügbare Audioaufnahmen für
-            {{ selectedOrt.ortName.split(',')[0] }}
-          </span>
-        </v-tooltip>
-      </template>
+      <div v-for="(d, idx) in pinnedData" :key="idx">
+        <template
+          v-if="
+            !d.showCard &&
+            d.antwortAudio &&
+            d.antwortAudio.length > 0 &&
+            d.selectedOrt
+          "
+        >
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                small
+                rounded
+                class="drawer-down"
+                v-bind="attrs"
+                v-on="on"
+                @click="changeShowAudio(d.id)"
+              >
+                <v-icon>mdi-chevron-double-up</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              Verfügbare Audioaufnahmen für
+              {{ d.selectedOrt.ortName.split(',')[0] }}
+            </span>
+          </v-tooltip>
+        </template>
+      </div>
+    </v-layout>
+    <v-layout class="map-overlay button-var">
+      <div v-for="(d, idx) in pinnedVarCards" :key="idx">
+        <template v-if="!d.isShown">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                small
+                rounded
+                class="drawer-down"
+                v-bind="attrs"
+                v-on="on"
+                @click="hideVarCard(d)"
+              >
+                <v-icon>mdi-chevron-double-up</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              {{ d.diagramTitle }}
+            </span>
+          </v-tooltip>
+        </template>
+      </div>
     </v-layout>
     <v-layout class="map-overlay erhebung" v-if="currentErhebung">
       <v-card elevation="2">
@@ -584,13 +569,16 @@
         </v-card>
       </template>
     </v-layout>
-    <v-layout class="map-overlay legend">
-      <LegendItem
-        v-on:callChange="splitTags"
-        :vis.sync="showLegend"
-        :propCircl="!showDataSideways"
-      ></LegendItem>
-    </v-layout>
+    <dragable-card
+      class="legend"
+      component="legend-item"
+      :props="{
+        vis: showLegend,
+        propCircl: showDataSideways
+      }"
+      :func="{ callChange: splitTags, changeVis: changeLegVis }"
+      @interface="getInterface"
+    />
     <div
       class="map-overlay"
       style="left: 50%; top: 75%; transform: translate(-50%, -50%)"
@@ -620,15 +608,7 @@
       </v-tooltip>
     </div>
     <l-map
-      style="
-        z-index: 0;
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-      "
+      class="mapStyle"
       v-show="!loading"
       :zoom.sync="zoom"
       :center.sync="center"
@@ -689,7 +669,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID, loadData } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -702,7 +682,11 @@ import {
   Parameter,
   Symbols,
   SearchTerm,
-  singleEntry
+  singleEntry,
+  Description,
+  circleData,
+  pinData,
+  pinDataVar
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -711,7 +695,7 @@ import { aufgabenModule } from '@/store/modules/aufgaben';
 import { messageHandler } from '@/store/modules/message';
 import { tagModule } from '@/store/modules/tags';
 import { legendMod } from '@/store/modules/legend';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, once } from 'lodash';
 import IconBase from '@/icons/IconBase.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import AudioPlayer from '@/components/AudioPlayer.vue';
@@ -720,41 +704,22 @@ import ErhebungsArt from '@/components/ErhebungsArt.vue';
 import ExportMap from '@/components/ExportMap.vue';
 import DataSwitch from '@/components/DataSwitch.vue';
 import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
+import VariationCard from './VariationCard.vue';
+import DragableCard from './DragableCard.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
-import { isAufgabeStandard } from '@/helpers/helper';
 
 
 import { getOrtName } from '@/helpers/helper';
 import {
   AntwortenFromAufgabe,
-  AntwortTokenStamp,
   ISelectOrtAufgabeResult,
-  selectionObject,
   tagDto,
   TagTree
 } from '@/api/dioe-public-api';
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
-
-
-type circleData = {
-  data: Array<singleEntry>;
-  ortName: string;
-  lat: number;
-  lon: number;
-  osm: number;
-  layer: L.LayerGroup;
-  size: number;
-  strokeWidth: number;
-};
-
-type IAntwortenAudio = {
-  name: string | null;
-  tagid: number;
-  content: Array<AntwortTokenStamp>;
-};
 
 @Component({
   components: {
@@ -774,7 +739,9 @@ type IAntwortenAudio = {
     ErhebungsArt,
     ExportMap,
     DataSwitch,
-    PhaenAufgabenSearch
+    PhaenAufgabenSearch,
+    VariationCard,
+    DragableCard
   }
 })
 export default class MapView extends Vue {
@@ -839,8 +806,6 @@ export default class MapView extends Vue {
   showDataProp = false;
   searchTerm: SearchTerm | null = null;
   geoStore = geoStore;
-  // layerGroup: any = null;
-
 
   curZoom = {
     start: 0,
@@ -929,6 +894,14 @@ export default class MapView extends Vue {
       },${stopMin * 60 + stopSec}`;
   }
 
+  get diagramData() {
+    return this.AM.diagramData;
+  }
+
+  get diagramTitle() {
+    return this.AM.diagramTitle;
+  }
+
   get aufgabenSet() {
     return this.AM.aufgabenSet;
   }
@@ -972,6 +945,14 @@ export default class MapView extends Vue {
 
   get legendGlobal() {
     return this.LM.legend;
+  }
+
+  get pinnedData() {
+    return this.LM.pinnedData;
+  }
+
+  get pinnedVarCards() {
+    return this.LM.pinDataVar;
   }
 
   get legendGlobalQuery() {
@@ -1119,6 +1100,14 @@ export default class MapView extends Vue {
     return arr;
   }
 
+  get antVariation() {
+    return this.AM.antVariation;
+  }
+
+  get varLoading() {
+    return this.AM.varLoading;
+  }
+
   get infOrtErhebungen() {
     return this.EM.infOrtsErhebungen;
   }
@@ -1191,8 +1180,6 @@ export default class MapView extends Vue {
     return selectColor(null);
   }
 
-
-
   async fetchEntriesDebounced() {
     // cancel pending call
     clearTimeout(this._debounceId);
@@ -1209,8 +1196,6 @@ export default class MapView extends Vue {
         this.dbLoading = false;
     }, 500);
   }
-
-
 
   splitTags() {
     this.displayDataFromLegend(this.legendGlobal);
@@ -1287,18 +1272,21 @@ export default class MapView extends Vue {
     return getOrtName(name);
   }
 
-  switchData(dir: boolean) {
-    if (this.selectedOrt) {
-      // increment the index
-      if (dir) {
-        this.selectedDataidx = this.selectedDataidx === this.selectedOrt.data.length - 1 ? 0 : this.selectedDataidx + 1;
-        // decrease the index
-      } else {
-        this.selectedDataidx = this.selectedDataidx === 0 ? this.selectedOrt.data.length - 1 : this.selectedDataidx - 1;
-      }
-      const d = this.selectedOrt.data[this.selectedDataidx];
-      this.loadData(d, this.selectedOrt.osm, d.t);
-    }
+  resetPosition() {
+    // @ts-ignore
+    this.$options.dragInterface.forEach(el => {
+      el.reset();
+    })
+    // this.$options.dragInterface.reset();
+  }
+
+  getInterface(dragInterface: any) {
+    // @ts-ignore
+    this.$options.dragInterface.push(dragInterface);
+  }
+
+  changeLegVis(val: boolean) {
+    this.showLegend = val;
   }
 
   changeSearchTerms() {
@@ -1426,6 +1414,13 @@ export default class MapView extends Vue {
 
   showExport() { }
 
+  changeShowAudio(id: string) {
+    const show = this.pinnedData.filter(el => el.id === id)[0]?.showCard;
+    this.LM.editPinShowById({ dataId: id, show: !show });
+    // d.showCard = !d.showCard;
+    this.showAudio = !this.showAudio;
+  }
+
   createRectIcon(ort: circleData, data: singleEntry[]): L.Icon<L.IconOptions> {
     let s = ort.size;
     if (ort.data.length > 1 && this.showDataProp) {
@@ -1550,6 +1545,12 @@ export default class MapView extends Vue {
     return data;
   }
 
+  hideVarCard(content: pinDataVar) {
+    content.isShown = !content.isShown;
+    this.LM.editPinDataByID(content);
+    this.AM.setDiagramTitle('');
+  }
+
   createIcon(
     ort: circleData,
     data: singleEntry[],
@@ -1565,72 +1566,30 @@ export default class MapView extends Vue {
     }
   }
 
-  audioListener(ort: circleData, type: SearchItems) {
+  async audioListener(ort: circleData, type: SearchItems) {
     this.selectedOrt = ort;
     this.showAudio = true;
-    this.loadData(ort.data[this.selectedDataidx], ort.osm, type);
-  }
-
-  loadData(data: singleEntry, osm: number, type: SearchItems) {
-    let ids = [] as number[];
-    if (data.id !== "" && type !== SearchItems.Query) {
-      ids = [Number(data.id)];
-    }
-    let max = this.ageRange.upper;
-    let min = this.ageRange.lower;
-    let token = [] as selectionObject[];
-    let lemma = [] as selectionObject[];
-    const p = data.para;
-    if (p) {
-      max = Math.max(p.ageRange[1], max);
-      min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
-      token = p.textTokenList ? p.textTokenList : [];
-      lemma = p.lemmaList ? p.lemmaList : [];
-      ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
-    }
-    switch (data.t) {
-      case SearchItems.Phaen:
-        this.AM.fetchAntwortAudio({
-          phaen: ids,
-          erhArt: this.erhArt,
-          ids: [],
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max,
-          text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          lemma: lemma
-        });
-        break;
-      case SearchItems.Query:
-      case SearchItems.Tag:
-        this.AM.fetchAntwortAudio({
-          ids: ids,
-          paraid: data.t === SearchItems.Tag ? '' : data.id,
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max,
-          text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          project: p?.project ? p.project : undefined,
-          erhArt: this.erhArt,
-          lemma: lemma
-        });
-        break;
-      case SearchItems.Aufgaben:
-        this.AM.fetchAufgabenAudioOrt({
-          ids: ids,
-          osmId: osm,
-          ageLower: min,
-          ageUpper: max
-          //text: ort.data[0].para?.textTokenList
-        });
-        break;
-    }
+    const idx = this.selectedDataidx;
+    let curr = await this.LM.pushNewData({
+      selOrt: ort,
+      selIdx: idx,
+      isPinned: false,
+      antwortAudio: [],
+      aufgabeAudio: []
+    });
+    loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
+      switch (type) {
+        case SearchItems.Phaen:
+        case SearchItems.Query:
+        case SearchItems.Tag:
+          curr.antwortAudio = this.antwortenAudio;
+          break;
+        case SearchItems.Aufgaben:
+          curr.aufgabeAudio = this.aufgabeSingleOrt;
+          break;
+      }
+      this.LM.editPinnedByID(curr);
+    });
   }
 
   addDataToMap(data: Array<circleData>, type: SearchItems) {
@@ -2242,15 +2201,8 @@ export default class MapView extends Vue {
     }
   }
 
-  getType(val: string | null): boolean {
-    return val ? isAufgabeStandard(val) : false;
-  }
-
   fetchTranscript(id: number) {
-    console.log(id);
-    console.log('test output');
     const element = this.matchTranscriptID(id);
-    console.log(element);
     this.TM.fetchSingleTranscript({ id: id, page: 0 });
   }
 
@@ -2386,6 +2338,8 @@ export default class MapView extends Vue {
   }
 
   beforeCreate() {
+    //@ts-ignore
+    this.$options.dragInterface = [];
     // //this.l.log('Collections before created'); --logger does not exist yet. if needed define outside like in app
   }
 
@@ -2406,7 +2360,7 @@ export default class MapView extends Vue {
   }
 
   .map-overlay {
-    position: absolute;
+    position: fixed;
     z-index: 1;
     width: 100%;
     left: 0;
@@ -2415,6 +2369,16 @@ export default class MapView extends Vue {
     * {
       pointer-events: all;
     }
+  }
+
+  .card-overlay {
+    //height: 100%;
+    position: fixed;
+    z-index: 1;
+    //width: 100%;
+    //left: 0;
+    //right: 0;
+    // top: 55%;
   }
 
   .btn-overlay {
@@ -2434,12 +2398,19 @@ export default class MapView extends Vue {
   .drawer-down {
     border-bottom-right-radius: 0em;
     border-bottom-left-radius: 0em;
+    margin-right: 15px;
   }
 
   .buttons {
     margin-bottom: 0px;
     bottom: 0px;
     left: 25%;
+  }
+
+  .button-var {
+    margin-bottom: 0px;
+    bottom: 0px;
+    left: 50%;
   }
 
   .search-overlay {
@@ -2451,21 +2422,35 @@ export default class MapView extends Vue {
     margin-right: auto;
   }
 
+  .audioCard {
+    top: 60vh;
+    left: 10vw;
+    position: fixed;
+    width: 600px;
+    height: 35vh;
+  }
+
+  .varCard {
+    top: 71%;
+    left: 45%;
+    max-width: 450px;
+    position: fixed;
+  }
+
   .erhebung {
     bottom: 0;
     margin-bottom: 50px;
     margin-left: 50px;
-    width: 50%;
+    width: 35%;
+    max-width: 45%;
     height: 35%;
   }
 
   .legend {
-    bottom: 0;
-    margin-bottom: 50px;
-    margin-right: 20px;
-    right: 20px;
-    left: 80%;
-    width: 20%;
+    top: 75%;
+    left: 75%;
+    position: fixed;
+    z-index: 2;
   }
 
   .zoom {
@@ -2498,6 +2483,16 @@ export default class MapView extends Vue {
     animation: 1s ease-out 0s 1 fadeIn;
   }
 
+  .mapStyle {
+    z-index: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .layout-slide-enter-active,
   .layout-slide-leave-active {
     -moz-transition-duration: 0.3s;
@@ -2513,5 +2508,16 @@ export default class MapView extends Vue {
   .layout-slide-fade-enter,
   .layout-slide-fade-leave-to {
     transform: translateY(100px);
+  }
+
+  .icon {
+    order: 0;
+  }
+  .header {
+    order: 1;
+  }
+
+  .v-expansion-panel-header__icon {
+    margin-left: auto;
   }
 </style>

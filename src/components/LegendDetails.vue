@@ -49,8 +49,8 @@ export default class LegendDetails extends Vue {
     return this.LM.legend;
   }
 
-  nameForSearchItems(val: SearchItems) {
-    return nameForSearchItems(val);
+  nameForSearchItems(val: SearchItems | null) {
+    return val ? nameForSearchItems(val) : val;
   }
 
   convertHsl(col: Hsl) {
