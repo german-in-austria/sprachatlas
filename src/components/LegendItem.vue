@@ -6,7 +6,7 @@
       class="mx-auto"
       max-width="300"
       min-width="250"
-      max-height="500"
+      style="max-height: 300px"
     >
       <v-divider class="mx-4"></v-divider>
       <v-card-title

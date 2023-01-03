@@ -1566,7 +1566,7 @@ export default class MapView extends Vue {
     }
   }
 
-  async audioListener(ort: circleData, type: SearchItems) {
+  async audioListener(ort: circleData) {
     this.selectedOrt = ort;
     this.showAudio = true;
     const idx = this.selectedDataidx;
@@ -1577,6 +1577,7 @@ export default class MapView extends Vue {
       antwortAudio: [],
       aufgabeAudio: []
     });
+    const type = ort.data[idx].t;
     loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
       switch (type) {
         case SearchItems.Phaen:
@@ -1592,7 +1593,7 @@ export default class MapView extends Vue {
     });
   }
 
-  addDataToMap(data: Array<circleData>, type: SearchItems) {
+  addDataToMap(data: Array<circleData>) {
     for (const ort of data) {
       if (this.showDataSideways) {
         let idx = 0;
@@ -1616,7 +1617,7 @@ export default class MapView extends Vue {
             riseOnHover: true
           })
             .addTo(ort.layer)
-            .on('click', (e) => this.audioListener(ort, type));
+            .on('click', (e) => this.audioListener(ort));
           marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
           ort.layer.addTo(this.layerGroup);
           // @ts-ignore
@@ -1630,7 +1631,7 @@ export default class MapView extends Vue {
           riseOnHover: true
         })
           .addTo(ort.layer)
-          .on('click', (e) => this.audioListener(ort, type));
+          .on('click', (e) => this.audioListener(ort));
         marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
         ort.layer.addTo(this.layerGroup);
       }
@@ -2049,14 +2050,28 @@ export default class MapView extends Vue {
           break;
       }
     }
-    this.addDataToMap(tagData, SearchItems.Tag);
-    this.addDataToMap(aufData, SearchItems.Aufgaben);
+    this.addDataToMap(this.mergeCircleData([tagData, aufData]));
+  }
+
+  mergeCircleData(data: Array<Array<circleData>>): Array<circleData> {
+    let res: Array<circleData> = [];
+    data.forEach((el: Array<circleData>) => {
+      el.forEach((cData: circleData) => {
+        const idx = res.findIndex(e => Number(e.osm) === Number(cData.osm));
+        if (idx > -1) {
+          res[idx].data = res[idx].data.concat(cData.data);
+        } else {
+          res.push(cData);
+        }
+      });
+    });
+    console.log(res);
+    return res;
   }
 
   async createTagLegend(layer: L.LayerGroup, tagId: number, phaenId: number[], type: SearchItems, name?: string) {
     const color = this.getColor();
     const radius = 30;
-    const ageRange = this.ageRange;
     const erhArt = this.erhArt;
     const dto = {
       erhArt: erhArt,
