@@ -10,4 +10,6 @@ export type AufgabeStamp = {
     gruppeBez: string | null;
     teamBez: string | null;
     data: Array<Aufgabe>;
+    sigle: string;
+    age: number;
 }
