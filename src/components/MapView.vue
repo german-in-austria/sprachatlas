@@ -425,32 +425,24 @@
         </v-slide-y-reverse-transition>
       </div>
     </v-layout>
-    <v-layout class="card-overlay" v-if="showAudio">
-      <component
-        is="v-scale-transition"
-        v-if="diagramTitle.length > 0"
-        hide-on-leave
-      >
-        <template>
-          <v-skeleton-loader
-            v-if="varLoading"
-            class="varCard"
-            type="article, actions, list-item-two-line"
-          >
-          </v-skeleton-loader>
-          <dragable-card
-            v-else
-            class="varCard"
-            component="variation-card"
-            :props="{
-              title: diagramTitle,
-              desc: diagramData
-            }"
-            :func="{ hideCard: hideVarCard }"
-            @interface="getInterface"
-          />
-        </template>
-      </component>
+    <v-layout class="card-overlay">
+      <div v-for="(d, idx) in pinnedVarCards" :key="idx">
+        <component is="v-scale-transition" v-if="d.isShown" hide-on-leave>
+          <template>
+            <dragable-card
+              v-if="d.isShown"
+              class="varCard"
+              component="variation-card"
+              :props="{
+                data: d,
+                loading: varLoading
+              }"
+              :func="{ hideCard: hideVarCard }"
+              @interface="getInterface"
+            />
+          </template>
+        </component>
+      </div>
     </v-layout>
     <v-layout class="map-overlay buttons">
       <div v-for="(d, idx) in pinnedData" :key="idx">
@@ -672,7 +664,8 @@ import {
   singleEntry,
   Description,
   circleData,
-  pinData
+  pinData,
+  pinDataVar
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -939,6 +932,10 @@ export default class MapView extends Vue {
 
   get pinnedData() {
     return this.LM.pinnedData;
+  }
+
+  get pinnedVarCards() {
+    return this.LM.pinDataVar;
   }
 
   get legendGlobalQuery() {
@@ -1531,7 +1528,9 @@ export default class MapView extends Vue {
     return data;
   }
 
-  hideVarCard() {
+  hideVarCard(content: pinDataVar) {
+    content.isShown = !content.isShown;
+    this.LM.editPinDataByID(content);
     this.AM.setDiagramTitle('');
   }
 

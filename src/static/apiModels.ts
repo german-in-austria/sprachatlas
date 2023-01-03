@@ -405,3 +405,11 @@ export interface pinData {
   antwortAudio: AntwortTokenStamp[];
   aufgabeAudio: AufgabeStamp[];
 }
+
+export interface pinDataVar {
+  id: string;
+  diagramTitle: string;
+  diagramData: Array<Description>;
+  isPinned: boolean;
+  isShown: boolean;
+}

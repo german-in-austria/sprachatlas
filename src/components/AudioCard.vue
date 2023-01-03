@@ -177,7 +177,9 @@ export default class DragableCard extends Vue {
   }
 
   async evaluateData(d: AntwortTokenStamp, idx: number, ort: string | undefined) {
+    const title = `Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(`Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`);
+    let curr = await this.LM.pushNewPinDataVar({ diagramTitle: title, isPinned: false, isShown: true, diagramData: [] });
     let res: Array<Description> = [];
     if (this.selectedOrt) {
       const currEle = this.selectedOrt?.data[this.selectedDataidx];
@@ -238,6 +240,8 @@ export default class DragableCard extends Vue {
 
       })
     }
+    curr.diagramData = res;
+    this.LM.editPinnDataVar(curr);
     this.AM.setDiagramData(res);
   }
 }

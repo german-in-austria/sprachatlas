@@ -18,7 +18,9 @@ import {
   Symbols,
   Hsl,
   pinData,
-  circleData
+  circleData,
+  pinDataVar,
+  Description
 } from '../../static/apiModels';
 import { selectColor } from '@/helpers/helper';
 import {
@@ -54,6 +56,31 @@ class Legend extends VuexModule implements LegendState {
   filterByArt = false;
   ausbildungsGrad = [];
   pinnedData = [] as Array<pinData>;
+  pinDataVar: Array<pinDataVar> = [];
+
+  @Mutation
+  addPinDataVar(e: pinDataVar) {
+    this.pinDataVar.push(e);
+  }
+
+  @Mutation
+  removeElementFromPinDataVar(idx: number) {
+    this.pinDataVar.splice(idx, 1);
+  }
+
+  @Mutation
+  resetPinDataVar() {
+    this.pinDataVar = [];
+  }
+
+  @Mutation
+  editPinDataByID(content: pinDataVar) {
+    const id = content.id;
+    const ele = this.pinDataVar.findIndex((el) => el.id === id);
+    if (ele > -1) {
+      this.pinDataVar[ele] = content;
+    }
+  }
 
   @Mutation
   addPinData(e: pinData) {
@@ -101,6 +128,11 @@ class Legend extends VuexModule implements LegendState {
   @Mutation
   removeUnPinnedData() {
     this.pinnedData = this.pinnedData.filter((el) => el.isPinned);
+  }
+
+  @Mutation
+  removeUnpinndDataVar() {
+    this.pinDataVar = this.pinDataVar.filter((el) => el.isPinned);
   }
 
   @Mutation
@@ -247,6 +279,34 @@ class Legend extends VuexModule implements LegendState {
   @Action
   editPinnedData(el: pinData) {
     this.context.commit('editPinnedByID', el);
+  }
+
+  @Action
+  pushNewPinDataVar(arg: {
+    diagramTitle: string;
+    diagramData: Array<Description>;
+    isPinned: boolean;
+    isShown: boolean;
+  }): pinDataVar {
+    const data: pinDataVar = {
+      id: generateID(),
+      diagramTitle: arg.diagramTitle,
+      diagramData: arg.diagramData,
+      isPinned: arg.isPinned,
+      isShown: arg.isShown
+    };
+    if (this.pinDataVar.length === 1 && !this.pinDataVar[0].isPinned) {
+      this.context.commit('removeElementFromPinDataVar', 0);
+    } else if (this.pinDataVar.length > 1) {
+      this.context.commit('removeUnpinndDataVar');
+    }
+    this.context.commit('addPinDataVar', data);
+    return data;
+  }
+
+  @Action
+  editPinnDataVar(el: pinDataVar) {
+    this.context.commit('editPinDataByID', el);
   }
 
   @MutationAction({ mutate: ['ausbildungsGrad'] })

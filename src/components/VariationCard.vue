@@ -1,16 +1,26 @@
 <template>
-  <v-card class="card" v-if="desc.length > 0">
+  <v-card class="card">
     <v-card-title
       ><span style="text-align: center; width: 100%">
-        {{ title }}
+        {{ data.diagramTitle }}
       </span></v-card-title
     >
-    <v-card-text align="center"> <graph-viewer :desc="desc" /> </v-card-text>
+    <v-card-text align="center">
+      <v-skeleton-loader
+        v-if="loading && data.diagramData.length === 0"
+        class="varCard"
+        type="article, list-item-two-line"
+      >
+      </v-skeleton-loader>
+      <graph-viewer v-else :desc="data.diagramData" />
+    </v-card-text>
     <v-card-actions>
       <action-buttons
-        v-on:hideCard="$emit('hideCard', $event)"
+        v-on:hideCard="$emit('hideCard', data)"
         v-on:moveCard="$emit('moveCard', $event)"
+        v-on:pinCard="pinCard($event, !data.isPinned)"
         :showPin="true"
+        :pinned="data.isPinned"
         color="indigo"
       />
     </v-card-actions>
@@ -18,18 +28,26 @@
 </template>
 <script lang="ts">
 import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
-import { Description, Symbols } from '@/static/apiModels';
+import { Description, pinDataVar, Symbols } from '@/static/apiModels';
 import GraphViewer from './GraphViewer.vue';
 import ActionButtons from './ActionButtons.vue';
+import { legendMod } from '@/store/modules/legend';
 
 @Component({
   components: { GraphViewer, ActionButtons },
   name: 'VariationCard'
 })
 export default class VariationCard extends Vue {
-  @Prop(String) readonly title!: string;
-  @Prop({ type: Array }) readonly desc!: Array<Description>;
+  @Prop() readonly data!: pinDataVar;
+  @Prop(Boolean) readonly loading!: boolean;
 
+  LM = legendMod;
+
+  pinCard(event: any, pinData: boolean) {
+    let d = this.data;
+    d.isPinned = pinData;
+    this.LM.editPinDataByID(d);
+  }
 }
 </script>
 <style lang="scss">

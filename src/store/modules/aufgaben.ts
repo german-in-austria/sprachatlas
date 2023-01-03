@@ -10,7 +10,7 @@ import store from '@/store';
 import api from '@/api';
 import { generateID } from '@/helpers/helper';
 import Vue from '../../main';
-import { Description } from '../../static/apiModels';
+import { Description, pinDataVar } from '../../static/apiModels';
 import { ISelectAufgabenFromSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenFromSetResult';
 import { ISelectAufgabenResult } from '../../api/dioe-public-api/models/ISelectAufgabenResult';
 import { ISelectAufgabenSetResult } from '../../api/dioe-public-api/models/ISelectAufgabenSetResult';
