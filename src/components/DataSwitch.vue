@@ -54,12 +54,11 @@ export default class DataSwitch extends Vue {
   @Prop(Boolean) readonly sideways!: boolean;
   @Prop({ type: Boolean, default: false }) readonly singleData!: boolean;
   @Prop() readonly data!: singleEntry;
-  @Prop(String) readonly typeItem!: boolean;
+  @Prop(Boolean) readonly typeItem!: boolean;
 
   get typeFile() {
     if (this.data.t === SearchItems.Aufgaben) {
-      console.log(this.data.t);
-      return this.typeItem ? 'Standard' : 'Dialekt';
+      return !this.typeItem ? 'Standard' : 'Dialekt';
     }
     return ""
   }

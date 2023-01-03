@@ -3,19 +3,19 @@
     <v-card-title fixed style="font-size: 18px">
       <template
         v-if="
-          antwortenAudio.length > 0 ||
-          aufgabeSingleOrt.length > 0 ||
+          data.antwortAudio.length > 0 ||
+          data.aufgabeAudio.length > 0 ||
           aufgabenLoading
         "
       >
         <DataSwitch
-          :ortName="selectedOrt.ortName.split(',')[0]"
-          :data="selectedOrt.data[selectedDataidx]"
+          :ortName="data.selectedOrt.ortName.split(',')[0]"
+          :data="data.selectedOrt.data[data.selectedDataIdx]"
           :sideways="showDataSideways"
-          :singleData="selectedOrt.data.length === 1"
-          :type="
-            aufgabeSingleOrt.length > 0
-              ? getType(aufgabeSingleOrt[0].audiofile)
+          :singleData="data.selectedOrt.data.length === 1"
+          :typeItem="
+            data.aufgabeAudio.length > 0
+              ? getType(data.aufgabeAudio[0].audiofile)
               : false
           "
           v-on:callChange="switchData"
@@ -23,7 +23,7 @@
       </template>
       <template v-else>
         Keine Aufnahmen verfügbar für
-        {{ selectedOrt.ortName.split(',')[0] }}
+        {{ data.selectedOrt.ortName.split(',')[0] }}
       </template>
     </v-card-title>
     <template v-if="aufgabenLoading">
@@ -33,7 +33,7 @@
     <template v-else>
       <v-card-text>
         <v-expansion-panels focusable>
-          <v-expansion-panel v-for="(d, idx) in aufgabeSingleOrt" :key="idx">
+          <v-expansion-panel v-for="(d, idx) in data.aufgabeAudio" :key="idx">
             <v-expansion-panel-header>
               <div>
                 {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
@@ -53,7 +53,7 @@
               </figure>
             </v-expansion-panel-content>
           </v-expansion-panel>
-          <v-expansion-panel v-for="(d, idx) in antwortenAudio" :key="idx">
+          <v-expansion-panel v-for="(d, idx) in data.antwortAudio" :key="idx">
             <v-expansion-panel-header>
               {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
               {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
@@ -64,7 +64,11 @@
                     <v-btn
                       icon
                       @click.native.stop="
-                        evaluateData(d, idx, selectedOrt?.ortName.split(',')[0])
+                        evaluateData(
+                          d,
+                          idx,
+                          data.selectedOrt?.ortName.split(',')[0]
+                        )
                       "
                       v-bind="attrs"
                       v-on="on"
@@ -97,10 +101,10 @@
       </v-card-text>
       <v-card-actions>
         <action-buttons
-          v-on:hideCard="$emit('hideCard', dataId)"
+          v-on:hideCard="$emit('hideCard', data.id)"
           v-on:moveCard="$emit('moveCard', $event)"
-          v-on:pinCard="pinCard($event, !pinned)"
-          :pinned="pinned"
+          v-on:pinCard="pinCard($event, !data.isPinned)"
+          :pinned="data.isPinned"
           :showPin="true"
           color="indigo"
         />
@@ -110,7 +114,7 @@
 </template>
 <script lang="ts">
 import {
-  circleData, Description, SearchItems
+  circleData, Description, pinData, SearchItems
 } from '../static/apiModels';
 import { loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
@@ -128,16 +132,10 @@ import { antwortenDto, AntwortTokenStamp, AufgabeStamp, selectionObject } from '
   name: 'AudioCard'
 })
 export default class DragableCard extends Vue {
-  @Prop() readonly selectedOrt!: circleData;
-  @Prop() readonly antwortenAudio!: AntwortTokenStamp[];
-  @Prop() readonly aufgabeSingleOrt!: AufgabeStamp[];
+  @Prop() readonly data!: pinData;
 
-  @Prop(String) readonly dataId!: string;
   @Prop(Boolean) readonly showDataSideways!: boolean;
-  @Prop(Boolean) showAudio!: boolean;
-  @Prop(Boolean) readonly pinned!: boolean;
 
-  selectedDataidx: number = 0;
 
   AM = aufgabenModule;
   LM = legendMod;
@@ -147,7 +145,8 @@ export default class DragableCard extends Vue {
   }
 
   get aufgabenLoading() {
-    return this.AM.loading && (this.antwortenAudio.length === 0 && this.aufgabeSingleOrt.length === 0);
+
+    return this.AM.loading && (this.data.antwortAudio.length === 0 && this.data.aufgabeAudio.length === 0);
   }
 
   get ageRange() {
@@ -159,20 +158,37 @@ export default class DragableCard extends Vue {
   }
 
   pinCard(event: any, pinData: boolean) {
-    this.LM.editPinnedShowById({ dataId: this.dataId, show: true, pinned: pinData });
+    this.LM.editPinnedShowById({ dataId: this.data.id, show: true, pinned: pinData });
   }
 
   switchData(dir: boolean) {
-    if (this.selectedOrt) {
+    if (this.data.selectedOrt) {
       // increment the index
+      let idx;
       if (dir) {
-        this.selectedDataidx = this.selectedDataidx === this.selectedOrt.data.length - 1 ? 0 : this.selectedDataidx + 1;
+        idx = this.data.selectedDataIdx === this.data.selectedOrt.data.length - 1 ? 0 : this.data.selectedDataIdx + 1;
         // decrease the index
       } else {
-        this.selectedDataidx = this.selectedDataidx === 0 ? this.selectedOrt.data.length - 1 : this.selectedDataidx - 1;
+        idx = this.data.selectedDataIdx === 0 ? this.data.selectedOrt.data.length - 1 : this.data.selectedDataIdx - 1;
       }
-      const d = this.selectedOrt.data[this.selectedDataidx];
-      loadData(d, this.selectedOrt.osm, d.t, this.ageRange);
+      let data = this.LM.pinnedData.filter(el => el.id === this.data.id)[0];
+      data.selectedDataIdx = idx;
+      this.LM.editPinnedByID(data);
+      const d = data.selectedOrt.data[this.data.selectedDataIdx];
+      console.log(d);
+      loadData(d, data.selectedOrt.osm, d.t, this.ageRange).then(() => {
+        switch (d.t) {
+          case SearchItems.Phaen:
+          case SearchItems.Query:
+          case SearchItems.Tag:
+            data.antwortAudio = this.data.antwortAudio;
+            break;
+          case SearchItems.Aufgaben:
+            data.aufgabeAudio = this.data.aufgabeAudio;
+            break;
+        }
+        this.LM.editPinnedByID(data);
+      });
     }
   }
 
@@ -181,10 +197,10 @@ export default class DragableCard extends Vue {
     this.AM.setDiagramTitle(`Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`);
     let curr = await this.LM.pushNewPinDataVar({ diagramTitle: title, isPinned: false, isShown: true, diagramData: [] });
     let res: Array<Description> = [];
-    if (this.selectedOrt) {
-      const currEle = this.selectedOrt?.data[this.selectedDataidx];
+    if (this.data.selectedOrt) {
+      const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
       const val = d.res[0].data.length;
-      let data = this.selectedOrt.data.filter(el => el.id !== currEle.id);
+      let data = this.data.selectedOrt.data.filter(el => el.id !== currEle.id);
       let dto: Array<antwortenDto> = [];
       for (const key of data) {
         let ids = [] as number[];
@@ -209,7 +225,7 @@ export default class DragableCard extends Vue {
         dto.push({
           ids: ids,
           paraid: key.id,
-          osmId: this.selectedOrt.osm,
+          osmId: this.data.selectedOrt.osm,
           ageLower: min,
           ageUpper: max,
           text: token,

@@ -410,12 +410,7 @@
             component="audio-card"
             :props="{
               showDataSideways: showDataSideways,
-              showAudio: d.showCard,
-              selectedOrt: d.selectedOrt,
-              antwortenAudio: d.antwortAudio,
-              aufgabeSingleOrt: d.aufgabeAudio,
-              pinned: d.isPinned,
-              dataId: d.id
+              data: d
             }"
             :func="{
               hideCard: changeShowAudio
@@ -1577,6 +1572,7 @@ export default class MapView extends Vue {
       antwortAudio: [],
       aufgabeAudio: []
     });
+    console.log(ort);
     const type = ort.data[idx].t;
     loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
       switch (type) {
@@ -2065,7 +2061,6 @@ export default class MapView extends Vue {
         }
       });
     });
-    console.log(res);
     return res;
   }
 
