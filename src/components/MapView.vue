@@ -427,20 +427,18 @@
     </v-layout>
     <v-layout class="card-overlay">
       <div v-for="(d, idx) in pinnedVarCards" :key="idx">
-        <component is="v-scale-transition" v-if="d.isShown" hide-on-leave>
-          <template>
-            <dragable-card
-              v-if="d.isShown"
-              class="varCard"
-              component="variation-card"
-              :props="{
-                data: d,
-                loading: varLoading
-              }"
-              :func="{ hideCard: hideVarCard }"
-              @interface="getInterface"
-            />
-          </template>
+        <component is="v-slide-y-reverse-transition">
+          <dragable-card
+            v-if="d.isShown"
+            class="varCard"
+            component="variation-card"
+            :props="{
+              data: d,
+              loading: varLoading
+            }"
+            :func="{ hideCard: hideVarCard }"
+            @interface="getInterface"
+          />
         </component>
       </div>
     </v-layout>
@@ -470,6 +468,29 @@
             <span>
               Verfügbare Audioaufnahmen für
               {{ d.selectedOrt.ortName.split(',')[0] }}
+            </span>
+          </v-tooltip>
+        </template>
+      </div>
+    </v-layout>
+    <v-layout class="map-overlay button-var">
+      <div v-for="(d, idx) in pinnedVarCards" :key="idx">
+        <template v-if="!d.isShown">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                small
+                rounded
+                class="drawer-down"
+                v-bind="attrs"
+                v-on="on"
+                @click="hideVarCard(d)"
+              >
+                <v-icon>mdi-chevron-double-up</v-icon>
+              </v-btn>
+            </template>
+            <span>
+              {{ d.diagramTitle }}
             </span>
           </v-tooltip>
         </template>
@@ -2391,6 +2412,12 @@ export default class MapView extends Vue {
     margin-bottom: 0px;
     bottom: 0px;
     left: 25%;
+  }
+
+  .button-var {
+    margin-bottom: 0px;
+    bottom: 0px;
+    left: 50%;
   }
 
   .search-overlay {
