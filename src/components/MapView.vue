@@ -708,16 +708,12 @@ import VariationCard from './VariationCard.vue';
 import DragableCard from './DragableCard.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
-import { isAufgabeStandard } from '@/helpers/helper';
 
 
 import { getOrtName } from '@/helpers/helper';
 import {
-  antwortenDto,
   AntwortenFromAufgabe,
-  AntwortTokenStamp,
   ISelectOrtAufgabeResult,
-  selectionObject,
   tagDto,
   TagTree
 } from '@/api/dioe-public-api';
@@ -2206,10 +2202,7 @@ export default class MapView extends Vue {
   }
 
   fetchTranscript(id: number) {
-    console.log(id);
-    console.log('test output');
     const element = this.matchTranscriptID(id);
-    console.log(element);
     this.TM.fetchSingleTranscript({ id: id, page: 0 });
   }
 
