@@ -1,5 +1,5 @@
 import { exportLegend, LegendGlobal, SearchItems } from '@/static/apiModels';
-import { clone } from 'lodash';
+import { clone, isArray } from 'lodash';
 import * as LZ from 'lz-string';
 
 export const expData = {
@@ -11,7 +11,7 @@ export const expData = {
     }
     delete expLegend.layer;
     const eL = expLegend as exportLegend;
-    if (id > -1) {
+    if (id > -1 || (isArray(id) && id.length > 0)) {
       eL.elementId = id;
     }
     return expLegend as exportLegend;

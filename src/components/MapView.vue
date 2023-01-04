@@ -2298,7 +2298,6 @@ export default class MapView extends Vue {
         ) {
           continue;
         }
-
         // Fetch the needed content for the legend
         const res = await this.fetchContent(l.elementId, l.type);
         // create the new entry
