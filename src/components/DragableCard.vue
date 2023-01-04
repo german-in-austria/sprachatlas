@@ -9,11 +9,13 @@
   </div>
 </template>
 <script lang="ts">
+
+import { generateID } from '@/helpers/helper';
+import { Component, Vue, Prop } from 'vue-property-decorator';
+
 /*
   Add component to list in case you want to use it
 */
-import { generateID } from '@/helpers/helper';
-import { Component, Vue, Prop } from 'vue-property-decorator';
 import VariationCard from './VariationCard.vue';
 import LegendItem from './LegendItem.vue';
 import AudioCard from './AudioCard.vue';
