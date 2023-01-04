@@ -33,66 +33,101 @@
     <template v-else>
       <v-card-text>
         <v-expansion-panels focusable>
-          <v-expansion-panel v-for="(d, idx) in data.aufgabeAudio" :key="idx">
+          <v-expansion-panel
+            v-for="(d, idx) in arrangeBySigle(data.aufgabeAudio)"
+            :key="idx"
+          >
             <v-expansion-panel-header>
               <div>
-                {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                {{ getType(d.audiofile) ? 'Dialekt' : 'Standard' }}
+                {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Sigle:
+                {{ d.sigle }} - Alter: {{ d.age }}
               </div>
             </v-expansion-panel-header>
 
             <v-expansion-panel-content eager>
+              <v-btn
+                icon
+                color="indigo"
+                :disabled="aufgIdx > -1"
+                @click="aufgIdx--"
+              >
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                color="indigo"
+                :disabled="aufgIdx < d.data.length"
+                @click="aufgIdx++"
+              >
+                <v-icon>mdi-arrow-right</v-icon>
+              </v-btn>
+              Typ:
+              {{ getType(d.data[aufgIdx].audiofile) ? 'Dialekt' : 'Standard' }}
               <figure>
                 <figcaption>Aufnahme anhören:</figcaption>
                 <AudioPlayer
                   class="mx-10"
-                  :dateipfad="d.dateipfad"
-                  :audiofile="d.audiofile"
-                  :data="d.data"
+                  :dateipfad="d.data[aufgIdx].dateipfad"
+                  :audiofile="d.data[aufgIdx].audiofile"
+                  :data="d.data[aufgIdx].data"
                 />
               </figure>
             </v-expansion-panel-content>
           </v-expansion-panel>
-          <v-expansion-panel v-for="(d, idx) in data.antwortAudio" :key="idx">
+          <v-expansion-panel
+            v-for="(d, idx) in arrangeBySigle(data.antwortAudio)"
+            :key="idx"
+          >
             <v-expansion-panel-header>
-              {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-              {{ getType(d.audiofile) ? 'Dialekt' : 'Standard' }} - Sigle:
-              {{ d.sigle }}
-              <template>
-                <v-tooltip right>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      @click.native.stop="
-                        evaluateData(
-                          d,
-                          idx,
-                          data.selectedOrt?.ortName.split(',')[0]
-                        )
-                      "
-                      v-bind="attrs"
-                      v-on="on"
-                      class="header"
-                    >
-                      <v-icon>mdi-chart-bar</v-icon>
-                    </v-btn>
-                  </template>
-                  <span> Variation auswerten</span>
-                </v-tooltip>
-              </template>
-              <template v-slot:actions>
-                <v-icon class="icon">$expand</v-icon>
-              </template>
+              {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Sigle: {{ d.sigle }} -
+              Alter: {{ d.age }}
+              <v-tooltip right>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    icon
+                    @click.native.stop="
+                      evaluateData(
+                        data.selectedOrt?.ortName.split(',')[0],
+                        d.sigle,
+                        d.data[antIdx].data
+                      )
+                    "
+                    v-bind="attrs"
+                    v-on="on"
+                    class="header"
+                  >
+                    <v-icon>mdi-chart-bar</v-icon>
+                  </v-btn>
+                </template>
+                <span> Variation auswerten</span>
+              </v-tooltip>
             </v-expansion-panel-header>
-
             <v-expansion-panel-content eager>
+              <v-btn
+                icon
+                color="indigo"
+                :disabled="antIdx > -1"
+                @click="antIdx--"
+              >
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                color="indigo"
+                :disabled="antIdx < d.data.length"
+                @click="antIdx++"
+              >
+                <v-icon>mdi-arrow-right</v-icon>
+              </v-btn>
+              Typ:
+              {{ getType(d.data[antIdx].audiofile) ? 'Dialekt' : 'Standard' }}
               <figure>
                 <figcaption>Aufnahme anhören:</figcaption>
                 <AudioPlayer
                   class="mx-10"
-                  :dateipfad="d.dateipfad"
-                  :audiofile="d.audiofile"
-                  :data="d.res[0].data"
+                  :dateipfad="d.data[antIdx].dateipfad"
+                  :audiofile="d.data[antIdx].audiofile"
+                  :data="audioData(d)"
                 />
               </figure>
             </v-expansion-panel-content>
@@ -114,9 +149,9 @@
 </template>
 <script lang="ts">
 import {
-  circleData, Description, pinData, SearchItems
+  circleData, Description, pinData, SearchItems, sigleAntwort
 } from '../static/apiModels';
-import { loadData } from '@/helpers/helper';
+import { arrangeBySigle, loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import DataSwitch from './DataSwitch.vue';
 import AudioPlayer from './AudioPlayer.vue';
@@ -124,7 +159,7 @@ import ActionButtons from './ActionButtons.vue';
 import { isAufgabeStandard } from '@/helpers/helper';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
-import { antwortenDto, AntwortTokenStamp, AufgabeStamp, selectionObject } from '@/api/dioe-public-api';
+import { Antwort, antwortenDto, AntwortToken, AntwortTokenStamp, AufgabeStamp, selectionObject } from '@/api/dioe-public-api';
 
 
 @Component({
@@ -136,6 +171,9 @@ export default class DragableCard extends Vue {
 
   @Prop(Boolean) readonly showDataSideways!: boolean;
 
+  aufgIdx: number = 0;
+  antIdx: number = 0;
+
 
   AM = aufgabenModule;
   LM = legendMod;
@@ -145,12 +183,22 @@ export default class DragableCard extends Vue {
   }
 
   get aufgabenLoading() {
-
     return this.AM.loading && (this.data.antwortAudio.length === 0 && this.data.aufgabeAudio.length === 0);
   }
 
+
   get ageRange() {
     return legendMod.ageRange;
+  }
+
+  audioData(d: sigleAntwort) {
+    return d.data[this.antIdx].data[0];
+  }
+
+  arrangeBySigle(
+    data: AntwortTokenStamp[] | AufgabeStamp[]
+  ): sigleAntwort[] {
+    return arrangeBySigle(data);
   }
 
   getType(val: string | null): boolean {
@@ -192,14 +240,14 @@ export default class DragableCard extends Vue {
     }
   }
 
-  async evaluateData(d: AntwortTokenStamp, idx: number, ort: string | undefined) {
-    const title = `Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`;
-    this.AM.setDiagramTitle(`Auswertung für sigle ${d.sigle} in ${ort ? ort : ''}`);
+  async evaluateData(ort: string | undefined, sigle: string, resData: any[]) {
+    const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
+    this.AM.setDiagramTitle(`Auswertung für sigle ${sigle} in ${ort ? ort : ''}`);
     let curr = await this.LM.pushNewPinDataVar({ diagramTitle: title, isPinned: false, isShown: true, diagramData: [] });
     let res: Array<Description> = [];
     if (this.data.selectedOrt) {
       const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
-      const val = d.res[0].data.length;
+      const val = resData.length;
       let data = this.data.selectedOrt.data.filter(el => el.id !== currEle.id);
       let dto: Array<antwortenDto> = [];
       for (const key of data) {
@@ -239,7 +287,7 @@ export default class DragableCard extends Vue {
       }
       await this.AM.fetchAntwortVariation(dto);
       const variation = this.antVariation;
-      const person = variation.find((el: any) => el.sigle === d.sigle);
+      const person = variation.find((el: any) => el.sigle === sigle);
       res.push({
         color: currEle.c,
         name: currEle.name,
