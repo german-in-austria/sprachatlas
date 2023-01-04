@@ -118,11 +118,52 @@ export const isAufgabeStandard = (val: string): boolean => {
   return val.search('(UED|SPTD)') > -1;
 };
 
+/**
+ * This function arranges data by its sigle in a result array from the type sigleAntwort
+ * @param data data that will be arranged by sigle
+ * @returns Array with data arranged by sigle.
+ */
 export const arrangeBySigle = (
   data: AntwortTokenStamp[] | AufgabeStamp[]
 ): sigleAntwort[] => {
   let res: sigleAntwort[] = [];
-
+  data.forEach((el) => {
+    const isAntwortTokenStamp = (x: any): x is AntwortTokenStamp =>
+      (el as AntwortTokenStamp).res !== undefined;
+    const idx = res.findIndex((e) => e.sigle === el.sigle);
+    let data: any = [];
+    // Is of type AntwortTokenStamp
+    if (isAntwortTokenStamp(el)) {
+      data = el.res.map((el) => el.data);
+    } else {
+      data = el.data;
+    }
+    // Element exists
+    if (idx > -1) {
+      res[idx].data.push({
+        dateipfad: el.dateipfad ? el.dateipfad : '',
+        audiofile: el.audiofile ? el.audiofile : '',
+        data: data,
+        id: isAntwortTokenStamp(el) ? el.res.map((d) => d.id) : undefined
+      });
+    } else {
+      // does not exist
+      res.push({
+        sigle: el.sigle,
+        age: el.age,
+        gruppeBez: el.gruppeBez,
+        teamBez: el.teamBez,
+        data: [
+          {
+            dateipfad: el.dateipfad ? el.dateipfad : '',
+            audiofile: el.audiofile ? el.audiofile : '',
+            data: data,
+            id: isAntwortTokenStamp(el) ? el.res.map((d) => d.id) : undefined
+          }
+        ]
+      });
+    }
+  });
   return res;
 };
 

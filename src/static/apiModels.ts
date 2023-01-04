@@ -1,5 +1,8 @@
 import {
+  Antwort,
+  AntwortToken,
   AntwortTokenStamp,
+  Aufgabe,
   AufgabeStamp,
   selectionObject,
   TagTree
@@ -200,6 +203,19 @@ export type singleEntry = {
   // Type
   t: SearchItems;
 };
+
+export interface sigleAntwort {
+  sigle: string;
+  age: number;
+  gruppeBez: string | null;
+  teamBez: string | null;
+  data: Array<{
+    id?: Array<String>;
+    dateipfad: string;
+    audiofile: string;
+    data: Array<Antwort | AntwortToken | Aufgabe>;
+  }>;
+}
 
 export interface Parameter {
   name: string;
