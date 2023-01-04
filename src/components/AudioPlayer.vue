@@ -176,7 +176,6 @@ export default class AudioPlayer extends Vue {
       sec += end.milliseconds / 1000;
     }
     const val = sec + this.fadeValue + this.kontextNum;
-    console.log(val > this.trackDuration);
     return val > this.trackDuration ? sec : val;
   }
 
