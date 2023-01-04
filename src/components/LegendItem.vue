@@ -211,6 +211,7 @@
           v-on:hideCard="updateVis()"
           v-on:moveCard="$emit('moveCard', $event)"
           color="indigo"
+          :showTrash="false"
         />
       </v-card-actions>
     </v-card>

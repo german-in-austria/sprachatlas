@@ -139,6 +139,7 @@
           v-on:hideCard="$emit('hideCard', data.id)"
           v-on:moveCard="$emit('moveCard', $event)"
           v-on:pinCard="pinCard($event, !data.isPinned)"
+          v-on:removeElement="removeElement()"
           :pinned="data.isPinned"
           :showPin="true"
           color="indigo"
@@ -207,6 +208,10 @@ export default class DragableCard extends Vue {
 
   pinCard(event: any, pinData: boolean) {
     this.LM.editPinnedShowById({ dataId: this.data.id, show: true, pinned: pinData });
+  }
+
+  removeElement() {
+    this.LM.removeElementFromPinDataById(this.data.id);
   }
 
   switchData(dir: boolean) {

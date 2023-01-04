@@ -69,6 +69,22 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
+  removeElementFromPinDataVarById(id: string) {
+    const idx = this.pinDataVar.findIndex((el) => el.id === id);
+    if (idx > -1) {
+      this.pinDataVar.splice(idx, 1);
+    }
+  }
+
+  @Mutation
+  removeElementFromPinDataById(id: string) {
+    const idx = this.pinnedData.findIndex((el) => el.id === id);
+    if (idx > -1) {
+      this.pinnedData.splice(idx, 1);
+    }
+  }
+
+  @Mutation
   resetPinDataVar() {
     this.pinDataVar = [];
   }
@@ -247,6 +263,10 @@ class Legend extends VuexModule implements LegendState {
       this.context.commit('removeEntryByIdx', idx);
     } else {
       this.context.commit('removeEntryById', el.id);
+    }
+    if (this.legend.length === 0) {
+      this.context.commit('removeUnpinndDataVar');
+      this.context.commit('removeUnPinnedData');
     }
   }
 

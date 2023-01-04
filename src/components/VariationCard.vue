@@ -19,6 +19,7 @@
         v-on:hideCard="$emit('hideCard', data)"
         v-on:moveCard="$emit('moveCard', $event)"
         v-on:pinCard="pinCard($event, !data.isPinned)"
+        v-on:removeElement="removeElement()"
         :showPin="true"
         :pinned="data.isPinned"
         color="indigo"
@@ -47,6 +48,10 @@ export default class VariationCard extends Vue {
     let d = this.data;
     d.isPinned = pinData;
     this.LM.editPinDataByID(d);
+  }
+
+  removeElement() {
+    this.LM.removeElementFromPinDataVarById(this.data.id);
   }
 }
 </script>
