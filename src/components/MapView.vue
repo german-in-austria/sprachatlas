@@ -1572,7 +1572,6 @@ export default class MapView extends Vue {
       antwortAudio: [],
       aufgabeAudio: []
     });
-    console.log(ort);
     const type = ort.data[idx].t;
     loadData(ort.data[idx], ort.osm, type, this.ageRange).then(() => {
       switch (type) {
