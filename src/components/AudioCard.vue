@@ -37,7 +37,7 @@
             <v-expansion-panel-header>
               <div>
                 {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-                {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }}
+                {{ getType(d.audiofile) ? 'Dialekt' : 'Standard' }}
               </div>
             </v-expansion-panel-header>
 
@@ -56,7 +56,7 @@
           <v-expansion-panel v-for="(d, idx) in data.antwortAudio" :key="idx">
             <v-expansion-panel-header>
               {{ d.gruppeBez }} - Team: {{ d.teamBez }} - Typ:
-              {{ getType(d.audiofile) ? 'Standard' : 'Dialekt' }} - Sigle:
+              {{ getType(d.audiofile) ? 'Dialekt' : 'Standard' }} - Sigle:
               {{ d.sigle }}
               <template>
                 <v-tooltip right>
@@ -175,18 +175,18 @@ export default class DragableCard extends Vue {
       data.selectedDataIdx = idx;
       this.LM.editPinnedByID(data);
       const d = data.selectedOrt.data[this.data.selectedDataIdx];
-      console.log(d);
       loadData(d, data.selectedOrt.osm, d.t, this.ageRange).then(() => {
         switch (d.t) {
           case SearchItems.Phaen:
           case SearchItems.Query:
           case SearchItems.Tag:
-            data.antwortAudio = this.data.antwortAudio;
+            data.antwortAudio = this.AM.antwortenAudio;
             break;
           case SearchItems.Aufgaben:
-            data.aufgabeAudio = this.data.aufgabeAudio;
+            data.aufgabeAudio = this.AM.aufgabeSingleOrt;
             break;
         }
+        console.log(data.aufgabeAudio)
         this.LM.editPinnedByID(data);
       });
     }

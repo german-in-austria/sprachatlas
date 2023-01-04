@@ -1,5 +1,14 @@
-import { selectionObject } from '@/api/dioe-public-api';
-import { Hsl, SearchItems, singleEntry } from '@/static/apiModels';
+import {
+  AntwortTokenStamp,
+  AufgabeStamp,
+  selectionObject
+} from '@/api/dioe-public-api';
+import {
+  Hsl,
+  SearchItems,
+  sigleAntwort,
+  singleEntry
+} from '@/static/apiModels';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
 
@@ -107,6 +116,14 @@ export const selectColor = (num: number | null) => {
  */
 export const isAufgabeStandard = (val: string): boolean => {
   return val.search('(UED|SPTD)') > -1;
+};
+
+export const arrangeBySigle = (
+  data: AntwortTokenStamp[] | AufgabeStamp[]
+): sigleAntwort[] => {
+  let res: sigleAntwort[] = [];
+
+  return res;
 };
 
 export const loadData = async (
