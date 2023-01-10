@@ -7,10 +7,10 @@
  */
 export type ISelectOrtAufgabeResult = {
     aufgabenstellung: string | null;
-    id: number;
+    id: number | null;
     lat: string | null;
     lon: string | null;
     numAufg: string | null;
-    ortNamelang: string;
+    ortNamelang: string | null;
     osmId: string | null;
 }
