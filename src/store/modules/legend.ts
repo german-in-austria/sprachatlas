@@ -240,6 +240,7 @@ class Legend extends VuexModule implements LegendState {
   }): LegendGlobal {
     const newLegend: LegendGlobal = {
       id: '',
+      description: '',
       color: arg.color ? arg.color : selectColor(null),
       size: arg.radius,
       type: arg.type,

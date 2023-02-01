@@ -155,6 +155,7 @@ export interface LegendGlobal {
   color: Hsl;
   size: number;
   type: SearchItems | null;
+  description: string;
   content: any;
   stroke: boolean;
   strokeWidth: number;

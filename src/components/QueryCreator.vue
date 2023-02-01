@@ -212,6 +212,12 @@
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
+          <template v-if="queryLegend.length > 0">
+            <v-subheader> Beschreibung </v-subheader>
+            <div v-for="(item, idx) in queryLegend" :key="idx">
+              <legend-desc-edit :value.sync="item.description" />
+            </div>
+          </template>
         </v-list>
       </v-col>
       <v-spacer></v-spacer>
@@ -261,7 +267,14 @@
                           ><h4>{{ curr.name }}</h4>
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
-                          {{ 'Suchanfrage' }}</v-expansion-panel-content
+                          <div
+                            v-html="
+                              curr.description
+                                ? `${curr.description.substring(0, 100)}...`
+                                : 'Keine Beschreibung vorhanden'
+                            "
+                          ></div>
+                          ´</v-expansion-panel-content
                         >
                       </v-expansion-panel>
                     </v-expansion-panels>
@@ -327,6 +340,7 @@ import { transModule } from '@/store/modules/transcripts';
 import { selectionObject, TagTree } from '@/api/dioe-public-api';
 import TagView from '@/components/TagView.vue';
 import TokenField from '@/components/TokenField.vue';
+import LegendDescEdit from './LegendDescEdit.vue';
 
 import draggable from 'vuedraggable';
 import {
@@ -347,7 +361,7 @@ import { messageHandler } from '@/store/modules/message';
 import { VueEditor } from 'vue2-editor';
 
 @Component({
-  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor },
+  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor, LegendDescEdit },
   name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {

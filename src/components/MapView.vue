@@ -2077,6 +2077,7 @@ export default class MapView extends Vue {
     if (curr.length > 0) {
       const newLegend: LegendGlobal = {
         id: '',
+        description: '',
         color: color,
         size: radius,
         type: type,
