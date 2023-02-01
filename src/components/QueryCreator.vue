@@ -510,10 +510,11 @@ export default class QueryCreator extends Vue {
       ? curr.maxEducation
       : '';
     this.TM.setTagSelection(curr.tagList ? curr.tagList : []);
-    this.formControl.paraDesc = curr.description ? curr.description : '',
-      this.textToken = curr.textTokenList ? curr.textTokenList : [] as selectionObject[],
-      this.textLemma = curr.lemmaList ? curr.lemmaList : [] as selectionObject[],
-      this.editPar = curr;
+    this.formControl.paraDesc = curr.description ? curr.description : '';
+    this.paraDesc = this.formControl.paraDesc;
+    this.textToken = curr.textTokenList ? curr.textTokenList : [] as selectionObject[];
+    this.textLemma = curr.lemmaList ? curr.lemmaList : [] as selectionObject[];
+    this.editPar = curr;
   }
 
   createlegend() {
