@@ -566,7 +566,7 @@ export default class QueryCreator extends Vue {
           this.formControl.paraColor === null
             ? ''
             : this.formControl.paraColor.hex,
-        description: this.formControl.paraDesc,
+        description: this.paraDesc,
         textTokenList: this.textToken,
         lemmaList: this.textLemma,
       };
