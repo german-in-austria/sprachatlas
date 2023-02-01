@@ -14,6 +14,7 @@ export type { Aset } from './models/Aset';
 export type { Aufgabe } from './models/Aufgabe';
 export type { aufgabenDto } from './models/aufgabenDto';
 export type { AufgabeStamp } from './models/AufgabeStamp';
+export type { IGetAllSpposResult } from './models/IGetAllSpposResult';
 export type { IGetPresetOrtTagResult } from './models/IGetPresetOrtTagResult';
 export type { IGetPresetTagsResult } from './models/IGetPresetTagsResult';
 export type { ISelectAllAufgabenResult } from './models/ISelectAllAufgabenResult';

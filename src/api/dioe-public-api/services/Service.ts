@@ -7,6 +7,7 @@ import type { AntwortTokenStamp } from '../models/AntwortTokenStamp';
 import type { Aset } from '../models/Aset';
 import type { aufgabenDto } from '../models/aufgabenDto';
 import type { AufgabeStamp } from '../models/AufgabeStamp';
+import type { IGetAllSpposResult } from '../models/IGetAllSpposResult';
 import type { IGetPresetOrtTagResult } from '../models/IGetPresetOrtTagResult';
 import type { IGetPresetTagsResult } from '../models/IGetPresetTagsResult';
 import type { ISelectAllAufgabenResult } from '../models/ISelectAllAufgabenResult';
@@ -88,6 +89,18 @@ export class Service {
         const result = await __request({
             method: 'GET',
             path: `/tags/layers`,
+        });
+        return result.body;
+    }
+
+    /**
+     * @returns IGetAllSpposResult Ok
+     * @throws ApiError
+     */
+    public static async getAllSppos(): Promise<Array<IGetAllSpposResult>> {
+        const result = await __request({
+            method: 'GET',
+            path: `/tags/sppos`,
         });
         return result.body;
     }
