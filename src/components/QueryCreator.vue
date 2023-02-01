@@ -5,6 +5,16 @@
         <v-btn color="primary" dark @click="createlegend()">
           Neue Legende erstellen
         </v-btn>
+        <br />
+        <v-btn
+          class="mt-5"
+          color="success"
+          dark
+          v-if="queryLegend.length > 0"
+          @click="$router.push({ name: 'Karte' })"
+        >
+          Legende auf Karte anzeigen
+        </v-btn>
         <v-dialog v-model="dialog" max-width="1000px">
           <v-card>
             <v-card-title> Parameter erstellen </v-card-title>

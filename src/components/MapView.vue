@@ -1668,11 +1668,11 @@ export default class MapView extends Vue {
         aufg.osmId ? Number(aufg.osmId) : -1,
         Number(aufg.lon),
         Number(aufg.lat),
-        aufg.ortNamelang,
+        aufg.ortNamelang ? aufg.ortNamelang : '',
         aufg.numAufg ? Number(aufg.numAufg) : 1,
         aufg.aufgabenstellung ? aufg.aufgabenstellung : '',
         propFactor * Number(aufg.numAufg),
-        aufg.id.toString(),
+        aufg.id ? aufg.id.toString() : '',
         SearchItems.Aufgaben
       );
     }
@@ -2333,7 +2333,12 @@ export default class MapView extends Vue {
         // this.layerGroup = this.$refs.points.mapObject;
         this.decodeURI().then(() => {
           if (this.legendGlobal.length > 0) {
+            messageHandler.setSuccessMsg({
+              message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
+              icon: 'mdi-info'
+            });
             this.displayDataFromLegend(legendMod.legend);
+
           }
         });
         this.computeMPerPixel();

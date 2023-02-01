@@ -1,1 +1,1 @@
-export const SNACK_BAR_TIMEOUT = 3000;
+export const SNACK_BAR_TIMEOUT = 4000;

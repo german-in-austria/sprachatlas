@@ -6,10 +6,9 @@
       bottom
       right
       vertical
-      :timeout="-1"
-      time
+      :timeout="snackbar_timeout"
       :color="latestLogColor"
-      :value="item.show"
+      v-model="item.show"
       :style="`bottom: ${idx * 150}px`"
     >
       <Message :msg="item.message" :icon="item.icon" :date="item.time" />
@@ -21,6 +20,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { messageHandler } from '@/store/modules/message';
 import Message from '@/components/Message.vue';
+import { SNACK_BAR_TIMEOUT } from '@/constants';
 
 @Component({
   components: { Message },
@@ -28,6 +28,10 @@ import Message from '@/components/Message.vue';
 })
 export default class Snackbar extends Vue {
   progressTime: number = 0;
+
+  get snackbar_timeout() {
+    return SNACK_BAR_TIMEOUT;
+  }
 
   get queue() {
     return messageHandler.queue;
