@@ -2,7 +2,7 @@
   <fieldset class="box">
     <legend>{{ header }}</legend>
     <v-row>
-      <v-col cols="7">
+      <v-col cols="6">
         <v-form v-model="validInput">
           <v-text-field
             v-model="inputModel"
@@ -26,11 +26,21 @@
           label="Kondition"
         ></v-select>
       </v-col>
-      <v-col cols="3">
+      <v-col cols="2">
         <v-select
           v-model="caseSen"
           label="Suchoptionen"
           :items="itemCase"
+        ></v-select>
+      </v-col>
+      <v-col cols="2">
+        <v-select
+          v-model="sppos"
+          clearable
+          label="Sppos auswählen"
+          :items="spposItems"
+          item-text="sppos"
+          item-value="sppos"
         ></v-select>
       </v-col>
     </v-row>
@@ -59,12 +69,14 @@
         <v-icon left> mdi-regex </v-icon>
       </template>
       {{ val.val }}
+      <template v-if="val.sppos !== ''"> - {{ val.sppos }} </template>
     </v-chip>
   </fieldset>
 </template>
 <script lang="ts">
 import { Prop, Vue, Component, PropSync } from 'vue-property-decorator';
 import { selectionObject } from '@/api/dioe-public-api';
+import { tagModule } from '@/store/modules/tags';
 
 @Component({
   name: 'TokenField',
@@ -83,10 +95,15 @@ export default class TokenField extends Vue {
 
   state = 'genau';
   caseSen = 'case-sensitive';
+  sppos = '';
 
   inputModel: string = "";
 
   validInput: boolean = true;
+
+  get spposItems() {
+    return tagModule.allSppos;
+  }
 
   rules = {
     regexp: (value: string) => {
@@ -100,9 +117,11 @@ export default class TokenField extends Vue {
     this.selectedElements.push({
       val: this.inputModel,
       state: this.state,
-      case: this.caseSen
+      case: this.caseSen,
+      sppos: this.sppos === null ? '' : this.sppos
     });
     this.inputModel = "";
+    this.sppos = '';
     this.$emit('update:elements', this.selectedElements);
   }
 

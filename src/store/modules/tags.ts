@@ -19,7 +19,7 @@ import {
 } from '@/static/apiModels';
 
 import { IGetPresetTagsResult } from '../../api/dioe-public-api/models/IGetPresetTagsResult';
-import { TagTree } from '@/api/dioe-public-api';
+import { IGetAllSpposResult, TagTree } from '@/api/dioe-public-api';
 import api from '@/api';
 import { getBerufe } from '@/api/erhebungen';
 
@@ -48,6 +48,7 @@ class Tags extends VuexModule implements TagState {
   presetTags = [] as Array<IGetPresetTagsResult>;
   tagList: TagTree[] | null = null;
   childrenTag: TagTree[] = [];
+  allSppos: Array<IGetAllSpposResult> = [];
   loading = false;
 
   get byUniqueURL() {
@@ -245,6 +246,18 @@ class Tags extends VuexModule implements TagState {
     console.log('fetched data');
     return {
       tagOrteResults: response,
+      loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['allSppos', 'loading'] })
+  async getAllSppos() {
+    this.context.commit('setLoading', true);
+    console.log('trying to fetch data');
+    const response = await api.dioePublic.getAllSppos();
+    console.log('fetched data');
+    return {
+      allSppos: response,
       loading: false
     };
   }

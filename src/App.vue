@@ -63,6 +63,7 @@ export default class App extends Vue {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
+    tagModule.getAllSppos();
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
   }
