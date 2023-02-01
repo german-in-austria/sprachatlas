@@ -174,11 +174,10 @@
                   hide-inputs
                   swatches-max-height="226"
                 ></v-color-picker>
-                <v-textarea
-                  name="beschreibung"
-                  label="Beschreibung für den Parameter"
+                <vue-editor
                   v-model="paraDesc"
-                ></v-textarea>
+                  placeholder="Beschreibung für den Parameter"
+                ></vue-editor>
                 <v-card-actions v-if="!editMode">
                   <v-btn
                     @click="createParameter(true)"
@@ -345,9 +344,10 @@ import SymbolPicker from '@/components/SymbolPicker.vue';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { expData } from '@/service/ExportBase';
 import { messageHandler } from '@/store/modules/message';
+import { VueEditor } from 'vue2-editor';
 
 @Component({
-  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField },
+  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor },
   name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {
