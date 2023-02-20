@@ -208,8 +208,21 @@
           <v-list-item-group color="primary">
             <v-list-item v-for="(item, idx) in queryLegend" :key="idx">
               <v-list-item-content :key="idx" @click="viewLegend(idx, item)">
-                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                <v-list-item-title>{{ item.name }} </v-list-item-title>
               </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  elevation="1"
+                  class="ml-2"
+                  fab
+                  dark
+                  small
+                  color="error"
+                  @click="deleteLegendEntry(item, idx)"
+                >
+                  <v-icon dark> mdi-trash-can-outline </v-icon>
+                </v-btn>
+              </v-list-item-action>
             </v-list-item>
           </v-list-item-group>
           <template v-if="queryLegend.length > 0">
@@ -484,6 +497,11 @@ export default class QueryCreator extends Vue {
 
   get teams() {
     return this.AM.teams;
+  }
+
+  deleteLegendEntry(el: LegendGlobal, idx: number | null) {
+    this.LM.deleteLegendEntry(el, idx);
+    expData.removeEntryFromUri(el.name, el.type ? el.type : 0);
   }
 
   editLegName() {
