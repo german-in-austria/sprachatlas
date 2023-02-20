@@ -352,7 +352,7 @@
     <v-bottom-navigation
       location="bottom"
       :input-value="bottomBar && legendGlobalQuery.length > 0"
-      style="height: auto"
+      style="height: auto; max-height: 200px"
       v-if="legendGlobalQuery.length > 0"
       bottom
       app
@@ -360,42 +360,44 @@
       <v-container style="margin-left: 50px; max-width: 100%">
         <v-row>
           <v-col cols="5">
-            {{ legendGlobalQuery[0].name }}
-            <span
+            <strong>{{ legendGlobalQuery[0].name }}</strong>
+            <div
               v-if="legendGlobalQuery.length > 0"
               v-html="legendGlobalQuery[0].description"
-            >
-            </span>
+              style="position: relative; overflow-y: scroll; height: 180px"
+            ></div>
           </v-col>
           <v-col cols="1">
             <v-divider vertical></v-divider>
           </v-col>
           <v-col cols="3">
-            <v-expansion-panels focusable>
-              <v-expansion-panel
-                v-for="(item, idx) in legendGlobalQuery[0].parameter"
-                :key="idx"
-              >
-                <v-expansion-panel-header>
-                  <div>
-                    <v-avatar>
-                      <icon-circle
-                        :fillCol="
-                          convertHexToHsl(
-                            item.color !== undefined ? item.color : '#F00'
-                          )
-                        "
-                        :strokeWidth="legendGlobalQuery[0].strokeWidth"
-                      />
-                    </v-avatar>
-                    <span>{{ item.name }}</span>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <ItemDescription :item="item" />
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
+            <div style="position: relative; overflow-y: scroll; height: 180px">
+              <v-expansion-panels focusable>
+                <v-expansion-panel
+                  v-for="(item, idx) in legendGlobalQuery[0].parameter"
+                  :key="idx"
+                >
+                  <v-expansion-panel-header>
+                    <div>
+                      <v-avatar>
+                        <icon-circle
+                          :fillCol="
+                            convertHexToHsl(
+                              item.color !== undefined ? item.color : '#F00'
+                            )
+                          "
+                          :strokeWidth="legendGlobalQuery[0].strokeWidth"
+                        />
+                      </v-avatar>
+                      <span>{{ item.name }}</span>
+                    </div>
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <ItemDescription :item="item" />
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </div>
           </v-col>
           <v-col cols="2" offset="1">
             <v-container>
