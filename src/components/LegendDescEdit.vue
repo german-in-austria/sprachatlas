@@ -10,7 +10,7 @@
           dark
           color="success"
           @click="
-            $emit('update:value', value);
+            $emit('update:description', value);
             edit = !edit;
           "
         >
@@ -43,7 +43,7 @@
         color="error"
         @click="
           value = '';
-          $emit('update:value', value);
+          $emit('update:description', value);
         "
       >
         <v-icon left> mdi-trash-can </v-icon>
