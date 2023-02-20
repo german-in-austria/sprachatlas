@@ -215,7 +215,7 @@
           <template v-if="queryLegend.length > 0">
             <v-subheader> Beschreibung </v-subheader>
             <div v-for="(item, idx) in queryLegend" :key="idx">
-              <legend-desc-edit :value.sync="item.description" />
+              <legend-desc-edit :description.sync="item.description" />
             </div>
           </template>
         </v-list>
@@ -645,7 +645,7 @@ export default class QueryCreator extends Vue {
           this.formControl.paraColor === null
             ? ''
             : this.formControl.paraColor.hex,
-        description: this.formControl.paraDesc
+        description: this.paraDesc
       };
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
