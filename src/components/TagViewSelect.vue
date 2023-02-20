@@ -1,6 +1,6 @@
 <template>
-  <div :class="{ tagGroup: true }">
-    <v-row no-gutters>
+  <div :class="{ tagGroup: true, childGroup: !topTag }">
+    <v-row no-gutters style="width: fit-content">
       <v-tooltip v-model="hover" bottom :color="color">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -24,6 +24,7 @@
         :position-y="y"
         absolute
         offset-y
+        v-if="editMode"
       >
         <v-list>
           <v-list-item link>
@@ -41,9 +42,10 @@
         :tagData="tag"
         :color="color"
         :tagSelection="tagSel(tag)"
+        :editMode="editMode"
         @bus="bus"
       />
-      <v-tooltip bottom>
+      <v-tooltip v-if="editMode" bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             v-if="tagSelection.children.length > 0"
@@ -89,6 +91,9 @@ export default class TagViewSelect extends Vue {
   @Prop() readonly generation!: number;
   @Prop() readonly tagSelection!: TagSelection;
   @Prop({ default: '#F00', type: String }) readonly color!: string;
+  @Prop({ default: true, type: Boolean }) readonly editMode!: boolean;
+  @Prop({ default: false, type: Boolean }) readonly topTag!: boolean;
+
 
   get tagSelectioAll() {
     return this.TM.tagSelection;
@@ -161,9 +166,15 @@ export default class TagViewSelect extends Vue {
     margin-right: 5px;
     background-color: grey;
   }
+
+  .childGroup {
+    border-top-width: 0px !important;
+    border-bottom-width: 0px !important;
+  }
   .tagGroup {
     border: 1px solid black;
     padding: 0px 10px;
     border-radius: 10px;
+    width: fit-content;
   }
 </style>

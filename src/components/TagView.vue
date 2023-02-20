@@ -7,6 +7,7 @@
             <v-autocomplete
               @change="updateTag()"
               :disabled="disable"
+              v-if="editMode"
               v-show="selMode"
               v-model="selTag"
               :items="tagList"
@@ -27,10 +28,12 @@
                   :tagData="group.tagGroup"
                   :tagSelection="group"
                   :color="color"
+                  :editMode="editMode"
+                  :topTag="true"
                   @deleteTag="onDelete"
                 />
               </v-col>
-              <v-col>
+              <v-col v-if="editMode">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -78,6 +81,7 @@ import TagViewSelect from '@/components/TagViewSelect.vue';
 export default class TagView extends Vue {
   @Prop({ default: '#F00', type: String }) readonly color!: string;
   @Prop({ default: false, type: Boolean }) readonly disable!: boolean;
+  @Prop({ default: true, type: Boolean }) readonly editMode!: boolean;
 
   TM = tagModule;
   selTag: TagTree | null = null;
