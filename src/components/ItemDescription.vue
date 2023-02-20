@@ -1,16 +1,49 @@
 <template>
   <div>
-    <span>{{ item.name }} - </span>
-    <v-avatar>
-      <icon-circle
-        :fillCol="
-          convertHexToHsl(item.color !== undefined ? item.color : '#F00')
-        "
-        :strokeWidth="legendGlobalQuery[0].strokeWidth"
-      />
-    </v-avatar>
     <strong> Beschreibung: </strong>
-    <span v-html="item.description ? item.description : ''"></span>
+    <span
+      v-html="
+        item.description && item.description.length > 0
+          ? item.description
+          : 'Keine Beschreibung vorhanden'
+      "
+    ></span>
+    <v-divider></v-divider>
+    <template v-if="item.tagList && item.tagList.length > 0">
+      Tags
+      <div
+        v-for="(tag, idx) in item.tagList"
+        style="margin-top: 5px; margin-bottom: 5px"
+      >
+        <TagViewSelect
+          :generation="0"
+          :children="tag.children"
+          :tagData="tag.tagGroup"
+          :tagSelection="tag"
+          :color="item.color"
+          :topTag="true"
+          :editMode="false"
+        />
+      </div>
+    </template>
+    <v-divider></v-divider>
+    <template v-if="item.textTokenList && item.textTokenList.length > 0">
+      Token:
+      <token-chips
+        :selectedElements="item.textTokenList"
+        :color="item.color"
+        :edit="false"
+      ></token-chips>
+    </template>
+    <v-divider></v-divider>
+    <template v-if="item.lemmaList && item.lemmaList.length > 0">
+      Lemma:
+      <token-chips
+        :selectedElements="item.lemmaList"
+        :color="item.color"
+        :edit="false"
+      ></token-chips>
+    </template>
   </div>
 </template>
 <script lang="ts">
@@ -21,9 +54,10 @@ import { legendMod } from '@/store/modules/legend';
 import { SearchItems } from '@/static/apiModels';
 import { convertHexToHsl, convertHslToStr } from '@/helpers/helper';
 import IconCircle from '@/icons/IconCircle.vue';
-
+import TagViewSelect from './TagViewSelect.vue';
+import TokenChips from './TokenChips.vue';
 @Component({
-  components: { IconCircle },
+  components: { IconCircle, TagViewSelect, TokenChips },
   name: 'ItemDescription'
 })
 export default class ItemDescription extends Vue {
