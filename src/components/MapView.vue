@@ -2546,7 +2546,7 @@ export default class MapView extends Vue {
     position: fixed;
     width: 600px;
     height: 35vh;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .varCard {
@@ -2554,7 +2554,7 @@ export default class MapView extends Vue {
     left: 45%;
     max-width: 450px;
     position: fixed;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .erhebung {
@@ -2571,7 +2571,7 @@ export default class MapView extends Vue {
     left: 75%;
     position: fixed;
     z-index: 2;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .zoom {
@@ -2580,7 +2580,7 @@ export default class MapView extends Vue {
 
   .bottomBarTransform {
     transform: translateY(-150px);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .v-card {
