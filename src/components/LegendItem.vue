@@ -4,7 +4,7 @@
       v-if="vis"
       elevation="2"
       class="mx-auto"
-      max-width="300"
+      max-width="400"
       min-width="250"
       style="max-height: 300px"
     >
@@ -184,6 +184,15 @@
                 <v-row>
                   <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
                     <v-icon>mdi-cancel</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    color="primary"
+                    @click="
+                      $router.push({ path: 'query', query: { legend: d.id } })
+                    "
+                  >
+                    <v-icon>mdi-pencil</v-icon>
                   </v-btn>
                   <v-btn
                     icon
