@@ -122,7 +122,7 @@ export default class TokenField extends Vue {
     });
     this.inputModel = "";
     this.sppos = '';
-    this.$emit('update:elements', this.selectedElements);
+    this.$emit('update:selElements', this.selectedElements);
   }
 
   updated() {
