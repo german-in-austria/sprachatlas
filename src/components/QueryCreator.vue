@@ -144,7 +144,7 @@
                             ></v-select>
                             <TokenField
                               header="Tokensuche"
-                              :selElements.sync="textToken"
+                              :selectedElements.sync="textToken"
                               label="Token eingeben"
                               hint="Z.b. hat, hatte, ..."
                               appendIcon="mdi-plus"
@@ -153,7 +153,7 @@
                             <TokenField
                               class="mt-5"
                               header="Lemmasuche"
-                              :selElements.sync="textLemma"
+                              :selectedElements.sync="textLemma"
                               label="Lemma eingeben"
                               appendIcon="mdi-plus"
                               :color="parColor"
@@ -686,6 +686,11 @@ export default class QueryCreator extends Vue {
 
   mounted() {
     this.formControl.range = this.range;
+    if (this.$route.query.legend) {
+      const id = this.$route.query.legend;
+      const legend = this.queryLegend.filter(el => el.id === id);
+      this.viewLegend(-1, legend[0]);
+    }
     if (this.$route.query.parameters) {
       const para = this.$route.query.parameters;
       let legend = undefined;

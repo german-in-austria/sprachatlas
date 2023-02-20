@@ -322,6 +322,93 @@
         </template>
       </div>
     </template>
+    <div
+      class="map-overlay"
+      style="bottom: 0%; left: 85%"
+      v-if="!bottomBar && legendGlobalQuery.length > 0"
+    >
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-slide-x-reverse-transition>
+            <v-btn
+              :class="{ drawer: bottomBar }"
+              class="drawer-down"
+              small
+              right
+              rounded
+              v-bind="attrs"
+              v-on="on"
+              @click="bottomBar = !bottomBar"
+            >
+              <template>
+                <v-icon> mdi-chevron-double-up</v-icon>
+              </template>
+            </v-btn>
+          </v-slide-x-reverse-transition>
+        </template>
+        <span> Legendeninformationen anzeigen </span>
+      </v-tooltip>
+    </div>
+    <v-bottom-navigation
+      location="bottom"
+      :input-value="bottomBar && legendGlobalQuery.length > 0"
+      style="height: auto"
+      v-if="legendGlobalQuery.length > 0"
+      bottom
+      app
+    >
+      <v-container style="margin-left: 50px; max-width: 100%">
+        <v-row>
+          <v-col cols="5">
+            {{ legendGlobalQuery[0].name }}
+            <span
+              v-if="legendGlobalQuery.length > 0"
+              v-html="legendGlobalQuery[0].description"
+            >
+            </span>
+          </v-col>
+          <v-col cols="1">
+            <v-divider vertical></v-divider>
+          </v-col>
+          <v-col cols="3">
+            <v-expansion-panels focusable>
+              <v-expansion-panel
+                v-for="(item, idx) in legendGlobalQuery[0].parameter"
+                :key="idx"
+              >
+                <v-expansion-panel-header>
+                  <div>
+                    <v-avatar>
+                      <icon-circle
+                        :fillCol="
+                          convertHexToHsl(
+                            item.color !== undefined ? item.color : '#F00'
+                          )
+                        "
+                        :strokeWidth="legendGlobalQuery[0].strokeWidth"
+                      />
+                    </v-avatar>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <ItemDescription :item="item" />
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+          <v-col cols="2" offset="1">
+            <v-container>
+              <v-row>
+                <v-btn @click="bottomBar = !bottomBar">
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </v-row>
+            </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-bottom-navigation>
     <v-layout class="map-overlay btn-overlay pa-5">
       <v-flex>
         <v-row>
@@ -408,6 +495,7 @@
             v-if="d.showCard"
             class="audioCard"
             component="audio-card"
+            :class="{ bottomBarTransform: bottomBar }"
             :props="{
               showDataSideways: showDataSideways,
               data: d
@@ -426,6 +514,7 @@
           <dragable-card
             v-if="d.isShown"
             class="varCard"
+            :class="{ bottomBarTransform: bottomBar }"
             component="variation-card"
             :props="{
               data: d,
@@ -566,6 +655,7 @@
     </v-layout>
     <dragable-card
       class="legend"
+      :class="{ bottomBarTransform: bottomBar }"
       component="legend-item"
       :props="{
         vis: showLegend,
@@ -664,7 +754,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex, generateID, loadData } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -701,6 +791,7 @@ import DataSwitch from '@/components/DataSwitch.vue';
 import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
 import VariationCard from './VariationCard.vue';
 import DragableCard from './DragableCard.vue';
+import ItemDescription from './ItemDescription.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 
@@ -736,7 +827,8 @@ const defaultZoom = 8;
     DataSwitch,
     PhaenAufgabenSearch,
     VariationCard,
-    DragableCard
+    DragableCard,
+    ItemDescription
   }
 })
 export default class MapView extends Vue {
@@ -744,6 +836,7 @@ export default class MapView extends Vue {
   kmPerPixel: number = 0;
   center: L.LatLng = new L.LatLng(defaultCenter[0], defaultCenter[1]);
   sideBar: boolean = false;
+  bottomBar: boolean = true;
   EM = erhebungModule;
   TM = transModule;
   TaM = tagModule;
@@ -1282,6 +1375,14 @@ export default class MapView extends Vue {
 
   changeLegVis(val: boolean) {
     this.showLegend = val;
+  }
+
+  convertHexToHsl(col: string) {
+    if (col.length > 7) {
+      col = col.substring(0, 7);
+    }
+    const hsl = convertHexToHsl(col);
+    return convertHslToStr(hsl[0] * 360, hsl[1], hsl[2]);
   }
 
   changeSearchTerms() {
@@ -2389,6 +2490,7 @@ export default class MapView extends Vue {
     //height: 100%;
     position: fixed;
     z-index: 1;
+
     //width: 100%;
     //left: 0;
     //right: 0;
@@ -2442,6 +2544,7 @@ export default class MapView extends Vue {
     position: fixed;
     width: 600px;
     height: 35vh;
+    transition: all 0.3s ease-in-out;
   }
 
   .varCard {
@@ -2449,6 +2552,7 @@ export default class MapView extends Vue {
     left: 45%;
     max-width: 450px;
     position: fixed;
+    transition: all 0.3s ease-in-out;
   }
 
   .erhebung {
@@ -2465,10 +2569,16 @@ export default class MapView extends Vue {
     left: 75%;
     position: fixed;
     z-index: 2;
+    transition: all 0.3s ease-in-out;
   }
 
   .zoom {
     margin: 10px;
+  }
+
+  .bottomBarTransform {
+    transform: translateY(-150px);
+    transition: all 0.3s ease-in-out;
   }
 
   .v-card {
