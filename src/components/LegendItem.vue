@@ -303,7 +303,7 @@ export default class LegendItem extends Vue {
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
-    expData.removeEntryFromUri(el.name, el.type ? el.type : 0);
+    expData.removeEntry(el.name, el.type ? el.type : 0);
     this.AM.clearAntworten();
     this.$emit('callChange', el);
     if (this.legendGlobal.length === 0)
