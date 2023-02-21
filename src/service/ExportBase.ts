@@ -79,9 +79,9 @@ export const expData = {
     }
     this.pushURL(enc);
   },
-  removeEntry(name: string, type: SearchItems) {
+  removeEntry(id: string, name: string, type: SearchItems) {
     this.removeEntryFromUri(name, type);
-    this.markAsDeleted(name, type);
+    this.markAsDeleted(id, type, true);
   },
   removeEntryFromUri(name: string, type: SearchItems) {
     let leg = this.fetchLegendFromUri();
@@ -152,19 +152,26 @@ export const expData = {
       const tL = this.transformLegend(legend, id);
       const enc = this.encodeObject([
         { legend: tL, date: Date.now(), deleted: false }
-      ]);
+      ] as localStorageQuery[]);
       localStorage.setItem('queries', enc);
     }
   },
-  markAsDeleted(name: string, type: SearchItems) {
+  setQueryLocalStorage(query: localStorageQuery[]) {
     const q = localStorage.getItem('queries');
     if (q) {
-      let query = JSON.parse(q) as localStorageQuery[];
+      // exists and push to localStorage
+      localStorage.setItem('queries', this.encodeObject(query));
+    }
+  },
+  markAsDeleted(name: string, type: SearchItems, deleted: boolean) {
+    const q = localStorage.getItem('queries');
+    if (q) {
+      let query = this.decompressAndParse(q) as localStorageQuery[];
       if (query.length === 0) return;
       const idx = query.findIndex(
         (el) => el.legend.id === name && el.legend.type === type
       );
-      query[idx].deleted = true;
+      query[idx].deleted = deleted;
       localStorage.setItem('queries', this.encodeObject(query));
     }
   },
@@ -172,20 +179,37 @@ export const expData = {
     const q = localStorage.getItem('queries');
     if (q) {
       // exists and push to localStorage
-      const query = JSON.parse(q) as localStorageQuery[];
+      const query = this.decompressAndParse(q);
       if (query.length === 0) return;
       const newQuery = query.filter(
-        (el) => el.legend.name !== name && el.legend.type !== type
+        (el: any) => el.legend.name !== name && el.legend.type !== type
       );
       localStorage.setItem('queries', this.encodeObject(newQuery));
     }
   },
-  getQueryFromLocalStorage() {
+  getQueryFromLocalStorage(): localStorageQuery[] {
     const q = localStorage.getItem('queries');
     if (q) {
-      const query = JSON.parse(q) as localStorageQuery[];
-      return query;
+      const decompStr = LZ.decompressFromEncodedURIComponent(q);
+      const str = JSON.parse(
+        decompStr ? decompStr : ''
+      ) as Array<localStorageQuery>;
+      return str;
     }
     return [] as localStorageQuery[];
+  },
+  editLocalStorageEntry(
+    query: localStorageQuery[],
+    id: string,
+    entry: localStorageQuery
+  ) {
+    const idx = query.findIndex((el) => el.legend.id === id);
+    query[idx] = entry;
+    this.setQueryLocalStorage(query);
+  },
+  decompressAndParse(encodedString: string): any {
+    const decompStr = LZ.decompressFromEncodedURIComponent(encodedString);
+    const str = JSON.parse(decompStr ? decompStr : '');
+    return str;
   }
 };
