@@ -430,3 +430,9 @@ export interface pinDataVar {
   isPinned: boolean;
   isShown: boolean;
 }
+
+export interface localStorageQuery {
+  legend: exportLegend;
+  date: number;
+  deleted: boolean;
+}

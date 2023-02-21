@@ -1,4 +1,10 @@
-import { exportLegend, LegendGlobal, SearchItems } from '@/static/apiModels';
+import {
+  exportLegend,
+  LegendGlobal,
+  localStorageQuery,
+  SearchItems
+} from '@/static/apiModels';
+import { messageHandler } from '@/store/modules/message';
 import { clone, isArray } from 'lodash';
 import * as LZ from 'lz-string';
 
@@ -57,6 +63,14 @@ export const expData = {
   pushNewLegend(legend: LegendGlobal, id: number | number[]) {
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
+    if (this.checkIfLocalStorageIsAvailable()) {
+      this.pushToLocalStorage(legend, id);
+    } else {
+      messageHandler.setErrorMsg({
+        message: `LocalStorage ist nicht verfügbar`,
+        icon: 'mdi-alert-outline'
+      });
+    }
     let enc = null;
     if (leg) {
       enc = this.encodeObject(leg.concat(tL));
@@ -64,6 +78,10 @@ export const expData = {
       enc = this.encodeObject([tL]);
     }
     this.pushURL(enc);
+  },
+  removeEntry(name: string, type: SearchItems) {
+    this.removeEntryFromUri(name, type);
+    this.removeFromLocalStorage(name, type);
   },
   removeEntryFromUri(name: string, type: SearchItems) {
     let leg = this.fetchLegendFromUri();
@@ -90,5 +108,84 @@ export const expData = {
         this.replaceUrl(enc);
       }
     }
+  },
+  storageAvailable(type: any): boolean {
+    let storage;
+    try {
+      storage = window[type];
+      const x = '__storage_test__';
+      //@ts-ignore
+      storage.setItem(x, x);
+      //@ts-ignore
+      storage.removeItem(x);
+      return true;
+    } catch (e) {
+      return (
+        e instanceof DOMException &&
+        // everything except Firefox
+        (e.code === 22 ||
+          // Firefox
+          e.code === 1014 ||
+          // test name field too, because code might not be present
+          // everything except Firefox
+          e.name === 'QuotaExceededError' ||
+          // Firefox
+          e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+        // acknowledge QuotaExceededError only if there's something already stored
+        ((storage && storage.length !== 0) as boolean)
+      );
+    }
+  },
+  checkIfLocalStorageIsAvailable(): boolean {
+    return this.storageAvailable('localStorage');
+  },
+  pushToLocalStorage(legend: LegendGlobal, id: number | number[]) {
+    const q = localStorage.getItem('queries');
+    if (q) {
+      // exists and push to localStorage
+      const query = JSON.parse(q) as localStorageQuery[];
+      const tL = this.transformLegend(legend, id);
+      query.push({ legend: tL, date: Date.now(), deleted: false });
+      localStorage.setItem('queries', this.encodeObject(query));
+    } else {
+      // does not exist and set new Style
+      const tL = this.transformLegend(legend, id);
+      const enc = this.encodeObject([
+        { legend: tL, date: Date.now(), deleted: false }
+      ]);
+      localStorage.setItem('queries', enc);
+    }
+  },
+  markAsDeleted(name: string, type: SearchItems) {
+    const q = localStorage.getItem('queries');
+    if (q) {
+      let query = JSON.parse(q) as localStorageQuery[];
+      if (query.length === 0) return;
+      const idx = query.findIndex(
+        (el) => el.legend.id === name && el.legend.type === type
+      );
+      query[idx].deleted = true;
+      localStorage.setItem('queries', this.encodeObject(query));
+    }
+  },
+  removeFromLocalStorage(name: string, type: SearchItems) {
+    const q = localStorage.getItem('queries');
+    if (q) {
+      // exists and push to localStorage
+      const query = JSON.parse(q) as localStorageQuery[];
+      if (query.length === 0) return;
+      const newQuery = query.filter(
+        (el) => el.legend.name !== name && el.legend.type !== type
+      );
+      localStorage.setItem('queries', this.encodeObject(newQuery));
+    }
+  },
+  getQueryFromLocalStorage() {
+    const q = localStorage.getItem('queries');
+    if (q) {
+      const query = JSON.parse(q) as localStorageQuery[];
+      return query;
+    }
+    return [] as localStorageQuery[];
   }
 };
