@@ -81,7 +81,7 @@ export const expData = {
   },
   removeEntry(name: string, type: SearchItems) {
     this.removeEntryFromUri(name, type);
-    this.removeFromLocalStorage(name, type);
+    this.markAsDeleted(name, type);
   },
   removeEntryFromUri(name: string, type: SearchItems) {
     let leg = this.fetchLegendFromUri();
