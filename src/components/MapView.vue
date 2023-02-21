@@ -756,7 +756,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl, fetchContent } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -2357,30 +2357,6 @@ export default class MapView extends Vue {
     await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
 
-  async fetchContent(id: number | number[], type: SearchItems) {
-    if (type === SearchItems.Tag) {
-      await this.loadTagOrt(id as number);
-      return this.tagOrtResult;
-    } else if (type === SearchItems.Phaen) {
-      const dto = {
-        ids: [-1],
-        phaen: id
-      } as tagDto;
-      await tagModule.fetchTagOrteResultsMultiple([dto]);
-      return this.tagOrtResult;
-    } else if (type === SearchItems.Presets) {
-      await this.TaM.fetchPresetTagOrte(id as number)
-      return this.tagOrtResult;
-      // cast result as PresetOrtTagResult
-      // @ts-ignore
-    } else if (type === SearchItems.Saetze) {
-      return await this.AM.fetchAntworten({ sid: id as number });
-    } else if (type === SearchItems.Aufgaben) {
-      await this.AM.fetchAufgabenOrt({ ids: typeof (id) === "number" ? [id] : id });
-      return this.aufgabenOrt;
-    }
-  }
-
   /*
    * Decode the components of the URI
    * Happens by reading the data from the URI
@@ -2402,7 +2378,7 @@ export default class MapView extends Vue {
           continue;
         }
         // Fetch the needed content for the legend
-        const res = await this.fetchContent(l.elementId, l.type);
+        const res = await fetchContent(l.elementId, l.type);
         // create the new entry
         const lm = await this.LM.createLegendEntry({
           icon: l.symbol,

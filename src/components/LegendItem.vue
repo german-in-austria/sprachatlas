@@ -116,7 +116,7 @@
                         color="red"
                         @click="deleteLegendEntry(d, i)"
                       >
-                        <v-icon>mdi-cancel</v-icon>
+                        <v-icon>mdi-trash-can-outline</v-icon>
                       </v-btn>
                     </template>
 
@@ -303,7 +303,7 @@ export default class LegendItem extends Vue {
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
-    expData.removeEntry(el.name, el.type ? el.type : 0);
+    expData.removeEntry(el.id, el.name, el.type ? el.type : 0);
     this.AM.clearAntworten();
     this.$emit('callChange', el);
     if (this.legendGlobal.length === 0)

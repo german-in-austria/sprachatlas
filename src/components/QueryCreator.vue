@@ -501,7 +501,7 @@ export default class QueryCreator extends Vue {
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
-    expData.removeEntry(el.name, el.type ? el.type : 0);
+    expData.removeEntry(el.id, el.name, el.type ? el.type : 0);
   }
 
   editLegName() {
