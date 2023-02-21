@@ -1,7 +1,8 @@
 import {
   AntwortTokenStamp,
   AufgabeStamp,
-  selectionObject
+  selectionObject,
+  tagDto
 } from '@/api/dioe-public-api';
 import {
   Hsl,
@@ -11,6 +12,7 @@ import {
 } from '@/static/apiModels';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
+import { tagModule } from '@/store/modules/tags';
 
 let colorid = 0;
 
@@ -253,5 +255,34 @@ export const nameForSearchItems = (val: SearchItems): string => {
       return 'Preset';
     default:
       return '';
+  }
+};
+
+export const fetchContent = async (
+  id: number | number[],
+  type: SearchItems
+) => {
+  if (type === SearchItems.Tag) {
+    await tagModule.fetchTagOrteResults({ tagId: id as number });
+    return tagModule.tagOrteNum;
+  } else if (type === SearchItems.Phaen) {
+    const dto = {
+      ids: [-1],
+      phaen: id
+    } as tagDto;
+    await tagModule.fetchTagOrteResultsMultiple([dto]);
+    return tagModule.tagOrteNum;
+  } else if (type === SearchItems.Presets) {
+    await tagModule.fetchPresetTagOrte(id as number);
+    return tagModule.tagOrteNum;
+    // cast result as PresetOrtTagResult
+    // @ts-ignore
+  } else if (type === SearchItems.Saetze) {
+    return await aufgabenModule.fetchAntworten({ sid: id as number });
+  } else if (type === SearchItems.Aufgaben) {
+    await aufgabenModule.fetchAufgabenOrt({
+      ids: typeof id === 'number' ? [id] : id
+    });
+    return aufgabenModule.aufgabenOrt;
   }
 };
