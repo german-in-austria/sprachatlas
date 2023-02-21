@@ -178,6 +178,7 @@ export interface exportLegend {
   parameter: Parameter[] | null;
   vis: boolean;
   name: string;
+  description: string;
 }
 
 export interface SearchTerm {

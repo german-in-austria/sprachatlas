@@ -153,7 +153,9 @@ class Legend extends VuexModule implements LegendState {
 
   @Mutation
   addLegendEntry(e: any) {
-    e.id = generateID();
+    if (e.id === null || e.id === undefined) {
+      e.id = generateID();
+    }
     this.legend.push(e);
   }
 
@@ -237,9 +239,10 @@ class Legend extends VuexModule implements LegendState {
     radius: number;
     content: any;
     type: SearchItems;
+    id?: string;
   }): LegendGlobal {
     const newLegend: LegendGlobal = {
-      id: '',
+      id: arg.id ? arg.id : '',
       description: '',
       color: arg.color ? arg.color : selectColor(null),
       size: arg.radius,
@@ -257,12 +260,12 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Action
-  deleteLegendEntry(el: LegendGlobal, idx: number | null) {
-    const l = el.layer;
-    l?.clearLayers();
+  deleteLegendEntry(el: LegendGlobal | null, idx: number | null) {
     if (idx) {
       this.context.commit('removeEntryByIdx', idx);
-    } else {
+    } else if (el) {
+      const l = el.layer;
+      l?.clearLayers();
       this.context.commit('removeEntryById', el.id);
     }
     if (this.legend.length === 0) {
