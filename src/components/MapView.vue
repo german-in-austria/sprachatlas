@@ -474,6 +474,23 @@
             <span> Positionen zurücksetzen</span>
           </v-tooltip>
         </v-row>
+        <v-row>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click="showHistoryDialog = !showHistoryDialog"
+              >
+                <v-icon>mdi-history</v-icon>
+              </v-btn>
+            </template>
+            <span>Anfrageverlauf</span>
+          </v-tooltip>
+        </v-row>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn small fab @click="sideBar = !sideBar">
@@ -488,6 +505,17 @@
         transition="dialog-top-transition"
       >
         <ExportMap :vis.sync="dialog" />
+      </v-dialog>
+    </v-layout>
+    <v-layout>
+      <v-dialog
+        max-width="750"
+        v-model="showHistoryDialog"
+        transition="dialog-top-transition"
+      >
+        <v-card>
+          <query-history :callChange="splitTags" />
+        </v-card>
       </v-dialog>
     </v-layout>
     <v-layout class="card-overlay">
@@ -794,6 +822,7 @@ import PhaenAufgabenSearch from '@/components/PhaenAufgabenSearch.vue';
 import VariationCard from './VariationCard.vue';
 import DragableCard from './DragableCard.vue';
 import ItemDescription from './ItemDescription.vue';
+import QueryHistory from './QueryHistory.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
 
@@ -830,7 +859,8 @@ const defaultZoom = 8;
     PhaenAufgabenSearch,
     VariationCard,
     DragableCard,
-    ItemDescription
+    ItemDescription,
+    QueryHistory
   }
 })
 export default class MapView extends Vue {
@@ -905,6 +935,8 @@ export default class MapView extends Vue {
   dialog = false;
 
   showSearchBar = true;
+
+  showHistoryDialog = false;
 
   headerErheb = [
     { text: 'Art der Erhebung', value: 'Art_Erhebung' },
