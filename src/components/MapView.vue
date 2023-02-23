@@ -514,7 +514,19 @@
         transition="dialog-top-transition"
       >
         <v-card>
-          <query-history :callChange="splitTags" />
+          <v-card-title
+            >Verlauf der Anfragen<v-spacer></v-spacer>
+            <v-btn
+              icon
+              color="indigo"
+              @click="showHistoryDialog = !showHistoryDialog"
+            >
+              <v-icon>mdi-minus</v-icon>
+            </v-btn></v-card-title
+          >
+          <v-card-text>
+            <query-history :callChange="splitTags" />
+          </v-card-text>
         </v-card>
       </v-dialog>
     </v-layout>
