@@ -2404,7 +2404,7 @@ export default class MapView extends Vue {
         // Same ID is already in use and in the map
         if (
           this.legendGlobal.some(
-            (el) => el.id === l.id && el.type === l.type && el.name === l.name
+            (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
           )
         ) {
           continue;
