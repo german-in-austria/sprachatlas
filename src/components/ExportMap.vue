@@ -55,14 +55,20 @@ export default class ExportMap extends Vue {
     return this.LM.legend.filter((el) => el.type === SearchItems.Query);
   }
 
-  copyClipboard(str: string) {
+  async copyClipboard(str: string) {
     // Exporting queryLegend
+    let res = '';
     if (this.queryLegend.length > 0) {
       expData.removeEntryTypeFromUri(SearchItems.Query);
-      this.queryLegend.forEach(el => expData.pushNewLegend(el, -1));
+      this.queryLegend.forEach(el => res += expData.pushNewLegend(el, -1));
     }
-    const uri = window.location.href;
-    navigator.clipboard.writeText(uri).then(
+
+    // send the link to dioedb
+    const response = await expData.sendDataToDioeDB(res);
+
+    // Copy to Clipboard
+    // const uri = window.location.href;
+    navigator.clipboard.writeText(response.data).then(
       () => {
         this.MH.setSuccessMsg({
           message: `URL wurde in die Zwischenablage kopiert`,
