@@ -134,6 +134,7 @@ export default class QueryHistory extends Vue {
 
   async changeDelLegend(leg: exportLegend, deleted: boolean) {
     leg.vis = deleted;
+    let ele;
     if (deleted) {
       expData.markAsDeleted(leg.id, leg.type ? leg.type : SearchItems.Tag, false);
       // Fetch the needed content for the legend
@@ -150,26 +151,34 @@ export default class QueryHistory extends Vue {
         id: leg.id
       });
       lm.parameter = leg.type === SearchItems.Query ? leg.parameter : null;
+      ele = lm;
       this.LM.addLegendEntry(lm);
     } else {
       expData.markAsDeleted(leg.id, leg.type ? leg.type : SearchItems.Tag, true);
-      const ele = this.legendGlobal.find(el => el.id === leg.id);
+      const lm = this.legendGlobal.find(el => el.id === leg.id);
+      ele = lm;
       if (ele === undefined) return;
       this.LM.deleteLegendEntry(ele, null);
     }
+    this.$emit('callChange', ele);
     this.queries = expData.getQueryFromLocalStorage();
   }
 
   mounted() {
     this.queries = expData.getQueryFromLocalStorage();
     this.queries.forEach(el => {
-      if (this.legendGlobal.length === 0 || this.legendGlobal.find(ele => el.legend.id === ele.id) === undefined) {
+      console.log(el.legend.color);
+      const idx = this.legendGlobal.findIndex(ele => el.legend.id === ele.id || (ele.type === el.legend.type && ele.name === el.legend.name))
+      if (this.legendGlobal.length === 0 || idx < 0) {
         el.deleted = true;
         return;
+      } else {
+        el.deleted = false;
+        el.legend.color = this.legendGlobal[idx].color;
+        console.log(el.legend.color);
       }
-
-
-    })
+    });
+    console.log(this.queries);
   }
 }
 </script>
