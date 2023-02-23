@@ -143,7 +143,7 @@ export const expData = {
     const q = localStorage.getItem('queries');
     if (q) {
       // exists and push to localStorage
-      const query = JSON.parse(q) as localStorageQuery[];
+      const query = this.decompressAndParse(q) as localStorageQuery[];
       const tL = this.transformLegend(legend, id);
       query.push({ legend: tL, date: Date.now(), deleted: false });
       localStorage.setItem('queries', this.encodeObject(query));
