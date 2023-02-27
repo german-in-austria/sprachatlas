@@ -94,6 +94,13 @@ class Legend extends VuexModule implements LegendState {
   }
 
   @Mutation
+  removeDeletedEntries() {
+    this.localStorageLegend = this.localStorageLegend.filter(
+      (el) => !el.deleted
+    );
+  }
+
+  @Mutation
   resetLocalStorage() {
     this.localStorageLegend = [];
   }
