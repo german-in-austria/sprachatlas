@@ -2,23 +2,27 @@
   <v-container>
     <v-row v-for="(leg, idx) in legendGlobal" align="center" :key="idx">
       <v-col>
-        <v-avatar>
-          <template v-if="leg.symbol === 0">
-            <icon-circle :fillCol="convertHsl(leg.color)" :strokeWidth="1" />
-          </template>
-          <template v-else-if="leg.symbol === 1">
-            <img
-              :src="drawRect(20, leg.strokeWidth, convertHsl(leg.color), true)"
-            />
-          </template>
-          <template v-else>
-            <img
-              :src="
-                drawTriangle(20, leg.strokeWidth, convertHsl(leg.color), true)
-              "
-            />
-          </template>
-        </v-avatar>
+        <template v-if="leg.type !== 3">
+          <v-avatar>
+            <template v-if="leg.symbol === 0">
+              <icon-circle :fillCol="convertHsl(leg.color)" :strokeWidth="1" />
+            </template>
+            <template v-else-if="leg.symbol === 1">
+              <img
+                :src="
+                  drawRect(20, leg.strokeWidth, convertHsl(leg.color), true)
+                "
+              />
+            </template>
+            <template v-else>
+              <img
+                :src="
+                  drawTriangle(20, leg.strokeWidth, convertHsl(leg.color), true)
+                "
+              />
+            </template>
+          </v-avatar>
+        </template>
       </v-col>
       <v-col>Name: {{ leg.name }}</v-col>
       <v-col>Typ: {{ nameForSearchItems(leg.type) }}</v-col>
@@ -66,7 +70,6 @@ export default class LegendDetails extends Vue {
   }
 
   mounted() {
-    console.log(this.LM.legend);
   }
 }
 </script>
