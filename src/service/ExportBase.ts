@@ -1,9 +1,12 @@
+import { getSingleExportLink, postNewExportLink } from '@/api/export';
+import { generateID } from '@/helpers/helper';
 import {
   exportLegend,
   LegendGlobal,
   localStorageQuery,
   SearchItems
 } from '@/static/apiModels';
+import { legendMod } from '@/store/modules/legend';
 import { messageHandler } from '@/store/modules/message';
 import { clone, isArray } from 'lodash';
 import * as LZ from 'lz-string';
@@ -21,6 +24,20 @@ export const expData = {
       eL.elementId = id;
     }
     return expLegend as exportLegend;
+  },
+  fetchUriAndDecodeData() {
+    const url = new URL(window.location.href);
+    let leg: Array<exportLegend> | null = null;
+    let id: string = '';
+    for (const e of url.searchParams.entries()) {
+      if (e[0] === 'legend') {
+        leg = this.decodeLegend(e[1]);
+      }
+      if (e[0] === 'id') {
+        id = e[1];
+      }
+    }
+    return { leg: leg, id: id };
   },
   fetchLegendFromUri() {
     const url = new URL(window.location.href);
@@ -60,7 +77,7 @@ export const expData = {
   encodeObject(obj: any) {
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
-  pushNewLegend(legend: LegendGlobal, id: number | number[]) {
+  pushNewLegend(legend: LegendGlobal, id: number | number[]): string {
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
     if (this.checkIfLocalStorageIsAvailable()) {
@@ -78,6 +95,7 @@ export const expData = {
       enc = this.encodeObject([tL]);
     }
     this.pushURL(enc);
+    return enc;
   },
   removeEntry(id: string, name: string, type: SearchItems) {
     this.removeEntryFromUri(name, type);
@@ -141,27 +159,28 @@ export const expData = {
   },
   pushToLocalStorage(legend: LegendGlobal, id: number | number[]) {
     const q = localStorage.getItem('queries');
+    const tL = this.transformLegend(legend, id);
+    let localQuery: localStorageQuery = {
+      legend: tL,
+      date: Date.now(),
+      deleted: false
+    };
     if (q) {
       // exists and push to localStorage
       const query = this.decompressAndParse(q) as localStorageQuery[];
-      const tL = this.transformLegend(legend, id);
-      query.push({ legend: tL, date: Date.now(), deleted: false });
+      query.push(localQuery);
       localStorage.setItem('queries', this.encodeObject(query));
     } else {
       // does not exist and set new Style
-      const tL = this.transformLegend(legend, id);
-      const enc = this.encodeObject([
-        { legend: tL, date: Date.now(), deleted: false }
-      ] as localStorageQuery[]);
+      const enc = this.encodeObject([localQuery] as localStorageQuery[]);
       localStorage.setItem('queries', enc);
     }
+    legendMod.addLocalStorage(localQuery);
   },
   setQueryLocalStorage(query: localStorageQuery[]) {
-    const q = localStorage.getItem('queries');
-    if (q) {
-      // exists and push to localStorage
-      localStorage.setItem('queries', this.encodeObject(query));
-    }
+    // exists and push to localStorage
+    localStorage.setItem('queries', this.encodeObject(query));
+    legendMod.setLocalStorage(query);
   },
   markAsDeleted(name: string, type: SearchItems, deleted: boolean) {
     const q = localStorage.getItem('queries');
@@ -171,7 +190,11 @@ export const expData = {
       const idx = query.findIndex(
         (el) => el.legend.id === name && el.legend.type === type
       );
+      if (idx === -1) return;
       query[idx].deleted = deleted;
+
+      legendMod.removeEntry(query[idx].legend.id);
+      legendMod.addLocalStorage(query[idx]);
       localStorage.setItem('queries', this.encodeObject(query));
     }
   },
@@ -184,16 +207,19 @@ export const expData = {
       const newQuery = query.filter(
         (el: any) => el.legend.name !== name && el.legend.type !== type
       );
+      legendMod.removeEntry(name);
       localStorage.setItem('queries', this.encodeObject(newQuery));
     }
   },
   getQueryFromLocalStorage(): localStorageQuery[] {
     const q = localStorage.getItem('queries');
     if (q) {
+      legendMod.resetLocalStorage();
       const decompStr = LZ.decompressFromEncodedURIComponent(q);
       const str = JSON.parse(
         decompStr ? decompStr : ''
       ) as Array<localStorageQuery>;
+      legendMod.setLocalStorage(str);
       return str;
     }
     return [] as localStorageQuery[];
@@ -205,11 +231,21 @@ export const expData = {
   ) {
     const idx = query.findIndex((el) => el.legend.id === id);
     query[idx] = entry;
+    legendMod.replaceEntry(query[idx]);
     this.setQueryLocalStorage(query);
+  },
+  deleteQueryLocalStorage() {
+    localStorage.removeItem('queries');
   },
   decompressAndParse(encodedString: string): any {
     const decompStr = LZ.decompressFromEncodedURIComponent(encodedString);
     const str = JSON.parse(decompStr ? decompStr : '');
     return str;
+  },
+  sendDataToDioeDB(data: string) {
+    return postNewExportLink(data, generateID());
+  },
+  async getDataFromDioeDB(id: string) {
+    return this.decompressAndParse(await getSingleExportLink(id));
   }
 };
