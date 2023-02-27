@@ -813,7 +813,8 @@ import {
   Description,
   circleData,
   pinData,
-  pinDataVar
+  pinDataVar,
+  exportLegend
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -2409,8 +2410,26 @@ export default class MapView extends Vue {
    * 2. display these new entries on the map
    */
   async decodeURI() {
-    const legend = expData.fetchLegendFromUri();
-    if (legend) {
+    const uriData = expData.fetchUriAndDecodeData();
+    let legend: exportLegend[] = [];
+    if (uriData.id.length > 0) {
+      legend = await expData.getDataFromDioeDB(uriData.id);
+    } else {
+      legend = uriData.leg ? uriData.leg : [];
+    }
+    const queries = expData.getQueryFromLocalStorage();
+    if (legend.length === 0 && queries.length > 0) {
+      legend = queries.filter(el => !el.deleted).map(el => el.legend);
+    }
+    if (legend.length > 0) {
+      if (queries.length > 0) {
+        queries.forEach(el => {
+          const idx = legend.findIndex(l => el.legend.id === l.id);
+          if (idx === -1 && !el.deleted) {
+            legend.push(el.legend);
+          }
+        });
+      }
       // legend.forEach((l) => { });
       for (const l of legend) {
         // Same ID is already in use and in the map
@@ -2431,6 +2450,7 @@ export default class MapView extends Vue {
           color: l.color,
           radius: l.size,
           content: l.type === SearchItems.Ort ? l.content : res,
+          id: l.id,
           type: l.type
         });
         lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
