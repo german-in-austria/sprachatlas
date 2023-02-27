@@ -525,7 +525,7 @@
             </v-btn></v-card-title
           >
           <v-card-text>
-            <query-history :callChange="splitTags" />
+            <query-history @callChange="splitTags" />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -1333,6 +1333,7 @@ export default class MapView extends Vue {
   }
 
   splitTags() {
+    console.log('reloading');
     this.displayDataFromLegend(this.legendGlobal);
   }
 

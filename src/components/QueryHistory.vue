@@ -1,89 +1,96 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="queries"
-    :items-per-page="5"
-    class="elevation-1"
-  >
-    <template v-slot:item.legend="{ item }">
-      <template v-if="item.legend.type === 3">
-        Legende {{ item.legend.name }} Beschreibung:
-        {{ item.legend.description }}
-      </template>
-      <template v-else>
-        <v-avatar>
-          <icon-circle
-            :fillCol="
-              convertHslToStr(
-                item.legend.color.h,
-                item.legend.color.s,
-                item.legend.color.l
-              )
-            "
-            :strokeWidth="item.legend.strokeWidth"
-          />
-        </v-avatar>
-        <template v-if="item.legend.type === 0">
-          Tags: {{ item.legend.name }}
-        </template>
-        <template v-else-if="item.legend.type === 1">
-          Ort: {{ item.legend.name }}
-        </template>
-        <template v-else-if="item.legend.type === 2">
-          Phänomen: {{ item.legend.name }}
-        </template>
-        <template v-else-if="item.legend.type === 4">
-          Aufgabe: {{ item.legend.name }}
-        </template>
-      </template>
-    </template>
-    <template v-slot:item.date="{ item }">
-      {{ new Date(item.date).toLocaleDateString() }}
-    </template>
-    <template v-slot:item.deleted="{ item }">
-      <template v-if="item.deleted"> Gelöscht </template>
-      <template v-else> Nicht gelöscht </template>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <v-btn
-        icon
-        color="red"
-        @click="changeDelLegend(item.legend, item.deleted)"
-      >
-        <template v-if="item.deleted">
-          <v-icon>mdi-undo</v-icon>
+  <div>
+    <v-data-table
+      :headers="headers"
+      :items="queries"
+      :items-per-page="5"
+      class="elevation-1"
+    >
+      <template v-slot:item.legend="{ item }">
+        <template v-if="item.legend.type === 3">
+          Legende {{ item.legend.name }} Beschreibung:
+          {{ item.legend.description }}
         </template>
         <template v-else>
-          <v-icon>mdi-trash-can-outline</v-icon>
+          <v-avatar>
+            <icon-circle
+              :fillCol="
+                convertHslToStr(
+                  item.legend.color.h,
+                  item.legend.color.s,
+                  item.legend.color.l
+                )
+              "
+              :strokeWidth="item.legend.strokeWidth"
+            />
+          </v-avatar>
+          <template v-if="item.legend.type === 0">
+            Tags: {{ item.legend.name }}
+          </template>
+          <template v-else-if="item.legend.type === 1">
+            Ort: {{ item.legend.name }}
+          </template>
+          <template v-else-if="item.legend.type === 2">
+            Phänomen: {{ item.legend.name }}
+          </template>
+          <template v-else-if="item.legend.type === 4">
+            Aufgabe: {{ item.legend.name }}
+          </template>
         </template>
-      </v-btn>
-      <template v-if="!item.deleted">
-        <v-btn icon color="grey" @click="changeLegendVis(item.legend.id)">
-          <template v-if="item.legend.vis">
-            <v-icon>mdi-eye-outline</v-icon>
-          </template>
-          <template v-else>
-            <v-icon>mdi-eye-off-outline</v-icon>
-          </template>
-        </v-btn>
       </template>
-
-      <template v-if="item.legend.type === 3">
+      <template v-slot:item.date="{ item }">
+        {{ new Date(item.date).toLocaleDateString() }}
+      </template>
+      <template v-slot:item.deleted="{ item }">
+        <template v-if="item.deleted"> Gelöscht </template>
+        <template v-else> Nicht gelöscht </template>
+      </template>
+      <template v-slot:item.actions="{ item }">
         <v-btn
           icon
-          color="primary"
-          @click="
-            $router.push({ path: 'query', query: { legend: item.legend.id } })
-          "
+          color="red"
+          @click="changeDelLegend(item.legend, item.deleted)"
         >
-          <v-icon>mdi-pencil</v-icon>
+          <template v-if="item.deleted">
+            <v-icon>mdi-undo</v-icon>
+          </template>
+          <template v-else>
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </template>
         </v-btn>
+        <template v-if="!item.deleted">
+          <v-btn icon color="grey" @click="changeLegendVis(item.legend.id)">
+            <template v-if="item.legend.vis">
+              <v-icon>mdi-eye-outline</v-icon>
+            </template>
+            <template v-else>
+              <v-icon>mdi-eye-off-outline</v-icon>
+            </template>
+          </v-btn>
+        </template>
+
+        <template v-if="item.legend.type === 3">
+          <v-btn
+            icon
+            color="primary"
+            @click="
+              $router.push({ path: 'query', query: { legend: item.legend.id } })
+            "
+          >
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </template>
       </template>
-    </template>
-  </v-data-table>
+    </v-data-table>
+    <div class="pt-2">
+      <v-btn color="primary" class="mr-2" @click="deleteHistory()">
+        Verlauf löschen
+      </v-btn>
+    </div>
+  </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { messageHandler } from '@/store/modules/message';
 
 import { legendMod } from '@/store/modules/legend';
@@ -115,12 +122,18 @@ export default class QueryHistory extends Vue {
   }
 
   get queries() {
-    return this.LM.localStorageLegend;
+    return legendMod.localStorageLegend;
   }
 
   convertHslToStr(h: number, s: number, l: number) {
     if (h <= 1) h *= 360;
     return convertHslToStr(h, s, l);
+  }
+
+  deleteHistory() {
+    this.LM.removeDeletedEntries();
+    expData.deleteQueryLocalStorage();
+    expData.setQueryLocalStorage(this.queries);
   }
 
   changeLegendVis(id: string) {
@@ -170,8 +183,7 @@ export default class QueryHistory extends Vue {
   }
 
   mounted() {
-    console.log(legendMod.localStorageLegend);
-    /*
+
     this.queries.forEach(el => {
       const idx = this.legendGlobal.findIndex(ele => el.legend.id === ele.id || (ele.type === el.legend.type && ele.name === el.legend.name))
       if (this.legendGlobal.length === 0 || idx < 0) {
@@ -181,7 +193,7 @@ export default class QueryHistory extends Vue {
         el.deleted = false;
         el.legend.color = this.legendGlobal[idx].color;
       }
-    });*/
+    });
   }
 }
 </script>
