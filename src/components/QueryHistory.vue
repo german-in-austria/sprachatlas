@@ -100,7 +100,7 @@ import { LayerGroup } from 'leaflet';
   name: 'QueryHistory'
 })
 export default class QueryHistory extends Vue {
-  queries: localStorageQuery[] = [];
+  // queries: localStorageQuery[] = [];
   headers = [
     { text: 'Query', value: 'legend' },
     { text: 'Erzeugt am', value: 'date' },
@@ -114,8 +114,13 @@ export default class QueryHistory extends Vue {
     return legendMod.legend;
   }
 
+  get queries() {
+    return this.LM.localStorageLegend;
+  }
+
   convertHslToStr(h: number, s: number, l: number) {
-    return convertHslToStr(h * 360, s, l);
+    if (h <= 1) h *= 360;
+    return convertHslToStr(h, s, l);
   }
 
   changeLegendVis(id: string) {
@@ -161,13 +166,13 @@ export default class QueryHistory extends Vue {
       this.LM.deleteLegendEntry(ele, null);
     }
     this.$emit('callChange', ele);
-    this.queries = expData.getQueryFromLocalStorage();
+    // this.queries = expData.getQueryFromLocalStorage();
   }
 
   mounted() {
-    this.queries = expData.getQueryFromLocalStorage();
+    console.log(legendMod.localStorageLegend);
+    /*
     this.queries.forEach(el => {
-      console.log(el.legend.color);
       const idx = this.legendGlobal.findIndex(ele => el.legend.id === ele.id || (ele.type === el.legend.type && ele.name === el.legend.name))
       if (this.legendGlobal.length === 0 || idx < 0) {
         el.deleted = true;
@@ -175,10 +180,8 @@ export default class QueryHistory extends Vue {
       } else {
         el.deleted = false;
         el.legend.color = this.legendGlobal[idx].color;
-        console.log(el.legend.color);
       }
-    });
-    console.log(this.queries);
+    });*/
   }
 }
 </script>
