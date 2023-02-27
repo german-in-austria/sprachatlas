@@ -20,7 +20,8 @@ import {
   pinData,
   circleData,
   pinDataVar,
-  Description
+  Description,
+  localStorageQuery
 } from '../../static/apiModels';
 import { selectColor } from '@/helpers/helper';
 import {
@@ -31,6 +32,7 @@ import {
 
 export interface LegendState {
   legend: Array<LegendGlobal>;
+  localStorageLegend: Array<localStorageQuery>;
   loading: boolean;
   erhArtFilter: Array<number>;
   ageRange: {
@@ -48,6 +50,7 @@ export interface LegendState {
   dynamic: true
 })
 class Legend extends VuexModule implements LegendState {
+  localStorageLegend: localStorageQuery[] = [];
   loading = false;
   legend = [] as Array<LegendGlobal>;
   ageRange = { lower: -1, upper: -1 };
@@ -61,6 +64,38 @@ class Legend extends VuexModule implements LegendState {
   @Mutation
   addPinDataVar(e: pinDataVar) {
     this.pinDataVar.push(e);
+  }
+
+  @Mutation
+  addLocalStorage(l: localStorageQuery) {
+    this.localStorageLegend.push(l);
+  }
+
+  @Mutation
+  setLocalStorage(l: localStorageQuery[]) {
+    this.localStorageLegend = l;
+  }
+
+  @Mutation
+  removeEntry(id: string) {
+    this.localStorageLegend = this.localStorageLegend.filter(
+      (el) => el.legend.id !== id
+    );
+  }
+
+  @Mutation
+  replaceEntry(l: localStorageQuery) {
+    const idx = this.localStorageLegend.findIndex(
+      (el) => el.legend.id === l.legend.id
+    );
+    if (idx > -1) {
+      this.localStorageLegend[idx] = l;
+    }
+  }
+
+  @Mutation
+  resetLocalStorage() {
+    this.localStorageLegend = [];
   }
 
   @Mutation
