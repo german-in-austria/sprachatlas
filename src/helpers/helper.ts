@@ -4,7 +4,9 @@ import {
   selectionObject,
   tagDto
 } from '@/api/dioe-public-api';
+import { expData } from '@/service/ExportBase';
 import {
+  exportLegend,
   Hsl,
   SearchItems,
   sigleAntwort,
@@ -13,6 +15,7 @@ import {
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
 import { tagModule } from '@/store/modules/tags';
+import L from 'leaflet';
 
 let colorid = 0;
 
@@ -284,5 +287,65 @@ export const fetchContent = async (
       ids: typeof id === 'number' ? [id] : id
     });
     return aufgabenModule.aufgabenOrt;
+  }
+};
+
+/*
+ * Decode the components of the URI
+ * Happens by reading the data from the URI
+ * Afterwards converts the recieved data into the internal data structure
+ * 1. Create new Legend Entries
+ * 2. display these new entries on the map
+ */
+export const decodeURI = async () => {
+  const uriData = expData.fetchUriAndDecodeData();
+  let legend: exportLegend[] = [];
+  if (uriData.id.length > 0) {
+    legend = await expData.getDataFromDioeDB(uriData.id);
+  } else {
+    legend = uriData.leg ? uriData.leg : [];
+  }
+  console.log(legend);
+  legendMod.resetLocalStorage();
+  const queries = expData.getQueryFromLocalStorage();
+  legendMod.setLocalStorage(queries);
+  if (legend.length === 0 && queries.length > 0) {
+    legend = queries.filter((el) => !el.deleted).map((el) => el.legend);
+  }
+  if (legend.length > 0) {
+    if (queries.length > 0) {
+      queries.forEach((el) => {
+        const idx = legend.findIndex((l) => el.legend.id === l.id);
+        if (idx === -1 && !el.deleted) {
+          legend.push(el.legend);
+        }
+      });
+    }
+    // legend.forEach((l) => { });
+    for (const l of legend) {
+      // Same ID is already in use and in the map
+      if (
+        legendMod.legend.some(
+          (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
+        )
+      ) {
+        continue;
+      }
+      // Fetch the needed content for the legend
+      const res = await fetchContent(l.elementId, l.type);
+      // create the new entry
+      const lm = await legendMod.createLegendEntry({
+        icon: l.symbol,
+        layer: L.layerGroup(),
+        name: l.name,
+        color: l.color,
+        radius: l.size,
+        content: l.type === SearchItems.Ort ? l.content : res,
+        id: l.id,
+        type: l.type
+      });
+      lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
+      legendMod.addLegendEntry(lm);
+    }
   }
 };

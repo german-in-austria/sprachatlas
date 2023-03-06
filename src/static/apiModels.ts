@@ -177,6 +177,7 @@ export interface LegendGlobal {
 export interface exportLegend {
   id: string;
   symbol: Symbols;
+  erhArt: Array<number>;
   content?: any;
   color: Hsl;
   size: number;
@@ -250,6 +251,7 @@ export interface Parameter {
   size?: number;
   textTokenList?: Array<selectionObject>;
   lemmaList?: Array<selectionObject>;
+  erhArt?: Array<number>;
 }
 
 export interface InfResponse {

@@ -35,6 +35,9 @@ import Navigation from '@/components/Navigation.vue';
 import { getTranscripts } from '@/api/transcripts';
 import { getSingleInfErhebung } from './api/erhebungen';
 import { messageHandler } from './store/modules/message';
+import { phaeModule } from './store/modules/phaenomene';
+import { transModule } from './store/modules/transcripts';
+import { decodeURI } from './helpers/helper';
 @Component({
   components: {
     Home,
@@ -45,6 +48,8 @@ import { messageHandler } from './store/modules/message';
 export default class App extends Vue {
   loggedIn: boolean = false;
   errorMessage: string | null = '';
+  PM = phaeModule;
+  TM = transModule;
 
   async loadTranscripts() {
     try {
@@ -66,6 +71,10 @@ export default class App extends Vue {
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
     tagModule.getAllSppos();
+    this.PM.fetchAllPhaen();
+    // this.TM.fetchTranscripts();
+    // this.TM.fetchEinzelerhebungen();
+    decodeURI();
     authModule.fetchCurrentUser().then(() => {
       const user = authModule.currentUser;
       if (user.error) {

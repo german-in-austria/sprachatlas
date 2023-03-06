@@ -32,6 +32,7 @@
                   label="Projekt"
                   clearable
                 ></v-select>
+                <erhebung-dropdown :chips.sync="chips" :startId="chipIDs" />
                 <v-expansion-panels>
                   <v-expansion-panel>
                     <v-expansion-panel-header>
@@ -354,6 +355,7 @@ import { selectionObject, TagTree } from '@/api/dioe-public-api';
 import TagView from '@/components/TagView.vue';
 import TokenField from '@/components/TokenField.vue';
 import LegendDescEdit from './LegendDescEdit.vue';
+import ErhebungDropdown from './ErhebungDropdown.vue';
 
 import draggable from 'vuedraggable';
 import {
@@ -372,9 +374,10 @@ import { aufgabenModule } from '@/store/modules/aufgaben';
 import { expData } from '@/service/ExportBase';
 import { messageHandler } from '@/store/modules/message';
 import { VueEditor } from 'vue2-editor';
+import { erhebungModule } from '@/store/modules/erhebungen';
 
 @Component({
-  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor, LegendDescEdit },
+  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor, LegendDescEdit, ErhebungDropdown },
   name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {
@@ -382,6 +385,9 @@ export default class QueryCreator extends Vue {
   showTimeline: boolean = false;
   dialog: boolean = false;
   selectedItem = null;
+
+  chips: any[] = [];
+  chipIDs: number[] = [];
 
   focusLegend: LegendGlobal = {} as LegendGlobal;
   focusParameter: Parameter[] = [];
@@ -499,6 +505,10 @@ export default class QueryCreator extends Vue {
     return this.AM.teams;
   }
 
+  get erhArten() {
+    return erhebungModule.erhebungsarten;
+  }
+
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
     this.LM.deleteLegendEntry(el, idx);
     expData.removeEntry(el.id, el.name, el.type ? el.type : 0);
@@ -530,12 +540,16 @@ export default class QueryCreator extends Vue {
   editItem(curr: Parameter) {
     this.editMode = true;
     this.dialog = true;
+    this.chipIDs = [];
+    this.chips = [];
     this.formControl.paraName = curr.name;
     this.formControl.symbol = curr.symbol;
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
     this.parColor = this.formControl.paraColor.hex = curr.color ? curr.color : '#F00';
+    this.chipIDs = curr.erhArt ? curr.erhArt : [];
+    this.chips = this.erhArten.filter(el => this.chipIDs.some(id => id === el.id))
     this.formControl.range = curr.ageRange;
     this.formControl.selEducation = curr.education ? curr.education : -1;
     this.formControl.selMaxEducation = curr.maxEducation
@@ -586,6 +600,7 @@ export default class QueryCreator extends Vue {
         id: id,
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
+        erhArt: this.chips.map((val) => val.id),
         project: this.formControl.selProject,
         gender: this.formControl.selGender === 'Weiblich' ? true : false, // Boolean
         education: this.formControl.selEducation, // ID
@@ -633,6 +648,8 @@ export default class QueryCreator extends Vue {
     this.textToken = [];
     this.textLemma = [];
     this.parColor = '#F00';
+    this.paraDesc = '';
+    this.chips = [];
   }
 
   createParameter(clear: boolean) {
@@ -647,6 +664,7 @@ export default class QueryCreator extends Vue {
         content: null,
         id: generateID(),
         visible: true,
+        erhArt: this.chips.map((val) => val.id),
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
         project: this.formControl.selProject,
@@ -666,6 +684,7 @@ export default class QueryCreator extends Vue {
             : this.formControl.paraColor.hex,
         description: this.paraDesc
       };
+      console.log(newParameter.erhArt);
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }
@@ -685,6 +704,7 @@ export default class QueryCreator extends Vue {
         query: { parameters: para },
       });*/
       if (clear) this.dialog = false;
+      this.paraDesc = '';
       this.clearForm();
       this.initFormControl();
       this.TM.setTagSelection([]);

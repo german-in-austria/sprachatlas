@@ -47,33 +47,7 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-content>
-            <v-combobox
-              v-model="chips"
-              :items="erhArten"
-              :loading="erhLoading"
-              chips
-              clearable
-              item-text="Bezeichnung"
-              item-value="id"
-              label="Erhebungsarten auswählen"
-              multiple
-              prepend-icon="mdi-filter-variant"
-              solo
-            >
-              <template v-slot:selection="{ attrs, item, select, selected }">
-                <v-chip
-                  v-bind="attrs"
-                  :input-value="selected"
-                  close
-                  @click="select"
-                  @click:close="remove(item)"
-                >
-                  <strong>{{ item.Bezeichnung }}</strong
-                  >&nbsp;
-                  <span>(Erhebungsart)</span>
-                </v-chip>
-              </template>
-            </v-combobox>
+            <ErhebungDropdown :chips.sync="chips" />
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -109,10 +83,11 @@ import { Prop, Vue, Component } from 'vue-property-decorator';
 import { legendMod } from '@/store/modules/legend';
 import { erhebungModule } from '@/store/modules/erhebungen';
 import { messageHandler } from '@/store/modules/message';
+import ErhebungDropdown from './ErhebungDropdown.vue';
 
 @Component({
   name: 'ErhebungsArt',
-  components: {}
+  components: { ErhebungDropdown }
 })
 export default class ErhebungsArt extends Vue {
   menu = false;
@@ -155,11 +130,6 @@ export default class ErhebungsArt extends Vue {
       icon: 'mdi-info'
     });
     this.menu = false;
-  }
-
-  remove(item: any) {
-    this.chips.splice(this.chips.indexOf(item), 1);
-    this.chips = [...this.chips];
   }
 
   applyFilter() {

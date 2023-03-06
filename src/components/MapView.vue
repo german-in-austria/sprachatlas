@@ -2035,6 +2035,8 @@ export default class MapView extends Vue {
             query.project = p.project;
           }
 
+          if (p.erhArt && p.erhArt.length > 0) query.erhArt = p.erhArt;
+
           if (p.textTokenList && p.textTokenList.length > 0) {
             query.text = p.textTokenList;
           }
@@ -2386,64 +2388,8 @@ export default class MapView extends Vue {
     await tagModule.fetchTagOrteResults({ tagId: tagId });
   }
 
-  /*
-   * Decode the components of the URI
-   * Happens by reading the data from the URI
-   * Afterwards converts the recieved data into the internal data structure
-   * 1. Create new Legend Entries
-   * 2. display these new entries on the map
-   */
-  async decodeURI() {
-    const uriData = expData.fetchUriAndDecodeData();
-    let legend: exportLegend[] = [];
-    if (uriData.id.length > 0) {
-      legend = await expData.getDataFromDioeDB(uriData.id);
-    } else {
-      legend = uriData.leg ? uriData.leg : [];
-    }
-    console.log(legend);
-    legendMod.resetLocalStorage();
-    const queries = expData.getQueryFromLocalStorage();
-    legendMod.setLocalStorage(queries);
-    if (legend.length === 0 && queries.length > 0) {
-      legend = queries.filter(el => !el.deleted).map(el => el.legend);
-    }
-    if (legend.length > 0) {
-      if (queries.length > 0) {
-        queries.forEach(el => {
-          const idx = legend.findIndex(l => el.legend.id === l.id);
-          if (idx === -1 && !el.deleted) {
-            legend.push(el.legend);
-          }
-        });
-      }
-      // legend.forEach((l) => { });
-      for (const l of legend) {
-        // Same ID is already in use and in the map
-        if (
-          this.legendGlobal.some(
-            (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
-          )
-        ) {
-          continue;
-        }
-        // Fetch the needed content for the legend
-        const res = await fetchContent(l.elementId, l.type);
-        // create the new entry
-        const lm = await this.LM.createLegendEntry({
-          icon: l.symbol,
-          layer: L.layerGroup(),
-          name: l.name,
-          color: l.color,
-          radius: l.size,
-          content: l.type === SearchItems.Ort ? l.content : res,
-          id: l.id,
-          type: l.type
-        });
-        lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
-        this.LM.addLegendEntry(lm);
-      }
-    }
+  created() {
+    console.log('Created map');
   }
 
   // lifecycle hook
@@ -2455,23 +2401,18 @@ export default class MapView extends Vue {
       });
     }
 
-    this.PM.fetchAllPhaen();
-    this.TM.fetchTranscripts();
-    this.TM.fetchEinzelerhebungen();
     this.$nextTick(() => {
       // @ts-ignore
       this.$refs.map.mapObject.whenReady(() => {
         // this.layerGroup = this.$refs.points.mapObject;
-        this.decodeURI().then(() => {
-          if (this.legendGlobal.length > 0) {
-            messageHandler.setSuccessMsg({
-              message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
-              icon: 'mdi-info'
-            });
-            this.displayDataFromLegend(legendMod.legend);
+        if (this.legendGlobal.length > 0) {
+          messageHandler.setSuccessMsg({
+            message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
+            icon: 'mdi-info'
+          });
+          this.displayDataFromLegend(legendMod.legend);
 
-          }
-        });
+        }
         this.computeMPerPixel();
         this.map.on('zoomend', (e: any) => {
           this.computeMPerPixel();
