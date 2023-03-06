@@ -27,7 +27,7 @@
                 class="mx-auto pr-100"
               >
                 <template v-slot:activator="{ on }">
-                  <template v-if="d.symbol === 0 || propCircl">
+                  <template v-if="d.symbol === 0 || !propCircl">
                     <v-avatar v-on="on">
                       <icon-circle
                         :fillCol="convertHsl(d.color)"

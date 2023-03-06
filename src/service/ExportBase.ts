@@ -94,7 +94,7 @@ export const expData = {
     } else {
       enc = this.encodeObject([tL]);
     }
-    if (legend.type !== SearchItems.Query) this.pushURL(enc);
+    // if (legend.type !== SearchItems.Query) this.pushURL(enc);
     return enc;
   },
   removeEntry(id: string, name: string, type: SearchItems) {
@@ -249,6 +249,10 @@ export const expData = {
     return postNewExportLink(data, generateID());
   },
   async getDataFromDioeDB(id: string) {
-    return this.decompressAndParse(await getSingleExportLink(id));
+    const result = (await getSingleExportLink(id)) as any;
+    if (result.data.length > 0) {
+      const data = result.data[0].data;
+      return this.decompressAndParse(data);
+    }
   }
 };

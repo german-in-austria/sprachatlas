@@ -2401,6 +2401,7 @@ export default class MapView extends Vue {
     } else {
       legend = uriData.leg ? uriData.leg : [];
     }
+    console.log(legend);
     legendMod.resetLocalStorage();
     const queries = expData.getQueryFromLocalStorage();
     legendMod.setLocalStorage(queries);

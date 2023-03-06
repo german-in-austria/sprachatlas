@@ -2,9 +2,11 @@ import { AxiosResponse } from 'axios';
 import api from '.';
 
 export const getSingleExportLink = (id: string): Promise<any> => {
-  return api.dioeDB.get(`/restapi/get?url_id=${id}`).then((response) => {
-    return { status: response.status, data: response.data.tbl_antworten };
-  });
+  return api.dioeDB
+    .get(`/restapi/getZitatUrl?url_id=${id}`)
+    .then((response) => {
+      return { status: response.status, data: response.data.tbl_antworten };
+    });
 };
 
 export const postNewExportLink = async (
