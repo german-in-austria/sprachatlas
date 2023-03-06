@@ -53,7 +53,7 @@ export default class ErhebungDropdown extends Vue {
 
   remove(item: any) {
     this.data = [...this.data.splice(this.data.indexOf(item), 1)];
-    this.$emit('update:chips', this.data);
+    this.$emit('chips', this.data);
     // this.$emit('update:chips', [...this.data]);
   }
 
@@ -69,7 +69,7 @@ export default class ErhebungDropdown extends Vue {
 
   @Watch("startId")
   onStartIdChange() {
-    // this.checkID();
+    this.checkID();
   }
 
   updated() {

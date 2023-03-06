@@ -32,7 +32,37 @@
                   label="Projekt"
                   clearable
                 ></v-select>
-                <erhebung-dropdown :chips.sync="chips" :startId="chipIDs" />
+                <template>
+                  <v-combobox
+                    v-model="chips"
+                    :items="erhArten"
+                    :loading="erhLoading"
+                    chips
+                    clearable
+                    item-text="Bezeichnung"
+                    item-value="id"
+                    label="Erhebungsarten auswählen"
+                    multiple
+                    prepend-icon="mdi-filter-variant"
+                    solo
+                  >
+                    <template
+                      v-slot:selection="{ attrs, item, select, selected }"
+                    >
+                      <v-chip
+                        v-bind="attrs"
+                        :input-value="selected"
+                        close
+                        @click="select"
+                        @click:close="remove(item)"
+                      >
+                        <strong>{{ item.Bezeichnung }}</strong
+                        >&nbsp;
+                        <span>(Erhebungsart)</span>
+                      </v-chip>
+                    </template>
+                  </v-combobox>
+                </template>
                 <v-expansion-panels>
                   <v-expansion-panel>
                     <v-expansion-panel-header>
@@ -481,6 +511,10 @@ export default class QueryCreator extends Vue {
     return this.TM.loading;
   }
 
+  get erhLoading() {
+    return erhebungModule.erhLoading;
+  }
+
   get parameters() {
     return this.TM.parameters;
   }
@@ -521,6 +555,11 @@ export default class QueryCreator extends Vue {
   checkEducation(pk: number) {
     const found = this.jobs.find((pk) => pk === pk);
     this.selEducationAll = found;
+  }
+
+  remove(item: any) {
+    this.chips.splice(this.chips.indexOf(item), 1);
+    this.chips = [...this.chips];
   }
 
   viewLegend(idx: number, legend: LegendGlobal) {
@@ -767,6 +806,9 @@ export default class QueryCreator extends Vue {
     if (this.legName === '') {
       // const legend = this.TM.legends.slice(-1)[0];
       // this.legName = "Unbenannte Legende";
+    }
+    if (!this.erhArten || this.erhArten.length === 0) {
+      erhebungModule.fetchErhebungsArten();
     }
   }
 
