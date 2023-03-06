@@ -17,6 +17,15 @@ export interface SingleInfResponse {
   hasTranskript: boolean;
 }
 
+export interface authUser {
+  ok: boolean;
+  user: {
+    id: number;
+    name: string;
+  };
+  error?: string;
+}
+
 export interface SingleTag {
   tagId: number;
   tagAbbrev: string;

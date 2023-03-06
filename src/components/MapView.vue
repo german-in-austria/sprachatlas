@@ -1860,23 +1860,6 @@ export default class MapView extends Vue {
     };
   }
 
-
-  copyClipboard(str: string) {
-    // Exporting queryLegend
-    if (this.queryLegend.length > 0) {
-      expData.removeEntryTypeFromUri(SearchItems.Query);
-      this.queryLegend.forEach(el => expData.pushNewLegend(el, -1));
-    }
-    navigator.clipboard.writeText(this.url).then(
-      () => {
-        // Success
-      },
-      () => {
-        // Fail
-      }
-    );
-  }
-
   async displayAset(asetIds: number[]) {
     await this.AM.fetchAufgabenOrt({ ids: [], asetIds: asetIds });
   }
@@ -2418,7 +2401,9 @@ export default class MapView extends Vue {
     } else {
       legend = uriData.leg ? uriData.leg : [];
     }
+    legendMod.resetLocalStorage();
     const queries = expData.getQueryFromLocalStorage();
+    legendMod.setLocalStorage(queries);
     if (legend.length === 0 && queries.length > 0) {
       legend = queries.filter(el => !el.deleted).map(el => el.legend);
     }

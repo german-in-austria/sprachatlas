@@ -29,10 +29,12 @@ import Home from './views/Home.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import { initialize as initGeo } from './store/geo';
 import { tagModule } from '@/store/modules/tags';
+import { authModule } from '@/store/modules/auth';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import Navigation from '@/components/Navigation.vue';
 import { getTranscripts } from '@/api/transcripts';
 import { getSingleInfErhebung } from './api/erhebungen';
+import { messageHandler } from './store/modules/message';
 @Component({
   components: {
     Home,
@@ -64,6 +66,20 @@ export default class App extends Vue {
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
     tagModule.getAllSppos();
+    authModule.fetchCurrentUser().then(() => {
+      const user = authModule.currentUser;
+      if (user.error) {
+        messageHandler.setWarnMsg({
+          message: `Sie sind aktuell nicht eingeloggt`,
+          icon: 'mdi-warn'
+        })
+      } else {
+        messageHandler.setSuccessMsg({
+          message: `Willkommen zurück ${user.user.name}`,
+          icon: 'mdi-info'
+        });
+      }
+    });
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
   }

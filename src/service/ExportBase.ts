@@ -94,7 +94,7 @@ export const expData = {
     } else {
       enc = this.encodeObject([tL]);
     }
-    this.pushURL(enc);
+    if (legend.type !== SearchItems.Query) this.pushURL(enc);
     return enc;
   },
   removeEntry(id: string, name: string, type: SearchItems) {
@@ -168,7 +168,12 @@ export const expData = {
     if (q) {
       // exists and push to localStorage
       const query = this.decompressAndParse(q) as localStorageQuery[];
-      query.push(localQuery);
+      const idx = query.findIndex((el) => el.legend.id === legend.id);
+      if (idx > -1) {
+        query[idx] = localQuery;
+      } else {
+        query.push(localQuery);
+      }
       localStorage.setItem('queries', this.encodeObject(query));
     } else {
       // does not exist and set new Style
@@ -214,12 +219,10 @@ export const expData = {
   getQueryFromLocalStorage(): localStorageQuery[] {
     const q = localStorage.getItem('queries');
     if (q) {
-      legendMod.resetLocalStorage();
       const decompStr = LZ.decompressFromEncodedURIComponent(q);
       const str = JSON.parse(
         decompStr ? decompStr : ''
       ) as Array<localStorageQuery>;
-      legendMod.setLocalStorage(str);
       return str;
     }
     return [] as localStorageQuery[];

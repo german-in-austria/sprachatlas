@@ -610,6 +610,7 @@ export default class QueryCreator extends Vue {
         message: `Parameter ${this.formControl.paraName} wurde bearbeitet`,
         icon: 'mdi-info'
       });
+      expData.pushNewLegend(this.focusLegend, -1);
       this.clearForm();
       this.TM.setTagSelection([]);
     }
@@ -674,6 +675,7 @@ export default class QueryCreator extends Vue {
         message: `Parameter ${this.formControl.paraName} wurde zu Legende ${this.focusLegend.name} hinzugefügt`,
         icon: 'mdi-info'
       });
+      expData.pushNewLegend(this.focusLegend, -1);
       /*
       const para = LZ.compressToEncodedURIComponent(
         JSON.stringify(this.legends)
@@ -738,6 +740,9 @@ export default class QueryCreator extends Vue {
         }
       }
     }
+    if (this.queryLegend.length > 0) {
+      this.focusLegend = this.queryLegend[0];
+    }
 
     if (this.legName === '') {
       // const legend = this.TM.legends.slice(-1)[0];
@@ -756,6 +761,7 @@ export default class QueryCreator extends Vue {
 
   destroyed() {
     console.log('Unmounting component');
+    expData.pushNewLegend(this.focusLegend, -1);
   }
 }
 </script>

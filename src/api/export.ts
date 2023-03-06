@@ -2,8 +2,8 @@ import { AxiosResponse } from 'axios';
 import api from '.';
 
 export const getSingleExportLink = (id: string): Promise<any> => {
-  return api.dioeDB.get(`/restapi/get?=${id}`).then((response) => {
-    return { status: response.status, data: response.data };
+  return api.dioeDB.get(`/restapi/get?url_id=${id}`).then((response) => {
+    return { status: response.status, data: response.data.tbl_antworten };
   });
 };
 
@@ -13,10 +13,15 @@ export const postNewExportLink = async (
 ): Promise<any> => {
   return await api.dioeDB
     .post('/restapi/setZitatUrl', {
-      data: { data: data, url_id: id }
+      data: data,
+      url_id: id
     })
     .then((response) => {
-      return { status: response.status, data: response.data };
+      return {
+        status: response.status,
+        data: response.data,
+        error: response.data.error
+      };
     });
 };
 
