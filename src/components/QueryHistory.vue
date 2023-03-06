@@ -8,8 +8,9 @@
     >
       <template v-slot:item.legend="{ item }">
         <template v-if="item.legend.type === 3">
-          Legende {{ item.legend.name }} Beschreibung:
-          {{ item.legend.description }}
+          Legende {{ item.legend.name }} <br />
+          Beschreibung:
+          <span v-html="item.legend.description"></span>
         </template>
         <template v-else>
           <v-avatar>
