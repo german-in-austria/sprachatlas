@@ -136,6 +136,7 @@ export default class TagViewSelect extends Vue {
   }
 
   deleteTags() {
+    this.TM.setAutoCompleteLabel(`Neuen Tag hinzufügen`);
     // this.TM.deleteTag(this.tagData.tagId);
     this.$emit('bus', this.tagData.tagId);
     this.$emit('deleteTag', this.tagData.tagId);
