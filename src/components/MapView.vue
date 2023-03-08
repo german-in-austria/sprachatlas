@@ -1295,9 +1295,9 @@ export default class MapView extends Vue {
   @Watch('isDarkMode')
   onDarkModeChange() {
     if (this.isDarkMode) {
-      this.selectedTileSet = 3;
+      this.selectedTileSet = 2;
     } else {
-      this.selectedTileSet = 0;
+      this.selectedTileSet = 1;
     }
   }
 
@@ -2395,6 +2395,7 @@ export default class MapView extends Vue {
   // lifecycle hook
   mounted() {
     console.log('Map mounted');
+    this.onDarkModeChange();
     if (!this.erhebungen || this.erhebungen.length === 0) {
       erhebungModule.fetchErhebungen().then(() => {
         this.changeSearchTerms();

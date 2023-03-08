@@ -7,6 +7,8 @@
   ></v-switch>
 </template>
 <script lang="ts">
+import { expData } from '@/service/ExportBase';
+import { legendMod } from '@/store/modules/legend';
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
@@ -30,8 +32,14 @@ export default class Navigation extends Vue {
 
   changeMode() {
     this.$vuetify.theme.dark = this.darkMode;
+    expData.setDarkModeItem(this.darkMode);
   }
 
-  mounted() {}
+  created() {
+    this.darkMode = expData.hasDarkModeSet();
+    this.$vuetify.theme.dark = this.darkMode;
+  }
+
+  mounted() { }
 }
 </script>

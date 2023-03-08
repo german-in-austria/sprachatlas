@@ -252,6 +252,13 @@ export const expData = {
   sendDataToDioeDB(data: string) {
     return postNewExportLink(data, generateID());
   },
+  setDarkModeItem(i: boolean) {
+    localStorage.setItem('hasDarkMode', i.toString());
+  },
+  hasDarkModeSet(): boolean {
+    const item = localStorage.getItem('hasDarkMode');
+    return item === null ? false : item === 'true';
+  },
   async getDataFromDioeDB(id: string) {
     const result = (await getSingleExportLink(id)) as any;
     if (result.data.length > 0) {
