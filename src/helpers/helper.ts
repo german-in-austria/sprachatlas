@@ -305,7 +305,6 @@ export const decodeURI = async () => {
   } else {
     legend = uriData.leg ? uriData.leg : [];
   }
-  console.log(legend);
   legendMod.resetLocalStorage();
   const queries = expData.getQueryFromLocalStorage();
   legendMod.setLocalStorage(queries);

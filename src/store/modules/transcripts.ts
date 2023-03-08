@@ -16,8 +16,6 @@ import {
 
 import { ISelectMatchingTokensResult } from '../../api/dioe-public-api/models/ISelectMatchingTokensResult';
 
-import { AxiosResponse } from 'axios';
-import Vue from '../../main';
 import {
   ServerTranscript,
   transRoute,
