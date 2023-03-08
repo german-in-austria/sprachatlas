@@ -43,7 +43,6 @@
                     item-value="id"
                     label="Erhebungsarten auswählen"
                     multiple
-                    prepend-icon="mdi-filter-variant"
                     solo
                   >
                     <template
