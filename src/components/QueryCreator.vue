@@ -317,8 +317,7 @@
                                 : 'Keine Beschreibung vorhanden'
                             "
                           ></div>
-                          ´</v-expansion-panel-content
-                        >
+                        </v-expansion-panel-content>
                       </v-expansion-panel>
                     </v-expansion-panels>
                   </v-col>
