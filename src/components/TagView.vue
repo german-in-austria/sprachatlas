@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin-top: 200px">
     <v-tooltip :disabled="!disable" bottom>
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on">
@@ -13,7 +13,7 @@
               :items="tagList"
               item-text="tagName"
               clearable
-              label="Tags auswählen"
+              :label="autoCompleteLabel"
               return-object
             ></v-autocomplete>
             <v-row no-gutters>
@@ -113,6 +113,14 @@ export default class TagView extends Vue {
     return this.TM.tagSelection;
   }
 
+  get autoCompleteLabel() {
+    return tagModule.autocompleteLabel;
+  }
+
+  set autoCompleteLabel(s: string) {
+    this.TM.setAutoCompleteLabel(s);
+  }
+
   onDelete(val: number) {
     // Steps
     // Find according child
@@ -155,6 +163,7 @@ export default class TagView extends Vue {
   }
 
   addTag() {
+    this.autoCompleteLabel = 'Neuen Tag hinzufügen';
     this.TM.setChildrenTag(this.TM.tagList ? this.TM.tagList.filter((el) => el.tagGene === 0) : []);
   }
 
@@ -246,8 +255,12 @@ export default class TagView extends Vue {
 
       this.$nextTick(() => {
         this.TM.setTagSelection(this.selectionTag);
-        this.TM.setChildrenTag([]);
+        this.TM.setChildrenTag(this.selTag ? this.selTag.children : []);
+        if (this.selTag) {
+          this.autoCompleteLabel = `Kindtag für ${this.selTag.tagName} auswählen`;
+        }
         this.selTag = null;
+
       });
     }
   }

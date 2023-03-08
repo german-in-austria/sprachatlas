@@ -122,6 +122,11 @@ export default class TagViewSelect extends Vue {
   }
 
   addChildTag() {
+    let name = this.tagSelection.tagName;
+    if (!this.tagSelection.tagName) {
+      name = this.tagSelection.tagGroup.tagName;
+    }
+    this.TM.setAutoCompleteLabel(`Kindtag für ${name} hinzufügen`);
     this.TM.setChildrenTag(this.tagSelection.children);
   }
 

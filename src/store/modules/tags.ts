@@ -31,6 +31,7 @@ export interface TagState {
   loading: boolean;
   tagSelection: Array<TagSelection>;
   tagOrteResults: Array<TagOrteResults>;
+  autocompleteLabel: string;
 }
 
 @Module({
@@ -40,6 +41,7 @@ export interface TagState {
   dynamic: true
 })
 class Tags extends VuexModule implements TagState {
+  autocompleteLabel: string = 'Neuen Tag hinzufügen';
   tagOrteResults: TagOrteResults[] = [];
   tagSelection: TagSelection[] = [];
   legends: LegendList[] = [];
@@ -63,6 +65,11 @@ class Tags extends VuexModule implements TagState {
 
   get tags() {
     return this.tagList ? this.tagList : ([] as TagTree[]);
+  }
+
+  @Mutation
+  setAutoCompleteLabel(s: string) {
+    this.autocompleteLabel = s;
   }
 
   @Mutation
