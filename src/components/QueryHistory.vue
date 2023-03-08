@@ -134,6 +134,7 @@ export default class QueryHistory extends Vue {
   deleteHistory() {
     this.LM.removeDeletedEntries();
     expData.deleteQueryLocalStorage();
+    this.LM.resetLocalStorage();
     expData.setQueryLocalStorage(this.queries);
   }
 

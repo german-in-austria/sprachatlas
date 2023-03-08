@@ -543,7 +543,9 @@ export default class QueryCreator extends Vue {
   }
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
+    this.showTimeline = false;
     this.LM.deleteLegendEntry(el, idx);
+    this.focusLegend = {} as LegendGlobal;
     expData.removeEntry(el.id, el.name, el.type ? el.type : 0);
   }
 

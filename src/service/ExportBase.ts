@@ -10,6 +10,7 @@ import { legendMod } from '@/store/modules/legend';
 import { messageHandler } from '@/store/modules/message';
 import { clone, isArray } from 'lodash';
 import * as LZ from 'lz-string';
+import { del } from 'vue';
 
 export const expData = {
   transformLegend(legend: LegendGlobal, id: number | number[]): exportLegend {
@@ -78,6 +79,8 @@ export const expData = {
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
   pushNewLegend(legend: LegendGlobal, id: number | number[]): string {
+    console.log(legend);
+    if (!(legend && legend.id)) return '';
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
     if (this.checkIfLocalStorageIsAvailable()) {
@@ -201,6 +204,7 @@ export const expData = {
       legendMod.removeEntry(query[idx].legend.id);
       legendMod.addLocalStorage(query[idx]);
       localStorage.setItem('queries', this.encodeObject(query));
+      console.log(query);
     }
   },
   removeFromLocalStorage(name: string, type: SearchItems) {
