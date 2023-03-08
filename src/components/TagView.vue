@@ -145,7 +145,7 @@ export default class TagView extends Vue {
   }
 
   beforeCreate() {
-    if (tagModule.tagList == null) {
+    if (tagModule.tagList.length === 0) {
       tagModule.fetchTags();
     }
   }
