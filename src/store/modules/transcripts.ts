@@ -5,27 +5,27 @@ import {
   Mutation,
   Action,
   getModule
-} from "vuex-module-decorators";
-import store from "@/store";
+} from 'vuex-module-decorators';
+import store from '@/store';
 import api from '@/api';
 import {
   getEinzelerhebungen,
   getTranscripts,
   getSingleTranscript
-} from "../../api/transcripts";
+} from '../../api/transcripts';
 
-import { ISelectMatchingTokensResult } from "../../api/dioe-public-api/models/ISelectMatchingTokensResult";
+import { ISelectMatchingTokensResult } from '../../api/dioe-public-api/models/ISelectMatchingTokensResult';
 
-import { AxiosResponse } from "axios";
-import Vue from "../../main";
+import { AxiosResponse } from 'axios';
+import Vue from '../../main';
 import {
   ServerTranscript,
   transRoute,
   einzErhebung
-} from "../../static/apiModels";
+} from '../../static/apiModels';
 
 @Module({
-  name: "transModule",
+  name: 'transModule',
   namespaced: true,
   store,
   dynamic: true
@@ -45,53 +45,57 @@ class Transcripts extends VuexModule {
     this.loading = val;
   }
 
-  @MutationAction({ mutate: ["matchingTokens", "loading"] })
+  @MutationAction({ mutate: ['matchingTokens', 'loading'] })
   async fetchMatchingTokens(arg: {
     ortho: string;
     phon: string;
     lemma: string;
   }) {
     // @ts-ignore
-    this.context.commit("setLoading", true);
-    const res = await api.dioePublic.getMatchingTokens(arg.ortho, arg.phon, arg.lemma);
+    this.context.commit('setLoading', true);
+    const res = await api.dioePublic.getMatchingTokens(
+      arg.ortho,
+      arg.phon,
+      arg.lemma
+    );
     return {
       matchingTokens: res,
       loading: false
     };
   }
 
-  @MutationAction({ mutate: ["singleTranscript", "loading"] })
+  @MutationAction({ mutate: ['singleTranscript', 'loading'] })
   async fetchSingleTranscript(arg: any) {
     this.context.commit('setLoading', true);
-    console.log("trying to fetch data");
+    console.log('trying to fetch single transscript');
     const response = await getSingleTranscript(arg.id, arg.page);
-    console.log("fetched data");
+    console.log('fetched data');
     return {
       singleTranscript: response.data,
       loading: false
     };
   }
 
-  @MutationAction({ mutate: ["transcripts", "loading"] })
+  @MutationAction({ mutate: ['transcripts', 'loading'] })
   async fetchTranscripts() {
     this.context.commit('setLoading', true);
 
-    console.log("trying to fetch data");
+    console.log('trying to fetch transcripts');
     const response = await getTranscripts();
-    console.log("fetched data");
+    console.log('fetched data');
     return {
       transcripts: response.data.transcripts,
       loading: false
     };
   }
 
-  @MutationAction({ mutate: ["einzelErhebungen", "loading"] })
+  @MutationAction({ mutate: ['einzelErhebungen', 'loading'] })
   async fetchEinzelerhebungen() {
     this.context.commit('setLoading', true);
 
-    console.log("trying to fetch data");
+    console.log('trying to fetch einzelerhebungen');
     const response = await getEinzelerhebungen();
-    console.log("fetched data");
+    console.log('fetched data');
     return {
       einzelErhebungen: response.data.einzelerhebungen,
       loading: false

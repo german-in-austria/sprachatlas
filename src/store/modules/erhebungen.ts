@@ -87,7 +87,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
   @MutationAction({ mutate: ['erhebungen', 'loading'] })
   async fetchErhebungen() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch erhebungen');
     const response = await getErhebungen();
 
     console.log('fetched data');
@@ -129,7 +129,7 @@ class Erhebungen extends VuexModule implements ErhebungState {
   @MutationAction({ mutate: ['erhebungsarten', 'erhLoading'] })
   async fetchErhebungsArten() {
     this.context.commit('setErhLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch erhebungsarten');
     const response = await api.dioePublic.getErhebungsArten();
     console.log('fetched data');
     return {

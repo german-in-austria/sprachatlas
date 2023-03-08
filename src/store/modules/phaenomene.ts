@@ -45,7 +45,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   @MutationAction({ mutate: ['phaenBer', 'loading'] })
   async fetchBereich() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch Phaenbereich');
     const response = await api.dioePublic.getPhaenBer();
     console.log('fetched data');
     return {
@@ -67,7 +67,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   @MutationAction({ mutate: ['phaen', 'loading'] })
   async fetchPhaenByBerId(arg: { berId: number }) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch Phaen');
     const response = await api.dioePublic.getSinglePhaen(arg.berId);
     console.log('fetched data');
     return {
@@ -79,7 +79,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   @MutationAction({ mutate: ['phaenTags', 'loading'] })
   async fetchTagByPhaen(arg: { ids: number[] }) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch Tag with Phaen');
     const response = await api.dioePublic.getTagsByPhaen(arg);
     console.log('fetched data');
     return {
@@ -91,7 +91,7 @@ class Phaenomene extends VuexModule implements PhaeState {
   @MutationAction({ mutate: ['phaenAufgaben', 'loading'] })
   async fetchAsetByPhaen(arg: { ids: number[] }) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch phaenAufgaben');
     const response = await api.dioePublic.getASetByPhaen(arg);
     console.log('fetched data');
     return {

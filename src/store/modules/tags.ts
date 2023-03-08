@@ -24,7 +24,7 @@ import api from '@/api';
 import { getBerufe } from '@/api/erhebungen';
 
 export interface TagState {
-  tagList: TagTree[] | null;
+  tagList: TagTree[];
   parameters: Parameter[];
   legends: LegendList[];
   jobList: Job[];
@@ -46,7 +46,7 @@ class Tags extends VuexModule implements TagState {
   jobList: Job[] = [];
   parameters: Parameter[] = [];
   presetTags = [] as Array<IGetPresetTagsResult>;
-  tagList: TagTree[] | null = null;
+  tagList: TagTree[] = [];
   childrenTag: TagTree[] = [];
   allSppos: Array<IGetAllSpposResult> = [];
   loading = false;
@@ -126,7 +126,7 @@ class Tags extends VuexModule implements TagState {
   }
 
   @Mutation
-  setTagList(ort: TagTree[] | null) {
+  setTagList(ort: TagTree[]) {
     this.tagList = ort;
   }
 
@@ -163,7 +163,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['tagList', 'loading'] })
   async fetchTags() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch tag list');
     const response = await api.dioePublic.getTags();
     console.log('fetched data');
     return {
@@ -175,7 +175,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['tagList', 'loading'] })
   async fetchGenTags(arg: { gen: number }) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch tag list by gen');
     const response = await api.dioePublic.getTagGen(arg.gen);
     console.log('fetched data');
     return {
@@ -207,7 +207,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['jobList', 'loading'] })
   async fetchJobs() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch job list');
     const response = await getBerufe();
     console.log('fetched data');
     return {
@@ -219,7 +219,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['presetTags', 'loading'] })
   async fetchPresetTags() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch preset Tags');
     const response = await api.dioePublic.getPresetTags();
     console.log('fetched data');
     return {
@@ -241,7 +241,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['tagOrteResults', 'loading'] })
   async fetchPresetTagOrte(presetID: number) {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch results presettags');
     const response = await api.dioePublic.getPresetOrte(presetID);
     console.log('fetched data');
     return {
@@ -253,7 +253,7 @@ class Tags extends VuexModule implements TagState {
   @MutationAction({ mutate: ['allSppos', 'loading'] })
   async getAllSppos() {
     this.context.commit('setLoading', true);
-    console.log('trying to fetch data');
+    console.log('trying to fetch all sppos');
     const response = await api.dioePublic.getAllSppos();
     console.log('fetched data');
     return {
