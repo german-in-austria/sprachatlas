@@ -66,15 +66,12 @@ export default class App extends Vue {
     }
   }
 
-  mounted() {
+  async mounted() {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
     tagModule.getAllSppos();
     this.PM.fetchAllPhaen();
-    // this.TM.fetchTranscripts();
-    // this.TM.fetchEinzelerhebungen();
-    decodeURI();
     authModule.fetchCurrentUser().then(() => {
       const user = authModule.currentUser;
       if (user.error) {
@@ -91,6 +88,7 @@ export default class App extends Vue {
     });
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
+    // await decodeURI();
   }
 }
 </script>

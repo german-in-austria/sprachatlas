@@ -796,7 +796,7 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl, fetchContent } from '@/helpers/helper';
+import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl, fetchContent, decodeURI } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -2401,7 +2401,7 @@ export default class MapView extends Vue {
       });
     }
 
-    this.$nextTick(() => {
+    this.$nextTick(() => decodeURI().then(() => {
       // @ts-ignore
       this.$refs.map.mapObject.whenReady(() => {
         // this.layerGroup = this.$refs.points.mapObject;
@@ -2419,7 +2419,7 @@ export default class MapView extends Vue {
           // this.displayDataFromLegend(legendMod.legend);
         });
       });
-    });
+    }));
   }
 
   beforeCreate() {
