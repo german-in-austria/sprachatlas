@@ -134,9 +134,9 @@ export default class TagView extends Vue {
         this.selectedTags.findIndex((el) => el.parentId === val),
         1
       );
+      this.TM.setChildrenTag([]);
       return;
     }
-
     if (parent) {
       const elements = this.findChildParentElement(val, parent.tagGroup);
       if (elements) {
@@ -149,6 +149,7 @@ export default class TagView extends Vue {
           (el) => el.tagId !== val
         );
       }
+
     }
   }
 

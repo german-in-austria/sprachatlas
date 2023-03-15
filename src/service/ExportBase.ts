@@ -79,7 +79,6 @@ export const expData = {
     return LZ.compressToEncodedURIComponent(JSON.stringify(obj));
   },
   pushNewLegend(legend: LegendGlobal, id: number | number[]): string {
-    console.log(legend);
     if (!(legend && legend.id)) return '';
     const leg = this.fetchLegendFromUri();
     const tL = this.transformLegend(legend, id);
@@ -204,7 +203,6 @@ export const expData = {
       legendMod.removeEntry(query[idx].legend.id);
       legendMod.addLocalStorage(query[idx]);
       localStorage.setItem('queries', this.encodeObject(query));
-      console.log(query);
     }
   },
   removeFromLocalStorage(name: string, type: SearchItems) {
