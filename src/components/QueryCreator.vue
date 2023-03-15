@@ -811,6 +811,8 @@ export default class QueryCreator extends Vue {
   initFormControl() {
     this.parColor = '#F00';
     this.formControl.paraColor = { hex: '#F00' };
+    this.TM.setAutoCompleteLabel('Neuen Tag hinzufügen');
+    this.TM.setChildrenTag([]);
   }
 
   created() {
