@@ -282,10 +282,11 @@ class Legend extends VuexModule implements LegendState {
     content: any;
     type: SearchItems;
     id?: string;
+    description?: string;
   }): LegendGlobal {
     const newLegend: LegendGlobal = {
       id: arg.id ? arg.id : '',
-      description: '',
+      description: arg.description ? arg.description : '',
       color: arg.color ? arg.color : selectColor(null),
       size: arg.radius,
       type: arg.type,

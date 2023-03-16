@@ -342,7 +342,8 @@ export const decodeURI = async () => {
         radius: l.size,
         content: l.type === SearchItems.Ort ? l.content : res,
         id: l.id,
-        type: l.type
+        type: l.type,
+        description: l.description
       });
       lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
       legendMod.addLegendEntry(lm);

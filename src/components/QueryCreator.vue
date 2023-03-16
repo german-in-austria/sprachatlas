@@ -258,7 +258,10 @@
           <template v-if="queryLegend.length > 0">
             <v-subheader> Beschreibung </v-subheader>
             <div v-for="(item, idx) in queryLegend" :key="idx">
-              <legend-desc-edit :description.sync="item.description" />
+              <legend-desc-edit
+                @updateDesc="updateDesc(item.id, $event)"
+                :description="item.description"
+              />
             </div>
           </template>
         </v-list>
@@ -539,6 +542,11 @@ export default class QueryCreator extends Vue {
 
   get erhArten() {
     return erhebungModule.erhebungsarten;
+  }
+
+  updateDesc(id: string, val: string) {
+    this.focusLegend.description = val;
+    this.LM.editLegendByID(this.focusLegend);
   }
 
   deleteLegendEntry(el: LegendGlobal, idx: number | null) {
