@@ -20,8 +20,6 @@
       <template v-else>
         <img :src="drawTriangle(20, 1, data.c, true)" />
       </template>
-      {{ data.name }} - {{ ortName }}
-      <template v-if="typeFile !== ''"> - Typ: {{ typeFile }} </template>
       <v-btn
         icon
         color="indigo"
@@ -30,6 +28,11 @@
       >
         <v-icon>mdi-arrow-right-bold</v-icon>
       </v-btn>
+      <v-col lg="12">{{ data.name }}</v-col>
+      <v-col lg="8">Ort: {{ ortName }} </v-col>
+      <v-col lg="4">
+        <template v-if="typeFile !== ''">Typ: {{ typeFile }} </template>
+      </v-col>
     </v-row>
   </v-container>
 </template>
