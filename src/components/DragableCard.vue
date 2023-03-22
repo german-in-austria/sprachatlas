@@ -27,6 +27,14 @@ import AudioCard from './AudioCard.vue';
 export default class DragableCard extends Vue {
   id!: string;
   element!: HTMLElement;
+  boundingBox: {
+    left: number;
+    top: number;
+    rectX: number;
+    rectY: number;
+    height: number;
+    width: number;
+  } = {} as any;
   @Prop(String) readonly component!: string;
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
@@ -34,18 +42,18 @@ export default class DragableCard extends Vue {
 
   moveListener(event: any) {
     const el = this.element;
-    const rectX = event.currentTarget.rectX;
-    const rectY = event.currentTarget.rectY;
+    const rectX = event.clientX - this.boundingBox.rectX;
+    const rectY = event.clientY - this.boundingBox.rectY;
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
     let topVal = event.clientY - rectY;
     let leftVal = event.clientX - rectX;
-    if (leftVal >= 0 && leftVal + event.currentTarget.size.width <= vw) {
-      el.style.left = `${(event.clientX - rectX)}px`;
+    if (rectX >= 0 && rectX + this.boundingBox.width <= vw) {
+      el.style.left = `${(event.clientX - this.boundingBox.rectX)}px`;
     }
 
-    if (topVal >= 50 && topVal + event.currentTarget.size.height <= vh) {
-      el.style.top = `${(event.clientY - rectY)}px`;
+    if (rectY >= 50 && rectY + this.boundingBox.height <= vh) {
+      el.style.top = `${(event.clientY - this.boundingBox.rectY)}px`;
     }
     el.style.cursor = 'grabbing';
     el.style.zIndex = '100';
@@ -55,16 +63,16 @@ export default class DragableCard extends Vue {
 
   dragElement(e: any) {
     const element = this.element;
-    element.addEventListener('mousemove', this.moveListener, false);
-    const boundingBox = element.getBoundingClientRect();
-    //@ts-ignore
-    element.rectX = e.clientX - boundingBox.left;
-    //@ts-ignore
-    element.rectY = e.clientY - boundingBox.top;
-    //@ts-ignore
-    element.size = { height: boundingBox.height, width: boundingBox.width };
+    const box = element.getBoundingClientRect();
+    this.boundingBox.left = box.left;
+    this.boundingBox.top = box.top;
+    this.boundingBox.height = box.height;
+    this.boundingBox.width = box.width;
+    this.boundingBox.rectX = e.clientX - box.left;
+    this.boundingBox.rectY = e.clientY - box.top;
+    document.addEventListener('mousemove', this.moveListener, false);
     document.addEventListener('mouseup', () => {
-      element.removeEventListener('mousemove', this.moveListener, false);
+      document.removeEventListener('mousemove', this.moveListener, false);
       element.classList.remove('elevation-22');
       //@ts-ignore
       element.style.cursor = null;
