@@ -28,7 +28,13 @@
       >
         <v-icon>mdi-arrow-right-bold</v-icon>
       </v-btn>
-      <v-col lg="12">{{ data.name }}</v-col>
+    </v-row>
+    <v-row align="center" justify="center" align-content="center">
+      <v-col class="d-flex justify-center align-center" lg="12">{{
+        data.name
+      }}</v-col>
+    </v-row>
+    <v-row>
       <v-col lg="8">Ort: {{ ortName }} </v-col>
       <v-col lg="4">
         <template v-if="typeFile !== ''">Typ: {{ typeFile }} </template>
