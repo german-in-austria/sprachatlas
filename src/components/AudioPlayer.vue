@@ -79,9 +79,7 @@
                   <div class="mx-2">
                     Aufgabe: {{ data[timestampId].aufgabe }}
                   </div>
-                  <div class="mx-2">
-                    Typ: {{ type ? 'Standard' : 'Dialekt' }}
-                  </div>
+                  <div v-if="type !== ''" class="mx-2">Typ: {{ type }}</div>
                 </template>
               </div>
             </v-col>

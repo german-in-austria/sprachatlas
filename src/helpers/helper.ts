@@ -117,10 +117,15 @@ export const selectColor = (num: number | null) => {
 };
 
 /*
- * Returns true if the aufgabe is standard, false if dialect
  */
-export const isAufgabeStandard = (val: string): boolean => {
-  return val.search('(UED|SPTD)') > -1;
+export const isAufgabeStandard = (val: string): string => {
+  if (val.search('(UED|SPTD)') > -1) {
+    return 'Dialekt';
+  } else if (val.search('(UES|SPTS)') > -1) {
+    return 'Standard';
+  } else {
+    return '';
+  }
 };
 
 /**

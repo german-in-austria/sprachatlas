@@ -119,8 +119,10 @@
               >
                 <v-icon>mdi-arrow-right</v-icon>
               </v-btn>
-              Typ:
-              {{ getType(d.data[antIdx].audiofile) ? 'Dialekt' : 'Standard' }}
+              <template v-if="getType(d.data[antIdx].audiofile) !== ''">
+                Typ:
+                {{ getType(d.data[antIdx].audiofile) }}
+              </template>
               <figure>
                 <figcaption>Aufnahme anhören:</figcaption>
                 <AudioPlayer
@@ -202,8 +204,9 @@ export default class DragableCard extends Vue {
     return arrangeBySigle(data);
   }
 
-  getType(val: string | null): boolean {
-    return val ? isAufgabeStandard(val) : false;
+  getType(val: string | null): string {
+    if (!val) return '';
+    return isAufgabeStandard(val);
   }
 
   pinCard(event: any, pinData: boolean) {
