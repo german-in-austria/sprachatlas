@@ -47,6 +47,11 @@ export const convertHslToStr = (a: number, s: number, l: number) => {
   return `hsl(${a},${s * 100}%,${l * 100}%)`;
 };
 
+/*
+ * Takes a HSL color (All three components seperate) and converts it to a hex notation (#FFFFFF)
+ * h is provided as an angle in degrees
+ * s and l are to be provided as numbers between 0 and 100
+ */
 export const hslToHex = (h: number, s: number, l: number) => {
   l /= 100;
   const a = (s * Math.min(l, 1 - l)) / 100;

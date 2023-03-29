@@ -398,7 +398,7 @@ import {
   Symbols
 } from '@/static/apiModels';
 import * as LZ from 'lz-string';
-import { generateID } from '@/helpers/helper';
+import { generateID, hslToHex, selectColor } from '@/helpers/helper';
 import IconCircle from '@/icons/IconCircle.vue';
 import SymbolPicker from '@/components/SymbolPicker.vue';
 import { aufgabenModule } from '@/store/modules/aufgaben';
@@ -731,7 +731,6 @@ export default class QueryCreator extends Vue {
             : this.formControl.paraColor.hex,
         description: this.paraDesc
       };
-      console.log(newParameter.erhArt);
       if (!this.focusLegend.parameter) {
         this.focusLegend.parameter = [] as Parameter[];
       }
@@ -817,8 +816,10 @@ export default class QueryCreator extends Vue {
   }
 
   initFormControl() {
-    this.parColor = '#F00';
-    this.formControl.paraColor = { hex: '#F00' };
+    const newColor = selectColor(null);
+    const hexColor = hslToHex(newColor.h, newColor.s * 100, newColor.l * 100);
+    this.parColor = hexColor;
+    this.formControl.paraColor = { hex: hexColor };
     this.TM.setAutoCompleteLabel('Neuen Tag hinzufügen');
     this.TM.setChildrenTag([]);
   }
