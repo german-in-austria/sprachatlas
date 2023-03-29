@@ -2536,7 +2536,7 @@ export default class MapView extends Vue {
   }
 
   .legend {
-    top: 75%;
+    top: 65%;
     left: 75%;
     position: fixed;
     z-index: 2;

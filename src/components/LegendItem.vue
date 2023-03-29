@@ -4,9 +4,9 @@
       v-if="vis"
       elevation="2"
       class="mx-auto"
-      max-width="400"
+      max-width="500"
       min-width="250"
-      style="max-height: 300px"
+      style="max-height: 400px"
     >
       <v-divider class="mx-4"></v-divider>
       <v-card-title
