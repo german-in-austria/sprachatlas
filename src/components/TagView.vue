@@ -11,7 +11,7 @@
               v-show="selMode"
               v-model="selTag"
               :items="tagList"
-              item-text="tagName"
+              :item-text="getAutoCompleteText"
               clearable
               :label="autoCompleteLabel"
               return-object
@@ -88,6 +88,10 @@ export default class TagView extends Vue {
   idx: number = -1;
 
   selectionTag: TagSelection[] = [];
+
+  getAutoCompleteText(item: any) {
+    return item.tagName === '' ? item.tagAbbrev : item.tagName;
+  }
 
   get tagList() {
     if (this.childrenTag.length > 0) {

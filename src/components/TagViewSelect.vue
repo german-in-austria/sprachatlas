@@ -15,7 +15,9 @@
           </v-btn>
         </template>
         <v-expand-transition>
-          <div>{{ tagData.tagName }}</div>
+          <div>
+            {{ tagData.tagName === '' ? tagData.tagAbbrev : tagData.tagName }}
+          </div>
         </v-expand-transition>
       </v-tooltip>
       <v-menu
