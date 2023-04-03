@@ -8,6 +8,7 @@ on:
       - master
   pull_request:
   release:
+  workflow_dispatch:
 
 env:
   REGISTRY: dioe
