@@ -6,8 +6,8 @@ on:
     branches:
       - main
       - master
-    pull-request:
-    release:
+  pull_request:
+  release:
 
 env:
   REGISTRY: dioe
