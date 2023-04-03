@@ -1,7 +1,5 @@
 # NODE AND NPM LTS
-FROM node:lts-alpine as builder
-
-ENV NODE_ENV production
+FROM node:18-alpine as builder
 
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
@@ -33,6 +31,9 @@ RUN npm install
 COPY . /usr/src/app
 
 RUN npm run build
+
+ENV NODE_ENV production
+
 USER 1000
 EXPOSE 80
 
