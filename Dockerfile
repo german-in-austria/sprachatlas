@@ -1,5 +1,5 @@
 # NODE AND NPM LTS
-FROM node:18-alpine as builder
+FROM node:lts-alpine as builder
 
 ENV NODE_ENV production
 
