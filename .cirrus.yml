@@ -1,3 +1,4 @@
+'''
 docker_builder: 
   env: 
     DOCKER_PASSWORD: "ENCRYPTED[f34797ff4b3d322b0f81b718acc29ac3b4cad5e63ab6e688f8304a9bf6dc4c92c88ecebd0004f31659832a96d5baace0]"
@@ -10,3 +11,4 @@ docker_builder:
   test_script: "docker run dioe/sprachatlas test"
   login_script: "docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD"
   push_script: "test $CIRRUS_BRANCH == \"master\" && docker push dioe/sprachatlas && curl -i -X POST -H \"Content-Type: application/json\" -d '{\"text\": \"Cirrus CI built and pushed dioe/sprachatlas\\n details: https://cirrus-ci.com/task/'$CIRRUS_TASK_ID'\"}' https://mm.dioe.at/hooks/9xkct75bzpbn3cm1kiut3jx1ur\n"
+'''

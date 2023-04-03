@@ -1,5 +1,7 @@
 # NODE AND NPM LTS
-FROM node:16
+FROM node:18-alpine as builder
+
+ENV NODE_ENV production
 
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
@@ -30,12 +32,13 @@ RUN npm install
 
 COPY . /usr/src/app
 
-ENV NODE_ENV production
-
 RUN npm run build
+USER 1000
+EXPOSE 80
 
 # RUN npx cypress verify
+FROM scratch
+COPY --from=builder /usr/src/app /usr/src/app
 
 # START AND EXPOSE TO HOST-DAEMON
-EXPOSE 80
 ENTRYPOINT ["/usr/local/bin/npm", "run"]
