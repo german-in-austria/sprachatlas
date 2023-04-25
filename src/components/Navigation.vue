@@ -6,6 +6,7 @@
 
     <v-spacer></v-spacer>
     <v-btn text to="/"> Karte </v-btn>
+    <v-btn text to="/list"> Resultate ansehen </v-btn>
     <v-btn text to="/query"> Legende erstellen </v-btn>
     <v-card-actions class="justify-center">
       <Darkbtn class="mt-4" />
@@ -23,7 +24,7 @@ import Darkbtn from './Darkbtn.vue';
    */
   name: 'Navigation'
 })
-export default class Navigation extends Vue {}
+export default class Navigation extends Vue { }
 </script>
 <style lang="scss">
   .navbar {
