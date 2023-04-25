@@ -109,6 +109,7 @@ export const selectColor = (num: number | null) => {
   let angle = 0;
   if (num !== null) {
     angle = num * 137.508; // use golden angle approximation
+    colorid += num;
   } else {
     angle = colorid++ * 137.508;
   }
