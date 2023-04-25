@@ -37,9 +37,5 @@ ENV NODE_ENV production
 USER 1000
 EXPOSE 80
 
-# RUN npx cypress verify
-FROM scratch
-COPY --from=builder /usr/src/app /usr/src/app
-
 # START AND EXPOSE TO HOST-DAEMON
 ENTRYPOINT ["/usr/local/bin/npm", "run"]
