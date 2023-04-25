@@ -19,7 +19,7 @@ import { Component, Vue } from 'vue-property-decorator';
    */
   name: 'Darkbtn'
 })
-export default class Navigation extends Vue {
+export default class Darkbtn extends Vue {
   darkMode: boolean = false;
 
   get isDarkMode() {
