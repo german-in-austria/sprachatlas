@@ -19,6 +19,19 @@
           />
         </v-avatar>
       </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-btn icon color="grey">
+          <template v-if="true">
+            <v-icon>mdi-eye-outline</v-icon>
+          </template>
+          <template v-else>
+            <v-icon>mdi-eye-off-outline</v-icon>
+          </template>
+        </v-btn>
+        <v-btn icon color="red" @click="deleteData(item)">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -109,6 +122,14 @@ export default class ListView extends Vue {
     return convertHslToStr(hsl[0] * 360, hsl[1], hsl[2]);
   }
 
+  deleteData(item: listData) {
+    this.LM.removeOrtFromLegend(item.legendId, item.osm);
+    this.listData.splice(
+      this.listData.findIndex((el) => item.idx === el.idx),
+      1
+    );
+  }
+
   extractTableData(
     color: string,
     osm: number,
@@ -156,7 +177,7 @@ export default class ListView extends Vue {
               tag.ortNamelang ? tag.ortNamelang : '',
               tag.numTag ? Number(tag.numTag) : 1,
               tag.tagName ? tag.tagName : '',
-              tag.tagId ? tag.tagId : '',
+              el.id,
               SearchItems.Tag,
               `Generation: ${info.tagGene}; Name: ${info.tagName}`
             )
@@ -175,7 +196,7 @@ export default class ListView extends Vue {
               aufgabe.ortNamelang ? aufgabe.ortNamelang : '',
               aufgabe.numAufg ? Number(aufgabe.numAufg) : 1,
               aufgabe.aufgabenstellung ? aufgabe.aufgabenstellung : '',
-              aufgabe.id ? aufgabe.id.toString() : '',
+              el.id,
               SearchItems.Aufgaben,
               `Art Bezeichnung: ${info.artBezeichnung}, Beschreibung: ${info.beschreibung}`
             )

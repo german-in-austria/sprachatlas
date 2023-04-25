@@ -357,6 +357,7 @@ export const decodeURI = async () => {
         description: l.description
       });
       lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
+      lm.searchInfo = l.searchInfo;
       legendMod.addLegendEntry(lm);
     }
   }

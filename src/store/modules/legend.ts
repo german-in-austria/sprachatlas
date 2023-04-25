@@ -272,6 +272,18 @@ class Legend extends VuexModule implements LegendState {
     this.legend = [];
   }
 
+  @Mutation
+  removeOrtFromLegend(legId: string, osm: number) {
+    const leg = this.legend.find((el) => legId === el.id);
+    if (leg) {
+      console.log('deleting');
+      console.log(this.legend);
+      const idx = leg.content.findIndex((el: any) => osm === el.osm);
+      leg.content = leg.content.splice(idx, 1);
+      console.log(this.legend);
+    }
+  }
+
   @Action
   createLegendEntry(arg: {
     icon: Symbols;

@@ -2453,27 +2453,29 @@ export default class MapView extends Vue {
       });
     }
 
-    this.$nextTick(() =>
-      decodeURI().then(() => {
-        // @ts-ignore
-        this.$refs.map.mapObject.whenReady(() => {
-          // this.layerGroup = this.$refs.points.mapObject;
-          if (this.legendGlobal.length > 0) {
-            messageHandler.setSuccessMsg({
-              message:
-                'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
-              icon: 'mdi-info'
-            });
-            this.displayDataFromLegend(legendMod.legend);
-          }
-          this.computeMPerPixel();
-          this.map.on('zoomend', (e: any) => {
-            this.computeMPerPixel();
-            // this.displayDataFromLegend(legendMod.legend);
+    this.$nextTick(async () => {
+      if (!this.legendGlobal || this.legendGlobal === undefined) {
+        await decodeURI();
+      }
+      // @ts-ignore
+      this.$refs.map.mapObject.whenReady(() => {
+        // this.layerGroup = this.$refs.points.mapObject;
+        if (this.legendGlobal.length > 0) {
+          console.log(this.legendGlobal);
+          messageHandler.setSuccessMsg({
+            message:
+              'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
+            icon: 'mdi-info'
           });
+          this.displayDataFromLegend(legendMod.legend);
+        }
+        this.computeMPerPixel();
+        this.map.on('zoomend', (e: any) => {
+          this.computeMPerPixel();
+          // this.displayDataFromLegend(legendMod.legend);
         });
-      })
-    );
+      });
+    });
   }
 
   beforeCreate() {
