@@ -38,6 +38,7 @@ import { messageHandler } from './store/modules/message';
 import { phaeModule } from './store/modules/phaenomene';
 import { transModule } from './store/modules/transcripts';
 import { decodeURI } from './helpers/helper';
+import { legendMod } from './store/modules/legend';
 @Component({
   components: {
     Home,
@@ -50,6 +51,10 @@ export default class App extends Vue {
   errorMessage: string | null = '';
   PM = phaeModule;
   TM = transModule;
+
+  get legendGlobal() {
+    return legendMod.legend;
+  }
 
   async loadTranscripts() {
     try {
@@ -66,7 +71,13 @@ export default class App extends Vue {
     }
   }
 
-  async mounted() {
+  created() {
+    if (this.legendGlobal.length === 0) {
+      legendMod.setLoadDataPromise(decodeURI());
+    }
+  }
+
+  mounted() {
     initGeo();
     tagModule.fetchTags();
     tagModule.fetchPresetTags();
@@ -78,7 +89,7 @@ export default class App extends Vue {
         messageHandler.setWarnMsg({
           message: `Sie sind aktuell nicht eingeloggt`,
           icon: 'mdi-warn'
-        })
+        });
       } else {
         messageHandler.setSuccessMsg({
           message: `Willkommen zurück ${user.user.name}`,
@@ -88,12 +99,11 @@ export default class App extends Vue {
     });
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
-    // await decodeURI();
   }
 }
 </script>
 <style lang="scss" scoped>
-  html {
-    overflow: hidden !important;
-  }
+html {
+  overflow: hidden !important;
+}
 </style>
