@@ -20,6 +20,14 @@
           />
         </v-avatar>
       </template>
+      <template v-slot:[`item.infos`]="{ item }">
+        <template v-if="item.type !== 3">
+          {{ item.infos }}
+        </template>
+        <template v-else>
+          <ItemDescription :item="JSON.parse(item.infos)"></ItemDescription>
+        </template>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-btn icon color="grey">
           <template v-if="true">
@@ -39,7 +47,8 @@
 <script lang="ts">
 import {
   ISelectAllAufgabenResult,
-  ISelectOrtAufgabeResult
+  ISelectOrtAufgabeResult,
+  ISelectPhaenResult
 } from '@/api/dioe-public-api';
 import {
   hslToHex,
@@ -50,6 +59,7 @@ import {
 } from '@/helpers/helper';
 import {
   listData,
+  Parameter,
   SearchItems,
   Symbols,
   TagOrteResults
@@ -58,10 +68,12 @@ import { legendMod } from '@/store/modules/legend';
 import { Component, Vue } from 'vue-property-decorator';
 
 import IconCircle from '@/icons/IconCircle.vue';
+import ItemDescription from './ItemDescription.vue';
+import TokenChips from './TokenChips.vue';
 
 @Component({
   // if you use components add them here
-  components: { IconCircle },
+  components: { IconCircle, ItemDescription, TokenChips },
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */
@@ -158,7 +170,8 @@ export default class ListView extends Vue {
       vis: vis,
       legendId: id,
       name: name,
-      infos: infos
+      infos: infos,
+      type: type
     });
     return res;
   }
@@ -167,7 +180,7 @@ export default class ListView extends Vue {
     if (legendMod.loadDataPromise) {
       this.loading = true;
       legendMod.loadDataPromise.then(() => {
-        this.legendGlobal.forEach((el) => {
+        this.legendGlobal.forEach((el, idx) => {
           if (el.type === SearchItems.Tag) {
             const content = el.content as TagOrteResults[];
             const info = el.searchInfo as any;
@@ -205,6 +218,50 @@ export default class ListView extends Vue {
                   `Art Bezeichnung: ${info.artBezeichnung}, Beschreibung: ${info.beschreibung}`
                 )
               );
+            }
+          } else if (el.type === SearchItems.Phaen) {
+            const content = el.content as TagOrteResults[];
+            const info = el.searchInfo as ISelectPhaenResult;
+            for (const phaen of content) {
+              this.listData = this.listData.concat(
+                this.extractTableData(
+                  hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
+                  phaen.osmId ? Number(phaen.osmId) : -1,
+                  el.symbol,
+                  el.vis,
+                  phaen.ortNamelang ? phaen.ortNamelang : '',
+                  phaen.numTag ? Number(phaen.numTag) : 1,
+                  phaen.tagName ? phaen.tagName : '',
+                  el.id,
+                  SearchItems.Phaen,
+                  `Bezeichnung: ${info.bezPhaenomen}, Beschreibung: ${info.beschrPhaenomen}`
+                )
+              );
+            }
+          } else if (el.type === SearchItems.Query) {
+            const content = el.content as any[];
+            for (const p of content) {
+              if (el.parameter) {
+                const parameter: Parameter | undefined = el.parameter.find(
+                  (el) => el.id === p.para
+                );
+                if (parameter !== undefined) {
+                  this.listData = this.listData.concat(
+                    this.extractTableData(
+                      parameter.color ? parameter.color : '#FF0000',
+                      p.osmId ? Number(p.osmId) : -1,
+                      parameter.symbol,
+                      el.vis,
+                      p.ortNamelang ? p.ortNamelang : '',
+                      p.numTag ? Number(p.numTag) : 1,
+                      parameter.name ? parameter.name : '',
+                      el.id,
+                      SearchItems.Query,
+                      JSON.stringify(parameter)
+                    )
+                  );
+                }
+              }
             }
           }
         });
