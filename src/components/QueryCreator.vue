@@ -174,7 +174,7 @@
                             ></v-select>
                             <TokenField
                               header="Tokensuche"
-                              :selectedElements.sync="textToken"
+                              :selElements.sync="textToken"
                               label="Token eingeben"
                               hint="Z.b. hat, hatte, ..."
                               appendIcon="mdi-plus"
@@ -183,7 +183,7 @@
                             <TokenField
                               class="mt-5"
                               header="Lemmasuche"
-                              :selectedElements.sync="textLemma"
+                              :selElements.sync="textLemma"
                               label="Lemma eingeben"
                               appendIcon="mdi-plus"
                               :color="parColor"
@@ -408,7 +408,16 @@ import { VueEditor } from 'vue2-editor';
 import { erhebungModule } from '@/store/modules/erhebungen';
 
 @Component({
-  components: { draggable, TagView, IconCircle, SymbolPicker, TokenField, VueEditor, LegendDescEdit, ErhebungDropdown },
+  components: {
+    draggable,
+    TagView,
+    IconCircle,
+    SymbolPicker,
+    TokenField,
+    VueEditor,
+    LegendDescEdit,
+    ErhebungDropdown
+  },
   name: 'QueryTool'
 })
 export default class QueryCreator extends Vue {
@@ -497,7 +506,7 @@ export default class QueryCreator extends Vue {
   }
 
   get hasTagSelection() {
-    return this.TM.tagSelection.length > 0
+    return this.TM.tagSelection.length > 0;
   }
 
   get ausbildungsGrade() {
@@ -594,9 +603,13 @@ export default class QueryCreator extends Vue {
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
-    this.parColor = this.formControl.paraColor.hex = curr.color ? curr.color : '#F00';
+    this.parColor = this.formControl.paraColor.hex = curr.color
+      ? curr.color
+      : '#F00';
     this.chipIDs = curr.erhArt ? curr.erhArt : [];
-    this.chips = this.erhArten.filter(el => this.chipIDs.some(id => id === el.id))
+    this.chips = this.erhArten.filter((el) =>
+      this.chipIDs.some((id) => id === el.id)
+    );
     this.formControl.range = curr.ageRange;
     this.formControl.selEducation = curr.education ? curr.education : -1;
     this.formControl.selMaxEducation = curr.maxEducation
@@ -605,8 +618,12 @@ export default class QueryCreator extends Vue {
     this.TM.setTagSelection(curr.tagList ? curr.tagList : []);
     this.formControl.paraDesc = curr.description ? curr.description : '';
     this.paraDesc = this.formControl.paraDesc;
-    this.textToken = curr.textTokenList ? curr.textTokenList : [] as selectionObject[];
-    this.textLemma = curr.lemmaList ? curr.lemmaList : [] as selectionObject[];
+    this.textToken = curr.textTokenList
+      ? curr.textTokenList
+      : ([] as selectionObject[]);
+    this.textLemma = curr.lemmaList
+      ? curr.lemmaList
+      : ([] as selectionObject[]);
     this.editPar = curr;
   }
 
@@ -663,7 +680,7 @@ export default class QueryCreator extends Vue {
             : this.formControl.paraColor.hex,
         description: this.paraDesc,
         textTokenList: this.textToken,
-        lemmaList: this.textLemma,
+        lemmaList: this.textLemma
       };
       this.focusLegend.parameter[parId] = par;
       this.dialog = false;
@@ -715,7 +732,11 @@ export default class QueryCreator extends Vue {
         // @ts-ignore
         symbol: this.$refs.sym.symbol,
         project: this.formControl.selProject,
-        gender: this.formControl.selGender ? this.formControl.selGender === 'Weiblich' ? true : false : undefined, // Boolean
+        gender: this.formControl.selGender
+          ? this.formControl.selGender === 'Weiblich'
+            ? true
+            : false
+          : undefined, // Boolean
         education: this.formControl.selEducation, // ID
         maxEducation: this.formControl.selMaxEducation,
         parents: this.formControl.selParents,
@@ -770,7 +791,7 @@ export default class QueryCreator extends Vue {
     this.formControl.range = this.range;
     if (this.$route.query.legend) {
       const id = this.$route.query.legend;
-      const legend = this.queryLegend.filter(el => el.id === id);
+      const legend = this.queryLegend.filter((el) => el.id === id);
       this.viewLegend(-1, legend[0]);
     }
     if (this.$route.query.parameters) {
