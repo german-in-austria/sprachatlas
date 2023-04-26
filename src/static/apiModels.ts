@@ -464,4 +464,5 @@ export interface listData {
   legendId: string;
   name: string;
   infos: string;
+  type: SearchItems;
 }
