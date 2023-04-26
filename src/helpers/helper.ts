@@ -109,6 +109,7 @@ export const selectColor = (num: number | null) => {
   let angle = 0;
   if (num !== null) {
     angle = num * 137.508; // use golden angle approximation
+    colorid += num;
   } else {
     angle = colorid++ * 137.508;
   }
@@ -308,55 +309,60 @@ export const fetchContent = async (
  * 2. display these new entries on the map
  */
 export const decodeURI = async () => {
-  const uriData = expData.fetchUriAndDecodeData();
-  let legend: exportLegend[] = [];
-  if (uriData.id.length > 0) {
-    legend = await expData.getDataFromDioeDB(uriData.id);
-  } else {
-    legend = uriData.leg ? uriData.leg : [];
-  }
-  legendMod.resetLocalStorage();
-  legendMod.clearLegend();
-  const queries = expData.getQueryFromLocalStorage();
-  legendMod.setLocalStorage(queries);
-  if (legend.length === 0 && queries.length > 0) {
-    legend = queries.filter((el) => !el.deleted).map((el) => el.legend);
-  }
-  if (legend.length > 0) {
-    if (queries.length > 0) {
-      queries.forEach((el) => {
-        const idx = legend.findIndex((l) => el.legend.id === l.id);
-        if (idx === -1 && !el.deleted) {
-          legend.push(el.legend);
-        }
-      });
+  if (legendMod.legend.length === 0 || !legendMod.legend[0].content) {
+    const uriData = expData.fetchUriAndDecodeData();
+    let legend: exportLegend[] = [];
+    if (uriData.id.length > 0) {
+      legend = await expData.getDataFromDioeDB(uriData.id);
+    } else {
+      legend = uriData.leg ? uriData.leg : [];
     }
-    // legend.forEach((l) => { });
-    for (const l of legend) {
-      // Same ID is already in use and in the map
-      if (
-        legendMod.legend.some(
-          (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
-        )
-      ) {
-        continue;
+    legendMod.resetLocalStorage();
+    legendMod.clearLegend();
+    const queries = expData.getQueryFromLocalStorage();
+    legendMod.setLocalStorage(queries);
+    if (legend.length === 0 && queries.length > 0) {
+      legend = queries.filter((el) => !el.deleted).map((el) => el.legend);
+    }
+    if (legend.length > 0) {
+      if (queries.length > 0) {
+        queries.forEach((el) => {
+          const idx = legend.findIndex((l) => el.legend.id === l.id);
+          if (idx === -1 && !el.deleted) {
+            legend.push(el.legend);
+          }
+        });
       }
-      // Fetch the needed content for the legend
-      const res = await fetchContent(l.elementId, l.type);
-      // create the new entry
-      const lm = await legendMod.createLegendEntry({
-        icon: l.symbol,
-        layer: L.layerGroup(),
-        name: l.name,
-        color: l.color,
-        radius: l.size,
-        content: l.type === SearchItems.Ort ? l.content : res,
-        id: l.id,
-        type: l.type,
-        description: l.description
-      });
-      lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
-      legendMod.addLegendEntry(lm);
+      for (const l of legend) {
+        // Same ID is already in use and in the map
+        if (
+          legendMod.legend.some(
+            (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
+          )
+        ) {
+          continue;
+        }
+        // Fetch the needed content for the legend
+        const res = await fetchContent(l.elementId, l.type);
+        // create the new entry
+        const lm = await legendMod.createLegendEntry({
+          icon: l.symbol,
+          layer: L.layerGroup(),
+          name: l.name,
+          color: l.color,
+          radius: l.size,
+          content: l.type === SearchItems.Ort ? l.content : res,
+          id: l.id,
+          type: l.type,
+          description: l.description
+        });
+        lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
+        lm.searchInfo = l.searchInfo;
+        legendMod.addLegendEntry(lm);
+      }
     }
+    return new Promise((resolve) => {
+      resolve('Daten wurden geladen!');
+    });
   }
 };

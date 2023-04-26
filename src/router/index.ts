@@ -4,6 +4,7 @@ import Home from '../views/Home.vue';
 import MapView from '../components/MapView.vue';
 import QueryCreator from '../components/QueryCreator.vue';
 import TagView from '@/components/TagView.vue';
+import ListView from '@/components/ListView.vue';
 
 Vue.use(VueRouter);
 
@@ -27,6 +28,11 @@ const routes: Array<RouteConfig> = [
         path: 'tags',
         name: 'TagSelection',
         component: TagView
+      },
+      {
+        path: 'list',
+        name: 'ResultList',
+        component: ListView
       }
     ]
   },

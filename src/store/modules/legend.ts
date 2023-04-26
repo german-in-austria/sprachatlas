@@ -60,10 +60,16 @@ class Legend extends VuexModule implements LegendState {
   ausbildungsGrad = [];
   pinnedData = [] as Array<pinData>;
   pinDataVar: Array<pinDataVar> = [];
+  loadDataPromise: Promise<any> | null = null;
 
   @Mutation
   addPinDataVar(e: pinDataVar) {
     this.pinDataVar.push(e);
+  }
+
+  @Mutation
+  setLoadDataPromise(val: Promise<any>) {
+    this.loadDataPromise = val;
   }
 
   @Mutation
@@ -270,6 +276,15 @@ class Legend extends VuexModule implements LegendState {
   @Mutation
   clearLegend() {
     this.legend = [];
+  }
+
+  @Mutation
+  removeOrtFromLegend(arg: { legId: string; osm: number }) {
+    const leg = this.legend.find((el) => arg.legId === el.id);
+    if (leg) {
+      const idx = leg.content.findIndex((el: any) => arg.osm === el.osm);
+      leg.content.splice(idx, 1);
+    }
   }
 
   @Action

@@ -796,7 +796,16 @@ import {
 
 import { expData } from '@/service/ExportBase';
 
-import { selectColor, convertHslToStr, hslToHex, generateID, loadData, convertHexToHsl, fetchContent, decodeURI } from '@/helpers/helper';
+import {
+  selectColor,
+  convertHslToStr,
+  hslToHex,
+  generateID,
+  loadData,
+  convertHexToHsl,
+  fetchContent,
+  decodeURI
+} from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
 import {
@@ -838,7 +847,6 @@ import ItemDescription from './ItemDescription.vue';
 import QueryHistory from './QueryHistory.vue';
 
 import { IGetPresetOrtTagResult } from '@/api/dioe-public-api/models/IGetPresetOrtTagResult';
-
 
 import { getOrtName } from '@/helpers/helper';
 import {
@@ -972,7 +980,6 @@ export default class MapView extends Vue {
     maxBounds: L.latLngBounds(L.latLng(46.0, 8.0), L.latLng(49.5, 19.0))
   };
 
-
   audioInf = [
     { text: 'Audio', value: 'audio' },
     { text: 'Transkript', value: 'trans' },
@@ -983,7 +990,7 @@ export default class MapView extends Vue {
     {
       name: 'Humanitarian Open Tiles',
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png '
-    }/*,
+    } /*,
     {
       name: 'Wikimedia',
       url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png?lang=local'
@@ -1025,8 +1032,9 @@ export default class MapView extends Vue {
     stopMin: number,
     stopSec: number
   ) {
-    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${startMin * 60 + startSec
-      },${stopMin * 60 + stopSec}`;
+    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${
+      startMin * 60 + startSec
+    },${stopMin * 60 + stopSec}`;
   }
 
   get diagramData() {
@@ -1056,7 +1064,6 @@ export default class MapView extends Vue {
   get aufgabenLoading() {
     return this.AM.loading;
   }
-
 
   get layerGroup(): L.LayerGroup {
     // @ts-ignore
@@ -1153,7 +1160,6 @@ export default class MapView extends Vue {
       return [];
     }
   }
-
 
   get map(): L.Map {
     // @ts-ignore
@@ -1301,18 +1307,28 @@ export default class MapView extends Vue {
     }
   }
 
-
   customFilter(item: SearchTerm, queryText: string, itemText: string) {
     const query = queryText.toLowerCase();
     if (item.type === SearchItems.Tag) {
       const cont = item.content as TagTree;
-      return cont.tagAbbrev.toLowerCase().includes(query) || item.name.toLowerCase().includes(query);
+      return (
+        cont.tagAbbrev.toLowerCase().includes(query) ||
+        item.name.toLowerCase().includes(query)
+      );
     }
     return itemText.toLowerCase().includes(query);
   }
 
   getColor() {
-    return selectColor(null);
+    let color = selectColor(null);
+    while (
+      this.legendGlobal.some(
+        (el) => el.color.h === color.h && el.color.s === color.s
+      )
+    ) {
+      color = selectColor(null);
+    }
+    return color;
   }
 
   async fetchEntriesDebounced() {
@@ -1410,9 +1426,9 @@ export default class MapView extends Vue {
 
   resetPosition() {
     // @ts-ignore
-    this.$options.dragInterface.forEach(el => {
+    this.$options.dragInterface.forEach((el) => {
       el.reset();
-    })
+    });
     // this.$options.dragInterface.reset();
   }
 
@@ -1472,24 +1488,18 @@ export default class MapView extends Vue {
   }
 
   addAufgabenToTerms() {
-    const aufgaben = this.allAufgaben.filter(el => el.aufgabenstellung !== "");
-    const spt = this.allAufgaben.filter(el => el.aufgabenstellung === "" && el.beschreibung !== "");
-    const puzzle = this.allAufgaben.filter(el => el.aufgabenstellung === "" && el.beschreibung === "");
-    this.addSearchTerms(
-      aufgaben,
-      SearchItems.Aufgaben,
-      'aufgabenstellung'
+    const aufgaben = this.allAufgaben.filter(
+      (el) => el.aufgabenstellung !== ''
     );
-    this.addSearchTerms(
-      spt,
-      SearchItems.Aufgaben,
-      'beschreibung'
+    const spt = this.allAufgaben.filter(
+      (el) => el.aufgabenstellung === '' && el.beschreibung !== ''
     );
-    this.addSearchTerms(
-      puzzle,
-      SearchItems.Aufgaben,
-      'kontext'
+    const puzzle = this.allAufgaben.filter(
+      (el) => el.aufgabenstellung === '' && el.beschreibung === ''
     );
+    this.addSearchTerms(aufgaben, SearchItems.Aufgaben, 'aufgabenstellung');
+    this.addSearchTerms(spt, SearchItems.Aufgaben, 'beschreibung');
+    this.addSearchTerms(puzzle, SearchItems.Aufgaben, 'kontext');
   }
 
   changeTags() {
@@ -1538,7 +1548,9 @@ export default class MapView extends Vue {
       weight: stroke,
       opacity: 0.9,
       fillOpacity: 0.9
-    }).addTo(layer).on('click', (e) => this.loadErheb(ort));;
+    })
+      .addTo(layer)
+      .on('click', (e) => this.loadErheb(ort));
     layer.addTo(this.layerGroup);
     // this.map.addLayer(layer);
     return res;
@@ -1556,10 +1568,10 @@ export default class MapView extends Vue {
     this.setMapToPoint(defaultCenter[0], defaultCenter[1], defaultZoom);
   }
 
-  showExport() { }
+  showExport() {}
 
   changeShowAudio(id: string) {
-    const show = this.pinnedData.filter(el => el.id === id)[0]?.showCard;
+    const show = this.pinnedData.filter((el) => el.id === id)[0]?.showCard;
     this.LM.editPinShowById({ dataId: id, show: !show });
     // d.showCard = !d.showCard;
     this.showAudio = !this.showAudio;
@@ -1784,14 +1796,21 @@ export default class MapView extends Vue {
 
   markerHover(ort: circleData, marker: L.Marker, e: L.LeafletEvent) {
     let str = `<b>${ort.ortName}</b><br />`;
-    str += ort.data.map(el => {
-      let col = el.c;
-      if (el.c.startsWith("hsl")) {
-        const hsl = col.substring(4, col.length - 1).replaceAll("%", "").split(",");
-        col = hslToHex(Number(hsl[0]), Number(hsl[1]), Number(hsl[2]));
-      }
-      return `${drawCircle(12, 0.5, col, false, 1.0)} ${el.name}: ${el.v} <br />`
-    }).join("");
+    str += ort.data
+      .map((el) => {
+        let col = el.c;
+        if (el.c.startsWith('hsl')) {
+          const hsl = col
+            .substring(4, col.length - 1)
+            .replaceAll('%', '')
+            .split(',');
+          col = hslToHex(Number(hsl[0]), Number(hsl[1]), Number(hsl[2]));
+        }
+        return `${drawCircle(12, 0.5, col, false, 1.0)} ${el.name}: ${
+          el.v
+        } <br />`;
+      })
+      .join('');
     marker.bindTooltip(str).openTooltip();
   }
 
@@ -1834,12 +1853,13 @@ export default class MapView extends Vue {
     const fillColor = hslToHex(col.h, col.s * 100, col.l * 100);
     return {
       weight: 2,
-      color: "#ECEFF1",
+      color: '#ECEFF1',
       opacity: 0.8,
-      fillColor: feature.properties.color ? feature.properties.color : fillColor,
+      fillColor: feature.properties.color
+        ? feature.properties.color
+        : fillColor,
       fillOpacity: 0.5
     };
-
   }
 
   get geoJsonOptions() {
@@ -1851,12 +1871,9 @@ export default class MapView extends Vue {
   get onEachFeatureFunction() {
     return (feature: any, layer: any) => {
       layer.bindTooltip(
-        "<div>Region: <br />" +
-        feature.properties.name +
-        "</div>",
+        '<div>Region: <br />' + feature.properties.name + '</div>',
         { permanent: false, sticky: true }
       );
-
     };
   }
 
@@ -1867,7 +1884,7 @@ export default class MapView extends Vue {
   async displayAufgaben(ids: number[]) {
     await this.AM.fetchAufgabenOrt({ ids: ids });
     for (const id of ids) {
-      const content = this.aufgabenOrt.filter(e => e.id === id);
+      const content = this.aufgabenOrt.filter((e) => e.id === id);
       const newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
         layer: L.layerGroup(),
@@ -1878,7 +1895,7 @@ export default class MapView extends Vue {
         type: SearchItems.Aufgaben
       });
       this.LM.addLegendEntry(newLeg);
-      expData.pushNewLegend(newLeg, id)
+      expData.pushNewLegend(newLeg, id);
     }
 
     this.displayDataFromLegend(this.legendGlobal);
@@ -1910,7 +1927,10 @@ export default class MapView extends Vue {
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tag.tagId ? tag.tagId : this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0].tagId,
+        tag.tagId
+          ? tag.tagId
+          : this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0]
+              .tagId,
         SearchItems.Tag
       );
     }
@@ -1943,7 +1963,9 @@ export default class MapView extends Vue {
         ph.numTag,
         phaen.name,
         propFactor * ph.numTag,
-        this.phaen.filter((el) => el.bezPhaenomen === phaen.name)[0].id.toString(),
+        this.phaen
+          .filter((el) => el.bezPhaenomen === phaen.name)[0]
+          .id.toString(),
         SearchItems.Phaen
       );
     }
@@ -2153,9 +2175,11 @@ export default class MapView extends Vue {
           // l.layer.clearLayers();
           const ort: any = l.content;
           if (!this.erhebungen) {
-            await erhebungModule.fetchErhebungen()
+            await erhebungModule.fetchErhebungen();
           }
-          const erh: any = (this.erhebungen as any as any[]).find((el) => el.osm_id === ort.osmId);
+          const erh: any = (this.erhebungen as any as any[]).find(
+            (el) => el.osm_id === ort.osmId
+          );
           const circle = this.addCircleMarkerToMap(
             Number(ort.lat),
             Number(ort.lon),
@@ -2186,7 +2210,7 @@ export default class MapView extends Vue {
     let res: Array<circleData> = [];
     data.forEach((el: Array<circleData>) => {
       el.forEach((cData: circleData) => {
-        const idx = res.findIndex(e => Number(e.osm) === Number(cData.osm));
+        const idx = res.findIndex((e) => Number(e.osm) === Number(cData.osm));
         if (idx > -1) {
           res[idx].data = res[idx].data.concat(cData.data);
         } else {
@@ -2197,7 +2221,13 @@ export default class MapView extends Vue {
     return res;
   }
 
-  async createTagLegend(layer: L.LayerGroup, tagId: number, phaenId: number[], type: SearchItems, name?: string) {
+  async createTagLegend(
+    layer: L.LayerGroup,
+    tagId: number,
+    phaenId: number[],
+    type: SearchItems,
+    name?: string
+  ) {
     const color = this.getColor();
     const radius = 30;
     const erhArt = this.erhArt;
@@ -2252,8 +2282,14 @@ export default class MapView extends Vue {
     } else if (term.type === SearchItems.Tag) {
       this.resetMap();
       id = term.content.tagId;
-      const res = await this.createTagLegend(newLayer, id as number, [], SearchItems.Tag);
+      const res = await this.createTagLegend(
+        newLayer,
+        id as number,
+        [],
+        SearchItems.Tag
+      );
       if (res && res !== undefined) {
+        res.searchInfo = term.content;
         legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobal);
         if (res) newLeg = res;
@@ -2261,8 +2297,15 @@ export default class MapView extends Vue {
     } else if (term.type === SearchItems.Phaen) {
       this.resetMap();
       id = term.content.id;
-      const res = await this.createTagLegend(newLayer, -1, Array.isArray(id) ? id : [id], SearchItems.Phaen, term.content.bezPhaenomen);
+      const res = await this.createTagLegend(
+        newLayer,
+        -1,
+        Array.isArray(id) ? id : [id],
+        SearchItems.Phaen,
+        term.content.bezPhaenomen
+      );
       if (res && res !== undefined) {
+        res.searchInfo = term.content;
         legendMod.addLegendEntry(res);
         this.displayDataFromLegend(this.legendGlobal);
         if (res) newLeg = res;
@@ -2283,6 +2326,7 @@ export default class MapView extends Vue {
         content: res,
         type: SearchItems.Presets
       });
+      newLeg.searchInfo = term.content;
       legendMod.addLegendEntry(newLeg);
       if (res && res !== undefined) {
         this.displayDataFromLegend(this.legendGlobal);
@@ -2302,13 +2346,17 @@ export default class MapView extends Vue {
         content: res,
         type: term.type
       });
+      newLeg.searchInfo = term.content;
       this.LM.addLegendEntry(newLeg);
     } else if (term.type === SearchItems.Aufgaben) {
       const content = term.content;
-      id =
-        this.searchTerms.filter((el: SearchTerm) => el.type === SearchItems.Aufgaben)
-          .filter((el: SearchTerm) => el.content.aufgabenstellung === content.aufgabenstellung)
-          .map((el) => el.content.aufId);
+      id = this.searchTerms
+        .filter((el: SearchTerm) => el.type === SearchItems.Aufgaben)
+        .filter(
+          (el: SearchTerm) =>
+            el.content.aufgabenstellung === content.aufgabenstellung
+        )
+        .map((el) => el.content.aufId);
       await this.AM.fetchAufgabenOrt({ ids: id });
       newLeg = await this.LM.createLegendEntry({
         icon: Symbols.Circle,
@@ -2319,6 +2367,7 @@ export default class MapView extends Vue {
         content: this.aufgabenOrt,
         type: term.type
       });
+      newLeg.searchInfo = term.content;
       this.LM.addLegendEntry(newLeg);
       this.displayDataFromLegend(this.legendGlobal);
     }
@@ -2352,7 +2401,9 @@ export default class MapView extends Vue {
 
   loadInfErhebung(val: any) {
     const id = val.id;
-    const osm = this.currentErhebung?.osm_id ? this.currentErhebung.osm_id : "0";
+    const osm = this.currentErhebung?.osm_id
+      ? this.currentErhebung.osm_id
+      : '0';
     erhebungModule.fetchOrtsInfErhebungen({
       osm: osm.toString(),
       erhId: id
@@ -2402,17 +2453,17 @@ export default class MapView extends Vue {
       });
     }
 
-    this.$nextTick(() => decodeURI().then(() => {
+    this.$nextTick(async () => {
       // @ts-ignore
       this.$refs.map.mapObject.whenReady(() => {
-        // this.layerGroup = this.$refs.points.mapObject;
-        if (this.legendGlobal.length > 0) {
-          messageHandler.setSuccessMsg({
-            message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
-            icon: 'mdi-info'
+        messageHandler.setSuccessMsg({
+          message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
+          icon: 'mdi-info'
+        });
+        if (legendMod.loadDataPromise) {
+          legendMod.loadDataPromise.then(() => {
+            this.displayDataFromLegend(legendMod.legend);
           });
-          this.displayDataFromLegend(legendMod.legend);
-
         }
         this.computeMPerPixel();
         this.map.on('zoomend', (e: any) => {
@@ -2420,7 +2471,7 @@ export default class MapView extends Vue {
           // this.displayDataFromLegend(legendMod.legend);
         });
       });
-    }));
+    });
   }
 
   beforeCreate() {
@@ -2439,180 +2490,180 @@ export default class MapView extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  @import '../../node_modules/leaflet/dist/leaflet.css';
+@import '../../node_modules/leaflet/dist/leaflet.css';
 
-  html {
-    overflow: hidden;
-  }
+html {
+  overflow: hidden;
+}
 
-  .map-overlay {
-    position: fixed;
-    z-index: 1;
-    width: 100%;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    * {
-      pointer-events: all;
-    }
+.map-overlay {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  * {
+    pointer-events: all;
   }
+}
 
-  .card-overlay {
-    //height: 100%;
-    position: fixed;
-    z-index: 1;
+.card-overlay {
+  //height: 100%;
+  position: fixed;
+  z-index: 1;
 
-    //width: 100%;
-    //left: 0;
-    //right: 0;
-    // top: 55%;
-  }
+  //width: 100%;
+  //left: 0;
+  //right: 0;
+  // top: 55%;
+}
 
-  .btn-overlay {
-    top: 100px;
-  }
+.btn-overlay {
+  top: 100px;
+}
 
-  .drawer {
-    margin-right: 250px;
-    z-index: 5;
-  }
+.drawer {
+  margin-right: 250px;
+  z-index: 5;
+}
 
-  .drawer-right {
-    border-top-right-radius: 0em;
-    border-bottom-right-radius: 0em;
-  }
+.drawer-right {
+  border-top-right-radius: 0em;
+  border-bottom-right-radius: 0em;
+}
 
-  .drawer-down {
-    border-bottom-right-radius: 0em;
-    border-bottom-left-radius: 0em;
-    margin-right: 15px;
-  }
+.drawer-down {
+  border-bottom-right-radius: 0em;
+  border-bottom-left-radius: 0em;
+  margin-right: 15px;
+}
 
-  .buttons {
-    margin-bottom: 0px;
-    bottom: 0px;
-    left: 25%;
-  }
+.buttons {
+  margin-bottom: 0px;
+  bottom: 0px;
+  left: 25%;
+}
 
-  .button-var {
-    margin-bottom: 0px;
-    bottom: 0px;
-    left: 50%;
-  }
+.button-var {
+  margin-bottom: 0px;
+  bottom: 0px;
+  left: 50%;
+}
 
-  .search-overlay {
-    position: relative;
-    z-index: 1;
-    width: 80%;
-    margin-top: 100px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+.search-overlay {
+  position: relative;
+  z-index: 1;
+  width: 80%;
+  margin-top: 100px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .audioCard {
-    top: 60vh;
-    left: 10vw;
-    position: fixed;
-    width: 600px;
-    height: 35vh;
-    // transition: all 0.2s ease-in-out;
-  }
+.audioCard {
+  top: 60vh;
+  left: 10vw;
+  position: fixed;
+  width: 600px;
+  height: 35vh;
+  // transition: all 0.2s ease-in-out;
+}
 
-  .varCard {
-    top: 71%;
-    left: 45%;
-    max-width: 450px;
-    position: fixed;
-    // transition: all 0.2s ease-in-out;
-  }
+.varCard {
+  top: 71%;
+  left: 45%;
+  max-width: 450px;
+  position: fixed;
+  // transition: all 0.2s ease-in-out;
+}
 
-  .erhebung {
-    bottom: 0;
-    margin-bottom: 50px;
-    margin-left: 50px;
-    width: 35%;
-    max-width: 45%;
-    height: 35%;
-  }
+.erhebung {
+  bottom: 0;
+  margin-bottom: 50px;
+  margin-left: 50px;
+  width: 35%;
+  max-width: 45%;
+  height: 35%;
+}
 
-  .legend {
-    top: 65%;
-    left: 75%;
-    position: fixed;
-    z-index: 2;
-    // transition: all 0.2s ease-in-out;
-  }
+.legend {
+  top: 65%;
+  left: 75%;
+  position: fixed;
+  z-index: 2;
+  // transition: all 0.2s ease-in-out;
+}
 
-  .zoom {
-    margin: 10px;
-  }
+.zoom {
+  margin: 10px;
+}
 
-  .bottomBarTransform {
-    // transform: translateY(-150px);
-    // transition: all 0.2s ease-in-out;
-  }
+.bottomBarTransform {
+  // transform: translateY(-150px);
+  // transition: all 0.2s ease-in-out;
+}
 
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
 
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-    overflow-y: scroll;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+  overflow-y: scroll;
+}
 
-  .expand-slide-enter-active {
-    transition: all 0.3s ease;
-    transition-property: width;
-  }
+.expand-slide-enter-active {
+  transition: all 0.3s ease;
+  transition-property: width;
+}
 
-  .expand-slide-enter,
-  .expand-slide-leave-to {
-    transition: max-height 0.25s ease-out;
-    transition-property: width;
-  }
+.expand-slide-enter,
+.expand-slide-leave-to {
+  transition: max-height 0.25s ease-out;
+  transition-property: width;
+}
 
-  .circle-draw {
-    animation: 1s ease-out 0s 1 fadeIn;
-  }
+.circle-draw {
+  animation: 1s ease-out 0s 1 fadeIn;
+}
 
-  .mapStyle {
-    z-index: 0;
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-  }
+.mapStyle {
+  z-index: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
 
-  .layout-slide-enter-active,
-  .layout-slide-leave-active {
-    -moz-transition-duration: 0.3s;
-    -webkit-transition-duration: 0.3s;
-    -o-transition-duration: 0.3s;
-    transition-duration: 0.3s;
-    -moz-transition-timing-function: ease-in;
-    -webkit-transition-timing-function: ease-in;
-    -o-transition-timing-function: ease-in;
-    transition-timing-function: ease-in;
-  }
+.layout-slide-enter-active,
+.layout-slide-leave-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: ease-in;
+  -webkit-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+}
 
-  .layout-slide-fade-enter,
-  .layout-slide-fade-leave-to {
-    transform: translateY(100px);
-  }
+.layout-slide-fade-enter,
+.layout-slide-fade-leave-to {
+  transform: translateY(100px);
+}
 
-  .icon {
-    order: 0;
-  }
-  .header {
-    order: 1;
-  }
+.icon {
+  order: 0;
+}
+.header {
+  order: 1;
+}
 
-  .v-expansion-panel-header__icon {
-    margin-left: auto;
-  }
+.v-expansion-panel-header__icon {
+  margin-left: auto;
+}
 </style>

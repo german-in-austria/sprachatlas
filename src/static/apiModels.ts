@@ -172,6 +172,7 @@ export interface LegendGlobal {
   layer: L.LayerGroup;
   vis: boolean;
   name: string;
+  searchInfo?: any;
 }
 
 export interface exportLegend {
@@ -189,6 +190,7 @@ export interface exportLegend {
   vis: boolean;
   name: string;
   description: string;
+  searchInfo?: any;
 }
 
 export interface SearchTerm {
@@ -447,4 +449,20 @@ export interface localStorageQuery {
   legend: exportLegend;
   date: number;
   deleted: boolean;
+}
+
+export interface listData {
+  idx: string;
+  ort: string;
+  osm: number;
+  icon: {
+    color: string;
+    icon: Symbols;
+  };
+  ref: number;
+  vis: boolean;
+  legendId: string;
+  name: string;
+  infos: string;
+  type: SearchItems;
 }
