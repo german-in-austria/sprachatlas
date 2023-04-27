@@ -31,21 +31,41 @@
               groupBy.length === 1 && groupBy[0] === 'name' && items.length > 0
             "
           >
-            <v-btn icon color="grey">
-              <template v-if="isLegendVisible(items[0].legendId)">
-                <v-icon @click="changeVisibility(items[0].legendId)"
-                  >mdi-eye-outline</v-icon
-                >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn icon v-bind="attrs" v-on="on" color="grey">
+                  <template v-if="isLegendVisible(items[0].legendId)">
+                    <v-icon @click="changeVisibility(items[0].legendId)"
+                      >mdi-eye-outline</v-icon
+                    >
+                  </template>
+                  <template v-else>
+                    <v-icon @click="changeVisibility(items[0].legendId)"
+                      >mdi-eye-off-outline</v-icon
+                    >
+                  </template>
+                </v-btn>
               </template>
-              <template v-else>
-                <v-icon @click="changeVisibility(items[0].legendId)"
-                  >mdi-eye-off-outline</v-icon
+              <span>{{
+                isLegendVisible(items[0].legendId)
+                  ? 'Unsichtbar schalten'
+                  : 'Sichtbar schalten'
+              }}</span>
+            </v-tooltip>
+            <v-tooltip bottom color="error">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  color="red"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="deleteLegend(items[0].legendId)"
                 >
+                  <v-icon>mdi-trash-can-outline</v-icon>
+                </v-btn>
               </template>
-            </v-btn>
-            <v-btn icon color="red" @click="deleteLegend(items[0].legendId)">
-              <v-icon>mdi-trash-can-outline</v-icon>
-            </v-btn>
+              <span>Legende löschen</span>
+            </v-tooltip>
           </template>
         </th>
       </template>
@@ -70,9 +90,20 @@
         </template>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn icon color="red" @click="deleteData(item)">
-          <v-icon>mdi-trash-can-outline</v-icon>
-        </v-btn>
+        <v-tooltip bottom color="error">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              v-bind="attrs"
+              v-on="on"
+              color="red"
+              @click="deleteData(item)"
+            >
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>Eintrag löschen</span>
+        </v-tooltip>
       </template>
     </v-data-table>
   </div>
