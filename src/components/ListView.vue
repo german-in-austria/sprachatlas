@@ -238,7 +238,11 @@ export default class ListView extends Vue {
                 )
               );
             }
-          } else if (el.type === SearchItems.Query) {
+          } else if (
+            el.type === SearchItems.Query &&
+            el.parameter &&
+            el.parameter.length > 0
+          ) {
             const content = el.content as any[];
             for (const p of content) {
               if (el.parameter) {
