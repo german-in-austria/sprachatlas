@@ -11,7 +11,7 @@
             :hint="hint"
             :append-outer-icon="appendIcon"
             @click:append-outer="addToken"
-            @keydown.enter="addToken"
+            @keydown.enter.prevent="addToken"
             :rules="caseSen === 'RegEx' ? [rules.regexp] : []"
           >
           </v-text-field>
@@ -90,14 +90,18 @@ export default class TokenField extends Vue {
   @Prop({ type: String, default: '#FF0000' }) readonly color!: string;
   @PropSync('selElements') readonly selectedElements!: selectionObject[];
 
-  itemState = [{ text: 'genau', val: 'genau' }, { text: 'enthält', val: 'muss' }, { text: 'nicht', val: 'nicht' }];
+  itemState = [
+    { text: 'genau', val: 'genau' },
+    { text: 'enthält', val: 'muss' },
+    { text: 'nicht', val: 'nicht' }
+  ];
   itemCase = ['case-sensitive', 'case-insensitive', 'RegEx'];
 
   state = 'genau';
   caseSen = 'case-sensitive';
   sppos = '';
 
-  inputModel: string = "";
+  inputModel: string = '';
 
   validInput: boolean = true;
 
@@ -108,7 +112,7 @@ export default class TokenField extends Vue {
   rules = {
     regexp: (value: string) => {
       const pattern = /^\/.*?\/[gimy]{0,4}$/;
-      return pattern.test(value) || 'Ungültige RegEx'
+      return pattern.test(value) || 'Ungültige RegEx';
     }
   };
 
@@ -120,32 +124,28 @@ export default class TokenField extends Vue {
       case: this.caseSen,
       sppos: this.sppos === null ? '' : this.sppos
     });
-    this.inputModel = "";
+    this.inputModel = '';
     this.sppos = '';
     this.$emit('update:selElements', this.selectedElements);
   }
 
   updated() {
-    if (!this.state || this.state === '')
-      this.state = 'muss';
-    if (!this.caseSen || this.caseSen === '')
-      this.caseSen = 'case-sensitive';
+    if (!this.state || this.state === '') this.state = 'muss';
+    if (!this.caseSen || this.caseSen === '') this.caseSen = 'case-sensitive';
   }
-
-
 }
 </script>
 <style scoped>
-  .box {
-    border: 1px solid black;
-    border-radius: 10px;
-    box-sizing: border-box;
-    padding: 20px;
-  }
+.box {
+  border: 1px solid black;
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 20px;
+}
 
-  .box legend {
-    margin-right: auto;
-    padding: 0.2em 1.5em;
-    border-bottom-left-radius: 1em;
-  }
+.box legend {
+  margin-right: auto;
+  padding: 0.2em 1.5em;
+  border-bottom-left-radius: 1em;
+}
 </style>
