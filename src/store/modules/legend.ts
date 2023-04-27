@@ -287,6 +287,14 @@ class Legend extends VuexModule implements LegendState {
     }
   }
 
+  @Mutation
+  changeVisOfLegend(legId: string) {
+    const leg = this.legend.find((el) => legId === el.id);
+    if (leg) {
+      leg.vis = !leg.vis;
+    }
+  }
+
   @Action
   createLegendEntry(arg: {
     icon: Symbols;

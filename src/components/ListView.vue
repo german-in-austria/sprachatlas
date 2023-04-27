@@ -17,6 +17,38 @@
           class="mx-4"
         ></v-text-field>
       </template>
+      <template
+        v-slot:group.header="{ group, groupBy, items, isOpen, toggle, remove }"
+      >
+        <th :colspan="headers.length">
+          <v-icon @click="toggle"
+            >{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}
+          </v-icon>
+          {{ group }}
+          <v-icon @click="remove">mdi-window-close</v-icon>
+          <template
+            v-if="
+              groupBy.length === 1 && groupBy[0] === 'name' && items.length > 0
+            "
+          >
+            <v-btn icon color="grey">
+              <template v-if="isLegendVisible(items[0].legendId)">
+                <v-icon @click="changeVisibility(items[0].legendId)"
+                  >mdi-eye-outline</v-icon
+                >
+              </template>
+              <template v-else>
+                <v-icon @click="changeVisibility(items[0].legendId)"
+                  >mdi-eye-off-outline</v-icon
+                >
+              </template>
+            </v-btn>
+            <v-btn icon color="red" @click="deleteLegend(items[0].legendId)">
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+        </th>
+      </template>
       <template v-slot:[`item.icon`]="{ item }">
         <v-avatar>
           <icon-circle
@@ -38,14 +70,6 @@
         </template>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn icon color="grey">
-          <template v-if="true">
-            <v-icon>mdi-eye-outline</v-icon>
-          </template>
-          <template v-else>
-            <v-icon>mdi-eye-off-outline</v-icon>
-          </template>
-        </v-btn>
         <v-btn icon color="red" @click="deleteData(item)">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
@@ -110,7 +134,7 @@ export default class ListView extends Vue {
       value: 'infos',
       sortable: true,
       filterable: true,
-      groupable: true
+      groupable: false
     },
     {
       text: 'Referenzen',
@@ -137,6 +161,19 @@ export default class ListView extends Vue {
 
   get legendGlobal() {
     return legendMod.legend;
+  }
+
+  isLegendVisible(id: string) {
+    const leg = this.legendGlobal.filter((el) => el.id === id);
+    return leg && leg.length > 0 ? leg[0].vis : false;
+  }
+
+  changeVisibility(id: string) {
+    this.LM.changeVisOfLegend(id);
+  }
+
+  deleteLegend(id: string) {
+    this.LM.removeEntryById(id);
   }
 
   convertHexToHsl(col: string) {
