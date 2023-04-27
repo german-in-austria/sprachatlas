@@ -7,7 +7,16 @@
       :headers="headers"
       :items="listData"
       :loading="loading"
+      :search="searchInput"
+      :custom-filter="filterByOrtAndName"
     >
+      <template v-slot:top>
+        <v-text-field
+          v-model="searchInput"
+          label="Daten filtern"
+          class="mx-4"
+        ></v-text-field>
+      </template>
       <template v-slot:[`item.icon`]="{ item }">
         <v-avatar>
           <icon-circle
@@ -84,6 +93,8 @@ export default class ListView extends Vue {
 
   listData: Array<listData> = [];
   loading: boolean = false;
+
+  searchInput: string = '';
 
   headers = [
     { text: 'Ortsname', value: 'ort', filterable: true },
@@ -174,6 +185,13 @@ export default class ListView extends Vue {
       type: type
     });
     return res;
+  }
+
+  filterByOrtAndName(value: any, search: string | null, item: any) {
+    if (value === null || search === null) {
+      return true;
+    }
+    return item.ort.indexOf(search) !== -1 || item.name.indexOf(search) !== -1;
   }
 
   mounted() {
