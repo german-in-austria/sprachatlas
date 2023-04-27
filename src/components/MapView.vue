@@ -2078,28 +2078,18 @@ export default class MapView extends Vue {
     }
     for (const q of queries) {
       if (q.parameter) {
-        await this.TaM.fetchTagOrteResultsMultiple(dto);
-        const tags = cloneDeep(this.tagOrtResult);
+        let tags = q.content;
+        if (!q.content) {
+          await this.TaM.fetchTagOrteResultsMultiple(dto);
+          tags = cloneDeep(this.tagOrtResult);
+        }
         const layer = q.layer ? q.layer : L.layerGroup();
         q.parameter?.forEach((p: Parameter) => {
-          const paraId = p.id;
-          const returnData = tags.filter((el) => el.para === paraId);
-          /*
-          const tagIds = idToTag.get(p.id);
-          let idsSet: any = [];
-          if (!tagIds || tagIds.length === 0) {
-            idsSet = [...new Set(tags.map(item => item.tagId))];
+          if (!q.content) {
+            const paraId = p.id;
+            const returnData = tags.filter((el: any) => el.para === paraId);
+            q.content = returnData;
           }
-          const tagData = tags.filter((el) => {
-            if (tagIds && tagIds.length > 0) {
-              return idToTag.get(p.id).includes(el.tagId)
-            } else if (idsSet.length > 0) {
-              return idsSet.includes(el.tagId);
-            }
-            return false;
-          }
-          );*/
-          q.content = returnData;
           const propFactor = computePropCircle(
             q.content.map((val: any) => val.numTag),
             20 * this.kmPerPixel
