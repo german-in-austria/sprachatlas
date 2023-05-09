@@ -500,7 +500,7 @@
     </v-layout>
     <v-layout>
       <v-dialog
-        max-width="750"
+        max-width="950"
         v-model="dialog"
         transition="dialog-top-transition"
       >
