@@ -32,7 +32,6 @@ import LegendDetails from '@/components/LegendDetails.vue';
 import { authModule } from '@/store/modules/auth';
 import { generateID } from '@/helpers/helper';
 
-
 @Component({
   name: 'ExportMap',
   components: {
@@ -50,7 +49,7 @@ export default class ExportMap extends Vue {
   }
 
   updateVis() {
-    this.$emit('update:vis', !this.vis)
+    this.$emit('update:vis', !this.vis);
   }
 
   get queryLegend() {
@@ -60,33 +59,46 @@ export default class ExportMap extends Vue {
   async copyClipboard(str: string) {
     // Exporting queryLegend
     let res = '';
-    res = expData.encodeObject(legendMod.localStorageLegend.filter(el => !el.deleted).map(el => el.legend));
+    res = expData.encodeObject(
+      legendMod.localStorageLegend
+        .filter((el) => !el.deleted)
+        .map((el) => el.legend)
+    );
     if (res.length > 0) {
-      const data = { data: res, url: generateID() };
+      const urlID = generateID();
+      const data = { data: res, url: urlID };
       // send the link to dioedb
       // and await ID
 
       await authModule.postExportLink(data);
       const response = authModule.exportId;
 
-
-      // Copy to Clipboard
-      // const uri = window.location.href;
-      navigator.clipboard.writeText(response).then(
-        () => {
-          this.MH.setSuccessMsg({
-            message: `URL wurde in die Zwischenablage kopiert`,
-            icon: 'mdi-info'
-          });
-          this.updateVis();
-        },
-        () => {
-          this.MH.setErrorMsg({
-            message: `Fehler beim Kopieren der URL!`,
-            icon: 'mdi-alert-outline'
-          });
-        }
-      );
+      if (!response.error) {
+        // Copy to Clipboard
+        // const uri = window.location.href;
+        navigator.clipboard
+          .writeText(`${window.location.origin}?id=${urlID}`)
+          .then(
+            () => {
+              this.MH.setSuccessMsg({
+                message: `URL wurde in die Zwischenablage kopiert`,
+                icon: 'mdi-info'
+              });
+              this.updateVis();
+            },
+            () => {
+              this.MH.setErrorMsg({
+                message: `Fehler beim Kopieren der URL!`,
+                icon: 'mdi-alert-outline'
+              });
+            }
+          );
+      } else {
+        this.MH.setErrorMsg({
+          message: `Fehler beim Exportieren der URL!`,
+          icon: 'mdi-alert-outline'
+        });
+      }
     }
   }
 }

@@ -27,7 +27,7 @@ class Auth extends VuexModule implements ErhebungState {
   currentUser: authUser = {} as authUser;
   loading: boolean = false;
   loggedIn: boolean = false;
-  exportId: string = '';
+  exportId: any = {};
 
   @Mutation
   setcurrentUser(user: authUser) {
