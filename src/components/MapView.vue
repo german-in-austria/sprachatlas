@@ -672,12 +672,8 @@
               <template v-slot:[`item.Kommentar`]="{ item }">{{
                 item.Kommentar
               }}</template>
-              <template
-                v-slot:[`item.actions`]="{ item }"
-                Konzept_von
-                v-on:click="fetchTranscript(item.transcript.id)"
-              >
-                <figure>
+              <template v-slot:[`item.actions`]="{ item }" Konzept_von>
+                <figure v-on:click="fetchTranscript(item.transcript.id)">
                   <figcaption>Aufnahme anhören:</figcaption>
                   <audio
                     controls
@@ -1006,13 +1002,21 @@ export default class MapView extends Vue {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd'
+    },
+    {
+      name: 'Open Topo Map',
+      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      attribution:
+        'Kartendaten: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-Mitwirkende, SRTM | Kartendarstellung: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+      subdomains: 'abcd'
     }
   ];
 
   items = [
     { name: this.tileSets[0].name, value: 0 },
     { name: this.tileSets[1].name, value: 1 },
-    { name: this.tileSets[2].name, value: 2 }
+    { name: this.tileSets[2].name, value: 2 },
+    { name: this.tileSets[3].name, value: 3 }
     //{ name: this.tileSets[3].name, value: 3 }
   ];
 
