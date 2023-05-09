@@ -600,6 +600,9 @@ export default class QueryCreator extends Vue {
     this.chips = [];
     this.formControl.paraName = curr.name;
     this.formControl.symbol = curr.symbol;
+    this.formControl.selGender =
+      curr.gender !== undefined ? (curr.gender ? 'Weiblich' : 'Männlich') : '';
+    console.log(this.formControl.selGender);
     this.formControl.selParents = curr.parents ? curr.parents : '';
     this.formControl.selProject = curr.project ? curr.project : 0;
     this.formControl.paraDesc = curr.description ? curr.description : '';
