@@ -342,8 +342,11 @@ export const decodeURI = async () => {
         ) {
           continue;
         }
-        // Fetch the needed content for the legend
-        const res = await fetchContent(l.elementId, l.type);
+        let res = null;
+        if (l.type !== SearchItems.Query) {
+          // Fetch the needed content for the legend
+          res = await fetchContent(l.elementId, l.type);
+        }
         // create the new entry
         const lm = await legendMod.createLegendEntry({
           icon: l.symbol,
@@ -358,6 +361,7 @@ export const decodeURI = async () => {
         });
         lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
         lm.searchInfo = l.searchInfo;
+        if (lm.type === SearchItems.Query) delete lm.content;
         legendMod.addLegendEntry(lm);
       }
     }
