@@ -537,7 +537,9 @@
             v-if="d.showCard"
             class="audioCard"
             component="audio-card"
-            :class="{ bottomBarTransform: bottomBar }"
+            :class="{
+              bottomBarTransform: bottomBar
+            }"
             :props="{
               showDataSideways: showDataSideways,
               data: d
@@ -2589,8 +2591,8 @@ html {
 }
 
 .bottomBarTransform {
-  // transform: translateY(-150px);
-  // transition: all 0.2s ease-in-out;
+  transform: translateY(-150px);
+  transition: all 0.2s ease-in-out;
 }
 
 .v-card {
