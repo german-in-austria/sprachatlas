@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="box">
+  <div :id="id" class="box" :class="{ bottomBarTransition: transform }">
     <component
       :is="component"
       v-bind="props"
@@ -9,7 +9,6 @@
   </div>
 </template>
 <script lang="ts">
-
 import { generateID } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
@@ -27,6 +26,7 @@ import AudioCard from './AudioCard.vue';
 export default class DragableCard extends Vue {
   id!: string;
   element!: HTMLElement;
+  transform: boolean = true;
   boundingBox: {
     left: number;
     top: number;
@@ -39,26 +39,31 @@ export default class DragableCard extends Vue {
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
 
-
   moveListener(event: any) {
+    this.transform = false;
     const el = this.element;
     const rectX = event.clientX - this.boundingBox.rectX;
     const rectY = event.clientY - this.boundingBox.rectY;
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+    const vw = Math.max(
+      document.documentElement.clientWidth || 0,
+      window.innerWidth || 0
+    );
+    const vh = Math.max(
+      document.documentElement.clientHeight || 0,
+      window.innerHeight || 0
+    );
     let topVal = event.clientY - rectY;
     let leftVal = event.clientX - rectX;
     if (rectX >= 0 && rectX + this.boundingBox.width <= vw) {
-      el.style.left = `${(event.clientX - this.boundingBox.rectX)}px`;
+      el.style.left = `${event.clientX - this.boundingBox.rectX}px`;
     }
 
     if (rectY >= 50 && rectY + this.boundingBox.height <= vh) {
-      el.style.top = `${(event.clientY - this.boundingBox.rectY)}px`;
+      el.style.top = `${event.clientY - this.boundingBox.rectY}px`;
     }
     el.style.cursor = 'grabbing';
     el.style.zIndex = '100';
     el.classList.add('elevation-22');
-
   }
 
   dragElement(e: any) {
@@ -71,12 +76,17 @@ export default class DragableCard extends Vue {
     this.boundingBox.rectX = e.clientX - box.left;
     this.boundingBox.rectY = e.clientY - box.top;
     document.addEventListener('mousemove', this.moveListener, false);
-    document.addEventListener('mouseup', () => {
-      document.removeEventListener('mousemove', this.moveListener, false);
-      element.classList.remove('elevation-22');
-      //@ts-ignore
-      element.style.cursor = null;
-    }, { once: true });
+    document.addEventListener(
+      'mouseup',
+      () => {
+        document.removeEventListener('mousemove', this.moveListener, false);
+        element.classList.remove('elevation-22');
+        //@ts-ignore
+        element.style.cursor = null;
+        this.transform = true;
+      },
+      { once: true }
+    );
   }
 
   resetPosition() {
@@ -86,9 +96,13 @@ export default class DragableCard extends Vue {
     //@ts-ignore
     element.style.top = null;
     element.classList.add('animation');
-    element.addEventListener('transitionend', () => {
-      element.classList.remove('animation');
-    }, { once: true })
+    element.addEventListener(
+      'transitionend',
+      () => {
+        element.classList.remove('animation');
+      },
+      { once: true }
+    );
   }
 
   emitInterface() {
@@ -108,11 +122,15 @@ export default class DragableCard extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .box {
-    transition: box-shadow 0.3s ease-in-out;
-  }
+.box {
+  transition: box-shadow 0.3s ease-in-out;
+}
 
-  .animation {
-    transition: all 1s ease-in-out;
-  }
+.animation {
+  transition: all 1s ease-in-out;
+}
+
+.bottomBarTransition {
+  transition: transform 0.2s ease-in-out;
+}
 </style>
