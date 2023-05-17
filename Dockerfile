@@ -33,12 +33,10 @@ COPY . /usr/src/app
 
 RUN npm run build
 
-ENV VUE_APP_DB_ENDPOINT "https://dioedb.dioe.at"
-ENV VUE_APP_API_ENDPOINT "https://api.dioe.at/api"
+ENV VUE_APP_DB_ENDPOINT https://dioedb.dioe.at
+ENV VUE_APP_API_ENDPOINT https://api.dioe.at/api
 ENV NODE_ENV production
 ENV NODE_PORT $APP_PORT
-
-CMD echo "$VUE_APP_DB_ENDPOINT $NODE_PORT"
 
 USER 1000
 EXPOSE $NODE_PORT
