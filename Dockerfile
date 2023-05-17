@@ -1,6 +1,9 @@
 # NODE AND NPM LTS
 FROM node:18-alpine as builder
 
+ARG BASEURL_DIOEDB="https://dioedb.dioe.at"
+ARG BASEURL_DIOEAPI="https://api.dioe.at"
+ARG APP_PORT=3333
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -32,10 +35,15 @@ COPY . /usr/src/app
 
 RUN npm run build
 
+ENV VUE_APP_DB_ENDPOINT $BASEURL_DIOEDB
+ENV VUE_APP_API_ENDPOINT $BASEURL_DIOEAPI
 ENV NODE_ENV production
+ENV NODE_PORT $APP_PORT
+
+CMD echo "$VUE_APP_DB_ENDPOINT $NODE_PORT"
 
 USER 1000
-EXPOSE 80
+EXPOSE $NODE_PORT
 
 # START AND EXPOSE TO HOST-DAEMON
 ENTRYPOINT ["/usr/local/bin/npm", "run"]
