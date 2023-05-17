@@ -1,8 +1,6 @@
 # NODE AND NPM LTS
 FROM node:18-alpine as builder
 
-ARG BASEURL_DIOEDB="https://dioedb.dioe.at"
-ARG BASEURL_DIOEAPI="https://api.dioe.at"
 ARG APP_PORT=3333
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
@@ -35,8 +33,8 @@ COPY . /usr/src/app
 
 RUN npm run build
 
-ENV VUE_APP_DB_ENDPOINT $BASEURL_DIOEDB
-ENV VUE_APP_API_ENDPOINT $BASEURL_DIOEAPI
+ENV VUE_APP_DB_ENDPOINT "https://dioedb.dioe.at"
+ENV VUE_APP_API_ENDPOINT "https://api.dioe.at/api"
 ENV NODE_ENV production
 ENV NODE_PORT $APP_PORT
 
