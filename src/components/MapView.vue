@@ -370,7 +370,7 @@
           <v-col cols="1">
             <v-divider vertical></v-divider>
           </v-col>
-          <v-col cols="3">
+          <v-col cols="5">
             <div style="position: relative; overflow-y: scroll; height: 180px">
               <v-expansion-panels focusable>
                 <v-expansion-panel
@@ -399,7 +399,7 @@
               </v-expansion-panels>
             </div>
           </v-col>
-          <v-col cols="2" offset="1">
+          <v-col cols="1">
             <v-container>
               <v-row>
                 <v-btn @click="bottomBar = !bottomBar">
