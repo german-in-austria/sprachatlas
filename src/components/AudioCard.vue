@@ -45,24 +45,6 @@
             </v-expansion-panel-header>
 
             <v-expansion-panel-content eager>
-              <v-btn
-                icon
-                color="indigo"
-                :disabled="aufgIdx > -1"
-                @click="aufgIdx--"
-              >
-                <v-icon>mdi-arrow-left</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                color="indigo"
-                :disabled="aufgIdx < d.data.length"
-                @click="aufgIdx++"
-              >
-                <v-icon>mdi-arrow-right</v-icon>
-              </v-btn>
-              Typ:
-              {{ getType(d.data[aufgIdx].audiofile) ? 'Dialekt' : 'Standard' }}
               <figure>
                 <AudioPlayer
                   class="mx-10"
@@ -70,6 +52,44 @@
                   :audiofile="d.data[aufgIdx].audiofile"
                   :data="d.data[aufgIdx].data"
                 />
+                <div align="center">
+                  <template v-if="d.data.length > 1">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          icon
+                          color="indigo"
+                          :disabled="aufgIdx === 0"
+                          @click="aufgIdx--"
+                          v-bind="attrs"
+                          v-on="on"
+                        >
+                          <v-icon>mdi-arrow-left</v-icon>
+                        </v-btn>
+                      </template>
+                      <span> Expermimentdurchgang wechseln </span>
+                    </v-tooltip>
+                    <template v-if="getType(d.data[aufgIdx].audiofile) !== ''">
+                      Typ:
+                      {{ getType(d.data[aufgIdx].audiofile) }}
+                    </template>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          icon
+                          color="indigo"
+                          :disabled="aufgIdx + 1 === d.data.length"
+                          @click="aufgIdx++"
+                          v-bind="attrs"
+                          v-on="on"
+                        >
+                          <v-icon>mdi-arrow-right</v-icon>
+                        </v-btn>
+                      </template>
+                      <span> Expermimentdurchgang wechseln </span>
+                    </v-tooltip>
+                  </template>
+                </div>
               </figure>
             </v-expansion-panel-content>
           </v-expansion-panel>
