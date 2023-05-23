@@ -109,29 +109,31 @@
                   :audiofile="d.data[antIdx].audiofile"
                   :data="audioData(d)"
                 />
+                <div align="center">
+                  <template v-if="d.data.length > 1">
+                    <v-btn
+                      icon
+                      color="indigo"
+                      :disabled="antIdx === 0"
+                      @click="antIdx--"
+                    >
+                      <v-icon>mdi-arrow-left</v-icon>
+                    </v-btn>
+                    <template v-if="getType(d.data[antIdx].audiofile) !== ''">
+                      Typ:
+                      {{ getType(d.data[antIdx].audiofile) }}
+                    </template>
+                    <v-btn
+                      icon
+                      color="indigo"
+                      :disabled="antIdx + 1 === d.data.length"
+                      @click="antIdx++"
+                    >
+                      <v-icon>mdi-arrow-right</v-icon>
+                    </v-btn>
+                  </template>
+                </div>
               </figure>
-              <template v-if="d.data.length > 1">
-                <v-btn
-                  icon
-                  color="indigo"
-                  :disabled="antIdx === 0"
-                  @click="antIdx--"
-                >
-                  <v-icon>mdi-arrow-left</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  color="indigo"
-                  :disabled="antIdx + 1 === d.data.length"
-                  @click="antIdx++"
-                >
-                  <v-icon>mdi-arrow-right</v-icon>
-                </v-btn>
-                <template v-if="getType(d.data[antIdx].audiofile) !== ''">
-                  Typ:
-                  {{ getType(d.data[antIdx].audiofile) }}
-                </template>
-              </template>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
