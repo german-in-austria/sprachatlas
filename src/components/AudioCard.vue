@@ -129,7 +129,6 @@
                 </v-btn>
                 <template v-if="getType(d.data[antIdx].audiofile) !== ''">
                   Typ:
-                  {{ antIdx }}
                   {{ getType(d.data[antIdx].audiofile) }}
                 </template>
               </template>
