@@ -27,42 +27,93 @@
             ></span>
           </v-col>
           <v-col>
-            <v-btn
-              fab
-              small
-              elevation="1"
-              @click="timestampId--"
-              :disabled="timestampId === 0"
-            >
-              <v-icon>mdi-chevron-left</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  fab
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  elevation="1"
+                  @click="timestampId--"
+                  :disabled="timestampId === 0"
+                >
+                  <v-icon>mdi-chevron-left</v-icon>
+                </v-btn>
+              </template>
+              <span> Voriges Beispiel </span>
+            </v-tooltip>
           </v-col>
           <v-col>
-            <v-btn fab elevation="1" small @click="play()">
-              <v-icon>mdi-play</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col
-            ><v-btn fab elevation="1" small @click="pause()">
-              <v-icon>mdi-pause</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col>
-            <v-btn
-              fab
-              elevation="1"
-              small
-              @click="timestampId++"
-              :disabled="timestampId >= maxLength - 1"
-            >
-              <v-icon>mdi-chevron-right</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  fab
+                  elevation="1"
+                  small
+                  @click="play()"
+                >
+                  <v-icon>mdi-play</v-icon>
+                </v-btn>
+              </template>
+              <span> Beispiel abspielen</span>
+            </v-tooltip>
           </v-col>
           <v-col>
-            <v-btn elevation="1" fab small @click="repeat = !repeat">
-              <v-icon v-if="repeat">mdi-repeat</v-icon>
-              <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  fab
+                  elevation="1"
+                  small
+                  @click="pause()"
+                >
+                  <v-icon>mdi-pause</v-icon>
+                </v-btn>
+              </template>
+              <span> Beispiel pausieren</span>
+            </v-tooltip>
+          </v-col>
+          <v-col>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  fab
+                  elevation="1"
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="timestampId++"
+                  :disabled="timestampId >= maxLength - 1"
+                >
+                  <v-icon>mdi-chevron-right</v-icon>
+                </v-btn>
+              </template>
+              <span> Nächstes Beispiel</span>
+            </v-tooltip>
+          </v-col>
+          <v-col>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  elevation="1"
+                  fab
+                  small
+                  @click="repeat = !repeat"
+                >
+                  <v-icon v-if="repeat">mdi-repeat</v-icon>
+                  <v-icon v-if="!repeat">mdi-repeat-off</v-icon>
+                </v-btn>
+              </template>
+              <span v-if="repeat"> Aufnahme wiederholen </span>
+              <span v-else> Einmalig wiedergeben </span>
+            </v-tooltip>
           </v-col>
         </v-row>
         <v-row align="center" align-content="center">
