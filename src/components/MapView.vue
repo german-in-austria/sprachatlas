@@ -1729,6 +1729,7 @@ export default class MapView extends Vue {
   }
 
   async audioListener(ort: circleData) {
+    this.bottomBar = false;
     this.selectedOrt = ort;
     this.showAudio = true;
     const idx = this.selectedDataidx;
@@ -2553,11 +2554,11 @@ html {
 }
 
 .audioCard {
-  top: 60vh;
+  top: 30vh;
   left: 10vw;
   position: fixed;
   width: 600px;
-  height: 35vh;
+  height: 60vh;
   // transition: all 0.2s ease-in-out;
 }
 
@@ -2583,6 +2584,7 @@ html {
   left: 75%;
   position: fixed;
   z-index: 2;
+  width: 15vw;
   // transition: all 0.2s ease-in-out;
 }
 

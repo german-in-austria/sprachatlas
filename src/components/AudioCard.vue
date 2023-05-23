@@ -64,7 +64,6 @@
               Typ:
               {{ getType(d.data[aufgIdx].audiofile) ? 'Dialekt' : 'Standard' }}
               <figure>
-                <figcaption>Aufnahme anhören:</figcaption>
                 <AudioPlayer
                   class="mx-10"
                   :dateipfad="d.data[aufgIdx].dateipfad"
@@ -103,28 +102,7 @@
               </v-tooltip>
             </v-expansion-panel-header>
             <v-expansion-panel-content eager>
-              <v-btn
-                icon
-                color="indigo"
-                :disabled="antIdx > -1"
-                @click="antIdx--"
-              >
-                <v-icon>mdi-arrow-left</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                color="indigo"
-                :disabled="antIdx < d.data.length"
-                @click="antIdx++"
-              >
-                <v-icon>mdi-arrow-right</v-icon>
-              </v-btn>
-              <template v-if="getType(d.data[antIdx].audiofile) !== ''">
-                Typ:
-                {{ getType(d.data[antIdx].audiofile) }}
-              </template>
               <figure>
-                <figcaption>Aufnahme anhören:</figcaption>
                 <AudioPlayer
                   class="mx-10"
                   :dateipfad="d.data[antIdx].dateipfad"
@@ -132,6 +110,29 @@
                   :data="audioData(d)"
                 />
               </figure>
+              <template v-if="d.data.length > 1">
+                <v-btn
+                  icon
+                  color="indigo"
+                  :disabled="antIdx === 0"
+                  @click="antIdx--"
+                >
+                  <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  color="indigo"
+                  :disabled="antIdx + 1 === d.data.length"
+                  @click="antIdx++"
+                >
+                  <v-icon>mdi-arrow-right</v-icon>
+                </v-btn>
+                <template v-if="getType(d.data[antIdx].audiofile) !== ''">
+                  Typ:
+                  {{ antIdx }}
+                  {{ getType(d.data[antIdx].audiofile) }}
+                </template>
+              </template>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -152,7 +153,11 @@
 </template>
 <script lang="ts">
 import {
-  circleData, Description, pinData, SearchItems, sigleAntwort
+  circleData,
+  Description,
+  pinData,
+  SearchItems,
+  sigleAntwort
 } from '../static/apiModels';
 import { arrangeBySigle, loadData } from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
@@ -162,8 +167,14 @@ import ActionButtons from './ActionButtons.vue';
 import { isAufgabeStandard } from '@/helpers/helper';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
-import { Antwort, antwortenDto, AntwortToken, AntwortTokenStamp, AufgabeStamp, selectionObject } from '@/api/dioe-public-api';
-
+import {
+  Antwort,
+  antwortenDto,
+  AntwortToken,
+  AntwortTokenStamp,
+  AufgabeStamp,
+  selectionObject
+} from '@/api/dioe-public-api';
 
 @Component({
   components: { DataSwitch, AudioPlayer, ActionButtons },
@@ -177,7 +188,6 @@ export default class DragableCard extends Vue {
   aufgIdx: number = 0;
   antIdx: number = 0;
 
-
   AM = aufgabenModule;
   LM = legendMod;
 
@@ -186,9 +196,12 @@ export default class DragableCard extends Vue {
   }
 
   get aufgabenLoading() {
-    return this.AM.loading && (this.data.antwortAudio.length === 0 && this.data.aufgabeAudio.length === 0);
+    return (
+      this.AM.loading &&
+      this.data.antwortAudio.length === 0 &&
+      this.data.aufgabeAudio.length === 0
+    );
   }
-
 
   get ageRange() {
     return legendMod.ageRange;
@@ -198,9 +211,7 @@ export default class DragableCard extends Vue {
     return d.data[this.antIdx].data[0];
   }
 
-  arrangeBySigle(
-    data: AntwortTokenStamp[] | AufgabeStamp[]
-  ): sigleAntwort[] {
+  arrangeBySigle(data: AntwortTokenStamp[] | AufgabeStamp[]): sigleAntwort[] {
     return arrangeBySigle(data);
   }
 
@@ -210,7 +221,11 @@ export default class DragableCard extends Vue {
   }
 
   pinCard(event: any, pinData: boolean) {
-    this.LM.editPinnedShowById({ dataId: this.data.id, show: true, pinned: pinData });
+    this.LM.editPinnedShowById({
+      dataId: this.data.id,
+      show: true,
+      pinned: pinData
+    });
   }
 
   removeElement() {
@@ -222,12 +237,18 @@ export default class DragableCard extends Vue {
       // increment the index
       let idx;
       if (dir) {
-        idx = this.data.selectedDataIdx === this.data.selectedOrt.data.length - 1 ? 0 : this.data.selectedDataIdx + 1;
+        idx =
+          this.data.selectedDataIdx === this.data.selectedOrt.data.length - 1
+            ? 0
+            : this.data.selectedDataIdx + 1;
         // decrease the index
       } else {
-        idx = this.data.selectedDataIdx === 0 ? this.data.selectedOrt.data.length - 1 : this.data.selectedDataIdx - 1;
+        idx =
+          this.data.selectedDataIdx === 0
+            ? this.data.selectedOrt.data.length - 1
+            : this.data.selectedDataIdx - 1;
       }
-      let data = this.LM.pinnedData.filter(el => el.id === this.data.id)[0];
+      let data = this.LM.pinnedData.filter((el) => el.id === this.data.id)[0];
       data.selectedDataIdx = idx;
       this.LM.editPinnedByID(data);
       const d = data.selectedOrt.data[this.data.selectedDataIdx];
@@ -242,7 +263,7 @@ export default class DragableCard extends Vue {
             data.aufgabeAudio = this.AM.aufgabeSingleOrt;
             break;
         }
-        console.log(data.aufgabeAudio)
+        console.log(data.aufgabeAudio);
         this.LM.editPinnedByID(data);
       });
     }
@@ -250,20 +271,29 @@ export default class DragableCard extends Vue {
 
   async evaluateData(ort: string | undefined, sigle: string, resData: any[]) {
     const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
-    this.AM.setDiagramTitle(`Auswertung für sigle ${sigle} in ${ort ? ort : ''}`);
-    let curr = await this.LM.pushNewPinDataVar({ diagramTitle: title, isPinned: false, isShown: true, diagramData: [] });
+    this.AM.setDiagramTitle(
+      `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`
+    );
+    let curr = await this.LM.pushNewPinDataVar({
+      diagramTitle: title,
+      isPinned: false,
+      isShown: true,
+      diagramData: []
+    });
     let res: Array<Description> = [];
     if (this.data.selectedOrt) {
       const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
       const val = resData.length;
-      let data = this.data.selectedOrt.data.filter(el => el.id !== currEle.id);
+      let data = this.data.selectedOrt.data.filter(
+        (el) => el.id !== currEle.id
+      );
       let dto: Array<antwortenDto> = [];
       for (const key of data) {
         let ids = [] as number[];
         if (key.t !== SearchItems.Query) {
           continue;
         }
-        if (key.id !== "") {
+        if (key.id !== '') {
           ids = [Number(key.id)];
         }
         let token = [] as selectionObject[];
@@ -300,17 +330,16 @@ export default class DragableCard extends Vue {
         color: currEle.c,
         name: currEle.name,
         value: val
-      })
+      });
       person?.res.forEach((el: any) => {
         console.log(el);
-        const d = data.find(e => e.id === el.id);
+        const d = data.find((e) => e.id === el.id);
         res.push({
           color: d ? d.c : '#000',
           name: d ? d.name : '',
           value: el.data.length
-        })
-
-      })
+        });
+      });
     }
     curr.diagramData = res;
     this.LM.editPinnDataVar(curr);
@@ -319,21 +348,21 @@ export default class DragableCard extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  html {
-    overflow: hidden !important;
-  }
+html {
+  overflow: hidden !important;
+}
 
-  .audio-card {
-    height: 100%;
-  }
+.audio-card {
+  height: 100%;
+}
 
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
 
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
 </style>

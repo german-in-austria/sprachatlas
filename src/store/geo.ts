@@ -10,7 +10,7 @@ export const geoStore = {
 
 async function init() {
   console.log('Called geo Init function');
-  geoStore.bundeslaender = (await (
+  const bdl = (await (
     await fetch('geojson/bundeslaender.geojson.json')
   ).json()) as geojson.FeatureCollection;
   const sfb = (await (
@@ -21,6 +21,10 @@ async function init() {
   ).json()) as geojson.FeatureCollection;
   geoStore.dialektregionen = concatGeoJSON(
     sfb,
+    vlbg
+  ) as geojson.FeatureCollection;
+  geoStore.bundeslaender = concatGeoJSON(
+    bdl,
     vlbg
   ) as geojson.FeatureCollection;
 }

@@ -1,19 +1,26 @@
 <template>
   <v-layout>
-    <audio :id="trackId" :src="getAudioPath(dateipfad, audiofile)"></audio>
+    <audio
+      :id="trackId"
+      :ref="trackId"
+      :src="getAudioPath(dateipfad, audiofile)"
+    ></audio>
     <template>
       <div class="text-center">
         <v-container>
-          <v-row no-gutters>
-            <v-col class="mr-2">
-              <v-checkbox
+          <!--
+
+            <v-row no-gutters>
+              <v-col class="mr-2">
+                <v-checkbox
                 v-model="kontext"
                 label="Kontext"
                 color="info"
                 @change="changeTime()"
-              ></v-checkbox>
-            </v-col>
-          </v-row>
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+          -->
           <v-row>
             <v-col>
               <span>
@@ -35,8 +42,8 @@
                 <v-icon>mdi-play</v-icon>
               </v-btn>
             </v-col>
-            <v-col>
-              <v-btn fab small @click="pause()">
+            <v-col
+              ><v-btn fab small @click="pause()">
                 <v-icon>mdi-pause</v-icon>
               </v-btn>
             </v-col>
@@ -125,7 +132,7 @@ export default class AudioPlayer extends Vue {
   time = 0;
   completion = 0;
 
-  audioTrack = document.getElementById(this.trackId) as HTMLAudioElement;
+  // audioTrack = this.$refs[this.trackId] as HTMLAudioElement;
   fadeIn: number = -1;
   fadeOut: number = -1;
 
@@ -137,6 +144,10 @@ export default class AudioPlayer extends Vue {
 
   get maxLength() {
     return this.data.length;
+  }
+
+  get audioTrack() {
+    return this.$refs[this.trackId] as HTMLAudioElement;
   }
 
   get type() {
@@ -182,12 +193,12 @@ export default class AudioPlayer extends Vue {
   }
 
   get trackDuration() {
-    const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    const track = this.$refs[this.trackId] as HTMLAudioElement;
     return track.duration;
   }
 
   get currTime() {
-    const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    const track = this.$refs[this.trackId] as HTMLAudioElement;
     return track !== null ? track.currentTime : 0;
   }
 
@@ -205,7 +216,7 @@ export default class AudioPlayer extends Vue {
 
   fadeOutVal(x: number) {
     if (x >= 1) return 0;
-    return (Math.pow(x, 3) * -1) + 1;
+    return Math.pow(x, 3) * -1 + 1;
   }
 
   getAudioPath(path: string, file: string) {
@@ -214,7 +225,7 @@ export default class AudioPlayer extends Vue {
 
   @Watch('timestampId')
   ontimestapid() {
-    const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    const track = this.$refs[this.trackId] as HTMLAudioElement;
     if (this.timestampId >= this.data.length) {
       this.timestampId = this.data.length - 1;
     }
@@ -227,7 +238,7 @@ export default class AudioPlayer extends Vue {
   }
 
   async play() {
-    const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    const track = this.$refs[this.trackId] as HTMLAudioElement;
     if (track.paused) {
       if (
         track.currentTime <= this.timestampStart ||
@@ -249,7 +260,7 @@ export default class AudioPlayer extends Vue {
   }
 
   async pause() {
-    const track = document.getElementById(this.trackId) as HTMLAudioElement;
+    const track = this.$refs[this.trackId] as HTMLAudioElement;
     try {
       await track.pause();
     } catch (e) {
@@ -258,7 +269,7 @@ export default class AudioPlayer extends Vue {
   }
 
   audioFadeIn(fadePoint: number) {
-    const sound = document.getElementById(this.trackId) as HTMLAudioElement;
+    const sound = this.$refs[this.trackId] as HTMLAudioElement;
     clearInterval(this.fadeIn);
     var that = this;
     let val = 0;
@@ -274,7 +285,7 @@ export default class AudioPlayer extends Vue {
   }
 
   audioFadeOut() {
-    const sound = document.getElementById(this.trackId) as HTMLAudioElement;
+    const sound = this.$refs[this.trackId] as HTMLAudioElement;
     var fadePoint = this.timestampEnd - this.fadeValue;
     // clearInterval(this.fadeOut);
     var that = this;
@@ -288,25 +299,26 @@ export default class AudioPlayer extends Vue {
         clearInterval(that.fadeOut);
       }
     }, 100);
-
   }
 
   mounted() {
-    const sound = document.getElementById(this.trackId) as HTMLAudioElement;
-    sound.addEventListener('timeupdate', () => {
-      this.time = sound.currentTime - this.timestampStart;
-      if (!sound.paused) {
-        this.completion = (this.time / this.duration) * 100;
-        if (sound.currentTime >= this.timestampEnd && !this.repeat) {
-          this.audioFadeOut();
-          if (sound.currentTime >= this.timestampEnd) {
-            this.pause();
+    this.$nextTick(() => {
+      const sound = this.$refs[this.trackId] as HTMLAudioElement;
+      sound.addEventListener('timeupdate', () => {
+        this.time = sound.currentTime - this.timestampStart;
+        if (!sound.paused) {
+          this.completion = (this.time / this.duration) * 100;
+          if (sound.currentTime >= this.timestampEnd && !this.repeat) {
+            this.audioFadeOut();
+            if (sound.currentTime >= this.timestampEnd) {
+              this.pause();
+            }
+          } else if (sound.currentTime >= this.timestampEnd && this.repeat) {
+            sound.currentTime = this.timestampStart;
+            this.completion = 0;
           }
-        } else if (sound.currentTime >= this.timestampEnd && this.repeat) {
-          sound.currentTime = this.timestampStart;
-          this.completion = 0;
         }
-      }
+      });
     });
   }
 }
