@@ -34,7 +34,7 @@
                 @click="timestampId--"
                 :disabled="timestampId === 0"
               >
-                <v-icon>mdi-skip-backward</v-icon>
+                <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
             </v-col>
             <v-col>
@@ -54,7 +54,7 @@
                 @click="timestampId++"
                 :disabled="timestampId >= maxLength - 1"
               >
-                <v-icon>mdi-skip-forward</v-icon>
+                <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-col>
             <v-col>
