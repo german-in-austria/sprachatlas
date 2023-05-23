@@ -27,7 +27,6 @@ COPY package-lock.json /usr/src/app
 # ARG SENTRY_TOKEN
 # ARG BUILD_ID
 
-
 ENV VUE_APP_DB_ENDPOINT https://dioedb.dioe.at
 ENV VUE_APP_API_ENDPOINT https://api.dioe.at/api
 ENV NODE_ENV production
