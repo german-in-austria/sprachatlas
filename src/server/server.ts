@@ -24,8 +24,11 @@ app.enable('trust proxy');
 app.use((request: any, response: any, next: any) => {
   const host = request.headers.host;
   const protocol = request.protocol;
+  console.log(host);
+  console.log(request.url);
   if (process.env.NODE_ENV === 'production' && protocol === 'http') {
-    response.redirect(301, 'https://' + host + request.url);
+    //response.redirect(301, 'https://' + host + request.url);
+    next();
   } else {
     next();
   }
