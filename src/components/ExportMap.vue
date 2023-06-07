@@ -9,6 +9,22 @@
     </v-card-title>
     <v-card-text>
       <v-row>
+        <v-col>
+          <v-text-field
+            v-model="mapName"
+            label="Name der exportierten Karte"
+          ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-checkbox
+            v-model="isPublic"
+            label="Öffentlich sichtbar machen?"
+            color="info"
+          ></v-checkbox>
+        </v-col>
+      </v-row>
+
+      <v-row>
         <LegendDetails />
       </v-row>
     </v-card-text>
@@ -43,6 +59,8 @@ export default class ExportMap extends Vue {
 
   LM = legendMod;
   MH = messageHandler;
+  mapName: string = '';
+  isPublic: boolean = false;
 
   get url() {
     return window.location.href;
@@ -66,7 +84,12 @@ export default class ExportMap extends Vue {
     );
     if (res.length > 0) {
       const urlID = generateID();
-      const data = { data: res, url: urlID };
+      const data = {
+        data: res,
+        url: urlID,
+        public: this.isPublic,
+        name: this.mapName
+      };
       // send the link to dioedb
       // and await ID
 

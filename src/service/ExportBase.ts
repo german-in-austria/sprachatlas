@@ -6,6 +6,7 @@ import {
   localStorageQuery,
   SearchItems
 } from '@/static/apiModels';
+import { authModule } from '@/store/modules/auth';
 import { legendMod } from '@/store/modules/legend';
 import { messageHandler } from '@/store/modules/message';
 import { clone, isArray } from 'lodash';
@@ -248,7 +249,13 @@ export const expData = {
     return str;
   },
   sendDataToDioeDB(data: string) {
-    return postNewExportLink(data, generateID());
+    const postData = {
+      data: data,
+      url: generateID(),
+      public: true,
+      name: 'Test'
+    };
+    return authModule.postExportLink(postData);
   },
   setDarkModeItem(i: boolean) {
     localStorage.setItem('hasDarkMode', i.toString());

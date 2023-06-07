@@ -63,9 +63,20 @@ class Auth extends VuexModule implements ErhebungState {
   }
 
   @MutationAction({ mutate: ['exportId', 'loading'] })
-  async postExportLink(arg: { data: string; url: string }) {
+  async postExportLink(arg: {
+    data: string;
+    url: string;
+    public: boolean;
+    name: string;
+  }) {
     this.context.commit('setLoading', true);
-    const res = await postNewExportLink(arg.data, arg.url);
+    const res = await postNewExportLink(
+      arg.data,
+      arg.url,
+      this.currentUser.user.id,
+      arg.public,
+      arg.name
+    );
     return {
       exportId: res.data,
       loading: false

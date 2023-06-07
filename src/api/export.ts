@@ -11,12 +11,18 @@ export const getSingleExportLink = (id: string): Promise<any> => {
 
 export const postNewExportLink = async (
   data: string,
-  id: string
+  id: string,
+  user: number,
+  isPublic: boolean,
+  name: string
 ): Promise<any> => {
   return await api.dioeDB
     .post('/restapi/setZitatUrl', {
       data: data,
-      url_id: id
+      url_id: id,
+      user: user,
+      public: isPublic,
+      name: name
     })
     .then((response) => {
       return {
