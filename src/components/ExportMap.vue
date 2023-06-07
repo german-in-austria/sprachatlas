@@ -122,6 +122,8 @@ export default class ExportMap extends Vue {
           icon: 'mdi-alert-outline'
         });
       }
+      this.mapName = '';
+      this.isPublic = false;
     }
   }
 }
