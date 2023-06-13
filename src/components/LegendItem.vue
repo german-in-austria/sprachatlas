@@ -1,13 +1,6 @@
 <template>
   <v-slide-x-reverse-transition>
-    <v-card
-      v-if="vis"
-      elevation="2"
-      class="mx-auto"
-      max-width="500"
-      min-width="250"
-      style="max-height: 400px"
-    >
+    <v-card v-if="vis" elevation="2" class="mx-auto" min-width="300">
       <v-divider class="mx-4"></v-divider>
       <v-card-title
         >Legende
@@ -306,8 +299,7 @@ export default class LegendItem extends Vue {
     expData.removeEntry(el.id, el.name, el.type ? el.type : 0);
     this.AM.clearAntworten();
     this.$emit('callChange', el);
-    if (this.legendGlobal.length === 0)
-      this.updateVis();
+    if (this.legendGlobal.length === 0) this.updateVis();
   }
 
   onLegendChange(el: LegendGlobal) {
@@ -344,13 +336,13 @@ export default class LegendItem extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
 
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
 </style>

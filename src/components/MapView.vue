@@ -250,13 +250,13 @@
             <v-checkbox
               v-model="showDataSideways"
               hide-details
-              @change="displayDataFromLegend(LM.legend)"
+              @change="mapData(ortData)"
               label="Daten nebeneinander anzeigen"
             />
             <v-checkbox
               v-model="showDataProp"
               hide-details
-              @change="displayDataFromLegend(LM.legend)"
+              @change="mapData(ortData)"
               label="Daten proportional anzeigen"
             />
           </v-card-text>
@@ -932,6 +932,8 @@ export default class MapView extends Vue {
 
   focusLayers: Array<{ layer: L.LayerGroup; name: string }> = [];
 
+  iconLayer: L.LayerGroup = new L.LayerGroup();
+
   colorid = 0;
   iconId = 0;
 
@@ -956,6 +958,8 @@ export default class MapView extends Vue {
   showSearchBar = true;
 
   showHistoryDialog = false;
+
+  ortData: Array<circleData> = [];
 
   headerErheb = [
     { text: 'Art der Erhebung', value: 'Art_Erhebung' },
@@ -1071,7 +1075,7 @@ export default class MapView extends Vue {
     return this.AM.loading;
   }
 
-  get layerGroup(): L.LayerGroup {
+  get mapLayer(): L.LayerGroup {
     // @ts-ignore
     return this.$refs.points.mapObject;
   }
@@ -1557,7 +1561,7 @@ export default class MapView extends Vue {
     })
       .addTo(layer)
       .on('click', (e) => this.loadErheb(ort));
-    layer.addTo(this.layerGroup);
+    layer.addTo(this.mapLayer);
     // this.map.addLayer(layer);
     return res;
   }
@@ -1616,8 +1620,12 @@ export default class MapView extends Vue {
     data: singleEntry[]
   ): L.Icon<L.IconOptions> {
     let s = ort.size;
-    if (ort.data.length > 1 && this.showDataProp) {
-      s = data[0].r;
+    if (ort.data.length > 0 && this.showDataProp) {
+      if (!this.showDataSideways) {
+        s = data.reduce((acc, val) => acc + val.r, 0);
+      } else {
+        s = data[0].r;
+      }
     }
     const rad = s;
     var circleIcon = L.icon({
@@ -1782,7 +1790,8 @@ export default class MapView extends Vue {
             .addTo(ort.layer)
             .on('click', (e) => this.audioListener(ort));
           marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
-          ort.layer.addTo(this.layerGroup);
+          this.iconLayer.addLayer(ort.layer);
+          // ort.layer.addTo(this.iconLayer);
           // @ts-ignore
           // this.map.addLayer(ort.layer);
           idx++;
@@ -1796,7 +1805,8 @@ export default class MapView extends Vue {
           .addTo(ort.layer)
           .on('click', (e) => this.audioListener(ort));
         marker.on('mouseover', (e) => this.markerHover(ort, marker, e));
-        ort.layer.addTo(this.layerGroup);
+        //ort.layer.addTo(this.iconLayer);
+        this.iconLayer.addLayer(ort.layer);
       }
     }
   }
@@ -2085,18 +2095,26 @@ export default class MapView extends Vue {
     }
     for (const q of queries) {
       if (q.parameter) {
-        await this.TaM.fetchTagOrteResultsMultiple(dto);
-        const content = cloneDeep(this.tagOrtResult);
-        q.content = content;
+        if (
+          q.content === null ||
+          q.content === undefined ||
+          q.content.length === 0
+        ) {
+          await this.TaM.fetchTagOrteResultsMultiple(dto);
+          const content = cloneDeep(this.tagOrtResult);
+          q.content = content;
+        }
+        const content = q.content;
         const layer = q.layer ? q.layer : L.layerGroup();
+        layer.clearLayers();
+        const propFactor = computePropCircle(
+          content.map((val: any) => val.numTag),
+          20 * this.kmPerPixel
+        );
         q.parameter?.forEach((p: Parameter) => {
           const paraId = p.id;
           const returnData = content.filter((el: any) => el.para === paraId);
 
-          const propFactor = computePropCircle(
-            content.map((val: any) => val.numTag),
-            20 * this.kmPerPixel
-          );
           for (const t of returnData) {
             var col = null;
             if (p.color) {
@@ -2157,7 +2175,6 @@ export default class MapView extends Vue {
   async displayDataFromLegend(legend: LegendGlobal[]) {
     // this.clearLayer();
     this.showLegend = true;
-    this.layerGroup.clearLayers();
     let tagData: Array<circleData> = [];
     let aufData: Array<circleData> = [];
     if (this.legendGlobalQuery.length > 0)
@@ -2196,7 +2213,17 @@ export default class MapView extends Vue {
           break;
       }
     }
-    this.addDataToMap(this.mergeCircleData([tagData, aufData]));
+    this.iconLayer.clearLayers();
+    this.ortData = this.mergeCircleData([tagData, aufData]);
+    this.mapData(this.ortData);
+  }
+
+  mapData(orte: Array<circleData>) {
+    this.iconLayer.clearLayers();
+    orte.forEach((ort) => {
+      ort.layer.clearLayers();
+    });
+    this.addDataToMap(orte);
   }
 
   mergeCircleData(data: Array<Array<circleData>>): Array<circleData> {
@@ -2453,6 +2480,7 @@ export default class MapView extends Vue {
           message: 'Daten werden abgefragt. Dies kann einige Sekunden dauern.',
           icon: 'mdi-info'
         });
+        this.iconLayer.addTo(this.map);
         if (legendMod.loadDataPromise) {
           legendMod.loadDataPromise.then(() => {
             this.displayDataFromLegend(legendMod.legend);
