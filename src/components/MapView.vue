@@ -536,10 +536,8 @@
           <dragable-card
             v-if="d.showCard"
             class="audioCard"
+            minHeight="450"
             component="audio-card"
-            :class="{
-              bottomBarTransform: bottomBar
-            }"
             :props="{
               showDataSideways: showDataSideways,
               data: d
@@ -558,7 +556,6 @@
           <dragable-card
             v-if="d.isShown"
             class="varCard"
-            :class="{ bottomBarTransform: bottomBar }"
             component="variation-card"
             :props="{
               data: d,
@@ -695,7 +692,6 @@
     </v-layout>
     <dragable-card
       class="legend"
-      :class="{ bottomBarTransform: bottomBar }"
       component="legend-item"
       :props="{
         vis: showLegend,
