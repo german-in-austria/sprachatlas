@@ -703,6 +703,7 @@
       }"
       :func="{ callChange: splitTags, changeVis: changeLegVis }"
       @interface="getInterface"
+      :minHeight="150"
     />
     <div
       class="map-overlay"

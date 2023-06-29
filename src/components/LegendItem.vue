@@ -1,6 +1,12 @@
 <template>
   <v-slide-x-reverse-transition>
-    <v-card v-if="vis" elevation="2" class="mx-auto" min-width="300">
+    <v-card
+      v-if="vis"
+      elevation="2"
+      class="mx-auto"
+      min-width="300"
+      height="inherit"
+    >
       <v-divider class="mx-4"></v-divider>
       <v-card-title
         >Legende

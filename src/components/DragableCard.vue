@@ -31,6 +31,11 @@ export default class DragableCard extends Vue {
   resize_height = false;
   resize_width = false;
   resize_state = false;
+  resize_left = false;
+  resize_right = false;
+  resize_top = false;
+  resize_bottom = false;
+
   boundingBox: {
     left: number;
     top: number;
@@ -42,6 +47,8 @@ export default class DragableCard extends Vue {
   @Prop(String) readonly component!: string;
   @Prop() readonly props!: any;
   @Prop() readonly func!: any;
+  @Prop({ type: Number, default: 300 }) readonly minWidth!: number;
+  @Prop({ type: Number, default: 100 }) readonly minHeight!: number;
 
   moveListener(event: any) {
     this.transform = false;
@@ -77,7 +84,8 @@ export default class DragableCard extends Vue {
       left: box.left,
       bottom: box.bottom,
       right: box.bottom,
-      width: box.width
+      width: box.width,
+      height: box.height
     };
   }
 
@@ -87,35 +95,81 @@ export default class DragableCard extends Vue {
     const box = this.element;
     const bounding = this.getBoundingBoxCoords(box);
     if (
-      (bounding.top - this.CALC_MASK <= cursorY &&
-        cursorY <= bounding.top + this.CALC_MASK) ||
-      (bounding.bottom - this.CALC_MASK <= cursorY &&
-        cursorY <= bounding.bottom + this.CALC_MASK)
+      bounding.top - this.CALC_MASK <= cursorY &&
+      cursorY <= bounding.top + this.CALC_MASK
     ) {
       box.style.cursor = 'ns-resize';
       this.resize_height = true;
+      this.resize_top = true;
     } else if (
-      (bounding.left - this.CALC_MASK <= cursorX &&
-        cursorX <= bounding.left + this.CALC_MASK) ||
-      (bounding.right - this.CALC_MASK <= cursorX &&
-        cursorX <= bounding.right + this.CALC_MASK)
+      bounding.bottom - this.CALC_MASK <= cursorY &&
+      cursorY <= bounding.bottom + this.CALC_MASK
+    ) {
+      box.style.cursor = 'ns-resize';
+      this.resize_height = true;
+      this.resize_bottom = true;
+    } else if (
+      bounding.left - this.CALC_MASK <= cursorX &&
+      cursorX <= bounding.left + this.CALC_MASK
     ) {
       box.style.cursor = 'ew-resize';
       this.resize_width = true;
-      if (this.resize_state) {
-        console.log('resizing');
-        box.style.width = cursorX - bounding.left + bounding.width + 'px';
-        box.style.left = cursorX + 'px';
-      }
+      this.resize_left = true;
+    } else if (
+      bounding.left + bounding.width - this.CALC_MASK <= cursorX &&
+      cursorX <= bounding.left + bounding.width + this.CALC_MASK
+    ) {
+      box.style.cursor = 'ew-resize';
+      this.resize_width = true;
+      this.resize_right = true;
     } else {
       if (!this.resize_state) {
         //@ts-ignore
         box.style.cursor = null;
         this.resize_height = this.resize_width = false;
+        this.resize_left =
+          this.resize_right =
+          this.resize_bottom =
+          this.resize_top =
+            false;
+      }
+    }
+    if (this.resize_state) {
+      console.log('resizing');
+      // resize height of window based on cursor and bounding box
+      if (this.resize_top) {
+        const size = bounding.top - cursorY;
+        const newHeight = bounding.height + size;
+        if (newHeight < this.minHeight) return;
+        box.style.height = newHeight + 'px';
+        box.style.top = bounding.top - size + 'px'; // keep the top position the same
+      } else if (this.resize_bottom) {
+        console.log('resizing bottom');
+        const newHeight =
+          bounding.height + cursorY - (bounding.top + bounding.height);
+        console.log(newHeight, this.minHeight);
+        if (newHeight >= this.minHeight) box.style.height = newHeight + 'px';
+      }
+
+      // resize window width based on cursor and bounding box
+      if (this.resize_left) {
+        const size = bounding.left - cursorX;
+        const newWidth = bounding.width + size;
+        if (newWidth < this.minWidth) return;
+        box.style.width = newWidth + 'px';
+        box.style.left = bounding.left - size + 'px'; // keep the left position the same
+      } else if (this.resize_right) {
+        const newWidth =
+          bounding.width + cursorX - (bounding.left + bounding.width);
+        if (newWidth >= this.minWidth) box.style.width = newWidth + 'px';
       }
     }
   }
 
+  // This function is called when the user wants to resize the card
+  // This is done by changing the width and height of the card
+  // The width and height are changed as well as the left and top position to keep the card in the same position
+  // The left and top position are changed to keep the card in the same position
   resizeWindow(event: any) {
     const box = this.element;
     const bounding = box.getBoundingClientRect();
@@ -123,9 +177,12 @@ export default class DragableCard extends Vue {
     const cursorY = event.clientY - bounding.top;
     const h = bounding.height;
     const w = bounding.width;
-    if (this.resize_width) {
+    if (this.resize_height) {
       this.resize_state = true;
-      // box.style.width = cursorX + 'px';
+      //box.style.height = cursorY + 'px';
+    } else if (this.resize_width) {
+      this.resize_state = true;
+      //box.style.width = cursorX + 'px';
     }
   }
 
