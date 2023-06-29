@@ -536,7 +536,7 @@
           <dragable-card
             v-if="d.showCard"
             class="audioCard"
-            minHeight="450"
+            :minHeight="450"
             component="audio-card"
             :props="{
               showDataSideways: showDataSideways,
