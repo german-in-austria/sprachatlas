@@ -211,6 +211,12 @@
                       {{ new Date(item.created_at).toLocaleString() }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
+                  <v-list-item-action>
+                    <v-row>
+                      <v-icon v-if="item.public">mdi-eye-outline</v-icon>
+                      <v-icon v-else>mdi-eye-off-outline</v-icon>
+                    </v-row>
+                  </v-list-item-action>
                 </template>
               </v-autocomplete>
             </v-col>
