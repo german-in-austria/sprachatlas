@@ -466,3 +466,17 @@ export interface listData {
   infos: string;
   type: SearchItems;
 }
+
+export interface exportMap {
+  urlId: string;
+  data: string;
+  updated: Date;
+  createdAt: Date;
+  name: string;
+  creator: {
+    id: number;
+    name: string;
+  };
+  pk: number;
+  public: boolean;
+}

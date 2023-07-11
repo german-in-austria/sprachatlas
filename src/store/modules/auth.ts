@@ -9,8 +9,12 @@ import {
 import store from '@/store';
 import api from '@/api';
 
-import { authUser } from '../../static/apiModels';
-import { checkAuthentication, postNewExportLink } from '@/api/export';
+import { authUser, exportMap } from '../../static/apiModels';
+import {
+  checkAuthentication,
+  postNewExportLink,
+  getAllExportedMaps
+} from '@/api/export';
 
 export interface ErhebungState {
   currentUser: authUser;
@@ -25,6 +29,7 @@ export interface ErhebungState {
 })
 class Auth extends VuexModule implements ErhebungState {
   currentUser: authUser = {} as authUser;
+  exportedMaps: Array<exportMap> = [];
   loading: boolean = false;
   loggedIn: boolean = false;
   exportId: any = {};
@@ -79,6 +84,16 @@ class Auth extends VuexModule implements ErhebungState {
     );
     return {
       exportId: res.data,
+      loading: false
+    };
+  }
+
+  @MutationAction({ mutate: ['exportedMaps', 'loading'] })
+  async getAllMaps() {
+    this.context.commit('setLoading', true);
+    const res = await getAllExportedMaps();
+    return {
+      exportedMaps: res.data,
       loading: false
     };
   }

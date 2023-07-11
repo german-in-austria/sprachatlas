@@ -27,6 +27,7 @@
             </v-col>
             <v-col cols="6" class="mt-1">
               <v-autocomplete
+                v-if="displaySearchMap"
                 ref="searchTermAutoComplete"
                 v-model="searchTerm"
                 :items="searchTerms"
@@ -181,14 +182,45 @@
                   </v-list-item-action>
                 </template>
               </v-autocomplete>
+              <v-autocomplete
+                v-else
+                ref="mapSearchAutocomplete"
+                v-model="searchMap"
+                :items="exportedMaps"
+                :loading="authLoading"
+                :search-input.sync="mapSearchInput"
+                solo
+                label="Nach Karten suchen"
+                item-text="name"
+                return-object
+                clearable
+                @change="displayMap()"
+              >
+                <template v-slot:item="{ item }">
+                  <v-list-item-avatar>
+                    <v-icon>mdi-map</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      item.name === '' || item.name === null
+                        ? 'Kein Titel vorhanden'
+                        : item.name
+                    }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      Erstellt von: {{ item.creator.name }}, am:
+                      {{ new Date(item.created_at).toLocaleString() }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </template>
+              </v-autocomplete>
             </v-col>
-            <v-col cols="1" class="mt-2">
+            <v-col cols="1" class="mt-2" v-if="displaySearchMap">
               <AgeRange />
             </v-col>
-            <v-col class="mt-2">
+            <v-col class="mt-2" v-if="displaySearchMap">
               <ErhebungsArt />
             </v-col>
-            <v-col cols="1" class="mt-2">
+            <v-col cols="1" class="mt-2" v-if="displaySearchMap">
               <PhaenAufgabenSearch
                 icon="mdi-magnify"
                 :tagListFlat="tagListFlat"
@@ -196,7 +228,7 @@
                 v-on:displayAufgabenOnMap="displayAufgaben"
               />
             </v-col>
-            <v-col v-if="selSearchModel === 0">
+            <v-col v-if="selSearchModel === 0 && displaySearchMap">
               <v-select
                 solo
                 v-model="selGen"
@@ -206,7 +238,7 @@
                 item-value="value"
               ></v-select>
             </v-col>
-            <v-col>
+            <v-col v-if="displaySearchMap">
               <v-select
                 v-model="selSearchModel"
                 :items="selSearchItem"
@@ -489,6 +521,27 @@
               </v-btn>
             </template>
             <span>Anfrageverlauf</span>
+          </v-tooltip>
+        </v-row>
+        <v-row>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                small
+                v-bind="attrs"
+                v-on="on"
+                class="zoom"
+                @click="displaySearchMap = !displaySearchMap"
+              >
+                <v-icon>
+                  {{ displaySearchMap ? 'mdi-map' : 'mdi-map-search' }}
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>{{
+              displaySearchMap ? 'Nach Karten suchen' : 'Omnisearch öffnen'
+            }}</span>
           </v-tooltip>
         </v-row>
       </v-flex>
@@ -799,7 +852,8 @@ import {
   loadData,
   convertHexToHsl,
   fetchContent,
-  decodeURI
+  decodeURI,
+  deocdeImportedMap
 } from '@/helpers/helper';
 import LegendItem from '@/components/LegendItem.vue';
 
@@ -818,7 +872,8 @@ import {
   circleData,
   pinData,
   pinDataVar,
-  exportLegend
+  exportLegend,
+  exportMap
 } from '../static/apiModels';
 import { erhebungModule } from '../store/modules/erhebungen';
 import { transModule } from '../store/modules/transcripts';
@@ -850,6 +905,7 @@ import {
   tagDto,
   TagTree
 } from '@/api/dioe-public-api';
+import { authModule } from '@/store/modules/auth';
 
 const defaultCenter = [47.64318610543658, 13.53515625];
 const defaultZoom = 8;
@@ -893,7 +949,12 @@ export default class MapView extends Vue {
   AM = aufgabenModule;
   MM = messageHandler;
   searchInput: string = '';
+  mapSearchInput: string = '';
   searchTerms: Array<SearchTerm> = [];
+
+  searchMap: exportMap | null = null;
+
+  displaySearchMap: boolean = true;
 
   selectionMenu: boolean = false;
   selectedOrt: circleData | null = null;
@@ -1046,6 +1107,14 @@ export default class MapView extends Vue {
 
   get diagramData() {
     return this.AM.diagramData;
+  }
+
+  get exportedMaps() {
+    return authModule.exportedMaps;
+  }
+
+  get authLoading() {
+    return authModule.loading;
   }
 
   get diagramTitle() {
@@ -1516,6 +1585,19 @@ export default class MapView extends Vue {
       );
     } else {
       this.TaM.fetchTags().then(() => this.changeSearchTerms());
+    }
+  }
+
+  async displayMap() {
+    if (this.searchMap) {
+      await deocdeImportedMap(this.searchMap.data);
+      this.displayDataFromLegend(legendMod.legend);
+      this.MM.setSuccessMsg({
+        message: `Karte ${this.searchMap.name} wurde hinzugefügt`,
+        icon: 'mdi-info'
+      });
+      //@ts-ignore
+      this.$refs.mapSearchAutocomplete.reset();
     }
   }
 
@@ -2588,7 +2670,7 @@ html {
 }
 
 .varCard {
-  top: 71%;
+  top: 30vh;
   left: 45%;
   max-width: 450px;
   position: fixed;

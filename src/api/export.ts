@@ -33,6 +33,12 @@ export const postNewExportLink = async (
     });
 };
 
+export const getAllExportedMaps = async (): Promise<any> => {
+  return await api.dioeDB.get('/restapi/getZitatUrl').then((response) => {
+    return { status: response.status, data: response.data.tbl_antworten };
+  });
+};
+
 export const deleteSingleExportLink = (
   id: number
 ): Promise<AxiosResponse<any>> => {

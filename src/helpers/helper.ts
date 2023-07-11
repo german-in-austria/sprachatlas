@@ -370,3 +370,39 @@ export const decodeURI = async () => {
     });
   }
 };
+
+export const deocdeImportedMap = async (mapEncoded: string) => {
+  // Returns decoded map as an Array
+  const decodedMap = expData.decompressAndParse(mapEncoded);
+  for (const l of decodedMap) {
+    // Same ID is already in use and in the map
+    if (
+      legendMod.legend.some(
+        (el) => el.id === l.id || (el.type === l.type && el.name === l.name)
+      )
+    ) {
+      continue;
+    }
+    let res = null;
+    if (l.type !== SearchItems.Query) {
+      // Fetch the needed content for the legend
+      res = await fetchContent(l.elementId, l.type);
+    }
+    // create the new entry
+    const lm = await legendMod.createLegendEntry({
+      icon: l.symbol,
+      layer: L.layerGroup(),
+      name: l.name,
+      color: l.color,
+      radius: l.size,
+      content: l.type === SearchItems.Ort ? l.content : res,
+      id: l.id,
+      type: l.type,
+      description: l.description
+    });
+    lm.parameter = l.type === SearchItems.Query ? l.parameter : null;
+    lm.searchInfo = l.searchInfo;
+    if (lm.type === SearchItems.Query) delete lm.content;
+    legendMod.addLegendEntry(lm);
+  }
+};

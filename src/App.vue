@@ -83,6 +83,7 @@ export default class App extends Vue {
     tagModule.fetchPresetTags();
     tagModule.getAllSppos();
     this.PM.fetchAllPhaen();
+    authModule.getAllMaps();
     authModule.fetchCurrentUser().then(() => {
       const user = authModule.currentUser;
       if (user.error) {
