@@ -143,7 +143,6 @@ export default class DragableCard extends Vue {
     }
 
     if (this.resize_state) {
-      console.log('resizing');
       // resize height of window based on cursor and bounding box
       if (this.resize_top) {
         const size = bounding.top - cursorY;
@@ -152,10 +151,8 @@ export default class DragableCard extends Vue {
         box.style.height = newHeight + 'px';
         box.style.top = bounding.top - size + 'px'; // keep the top position the same
       } else if (this.resize_bottom) {
-        console.log('resizing bottom');
         const newHeight =
           bounding.height + cursorY - (bounding.top + bounding.height);
-        console.log(newHeight, this.minHeight);
         if (newHeight >= this.minHeight) box.style.height = newHeight + 'px';
       }
 
