@@ -201,18 +201,22 @@ export default class AgeRange extends Vue {
     if (this.singleAge) {
       if (this.onlyLower) {
         this.LM.setAgeRange({ lower: this.age, upper: -1 });
+        this.MM.setSuccessMsg({
+          message: `Filtern nach mindestens ${this.age} Jahre alten Personen`,
+          icon: 'mdi-info'
+        });
       } else {
         this.LM.setAgeRange({ lower: -1, upper: this.age });
+        this.MM.setSuccessMsg({
+          message: `Filtern nach bis zu ${this.age} Jahre alten Personen`,
+          icon: 'mdi-info'
+        });
       }
-      this.MM.setSuccessMsg({
-        message: `Altersfilter wurde mit dem Wert ${this.age} hinzugefügt`,
-        icon: 'mdi-info'
-      });
     } else {
       const res = { lower: this.ages[0], upper: this.ages[1] };
       this.LM.setAgeRange(res);
       this.MM.setSuccessMsg({
-        message: `Altersfilter wurde mit den Werten ${this.ages[0]} und ${this.ages[1]} hinzugefügt`,
+        message: `Filtern nach Personen welche zwischen ${this.ages[0]} und ${this.ages[1]} Jahre alt sind`,
         icon: 'mdi-info'
       });
     }
