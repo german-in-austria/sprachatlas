@@ -56,13 +56,14 @@ export default class VariationCard extends Vue {
 }
 </script>
 <style lang="scss">
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-    overflow-y: scroll;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+  overflow-y: scroll;
+}
 
-  .card {
-    width: 450px;
-  }
+.card {
+  height: 100%;
+  width: 100%;
+}
 </style>
