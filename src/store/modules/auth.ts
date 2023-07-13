@@ -93,7 +93,9 @@ class Auth extends VuexModule implements ErhebungState {
     this.context.commit('setLoading', true);
     const res = await getAllExportedMaps();
     return {
-      exportedMaps: res.data,
+      exportedMaps: this.loggedIn
+        ? res.data
+        : res.data.filter((e: any) => e.public === true),
       loading: false
     };
   }
