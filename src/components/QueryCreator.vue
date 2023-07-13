@@ -62,46 +62,48 @@
                     </template>
                   </v-combobox>
                 </template>
-                <v-expansion-panels>
-                  <v-expansion-panel>
-                    <v-expansion-panel-header>
-                      Sozialdaten
-                      <template v-slot:actions>
-                        <v-icon color="primary"> $expand </v-icon>
+              </v-form>
+              <v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    Sozialdaten
+                    <template v-slot:actions>
+                      <v-icon color="primary"> $expand </v-icon>
+                    </template>
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <h3>Alter auswählen</h3>
+                    <v-range-slider
+                      v-model="formControl.range"
+                      :max="max"
+                      :min="min"
+                      hide-details
+                      class="align-center"
+                    >
+                      <template v-slot:prepend>
+                        <v-text-field
+                          :value="formControl.range[0]"
+                          class="mt-0 pt-0"
+                          hide-details
+                          single-line
+                          type="number"
+                          style="width: 60px"
+                          @change="$set(formControl.range, 0, $event)"
+                        ></v-text-field>
                       </template>
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                      <h3>Alter auswählen</h3>
-                      <v-range-slider
-                        v-model="formControl.range"
-                        :max="max"
-                        :min="min"
-                        hide-details
-                        class="align-center"
-                      >
-                        <template v-slot:prepend>
-                          <v-text-field
-                            :value="formControl.range[0]"
-                            class="mt-0 pt-0"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(range, 0, $event)"
-                          ></v-text-field>
-                        </template>
-                        <template v-slot:append>
-                          <v-text-field
-                            :value="formControl.range[1]"
-                            class="mt-0 pt-0"
-                            hide-details
-                            single-line
-                            type="number"
-                            style="width: 60px"
-                            @change="$set(range, 1, $event)"
-                          ></v-text-field>
-                        </template>
-                      </v-range-slider>
+                      <template v-slot:append>
+                        <v-text-field
+                          :value="formControl.range[1]"
+                          class="mt-0 pt-0"
+                          hide-details
+                          single-line
+                          type="number"
+                          style="width: 60px"
+                          @change="$set(formControl.range, 1, $event)"
+                        ></v-text-field>
+                      </template>
+                    </v-range-slider>
+                    <v-form ref="form">
                       <v-select
                         v-model="formControl.selGender"
                         :items="gender"
@@ -134,9 +136,11 @@
                         Standardkompetenz:
                         {{ selEducationAll.standardkompetenz }}
                       </span>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
+                    </v-form>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+              <v-form ref="form">
                 <TagView
                   :disable="textLemma.length > 0 || textToken.length > 0"
                   :color="parColor"
@@ -361,7 +365,7 @@
               small
               dark
               color="indigo"
-              @click.stop="
+              @click="
                 dialog = true;
                 editMode = false;
                 clearForm();
@@ -706,12 +710,16 @@ export default class QueryCreator extends Vue {
     if (this.$refs.form) {
       // @ts-ignore
       this.$refs.form.reset();
+      this.formControl.range = this.range;
     }
     if (this.$refs.tagView) {
       // @ts-ignore
       this.$refs.tagView.clear();
       this.TM.setTagSelection([]);
     }
+    this.formControl.paraName = '';
+    this.formControl.selProject = 0;
+    this.chips = [];
     this.textToken = [];
     this.textLemma = [];
     this.parColor = '#F00';
@@ -791,7 +799,6 @@ export default class QueryCreator extends Vue {
   }
 
   mounted() {
-    this.formControl.range = this.range;
     if (this.$route.query.legend) {
       const id = this.$route.query.legend;
       const legend = this.queryLegend.filter((el) => el.id === id);
@@ -849,6 +856,7 @@ export default class QueryCreator extends Vue {
   }
 
   created() {
+    this.formControl.range = this.range;
     this.initFormControl();
   }
 
