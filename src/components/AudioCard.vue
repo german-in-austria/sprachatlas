@@ -108,7 +108,6 @@
                       evaluateData(
                         data.selectedOrt?.ortName.split(',')[0],
                         d.sigle,
-                        d.data[antIdx].data,
                         d
                       )
                     "
@@ -211,6 +210,7 @@ import {
   AufgabeStamp,
   selectionObject
 } from '@/api/dioe-public-api';
+import { isArray } from 'lodash';
 
 @Component({
   components: { DataSwitch, AudioPlayer, ActionButtons },
@@ -305,12 +305,7 @@ export default class DragableCard extends Vue {
     }
   }
 
-  async evaluateData(
-    ort: string | undefined,
-    sigle: string,
-    resData: any[],
-    d: sigleAntwort
-  ) {
+  async evaluateData(ort: string | undefined, sigle: string, d: sigleAntwort) {
     const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(
       `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`
@@ -324,7 +319,13 @@ export default class DragableCard extends Vue {
     let res: Array<Description> = [];
     if (this.data.selectedOrt) {
       const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
-      const val = resData.length;
+      const val = d.data.reduce((acc, curr) => {
+        const data = curr.data[0];
+        if (isArray(data)) {
+          return acc + data.length;
+        }
+        return acc + curr.data.length;
+      }, 0);
       let data = this.data.selectedOrt.data.filter(
         (el) => el.id !== currEle.id
       );
@@ -342,12 +343,14 @@ export default class DragableCard extends Vue {
         let max = this.ageRange.upper;
         let min = this.ageRange.lower;
         const p = key.para;
+        let group = false;
         if (p) {
           max = Math.max(p.ageRange[1], max);
           min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
           token = p.textTokenList ? p.textTokenList : [];
           lemma = p.lemmaList ? p.lemmaList : [];
           ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
+          group = ids.length > 0;
         }
         dto.push({
           ids: ids,
@@ -361,7 +364,8 @@ export default class DragableCard extends Vue {
           weiblich: p?.gender !== undefined ? p.gender : undefined,
           project: p?.project ? p.project : undefined,
           erhArt: legendMod.erhArtFilter,
-          lemma: lemma
+          lemma: lemma,
+          group: group
         });
       }
       await this.AM.fetchAntwortVariation(dto);
@@ -373,7 +377,6 @@ export default class DragableCard extends Vue {
         value: val
       });
       person?.res.forEach((el: any) => {
-        console.log(el);
         const d = data.find((e) => e.id === el.id);
         res.push({
           color: d ? d.c : '#000',
