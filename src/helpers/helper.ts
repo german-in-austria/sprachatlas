@@ -201,8 +201,12 @@ export const loadData = async (
   let lemma = [] as selectionObject[];
   const p = data.para;
   if (p) {
-    max = Math.max(p.ageRange[1], max);
-    min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+    if (p.ageRange[0]) {
+      min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+    }
+    if (p.ageRange[1]) {
+      max = Math.max(p.ageRange[1], max);
+    }
     token = p.textTokenList ? p.textTokenList : [];
     lemma = p.lemmaList ? p.lemmaList : [];
     ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
@@ -217,8 +221,8 @@ export const loadData = async (
         ageLower: min,
         ageUpper: max,
         text: token,
-        ausbildung: p?.maxEducation,
-        beruf_id: p?.education,
+        ausbildung: p?.maxEducation !== undefined ? p.maxEducation : undefined,
+        beruf_id: p?.education !== undefined ? p.education : undefined,
         weiblich: p?.gender !== undefined ? p.gender : undefined,
         lemma: lemma
       });
@@ -232,8 +236,14 @@ export const loadData = async (
         ageLower: min,
         ageUpper: max,
         text: token,
-        ausbildung: p?.maxEducation,
-        beruf_id: p?.education,
+        ausbildung:
+          p?.maxEducation !== undefined && p?.maxEducation !== null
+            ? p.maxEducation
+            : '',
+        beruf_id:
+          p?.education !== undefined && p?.education !== null
+            ? p.education
+            : -1,
         weiblich: p?.gender !== undefined ? p.gender : undefined,
         project: p?.project ? p.project : undefined,
         erhArt: erhArt,
