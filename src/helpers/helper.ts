@@ -221,8 +221,14 @@ export const loadData = async (
         ageLower: min,
         ageUpper: max,
         text: token,
-        ausbildung: p?.maxEducation !== undefined ? p.maxEducation : undefined,
-        beruf_id: p?.education !== undefined ? p.education : undefined,
+        ausbildung:
+          p?.maxEducation !== undefined && p?.maxEducation !== null
+            ? p.maxEducation
+            : '',
+        beruf_id:
+          p?.education !== undefined && p?.education !== null
+            ? p.education
+            : -1,
         weiblich: p?.gender !== undefined ? p.gender : undefined,
         lemma: lemma
       });
