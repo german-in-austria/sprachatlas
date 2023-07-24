@@ -108,7 +108,8 @@
                       evaluateData(
                         data.selectedOrt?.ortName.split(',')[0],
                         d.sigle,
-                        d.data[antIdx].data
+                        d.data[antIdx].data,
+                        d
                       )
                     "
                     v-bind="attrs"
@@ -304,7 +305,12 @@ export default class DragableCard extends Vue {
     }
   }
 
-  async evaluateData(ort: string | undefined, sigle: string, resData: any[]) {
+  async evaluateData(
+    ort: string | undefined,
+    sigle: string,
+    resData: any[],
+    d: sigleAntwort
+  ) {
     const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(
       `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`
@@ -347,11 +353,11 @@ export default class DragableCard extends Vue {
           ids: ids,
           paraid: key.id,
           osmId: this.data.selectedOrt.osm,
-          ageLower: min,
-          ageUpper: max,
+          ageLower: d.age,
+          ageUpper: d.age,
           text: token,
-          ausbildung: p?.maxEducation,
-          beruf_id: p?.education,
+          ausbildung: p?.maxEducation ? p.maxEducation : undefined,
+          beruf_id: p?.education != undefined ? p.education : undefined,
           weiblich: p?.gender !== undefined ? p.gender : undefined,
           project: p?.project ? p.project : undefined,
           erhArt: legendMod.erhArtFilter,
