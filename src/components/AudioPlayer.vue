@@ -140,6 +140,12 @@
               </template>
             </div>
           </v-col>
+          <v-col>
+            <kontext-view
+              v-if="data[timestampId].kontext"
+              :kontextData="data[timestampId].kontext"
+            />
+          </v-col>
         </v-row>
       </v-container>
     </template>
@@ -148,6 +154,8 @@
 <script lang="ts">
 import { Component, PropSync, Vue, Prop, Watch } from 'vue-property-decorator';
 import { isAufgabeStandard } from '@/helpers/helper';
+import KontextView from './KontextView.vue';
+import { AntwortKontext } from '@/api/dioe-public-api';
 
 export interface Audio {
   start: {
@@ -164,10 +172,11 @@ export interface Audio {
   orthoText?: string;
   ortho?: string;
   aufgabe?: string;
+  kontext?: AntwortKontext[];
 }
 
 @Component({
-  components: {},
+  components: { KontextView },
   name: 'AudioPlayer'
 })
 export default class AudioPlayer extends Vue {
