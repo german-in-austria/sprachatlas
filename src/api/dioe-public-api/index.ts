@@ -7,6 +7,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { Antwort } from './models/Antwort';
 export type { antwortenDto } from './models/antwortenDto';
 export type { AntwortenFromAufgabe } from './models/AntwortenFromAufgabe';
+export type { AntwortKontext } from './models/AntwortKontext';
 export type { AntwortTimestamp } from './models/AntwortTimestamp';
 export type { AntwortToken } from './models/AntwortToken';
 export type { AntwortTokenStamp } from './models/AntwortTokenStamp';

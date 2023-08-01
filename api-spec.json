@@ -699,6 +699,39 @@
 				"type": "object",
 				"additionalProperties": true
 			},
+			"AntwortKontext": {
+				"properties": {
+					"reihung": {
+						"type": "number",
+						"format": "double"
+					},
+					"ortho": {
+						"type": "string"
+					},
+					"sppos": {
+						"type": "string"
+					},
+					"text": {
+						"type": "string"
+					},
+					"phon": {
+						"type": "string"
+					},
+					"sigle": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"reihung",
+					"ortho",
+					"sppos",
+					"text",
+					"phon",
+					"sigle"
+				],
+				"type": "object",
+				"additionalProperties": true
+			},
 			"AntwortToken": {
 				"properties": {
 					"start": {},
@@ -730,6 +763,28 @@
 					"orthoText": {
 						"type": "string",
 						"nullable": true
+					},
+					"text": {
+						"type": "string",
+						"nullable": true
+					},
+					"phon": {
+						"type": "string",
+						"nullable": true
+					},
+					"transcript": {
+						"type": "string",
+						"nullable": true
+					},
+					"stdOrth": {
+						"type": "string",
+						"nullable": true
+					},
+					"kontext": {
+						"items": {
+							"$ref": "#/components/schemas/AntwortKontext"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -738,7 +793,12 @@
 					"tagId",
 					"tagName",
 					"ortho",
-					"orthoText"
+					"orthoText",
+					"text",
+					"phon",
+					"transcript",
+					"stdOrth",
+					"kontext"
 				],
 				"type": "object",
 				"additionalProperties": true
