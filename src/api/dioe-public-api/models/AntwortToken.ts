@@ -16,4 +16,5 @@ export type AntwortToken = {
     transcript: string | null;
     stdOrth: string | null;
     kontext: Array<AntwortKontext>;
+    reihung: number;
 }
