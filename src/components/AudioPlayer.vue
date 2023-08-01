@@ -140,6 +140,8 @@
               </template>
             </div>
           </v-col>
+        </v-row>
+        <v-row>
           <v-col>
             <kontext-view
               v-if="data[timestampId].kontext"
