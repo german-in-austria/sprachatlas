@@ -2,6 +2,12 @@
   <span>
     <span v-for="(sig, i) in sigle" :key="i">
       <span
+        :class="{
+          'mb-2': true,
+          'mr-2': true,
+          focustoken: focusTag === d.reihung && focusOrtho === d.ortho,
+          token: focusTag !== d.reihung
+        }"
         class="token mb-2 mr-2"
         v-for="(d, idx) in kontextData.filter((el) => el.sigle === sig)"
         :key="idx"
@@ -22,6 +28,8 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 })
 export default class KontextView extends Vue {
   @Prop() readonly kontextData!: AntwortKontext[];
+  @Prop(Number) readonly focusTag!: number;
+  @Prop(String) readonly focusOrtho!: string;
   sigle = null as any;
 
   mounted() {
@@ -39,5 +47,11 @@ export default class KontextView extends Vue {
 .token:hover {
   background-color: lightblue;
   border: 1px solid purple;
+}
+
+.focustoken {
+  background-color: #999;
+  border: 1px solid black;
+  border-radius: 5px;
 }
 </style>

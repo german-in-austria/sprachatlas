@@ -146,6 +146,8 @@
             <kontext-view
               v-if="data[timestampId].kontext"
               :kontextData="data[timestampId].kontext"
+              :focusTag="data[timestampId].reihung"
+              :focusOrtho="data[timestampId].ortho"
             />
           </v-col>
         </v-row>
@@ -175,6 +177,7 @@ export interface Audio {
   ortho?: string;
   aufgabe?: string;
   kontext?: AntwortKontext[];
+  reihung?: number;
 }
 
 @Component({
