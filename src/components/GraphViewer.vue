@@ -1,5 +1,6 @@
 <template>
   <div v-if="inputData && inputData.length > 0">
+    <chart-viewer :inputData="inputData" />
     <circle-diagram :data="inputData" />
     <v-list class="transparent">
       <v-list-item v-for="(d, idx) in inputData" :key="idx">
@@ -29,9 +30,10 @@ import {
 import { Description, Symbols } from '@/static/apiModels';
 import CircleDiagram from './CircleDiagram.vue';
 import IconCircle from '@/icons/IconCircle.vue';
+import ChartViewer from './ChartViewer.vue';
 
 @Component({
-  components: { CircleDiagram, IconCircle },
+  components: { CircleDiagram, IconCircle, ChartViewer },
   name: 'GraphViewer'
 })
 export default class GraphViewer extends Vue {
@@ -49,14 +51,13 @@ desc: Array<Description> = [{
 }];*/
 
   get inputData() {
-    return this.desc ? this.desc : [] as Array<Description>
+    console.log(this.desc);
+    return this.desc ? this.desc : ([] as Array<Description>);
   }
 
   icon: Symbols = Symbols.Circle;
 
-  mounted() {
-  }
+  mounted() {}
 }
 </script>
-<style lang="scss">
-</style>
+<style lang="scss"></style>
