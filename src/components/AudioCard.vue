@@ -374,14 +374,20 @@ export default class DragableCard extends Vue {
       res.push({
         color: currEle.c,
         name: currEle.name,
-        value: val
+        value: val,
+        age: person?.age ? person.age : 0,
+        sigle: person?.sigle ? person.sigle : '',
+        group: person?.gruppeBez ? person.gruppeBez : ''
       });
       person?.res.forEach((el: any) => {
         const d = data.find((e) => e.id === el.id);
         res.push({
           color: d ? d.c : '#000',
           name: d ? d.name : '',
-          value: el.data.length
+          value: el.data.length,
+          age: person?.age ? person.age : 0,
+          sigle: person?.sigle ? person.sigle : '',
+          group: person?.gruppeBez ? person.gruppeBez : ''
         });
       });
     }

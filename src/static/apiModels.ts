@@ -45,6 +45,9 @@ export interface Description {
   color: string;
   name: string;
   value: number;
+  age: number;
+  sigle: string;
+  group: string;
 }
 
 export type circleData = {
