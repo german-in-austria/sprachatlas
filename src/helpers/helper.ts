@@ -237,7 +237,7 @@ export const loadData = async (
     case SearchItems.Tag:
       await AM.fetchAntwortAudio({
         ids: ids,
-        paraid: data.t === SearchItems.Tag ? '' : data.id,
+        paraid: data.id.toString(),
         osmId: osm,
         ageLower: min,
         ageUpper: max,
