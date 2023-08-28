@@ -25,6 +25,22 @@
         Keine Aufnahmen verfügbar für
         {{ data.selectedOrt.ortName.split(',')[0] }}
       </template>
+      <v-tooltip right>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            @click.native.stop="
+              evaluateDataForLocation(data.selectedOrt?.ortName.split(',')[0])
+            "
+            v-bind="attrs"
+            v-on="on"
+            class="header"
+          >
+            <v-icon>mdi-chart-bar</v-icon>
+          </v-btn>
+        </template>
+        <span> Variation für Ort auswerten</span>
+      </v-tooltip>
     </v-card-title>
     <template v-if="aufgabenLoading">
       <v-skeleton-loader min-width="500" type="article, actions">
@@ -190,6 +206,8 @@
 import {
   circleData,
   Description,
+  LegendGlobal,
+  Parameter,
   pinData,
   SearchItems,
   sigleAntwort
@@ -202,6 +220,8 @@ import ActionButtons from './ActionButtons.vue';
 import { isAufgabeStandard } from '@/helpers/helper';
 import { aufgabenModule } from '@/store/modules/aufgaben';
 import { legendMod } from '@/store/modules/legend';
+import { convertHslToStr } from '@/helpers/helper';
+
 import {
   Antwort,
   antwortenDto,
@@ -305,7 +325,215 @@ export default class DragableCard extends Vue {
     }
   }
 
+  async evaluateDataForLocation(ort: string | undefined) {
+    const title = `Auswertung für ${ort ? ort : ''}`;
+    this.AM.setDiagramTitle(`Auswertung für ${ort ? ort : ''}`);
+    console.log(this.data);
+    let curr = await this.LM.pushNewPinDataVar({
+      diagramTitle: title,
+      isPinned: false,
+      isShown: true,
+      diagramData: []
+    });
+    let res: Array<Description> = [];
+    const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
+    if (this.data.antwortAudio.length > 0) {
+      this.data.antwortAudio.forEach((el) => {
+        const val = el.res.reduce((prev, curr) => {
+          return prev + curr.data.length;
+        }, 0);
+        const idx = res.findIndex((e) => e.sigle === el.sigle);
+        if (idx < 0) {
+          res.push({
+            age: el.age,
+            sigle: el.sigle,
+            group: el?.gruppeBez ? el.gruppeBez : '',
+            value: val,
+            color: currEle.c,
+            name: currEle.name
+          });
+        } else {
+          res[idx].value += val;
+        }
+      });
+    }
+
+    if (this.data.aufgabeAudio.length > 0) {
+      this.data.aufgabeAudio.forEach((el) => {
+        const val = el.data.length;
+        const idx = res.findIndex((e) => e.sigle === el.sigle);
+        if (idx < 0) {
+          res.push({
+            age: el.age,
+            sigle: el.sigle,
+            group: el?.gruppeBez ? el.gruppeBez : '',
+            value: val,
+            color: currEle.c,
+            name: currEle.name
+          });
+        } else {
+          res[idx].value += val;
+        }
+      });
+    }
+    if (this.data.selectedOrt) {
+      let data = this.data.selectedOrt.data.filter(
+        (el) => el.id !== currEle.id
+      );
+      let dto: Array<antwortenDto> = [];
+      for (const key of data) {
+        let ids = [] as number[];
+        if (key.t !== SearchItems.Query) {
+          continue;
+        }
+        if (key.id !== '') {
+          ids = [Number(key.id)];
+        }
+        let token = [] as selectionObject[];
+        let lemma = [] as selectionObject[];
+        let max = this.ageRange.upper;
+        let min = this.ageRange.lower;
+        const p = key.para;
+        let group = false;
+        if (p) {
+          token = p.textTokenList ? p.textTokenList : [];
+          lemma = p.lemmaList ? p.lemmaList : [];
+          ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
+          group = ids.length > 0;
+        }
+        dto.push({
+          ids: ids,
+          paraid: key.id,
+          osmId: this.data.selectedOrt.osm,
+          ageLower: min,
+          ageUpper: max,
+          text: token,
+          ausbildung: p?.maxEducation ? p.maxEducation : undefined,
+          beruf_id: p?.education != undefined ? p.education : undefined,
+          weiblich: p?.gender !== undefined ? p.gender : undefined,
+          project: p?.project ? p.project : undefined,
+          erhArt: legendMod.erhArtFilter,
+          lemma: lemma,
+          group: group
+        });
+      }
+      await this.AM.fetchAntwortVariation(dto);
+      const variation = this.antVariation;
+      variation.forEach((element) => {
+        element.res.forEach((ele) => {
+          const id = ele.id;
+          const legend = this.data.selectedOrt.data.find(
+            (dataElement) => dataElement.id === id
+          );
+
+          const legName = legend?.name;
+          const idx = res.findIndex(
+            (e) => e.sigle === element.sigle && e.name === legName
+          );
+          if (idx < 0 && legend) {
+            res.push({
+              age: element.age,
+              sigle: element.sigle,
+              group: element?.gruppeBez ? element.gruppeBez : '',
+              value: ele.data.length,
+              color: legend.c,
+              name: legend.name
+            });
+          } else {
+            res[idx].value += ele.data.length;
+          }
+        });
+      });
+    }
+    curr.diagramData = res;
+    this.LM.editPinnDataVar(curr);
+    this.AM.setDiagramData(res);
+  }
+  /*
+  async fetchVariationData() {
+    let res: Array<Description> = [];
+      const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
+      const val = d.data.reduce((acc, curr) => {
+        const data = curr.data[0];
+        if (isArray(data)) {
+          return acc + data.length;
+        }
+        return acc + curr.data.length;
+      }, 0);
+      let data = this.data.selectedOrt.data.filter(
+        (el) => el.id !== currEle.id
+      );
+      let dto: Array<antwortenDto> = [];
+      for (const key of data) {
+        let ids = [] as number[];
+        if (key.t !== SearchItems.Query) {
+          continue;
+        }
+        if (key.id !== '') {
+          ids = [Number(key.id)];
+        }
+        let token = [] as selectionObject[];
+        let lemma = [] as selectionObject[];
+        let max = this.ageRange.upper;
+        let min = this.ageRange.lower;
+        const p = key.para;
+        let group = false;
+        if (p) {
+          max = Math.max(p.ageRange[1], max);
+          min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
+          token = p.textTokenList ? p.textTokenList : [];
+          lemma = p.lemmaList ? p.lemmaList : [];
+          ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
+          group = ids.length > 0;
+        }
+        dto.push({
+          ids: ids,
+          paraid: key.id,
+          osmId: this.data.selectedOrt.osm,
+          ageLower: d.age,
+          ageUpper: d.age,
+          text: token,
+          ausbildung: p?.maxEducation ? p.maxEducation : undefined,
+          beruf_id: p?.education != undefined ? p.education : undefined,
+          weiblich: p?.gender !== undefined ? p.gender : undefined,
+          project: p?.project ? p.project : undefined,
+          erhArt: legendMod.erhArtFilter,
+          lemma: lemma,
+          group: group
+        });
+      }
+      await this.AM.fetchAntwortVariation(dto);
+      const variation = this.antVariation;
+      const person = variation.find((el: any) => el.sigle === sigle);
+      res.push({
+        color: currEle.c,
+        name: currEle.name,
+        value: val,
+        age: person?.age ? person.age : 0,
+        sigle: person?.sigle ? person.sigle : '',
+        group: person?.gruppeBez ? person.gruppeBez : ''
+      });
+      person?.res.forEach((el: any) => {
+        const d = data.find((e) => e.id === el.id);
+        res.push({
+          color: d ? d.c : '#000',
+          name: d ? d.name : '',
+          value: el.data.length,
+          age: person?.age ? person.age : 0,
+          sigle: person?.sigle ? person.sigle : '',
+          group: person?.gruppeBez ? person.gruppeBez : ''
+        });
+      });
+      return res;
+  }*/
+
   async evaluateData(ort: string | undefined, sigle: string, d: sigleAntwort) {
+    this.data.antwortAudio.forEach((el) => {
+      console.log(el.sigle);
+      el.res.forEach((data) => {
+        console.log(data.data.forEach((element) => console.log(element.tagId)));
+      });
+    });
     const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(
       `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`
