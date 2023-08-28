@@ -1,14 +1,23 @@
 <template>
   <div style="margin-top: 10px">
-    <div id="datavis">
-      <v-switch
-        v-model="kontext"
-        label="Kontext"
-        color="info"
-        @change="changeStyleOfGraph()"
-        inset
-      ></v-switch>
-    </div>
+    <v-container>
+      <v-row>
+        <v-col>
+          <div id="datavis"></div>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col>
+          <v-switch
+            v-model="kontext"
+            label="Kontext"
+            color="info"
+            @change="changeStyleOfGraph()"
+            inset
+          ></v-switch>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 <script lang="ts">
