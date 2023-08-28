@@ -1,21 +1,31 @@
 <template>
   <div v-if="inputData && inputData.length > 0">
-    <chart-viewer :inputData="inputData" />
-    <circle-diagram :data="inputData" />
-    <v-list class="transparent">
-      <v-list-item v-for="(d, idx) in inputData" :key="idx">
-        <v-list-item-content class="mx-auto">
-          <v-container>
-            <v-row align="center" justify="space-around">
-              Name: {{ d.name }} - Anzahl: {{ d.value }}
-              <v-avatar>
-                <icon-circle :fillCol="d.color" :strokeWidth="1" />
-              </v-avatar>
-            </v-row>
-          </v-container>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+    <v-tabs v-model="tab" fixed-tabs background-color="indigo" dark>
+      <v-tab>Kreisdiagramm <v-icon>mdi-chart-pie-outline</v-icon></v-tab>
+      <v-tab>Balkendiagramm <v-icon>mdi-chart-bar-stacked</v-icon></v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab">
+      <v-tab-item key="0"
+        ><circle-diagram :data="inputData" />
+        <v-list class="transparent">
+          <v-list-item v-for="(d, idx) in inputData" :key="idx">
+            <v-list-item-content class="mx-auto">
+              <v-container>
+                <v-row align="center" justify="space-around">
+                  Name: {{ d.name }} - Anzahl: {{ d.value }}
+                  <v-avatar>
+                    <icon-circle :fillCol="d.color" :strokeWidth="1" />
+                  </v-avatar>
+                </v-row>
+              </v-container>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-tab-item>
+      <v-tab-item key="1">
+        <chart-viewer :inputData="inputData" />
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 <script lang="ts">
@@ -38,6 +48,8 @@ import ChartViewer from './ChartViewer.vue';
 })
 export default class GraphViewer extends Vue {
   @Prop({ type: Array }) readonly desc!: Array<Description>;
+
+  tab = null;
   /*
 desc: Array<Description> = [{
   color: '#F00',
