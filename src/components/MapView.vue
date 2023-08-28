@@ -2029,10 +2029,7 @@ export default class MapView extends Vue {
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tag.tagId
-          ? tag.tagId
-          : this.tagListFlat.filter((el) => el.tagAbbrev === tag.tagName)[0]
-              .tagId,
+        tags.id,
         SearchItems.Tag
       );
     }
@@ -2678,7 +2675,7 @@ html {
 .varCard {
   top: 30vh;
   left: 45%;
-  max-width: 450px;
+  min-width: 250px;
   position: fixed;
   // transition: all 0.2s ease-in-out;
 }
