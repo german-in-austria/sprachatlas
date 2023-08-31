@@ -145,7 +145,6 @@ export default class ChartViewer extends Vue {
           return 0;
         }
       })(data);
-    console.log(stackedData);
     const dataDiv = d3
       .select('#datavis')
       .append('div')
@@ -159,10 +158,7 @@ export default class ChartViewer extends Vue {
       .data(stackedData)
       .join('g')
       //@ts-ignore
-      .attr('fill', (d: any) => {
-        console.log(color(d.key));
-        return color(d.key);
-      })
+      .attr('fill', (d: any) => color(d.key))
       .selectAll('rect')
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data((d) => d)
@@ -210,7 +206,6 @@ export default class ChartViewer extends Vue {
         return 105 + i * 25;
       }) // 100 is where the first dot appears. 25 is the distance between dots
       .style('fill', function (d) {
-        console.log(d);
         return color(d);
       })
       .text(function (d) {
