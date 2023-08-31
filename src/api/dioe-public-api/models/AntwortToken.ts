@@ -9,6 +9,9 @@ export type AntwortToken = {
     stop: any;
     tagId: (number | Array<number>) | null;
     tagName: string | null;
+    bezErhebung: string;
+    erhArt: string;
+    erhArtId: number;
     ortho: string | null;
     orthoText: string | null;
     text: string | null;

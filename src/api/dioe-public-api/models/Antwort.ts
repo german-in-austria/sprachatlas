@@ -7,4 +7,7 @@ export type Antwort = {
     stop: any;
     tagId: (number | Array<number>) | null;
     tagName: string | null;
+    bezErhebung: string;
+    erhArt: string;
+    erhArtId: number;
 }
