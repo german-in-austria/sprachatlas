@@ -310,8 +310,8 @@ export default class AudioPlayer extends Vue {
       ) {
         track.currentTime = this.timestampStart;
       }
-      track.volume = 0;
-      this.audioFadeIn(this.timestampStart);
+      track.volume = 1;
+      // this.audioFadeIn(this.timestampStart);
       try {
         await track.play();
       } catch (e) {
@@ -372,7 +372,8 @@ export default class AudioPlayer extends Vue {
         if (!sound.paused) {
           this.completion = (this.time / this.duration) * 100;
           if (sound.currentTime >= this.timestampEnd && !this.repeat) {
-            this.audioFadeOut();
+            // this.audioFadeOut();
+            sound.volume = 0;
             if (sound.currentTime >= this.timestampEnd) {
               this.pause();
             }
