@@ -199,7 +199,7 @@ export default class AudioPlayer extends Vue {
   fadeIn: number = -1;
   fadeOut: number = -1;
 
-  fadeValue: number = 1;
+  fadeValue: number = 0;
 
   kontextNum: number = 0;
 
@@ -229,7 +229,9 @@ export default class AudioPlayer extends Vue {
     if (start.minutes) {
       sec += start.minutes * 60;
     }
-    sec += start.seconds;
+    if (start.seconds) {
+      sec += start.seconds;
+    }
     if (start.milliseconds) {
       sec += start.milliseconds / 1000;
     }
@@ -243,7 +245,9 @@ export default class AudioPlayer extends Vue {
     if (end.minutes) {
       sec += end.minutes * 60;
     }
-    sec += end.seconds;
+    if (end.seconds) {
+      sec += end.seconds;
+    }
     if (end.milliseconds) {
       sec += end.milliseconds / 1000;
     }
