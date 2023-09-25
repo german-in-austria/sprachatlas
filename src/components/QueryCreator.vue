@@ -673,7 +673,11 @@ export default class QueryCreator extends Vue {
         symbol: this.$refs.sym.symbol,
         erhArt: this.chips.map((val) => val.id),
         project: this.formControl.selProject,
-        gender: this.formControl.selGender === 'Weiblich' ? true : false, // Boolean
+        gender: this.formControl.selGender
+          ? this.formControl.selGender === 'Weiblich'
+            ? true
+            : false
+          : undefined, // Boolean
         education: this.formControl.selEducation, // ID
         maxEducation: this.formControl.selMaxEducation,
         parents: this.formControl.selParents,
