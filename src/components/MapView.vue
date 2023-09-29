@@ -2029,7 +2029,7 @@ export default class MapView extends Vue {
         tag.numTag,
         tag.tagName,
         propFactor * tag.numTag,
-        tags.id,
+        tags.searchInfo.tagId ? tags.searchInfo.tagId.toString() : '',
         SearchItems.Tag
       );
     }
