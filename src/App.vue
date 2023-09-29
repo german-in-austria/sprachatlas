@@ -71,12 +71,6 @@ export default class App extends Vue {
     }
   }
 
-  created() {
-    if (this.legendGlobal.length === 0) {
-      legendMod.setLoadDataPromise(decodeURI());
-    }
-  }
-
   mounted() {
     initGeo();
     tagModule.fetchTags();
@@ -84,20 +78,27 @@ export default class App extends Vue {
     tagModule.getAllSppos();
     this.PM.fetchAllPhaen();
     authModule.getAllMaps();
-    authModule.fetchCurrentUser().then(() => {
-      const user = authModule.currentUser;
-      if (user.error) {
-        messageHandler.setWarnMsg({
-          message: `Sie sind aktuell nicht eingeloggt`,
-          icon: 'mdi-warn'
-        });
-      } else {
-        messageHandler.setSuccessMsg({
-          message: `Willkommen zurück ${user.user.name}`,
-          icon: 'mdi-info'
-        });
-      }
-    });
+    authModule
+      .fetchCurrentUser()
+      .then(() => {
+        const user = authModule.currentUser;
+        if (user.error) {
+          messageHandler.setWarnMsg({
+            message: `Sie sind aktuell nicht eingeloggt`,
+            icon: 'mdi-warn'
+          });
+        } else {
+          messageHandler.setSuccessMsg({
+            message: `Willkommen zurück ${user.user.name}`,
+            icon: 'mdi-info'
+          });
+        }
+      })
+      .then(() => {
+        if (this.legendGlobal.length === 0) {
+          legendMod.setLoadDataPromise(decodeURI());
+        }
+      });
     aufgabenModule.fetchAllAufgaben();
     this.loadTranscripts();
   }
