@@ -22,7 +22,7 @@ export const expData = {
     }
     delete expLegend.layer;
     const eL = expLegend as exportLegend;
-    if (id > -1 || (isArray(id) && id.length > 0)) {
+    if ((!isArray(id) && id > -1) || (isArray(id) && id.length > 0)) {
       eL.elementId = id;
     }
     return expLegend as exportLegend;
@@ -268,6 +268,9 @@ export const expData = {
     const result = (await getSingleExportLink(id)) as any;
     if (result.data.length > 0) {
       const data = result.data[0].data;
+      if (!authModule.loggedIn && !result.data[0].public) {
+        return [] as exportLegend[];
+      }
       return this.decompressAndParse(data);
     }
   }

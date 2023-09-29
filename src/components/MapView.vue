@@ -2564,9 +2564,17 @@ export default class MapView extends Vue {
         });
         this.iconLayer.addTo(this.map);
         if (legendMod.loadDataPromise) {
-          legendMod.loadDataPromise.then(() => {
-            this.displayDataFromLegend(legendMod.legend);
-          });
+          legendMod.loadDataPromise.then(
+            () => {
+              this.displayDataFromLegend(legendMod.legend);
+            },
+            (reject) => {
+              messageHandler.setErrorMsg({
+                message: `Fehler beim Laden der Daten: ${reject}`,
+                icon: 'mdi-alert'
+              });
+            }
+          );
         }
         this.computeMPerPixel();
         this.map.on('zoomend', (e: any) => {

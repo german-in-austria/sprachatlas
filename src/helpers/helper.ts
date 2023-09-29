@@ -381,7 +381,8 @@ export const decodeURI = async () => {
         legendMod.addLegendEntry(lm);
       }
     }
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      if (legend.length === 0) reject('Keine Legende zum Laden vorhanden!');
       resolve('Daten wurden geladen!');
     });
   }

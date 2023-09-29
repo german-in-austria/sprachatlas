@@ -7,7 +7,7 @@
       right
       vertical
       :timeout="snackbar_timeout"
-      :color="latestLogColor"
+      :color="item.type"
       v-model="item.show"
       :style="`bottom: ${idx * 150}px`"
     >
@@ -52,7 +52,6 @@ export default class Snackbar extends Vue {
     return messageHandler.showSnack;
   }
 
-  mounted() {
-  }
+  mounted() {}
 }
 </script>

@@ -56,7 +56,7 @@ export default class Message extends Vue {
         if (this.date) {
           const intv = Date.now() - this.date;
           if (intv >= SNACK_BAR_TIMEOUT) {
-            console.log("Closing");
+            console.log('Closing');
             this.closeMsg();
             clearInterval(intvId);
           }
@@ -70,8 +70,8 @@ export default class Message extends Vue {
 }
 </script>
 <style scoped lang="scss">
-  .v-progress-linear__bar,
-  .v-progress-linear__bar__determinate {
-    transition: none;
-  }
+.v-progress-linear__bar,
+.v-progress-linear__bar__determinate {
+  transition: none;
+}
 </style>
