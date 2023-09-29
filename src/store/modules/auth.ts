@@ -54,6 +54,7 @@ class Auth extends VuexModule implements ErhebungState {
     this.loggedIn = val;
   }
 
+  //@ts-ignore
   @MutationAction({ mutate: ['currentUser', 'loading', 'loggedIn'] })
   async fetchCurrentUser() {
     this.context.commit('setLoading', true);
@@ -67,6 +68,7 @@ class Auth extends VuexModule implements ErhebungState {
     };
   }
 
+  //@ts-ignore
   @MutationAction({ mutate: ['exportId', 'loading'] })
   async postExportLink(arg: {
     data: string;
@@ -88,6 +90,7 @@ class Auth extends VuexModule implements ErhebungState {
     };
   }
 
+  //@ts-ignore
   @MutationAction({ mutate: ['exportedMaps', 'loading'] })
   async getAllMaps() {
     this.context.commit('setLoading', true);
