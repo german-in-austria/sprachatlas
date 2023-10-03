@@ -206,6 +206,7 @@
 import {
   circleData,
   Description,
+  GPData,
   LegendGlobal,
   Parameter,
   pinData,
@@ -328,7 +329,6 @@ export default class DragableCard extends Vue {
   async evaluateDataForLocation(ort: string | undefined) {
     const title = `Auswertung für ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(`Auswertung für ${ort ? ort : ''}`);
-    console.log(this.data);
     let curr = await this.LM.pushNewPinDataVar({
       diagramTitle: title,
       isPinned: false,
@@ -336,43 +336,68 @@ export default class DragableCard extends Vue {
       diagramData: []
     });
     let res: Array<Description> = [];
+    let gpData: Array<GPData> = [];
     const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
     if (this.data.antwortAudio.length > 0) {
-      this.data.antwortAudio.forEach((el) => {
-        const val = el.res.reduce((prev, curr) => {
+      this.data.antwortAudio.forEach((antAudio) => {
+        const val = antAudio.res.reduce((prev, curr) => {
           return prev + curr.data.length;
         }, 0);
-        const idx = res.findIndex((e) => e.sigle === el.sigle);
+        const idx = res.findIndex((e) => e.sigle === antAudio.sigle);
+        antAudio.res.forEach((antRes) => {
+          antRes.data.forEach((data) => {
+            const idxGp = gpData.findIndex(
+              (e) => e.sigle === antAudio.sigle && e.erhArtId === data.erhArtId
+            );
+            if (idxGp < 0) {
+              gpData.push({
+                sigle: antAudio.sigle,
+                count: 1,
+                erhArt: data.erhArt,
+                erhArtId: data.erhArtId,
+                bezErhebung: data.bezErhebung
+              });
+            } else {
+              gpData[idxGp].count++;
+            }
+          });
+        });
+        // Could not find entry - Create new one
         if (idx < 0) {
           res.push({
-            age: el.age,
-            sigle: el.sigle,
-            group: el?.gruppeBez ? el.gruppeBez : '',
+            age: antAudio.age,
+            sigle: antAudio.sigle,
+            group: antAudio?.gruppeBez ? antAudio.gruppeBez : '',
             value: val,
             color: currEle.c,
-            name: currEle.name
+            name: currEle.name,
+            gp: gpData.filter((gpdata) => gpdata.sigle === antAudio.sigle)
           });
         } else {
+          // Exists - Add value to found entry
           res[idx].value += val;
+          res[idx].gp = gpData.filter(
+            (gpdata) => gpdata.sigle === antAudio.sigle
+          );
         }
       });
     }
-
     if (this.data.aufgabeAudio.length > 0) {
       this.data.aufgabeAudio.forEach((el) => {
         const val = el.data.length;
-        const idx = res.findIndex((e) => e.sigle === el.sigle);
-        if (idx < 0) {
+        const gpIdx = res.findIndex((e) => e.sigle === el.sigle);
+        if (gpIdx < 0) {
           res.push({
             age: el.age,
             sigle: el.sigle,
             group: el?.gruppeBez ? el.gruppeBez : '',
             value: val,
             color: currEle.c,
-            name: currEle.name
+            name: currEle.name,
+            gp: []
           });
         } else {
-          res[idx].value += val;
+          res[gpIdx].value += val;
         }
       });
     }
@@ -419,28 +444,55 @@ export default class DragableCard extends Vue {
       }
       await this.AM.fetchAntwortVariation(dto);
       const variation = this.antVariation;
-      variation.forEach((element) => {
-        element.res.forEach((ele) => {
-          const id = ele.id;
+      console.log(variation);
+      gpData = [];
+
+      variation.forEach((varElement) => {
+        const val = varElement.res.reduce((prev, curr) => {
+          return prev + curr.data.length;
+        }, 0);
+        varElement.res.forEach((antRes) => {
+          const id = antRes.id;
           const legend = this.data.selectedOrt.data.find(
             (dataElement) => dataElement.id === id
           );
-
-          const legName = legend?.name;
+          console.log(legend);
           const idx = res.findIndex(
-            (e) => e.sigle === element.sigle && e.name === legName
+            (e) => e.sigle === varElement.sigle && e.name === legend?.name
           );
-          if (idx < 0 && legend) {
+          antRes.data.forEach((data) => {
+            const idxGp = gpData.findIndex(
+              (e) =>
+                e.sigle === varElement.sigle && e.erhArtId === data.erhArtId
+            );
+            if (idxGp < 0) {
+              gpData.push({
+                sigle: varElement.sigle,
+                count: 1,
+                erhArt: data.erhArt,
+                erhArtId: data.erhArtId,
+                bezErhebung: data.bezErhebung
+              });
+            } else {
+              gpData[idxGp].count++;
+            }
+          });
+          if (idx < 0) {
             res.push({
-              age: element.age,
-              sigle: element.sigle,
-              group: element?.gruppeBez ? element.gruppeBez : '',
-              value: ele.data.length,
-              color: legend.c,
-              name: legend.name
+              age: varElement.age,
+              sigle: varElement.sigle,
+              group: varElement?.gruppeBez ? varElement.gruppeBez : '',
+              value: val,
+              color: legend ? legend.c : '#FFF',
+              name: legend ? legend.name : '',
+              gp: gpData.filter((gpdata) => gpdata.sigle === varElement.sigle)
             });
           } else {
-            res[idx].value += ele.data.length;
+            // Exists - Add value to found entry
+            res[idx].value += val;
+            res[idx].gp = gpData.filter(
+              (gpdata) => gpdata.sigle === varElement.sigle
+            );
           }
         });
       });
@@ -449,83 +501,6 @@ export default class DragableCard extends Vue {
     this.LM.editPinnDataVar(curr);
     this.AM.setDiagramData(res);
   }
-  /*
-  async fetchVariationData() {
-    let res: Array<Description> = [];
-      const currEle = this.data.selectedOrt?.data[this.data.selectedDataIdx];
-      const val = d.data.reduce((acc, curr) => {
-        const data = curr.data[0];
-        if (isArray(data)) {
-          return acc + data.length;
-        }
-        return acc + curr.data.length;
-      }, 0);
-      let data = this.data.selectedOrt.data.filter(
-        (el) => el.id !== currEle.id
-      );
-      let dto: Array<antwortenDto> = [];
-      for (const key of data) {
-        let ids = [] as number[];
-        if (key.t !== SearchItems.Query) {
-          continue;
-        }
-        if (key.id !== '') {
-          ids = [Number(key.id)];
-        }
-        let token = [] as selectionObject[];
-        let lemma = [] as selectionObject[];
-        let max = this.ageRange.upper;
-        let min = this.ageRange.lower;
-        const p = key.para;
-        let group = false;
-        if (p) {
-          max = Math.max(p.ageRange[1], max);
-          min = Math.min(p.ageRange[0], min > -1 ? min : p.ageRange[0]);
-          token = p.textTokenList ? p.textTokenList : [];
-          lemma = p.lemmaList ? p.lemmaList : [];
-          ids = p.tagList && p.tagList.length > 0 ? p.tagList[0].tagIds : [-1];
-          group = ids.length > 0;
-        }
-        dto.push({
-          ids: ids,
-          paraid: key.id,
-          osmId: this.data.selectedOrt.osm,
-          ageLower: d.age,
-          ageUpper: d.age,
-          text: token,
-          ausbildung: p?.maxEducation ? p.maxEducation : undefined,
-          beruf_id: p?.education != undefined ? p.education : undefined,
-          weiblich: p?.gender !== undefined ? p.gender : undefined,
-          project: p?.project ? p.project : undefined,
-          erhArt: legendMod.erhArtFilter,
-          lemma: lemma,
-          group: group
-        });
-      }
-      await this.AM.fetchAntwortVariation(dto);
-      const variation = this.antVariation;
-      const person = variation.find((el: any) => el.sigle === sigle);
-      res.push({
-        color: currEle.c,
-        name: currEle.name,
-        value: val,
-        age: person?.age ? person.age : 0,
-        sigle: person?.sigle ? person.sigle : '',
-        group: person?.gruppeBez ? person.gruppeBez : ''
-      });
-      person?.res.forEach((el: any) => {
-        const d = data.find((e) => e.id === el.id);
-        res.push({
-          color: d ? d.c : '#000',
-          name: d ? d.name : '',
-          value: el.data.length,
-          age: person?.age ? person.age : 0,
-          sigle: person?.sigle ? person.sigle : '',
-          group: person?.gruppeBez ? person.gruppeBez : ''
-        });
-      });
-      return res;
-  }*/
 
   async evaluateData(ort: string | undefined, sigle: string, d: sigleAntwort) {
     this.data.antwortAudio.forEach((el) => {
@@ -605,7 +580,10 @@ export default class DragableCard extends Vue {
         value: val,
         age: person?.age ? person.age : 0,
         sigle: person?.sigle ? person.sigle : '',
-        group: person?.gruppeBez ? person.gruppeBez : ''
+        group: person?.gruppeBez ? person.gruppeBez : '',
+        erhArt: '',
+        erhArtId: -1,
+        bezErhebung: ''
       });
       person?.res.forEach((el: any) => {
         const d = data.find((e) => e.id === el.id);
@@ -615,7 +593,10 @@ export default class DragableCard extends Vue {
           value: el.data.length,
           age: person?.age ? person.age : 0,
           sigle: person?.sigle ? person.sigle : '',
-          group: person?.gruppeBez ? person.gruppeBez : ''
+          group: person?.gruppeBez ? person.gruppeBez : '',
+          erhArt: '',
+          erhArtId: -1,
+          bezErhebung: ''
         });
       });
     }
