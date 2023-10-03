@@ -444,7 +444,6 @@ export default class DragableCard extends Vue {
       }
       await this.AM.fetchAntwortVariation(dto);
       const variation = this.antVariation;
-      console.log(variation);
       gpData = [];
 
       variation.forEach((varElement) => {
