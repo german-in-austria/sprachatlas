@@ -48,6 +48,15 @@ export interface Description {
   age: number;
   sigle: string;
   group: string;
+  gp: Array<GPData>;
+}
+
+export interface GPData {
+  erhArt: string;
+  erhArtId: number;
+  bezErhebung: string;
+  sigle: string;
+  count: number;
 }
 
 export type circleData = {
@@ -213,6 +222,8 @@ export type singleEntry = {
   r: number;
   // id of the entry
   id: string;
+  // ID Value of the entry
+  paraId: string;
   // Chosen icon
   icon: Symbols;
   // further parameters
