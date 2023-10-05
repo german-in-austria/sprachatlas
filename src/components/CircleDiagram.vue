@@ -10,6 +10,7 @@
 <script lang="ts">
 import { drawCircleDiagram } from '@/helpers/MapCompute';
 import { Description } from '@/static/apiModels';
+import { cloneDeep } from 'lodash';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
 @Component({
@@ -26,12 +27,12 @@ export default class CircleDiagram extends Vue {
 
   get groupedDiagramData() {
     let groupedData: Array<Description> = [];
-    this.diagramData.forEach((desc) => {
+    cloneDeep(this.diagramData).forEach((desc) => {
       const idx = groupedData.findIndex((el) => el.name === desc.name);
       if (idx < 0) {
         groupedData.push(desc);
       } else {
-        groupedData[idx].value += 1;
+        groupedData[idx].value += desc.value;
       }
     });
     return groupedData;

@@ -6,13 +6,14 @@
     </v-tabs>
     <v-tabs-items v-model="tab">
       <v-tab-item key="0"
-        ><circle-diagram :data="inputData" />
-        <v-list class="transparent">
+        ><circle-diagram :groupByGp="groupByGp" :data="inputData" />
+        <v-list v-if="inputData" class="transparent">
           <v-list-item v-for="(d, idx) in inputData" :key="idx">
             <v-list-item-content class="mx-auto">
               <v-container>
                 <v-row align="center" justify="space-around">
                   Name: {{ d.name }} - Anzahl: {{ d.value }}
+                  {{ groupByGp ? `- GP: ${d.sigle} (${d.group})` : '' }}
                   <v-avatar>
                     <icon-circle :fillCol="d.color" :strokeWidth="1" />
                   </v-avatar>
@@ -26,6 +27,11 @@
         <chart-viewer :inputData="inputData" />
       </v-tab-item>
     </v-tabs-items>
+    <v-switch
+      v-model="groupByGp"
+      inset
+      :label="`Nach Gewährspersonen gruppieren`"
+    ></v-switch>
   </div>
 </template>
 <script lang="ts">
@@ -41,6 +47,7 @@ import { Description, Symbols } from '@/static/apiModels';
 import CircleDiagram from './CircleDiagram.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import ChartViewer from './ChartViewer.vue';
+import { cloneDeep } from 'lodash';
 
 @Component({
   components: { CircleDiagram, IconCircle, ChartViewer },
@@ -48,28 +55,49 @@ import ChartViewer from './ChartViewer.vue';
 })
 export default class GraphViewer extends Vue {
   @Prop({ type: Array }) readonly desc!: Array<Description>;
-
+  groupedDiagramData: Array<Description> = this.desc;
+  groupByGp: boolean = false;
   tab = null;
-  /*
-desc: Array<Description> = [{
-  color: '#F00',
-  name: 'I1',
-  value: 20
-},
-{
-  color: '#0F0',
-  name: 'I2',
-  value: 60
-}];*/
 
   get inputData() {
-    console.log(this.desc);
-    return this.desc ? this.desc : ([] as Array<Description>);
+    return !this.groupByGp ? this.groupedData : this.desc;
+  }
+
+  get groupedData() {
+    let groupedData: Array<Description> = [];
+
+    cloneDeep(this.desc).forEach((desc) => {
+      const idx = groupedData.findIndex((el) => el.name === desc.name);
+      if (idx < 0) {
+        groupedData.push(desc);
+      } else {
+        groupedData[idx].value += desc.value;
+      }
+    });
+    return groupedData;
+  }
+
+  computeGroupedDiagramData() {
+    let groupedData: Array<Description> = [];
+    this.groupedDiagramData = [];
+    console.log(this.inputData);
+    const inputDataCopy = [...this.inputData];
+    inputDataCopy.forEach((desc) => {
+      const idx = groupedData.findIndex((el) => el.name === desc.name);
+      if (idx < 0) {
+        groupedData.push(desc);
+      } else {
+        groupedData[idx].value += desc.value;
+      }
+    });
+    this.groupedDiagramData = groupedData;
   }
 
   icon: Symbols = Symbols.Circle;
 
-  mounted() {}
+  mounted() {
+    // this.computeGroupedDiagramData();
+  }
 }
 </script>
 <style lang="scss"></style>
