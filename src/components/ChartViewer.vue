@@ -10,7 +10,11 @@
         <v-col>
           <v-switch
             v-model="kontext"
-            label="Kontext"
+            :label="
+              kontext
+                ? 'Nach Altersgruppen gruppieren'
+                : 'Nach Parametern gruppieren'
+            "
             color="info"
             @change="changeStyleOfGraph()"
             inset
@@ -61,6 +65,12 @@ export default class ChartViewer extends Vue {
   kontext: boolean = true;
 
   @Prop() readonly inputData!: Array<any>;
+  @Prop() readonly groupByGp!: boolean;
+
+  @Watch('groupByGp')
+  onGroupByGp() {
+    this.changeStyleOfGraph();
+  }
 
   get maxValue() {
     // get maximum value from inputData, based by value property
@@ -158,7 +168,9 @@ export default class ChartViewer extends Vue {
       .data(stackedData)
       .join('g')
       //@ts-ignore
-      .attr('fill', (d: any) => color(d.key))
+      .attr('fill', (d: any) => {
+        return color(d.key);
+      })
       .selectAll('rect')
       // enter a second time = loop subgroup per subgroup to add all rectangles
       .data((d) => d)
