@@ -65,13 +65,17 @@ export default class GraphViewer extends Vue {
       return this.groupedData;
     }
     const res = [] as Array<Description>;
-    const groupedObject = groupBy(this.desc, 'name');
+    const groupedObject = groupBy(cloneDeep(this.desc), 'name');
     for (let obj in groupedObject) {
       if (groupedObject[obj].length > 1) {
         let colHsl = convertHexToHsl(groupedObject[obj][0].color);
         const factor = 0.5 / groupedObject[obj].length;
         groupedObject[obj].forEach((el) => {
-          el.color = hslToHex(colHsl[0], colHsl[1] * 100, colHsl[2] * 100);
+          el.color = hslToHex(
+            colHsl[0] * 360,
+            colHsl[1] * 100,
+            colHsl[2] * 100
+          );
           colHsl[2] -= factor;
         });
         res.push(...groupedObject[obj]);
