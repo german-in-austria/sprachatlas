@@ -24,7 +24,7 @@
         </v-list>
       </v-tab-item>
       <v-tab-item key="1">
-        <chart-viewer :inputData="inputData" />
+        <chart-viewer :groupByGp="groupByGp" :inputData="inputData" />
       </v-tab-item>
     </v-tabs-items>
     <v-switch
@@ -47,7 +47,8 @@ import { Description, Symbols } from '@/static/apiModels';
 import CircleDiagram from './CircleDiagram.vue';
 import IconCircle from '@/icons/IconCircle.vue';
 import ChartViewer from './ChartViewer.vue';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, Dictionary, groupBy } from 'lodash';
+import { convertHexToHsl, hslToHex } from '@/helpers/helper';
 
 @Component({
   components: { CircleDiagram, IconCircle, ChartViewer },
@@ -60,7 +61,25 @@ export default class GraphViewer extends Vue {
   tab = null;
 
   get inputData() {
-    return !this.groupByGp ? this.groupedData : this.desc;
+    if (!this.groupByGp) {
+      return this.groupedData;
+    }
+    const res = [] as Array<Description>;
+    const groupedObject = groupBy(this.desc, 'name');
+    for (let obj in groupedObject) {
+      if (groupedObject[obj].length > 1) {
+        let colHsl = convertHexToHsl(groupedObject[obj][0].color);
+        const factor = 0.5 / groupedObject[obj].length;
+        groupedObject[obj].forEach((el) => {
+          el.color = hslToHex(colHsl[0], colHsl[1] * 100, colHsl[2] * 100);
+          colHsl[2] -= factor;
+        });
+        res.push(...groupedObject[obj]);
+      } else {
+        res.push(groupedObject[obj][0]);
+      }
+    }
+    return res;
   }
 
   get groupedData() {
