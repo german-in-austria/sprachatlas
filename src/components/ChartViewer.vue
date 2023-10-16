@@ -98,6 +98,7 @@ export default class ChartViewer extends Vue {
   }
 
   drawGraph() {
+    console.log(this.inputData);
     const margin = 60;
     const width = 400;
     const height = 500;
@@ -130,11 +131,11 @@ export default class ChartViewer extends Vue {
     let keys;
     let data;
     if (this.kontext) {
-      keys = d3.union(this.inputData.map((d) => d.group));
+      keys = d3.union(this.inputData.map((d) => `${d.group} # ${d.name}`));
       data = d3.index(
         this.inputData,
         (d) => d.name,
-        (d) => d.group
+        (d) => `${d.group} # ${d.name}`
       );
     } else {
       keys = d3.union(this.inputData.map((d) => d.name));
@@ -144,17 +145,21 @@ export default class ChartViewer extends Vue {
         (d) => d.name
       );
     }
+    console.log(keys);
 
     const stackedData = d3
       .stack()
       .keys(keys)
       .value(([, group], key) => {
+        console.log(group);
+        console.log(key);
         if (group.has(key)) {
           return group.get(key).value;
         } else {
           return 0;
         }
       })(data);
+    console.log(stackedData);
     const dataDiv = d3
       .select('#datavis')
       .append('div')
