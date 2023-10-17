@@ -330,6 +330,12 @@ export const decodeURI = async () => {
     let legend: exportLegend[] = [];
     if (uriData.id.length > 0) {
       legend = await expData.getDataFromDioeDB(uriData.id);
+      if (legend.length > 1) {
+        const legendDesc = legend.filter(
+          (el) => el.description && el.description !== ''
+        );
+        legend.forEach((el) => (el.description = legendDesc[0].description));
+      }
     } else {
       legend = uriData.leg ? uriData.leg : [];
     }
