@@ -2,7 +2,11 @@
   <v-container style="margin-top: 75px">
     <v-row>
       <v-col md="4">
-        <v-btn color="primary" dark @click="createlegend()">
+        <v-btn
+          color="primary"
+          :disabled="queryLegend.length > 0"
+          @click="createlegend()"
+        >
           Neue Legende erstellen
         </v-btn>
         <br />
