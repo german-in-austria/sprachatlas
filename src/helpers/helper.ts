@@ -331,9 +331,22 @@ export const decodeURI = async () => {
     if (uriData.id.length > 0) {
       legend = await expData.getDataFromDioeDB(uriData.id);
       if (legend.length > 1) {
-        const legendDesc = legend.filter(
+        legend.forEach((el, idx, arr) => {
+          if (!el.id || el.id === null || el.id === undefined) {
+            legend.splice(idx, 1);
+          }
+        });
+        let legendDesc = legend.filter(
           (el) => el.description && el.description !== ''
         );
+        if (
+          legendDesc.length === 0 ||
+          legendDesc[0].description === undefined
+        ) {
+          legendDesc.push(legend[0]);
+          if (legendDesc[0].description === undefined)
+            legendDesc[0].description = '';
+        }
         legend.forEach((el) => (el.description = legendDesc[0].description));
       }
     } else {
