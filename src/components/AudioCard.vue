@@ -213,7 +213,12 @@ import {
   SearchItems,
   sigleAntwort
 } from '../static/apiModels';
-import { arrangeBySigle, loadData } from '@/helpers/helper';
+import {
+  arrangeBySigle,
+  hslToHex,
+  loadData,
+  selectColor
+} from '@/helpers/helper';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import DataSwitch from './DataSwitch.vue';
 import AudioPlayer from './AudioPlayer.vue';
@@ -320,7 +325,6 @@ export default class DragableCard extends Vue {
             data.aufgabeAudio = this.AM.aufgabeSingleOrt;
             break;
         }
-        console.log(data.aufgabeAudio);
         this.LM.editPinnedByID(data);
       });
     }
@@ -455,7 +459,6 @@ export default class DragableCard extends Vue {
           const legend = this.data.selectedOrt.data.find(
             (dataElement) => dataElement.id === id
           );
-          console.log(legend);
           const idx = res.findIndex(
             (e) => e.sigle === varElement.sigle && e.name === legend?.name
           );
@@ -496,18 +499,16 @@ export default class DragableCard extends Vue {
         });
       });
     }
+    res.forEach((el) => {
+      const color = selectColor(null);
+      el.color = hslToHex(color.h, color.s * 100, color.l * 100);
+    });
     curr.diagramData = res;
     this.LM.editPinnDataVar(curr);
     this.AM.setDiagramData(res);
   }
 
   async evaluateData(ort: string | undefined, sigle: string, d: sigleAntwort) {
-    this.data.antwortAudio.forEach((el) => {
-      console.log(el.sigle);
-      el.res.forEach((data) => {
-        console.log(data.data.forEach((element) => console.log(element.tagId)));
-      });
-    });
     const title = `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`;
     this.AM.setDiagramTitle(
       `Auswertung für sigle ${sigle} in ${ort ? ort : ''}`

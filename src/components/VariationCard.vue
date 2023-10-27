@@ -12,7 +12,12 @@
         type="article, list-item-two-line"
       >
       </v-skeleton-loader>
-      <graph-viewer v-else :desc="data.diagramData" />
+      <div v-else>
+        <graph-viewer
+          v-if="data.diagramData.length > 0"
+          :desc="data.diagramData"
+        />
+      </div>
     </v-card-text>
     <v-card-actions>
       <action-buttons

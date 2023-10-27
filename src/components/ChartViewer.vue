@@ -124,6 +124,7 @@ export default class ChartViewer extends Vue {
       .domain([0, 120])
       .range([height - margin, margin]);
     svg.append('g').call(d3.axisLeft(y));
+    console.log(this.colors);
     const color = d3
       .scaleOrdinal()
       .domain(this.kontext ? this.subgroups : this.classes)
@@ -174,6 +175,7 @@ export default class ChartViewer extends Vue {
       .join('g')
       //@ts-ignore
       .attr('fill', (d: any) => {
+        console.log(d.key);
         return color(d.key);
       })
       .selectAll('rect')

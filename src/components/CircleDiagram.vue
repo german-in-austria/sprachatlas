@@ -79,16 +79,8 @@ export default class CircleDiagram extends Vue {
   }
 
   createIcon(arrayData: Array<Description>, encode: boolean) {
-    if (this.groupByGp) {
-      return this.createCircleIcon(
-        arrayData.map((el) => {
-          return { v: el.value, c: el.color, id: el.name };
-        }),
-        encode
-      );
-    }
     return this.createCircleIcon(
-      this.groupedDiagramData.map((el) => {
+      arrayData.map((el) => {
         return { v: el.value, c: el.color, id: el.name };
       }),
       encode
