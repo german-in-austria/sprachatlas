@@ -174,16 +174,18 @@ export const expData = {
       const idx = query.findIndex((el) => el.legend.id === legend.id);
       if (idx > -1) {
         query[idx] = localQuery;
+        legendMod.replaceEntry(localQuery);
       } else {
         query.push(localQuery);
+        legendMod.addLocalStorage(localQuery);
       }
       localStorage.setItem('queries', this.encodeObject(query));
     } else {
       // does not exist and set new Style
       const enc = this.encodeObject([localQuery] as localStorageQuery[]);
       localStorage.setItem('queries', enc);
+      legendMod.addLocalStorage(localQuery);
     }
-    legendMod.addLocalStorage(localQuery);
   },
   setQueryLocalStorage(query: localStorageQuery[]) {
     // exists and push to localStorage
