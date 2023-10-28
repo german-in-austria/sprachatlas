@@ -844,11 +844,6 @@ export default class QueryCreator extends Vue {
     if (this.queryLegend.length > 0) {
       this.focusLegend = this.queryLegend[0];
     }
-
-    if (this.legName === '') {
-      // const legend = this.TM.legends.slice(-1)[0];
-      // this.legName = "Unbenannte Legende";
-    }
     if (!this.erhArten || this.erhArten.length === 0) {
       erhebungModule.fetchErhebungsArten();
     }

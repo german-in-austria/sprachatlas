@@ -405,6 +405,9 @@ export const decodeURI = async () => {
       resolve('Daten wurden geladen!');
     });
   }
+  return new Promise((resolve, reject) => {
+    resolve('Daten wurden geladen!');
+  });
 };
 
 export const deocdeImportedMap = async (mapEncoded: string) => {
