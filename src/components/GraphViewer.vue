@@ -162,20 +162,28 @@ export default class GraphViewer extends Vue {
           const factor = 0.5 / erhebungenItem.length;
           let colHsl = convertHexToHsl(groupedData[obj][0].color);
           erhebungenItem.forEach((element) => {
-            res.push({
-              age: curr.age,
-              color: hslToHex(
-                colHsl[0] * 360,
-                colHsl[1] * 100,
-                colHsl[2] * 100
-              ),
-              group: curr.group,
-              name: `${curr.name} # ${element.erhArt}`,
-              sigle: curr.sigle,
-              value: element.count,
-              gp: [element]
-            });
-            colHsl[2] -= factor;
+            const idxRes = res.findIndex(
+              (el) => el.name === `${curr.name} # ${element.erhArt}`
+            );
+            if (idxRes > 0) {
+              res[idxRes].value += element.count;
+              res[idxRes].gp = res[idxRes].gp.concat(element);
+            } else {
+              res.push({
+                age: curr.age,
+                color: hslToHex(
+                  colHsl[0] * 360,
+                  colHsl[1] * 100,
+                  colHsl[2] * 100
+                ),
+                group: curr.group,
+                name: `${curr.name} # ${element.erhArt}`,
+                sigle: curr.sigle,
+                value: element.count,
+                gp: [element]
+              });
+              colHsl[2] -= factor;
+            }
           });
         } else {
           if (groupedData[obj].length > 1) {
