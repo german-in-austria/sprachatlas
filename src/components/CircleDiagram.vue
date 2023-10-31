@@ -10,6 +10,7 @@
 <script lang="ts">
 import { drawCircleDiagram } from '@/helpers/MapCompute';
 import { Description } from '@/static/apiModels';
+import { path } from 'd3';
 import { cloneDeep } from 'lodash';
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
@@ -45,7 +46,8 @@ export default class CircleDiagram extends Vue {
     color: string,
     data: any,
     encoded: boolean,
-    background: boolean
+    background: boolean,
+    pathStroke: boolean
   ) {
     return drawCircleDiagram(
       size,
@@ -55,7 +57,8 @@ export default class CircleDiagram extends Vue {
       data,
       encoded,
       1.2,
-      background
+      background,
+      pathStroke
     );
   }
 
@@ -74,7 +77,8 @@ export default class CircleDiagram extends Vue {
       col,
       val,
       encode,
-      val.length < 2
+      val.length < 2,
+      val.length > 4 ? true : false
     );
   }
 
