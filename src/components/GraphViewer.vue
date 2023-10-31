@@ -27,6 +27,7 @@
         <chart-viewer :groupByGp="groupByGp" :inputData="inputData" />
       </v-tab-item>
     </v-tabs-items>
+    Gruppieren nach:
     <v-select
       solo
       v-model="selGen"
@@ -35,6 +36,23 @@
       item-text="name"
       item-value="value"
     ></v-select>
+
+    <v-switch
+      v-model="groupByErhebungen"
+      label="Nach Erhebungsart zusätzlich gruppieren"
+      color="info"
+      inset
+      @change="changeType()"
+      v-if="selGen !== 'gp'"
+    ></v-switch>
+    <v-switch
+      v-model="groupByGp"
+      label="Nach Parameter unterteilen"
+      color="info"
+      inset
+      @change="changeType()"
+      v-if="selGen === 'gp'"
+    ></v-switch>
   </div>
 </template>
 <script lang="ts">
@@ -102,13 +120,16 @@ export default class GraphViewer extends Vue {
       for (let obj in groupedErh) {
         const color = selectColor(null);
         const colorHex = hslToHex(color.h, color.s * 100, color.l * 100);
+        const dataErh = cloneData.find(
+          (el) => el.sigle === groupedErh[obj][0].sigle
+        );
         if (groupedErh[obj].length > 1) {
           const curr = groupedErh[obj];
           const sum = curr.reduce((a, b) => a + b.count, 0);
           res.push({
-            age: -1,
+            age: dataErh ? dataErh.age : -1,
             color: colorHex,
-            group: '',
+            group: dataErh ? dataErh.group : '',
             name: groupedErh[obj][0].erhArt,
             sigle: groupedErh[obj][0].sigle,
             value: sum,
@@ -116,9 +137,9 @@ export default class GraphViewer extends Vue {
           });
         } else {
           res.push({
-            age: -1,
+            age: dataErh ? dataErh.age : -1,
             color: colorHex,
-            group: '',
+            group: dataErh ? dataErh.group : '',
             name: groupedErh[obj][0].erhArt,
             sigle: groupedErh[obj][0].sigle,
             value: groupedErh[obj][0].count,
@@ -126,16 +147,44 @@ export default class GraphViewer extends Vue {
           });
         }
       }
+      console.log(res);
     } else {
       const groupedData = groupBy(cloneData, this.selGen);
+      console.log(groupedData);
       for (let obj in groupedData) {
         groupedData[obj][0].name = obj;
-        if (groupedData[obj].length > 1) {
-          const valSum = groupedData[obj].reduce((a, b) => a + b.value, 0);
-          groupedData[obj][0].value = valSum;
-          res.push(groupedData[obj][0]);
+        const curr = groupedData[obj][0];
+        if (this.groupByErhebungen) {
+          const erhebungenItem = groupedData[obj].reduce(
+            (a, b) => a.concat(b.gp),
+            [] as Array<GPData>
+          );
+          const factor = 0.5 / erhebungenItem.length;
+          let colHsl = convertHexToHsl(groupedData[obj][0].color);
+          erhebungenItem.forEach((element) => {
+            res.push({
+              age: curr.age,
+              color: hslToHex(
+                colHsl[0] * 360,
+                colHsl[1] * 100,
+                colHsl[2] * 100
+              ),
+              group: curr.group,
+              name: `${curr.name} # ${element.erhArt}`,
+              sigle: curr.sigle,
+              value: element.count,
+              gp: [element]
+            });
+            colHsl[2] -= factor;
+          });
         } else {
-          res.push(groupedData[obj][0]);
+          if (groupedData[obj].length > 1) {
+            const valSum = groupedData[obj].reduce((a, b) => a + b.value, 0);
+            groupedData[obj][0].value = valSum;
+            res.push(groupedData[obj][0]);
+          } else {
+            res.push(groupedData[obj][0]);
+          }
         }
       }
     }
