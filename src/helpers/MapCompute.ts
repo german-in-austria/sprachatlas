@@ -65,7 +65,8 @@ export const drawCircleDiagram = (
   data: [{ v: number; c: string; id: string }],
   encoded: boolean,
   padding: number = 1,
-  background: boolean = true
+  background: boolean = true,
+  pathBorder: boolean = false
 ) => {
   const viewport = size * padding;
   const hSize = size * 0.5 * padding;
@@ -94,6 +95,7 @@ export const drawCircleDiagram = (
   data.forEach((el: any) => {
     const nAng = lAng + el.v * angMulti;
     //out += `<filter id="${el.id}">`;
+    /*
     out +=
       '<path class="hover" d="' +
       describeArc(hSize, hSize, ihSize, lAng, nAng) +
@@ -101,7 +103,13 @@ export const drawCircleDiagram = (
       (el.c || '#f00') +
       '" id="' +
       el.id +
-      '"/>';
+      '"/>';*/
+    console.log;
+    out += `<path class="hover" 
+    d="${describeArc(hSize, hSize, ihSize, lAng, nAng)}"
+    stroke-width="${pathBorder ? 1 : 0}" fill="${el.c || '#f00'}" id="${
+      el.id
+    }" stroke="${pathBorder ? 'black' : 'none'}"/>`;
     //out += `</filter>`;
     lAng = nAng;
   });
