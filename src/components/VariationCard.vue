@@ -5,7 +5,7 @@
         {{ data.diagramTitle }}
       </span></v-card-title
     >
-    <v-card-text align="center">
+    <v-card-text align="center" style="height: 80%">
       <v-skeleton-loader
         v-if="loading && data.diagramData.length === 0"
         class="varCard"
