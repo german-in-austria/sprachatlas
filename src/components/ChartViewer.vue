@@ -72,6 +72,11 @@ export default class ChartViewer extends Vue {
     this.changeStyleOfGraph();
   }
 
+  @Watch('inputData')
+  onChangeInputData() {
+    this.changeStyleOfGraph();
+  }
+
   get maxValue() {
     // get maximum value from inputData, based by value property
     return this.inputData.reduce((acc, cur) => {
@@ -98,7 +103,6 @@ export default class ChartViewer extends Vue {
   }
 
   drawGraph() {
-    console.log(this.inputData);
     const margin = 60;
     const width = 400;
     const height = 500;
@@ -107,7 +111,8 @@ export default class ChartViewer extends Vue {
       .append('svg')
       .attr('width', width + margin + margin + 50)
       .attr('height', height + margin + margin)
-      .append('g');
+      .append('g')
+      .attr('transform', `translate(100, 0)`);
 
     const x = d3
       .scaleBand()
@@ -124,7 +129,6 @@ export default class ChartViewer extends Vue {
       .domain([0, 120])
       .range([height - margin, margin]);
     svg.append('g').call(d3.axisLeft(y));
-    console.log(this.colors);
     const color = d3
       .scaleOrdinal()
       .domain(this.kontext ? this.subgroups : this.classes)
@@ -146,21 +150,17 @@ export default class ChartViewer extends Vue {
         (d) => d.name
       );
     }
-    console.log(keys);
 
     const stackedData = d3
       .stack()
       .keys(keys)
       .value(([, group], key) => {
-        console.log(group);
-        console.log(key);
         if (group.has(key)) {
           return group.get(key).value;
         } else {
           return 0;
         }
       })(data);
-    console.log(stackedData);
     const dataDiv = d3
       .select('#datavis')
       .append('div')
@@ -175,7 +175,6 @@ export default class ChartViewer extends Vue {
       .join('g')
       //@ts-ignore
       .attr('fill', (d: any) => {
-        console.log(d.key);
         return color(d.key);
       })
       .selectAll('rect')
@@ -208,9 +207,9 @@ export default class ChartViewer extends Vue {
       .data(keys)
       .enter()
       .append('circle')
-      .attr('cx', 400)
+      .attr('cx', 25)
       .attr('cy', (d, i) => {
-        return 100 + i * 25;
+        return 545 + i * 25;
       }) // 100 is where the first dot appears. 25 is the distance between dots
       .attr('r', 7)
       .style('fill', (d) => color(d));
@@ -220,9 +219,9 @@ export default class ChartViewer extends Vue {
       .data(keys)
       .enter()
       .append('text')
-      .attr('x', 420)
+      .attr('x', 40)
       .attr('y', function (d, i) {
-        return 105 + i * 25;
+        return 550 + i * 25;
       }) // 100 is where the first dot appears. 25 is the distance between dots
       .style('fill', function (d) {
         return color(d);
