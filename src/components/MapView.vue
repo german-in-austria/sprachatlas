@@ -2685,6 +2685,7 @@ html {
   left: 45%;
   min-width: 250px;
   position: fixed;
+  height: 60vh;
   // transition: all 0.2s ease-in-out;
 }
 
