@@ -93,6 +93,8 @@ export default class GraphViewer extends Vue {
 
   sigleColors: Map<string, string> = new Map<string, string>();
 
+  erhebungColors: Map<string, string> = new Map<string, string>();
+
   get inputData() {
     return this.data;
   }
@@ -113,44 +115,89 @@ export default class GraphViewer extends Vue {
   }
 
   changeType() {
-    const res = [] as Array<Description>;
+    let res = [] as Array<Description>;
     const cloneData = cloneDeep(this.desc);
     if (this.selGen === 'gp') {
       const groupedErh = groupBy(this.erhebungsArten, 'erhArt');
       for (let obj in groupedErh) {
-        const color = selectColor(null);
-        const colorHex = hslToHex(color.h, color.s * 100, color.l * 100);
-        const dataErh = cloneData.find(
+        let colorHex: string;
+        if (this.erhebungColors.has(groupedErh[obj][0].erhArt)) {
+          const mapCol = this.erhebungColors.get(groupedErh[obj][0].erhArt);
+          colorHex = mapCol ? mapCol : '#F00';
+        } else {
+          const color = selectColor(null);
+          colorHex = hslToHex(color.h, color.s * 100, color.l * 100);
+          this.erhebungColors.set(groupedErh[obj][0].erhArt, colorHex);
+        }
+        const dataErh = cloneData.filter(
           (el) => el.sigle === groupedErh[obj][0].sigle
         );
         if (groupedErh[obj].length > 1) {
-          const curr = groupedErh[obj];
-          const sum = curr.reduce((a, b) => a + b.count, 0);
-          res.push({
-            age: dataErh ? dataErh.age : -1,
-            color: colorHex,
-            group: dataErh ? dataErh.group : '',
-            name: groupedErh[obj][0].erhArt,
-            sigle: groupedErh[obj][0].sigle,
-            value: sum,
-            gp: groupedErh[obj]
-          });
+          if (this.groupByGp) {
+            const factor = 0.5 / groupedErh[obj].length;
+            let colHsl = convertHexToHsl(colorHex);
+
+            groupedErh[obj].forEach((gpElement) => {
+              const erhName = dataErh.find((el) =>
+                el.gp.some((gp) => gp.erhArtId === gpElement.erhArtId)
+              );
+              res.push({
+                age: dataErh ? dataErh[0].age : -1,
+                color: hslToHex(
+                  colHsl[0] * 360,
+                  colHsl[1] * 100,
+                  colHsl[2] * 100
+                ),
+                group: dataErh ? dataErh[0].group : '',
+                name: `${gpElement.erhArt} # ${erhName?.name}`,
+                sigle: gpElement.sigle,
+                value: gpElement.count,
+                gp: [gpElement]
+              });
+              colHsl[2] -= factor;
+            });
+          } else {
+            const curr = groupedErh[obj];
+            const sum = curr.reduce((a, b) => a + b.count, 0);
+            res.push({
+              age: dataErh ? dataErh[0].age : -1,
+              color: colorHex,
+              group: dataErh ? dataErh[0].group : '',
+              name: groupedErh[obj][0].erhArt,
+              sigle: groupedErh[obj][0].sigle,
+              value: sum,
+              gp: groupedErh[obj]
+            });
+          }
         } else {
-          res.push({
-            age: dataErh ? dataErh.age : -1,
-            color: colorHex,
-            group: dataErh ? dataErh.group : '',
-            name: groupedErh[obj][0].erhArt,
-            sigle: groupedErh[obj][0].sigle,
-            value: groupedErh[obj][0].count,
-            gp: groupedErh[obj]
-          });
+          if (this.groupByGp) {
+            const erhName = dataErh.find((el) =>
+              el.gp.some((gp) => gp.erhArtId === groupedErh[obj][0].erhArtId)
+            );
+            res.push({
+              age: dataErh ? dataErh[0].age : -1,
+              color: colorHex,
+              group: dataErh ? dataErh[0].group : '',
+              name: `${groupedErh[obj][0].erhArt} # ${erhName?.name}`,
+              sigle: groupedErh[obj][0].sigle,
+              value: groupedErh[obj][0].count,
+              gp: groupedErh[obj]
+            });
+          } else {
+            res.push({
+              age: dataErh ? dataErh[0].age : -1,
+              color: colorHex,
+              group: dataErh ? dataErh[0].group : '',
+              name: groupedErh[obj][0].erhArt,
+              sigle: groupedErh[obj][0].sigle,
+              value: groupedErh[obj][0].count,
+              gp: groupedErh[obj]
+            });
+          }
         }
       }
-      console.log(res);
     } else {
       const groupedData = groupBy(cloneData, this.selGen);
-      console.log(groupedData);
       for (let obj in groupedData) {
         groupedData[obj][0].name = obj;
         const curr = groupedData[obj][0];
@@ -197,40 +244,6 @@ export default class GraphViewer extends Vue {
       }
     }
     this.data = res;
-  }
-
-  computeGroupedByErhebungen() {
-    const res = [] as Array<Description>;
-    const cloneData = cloneDeep(this.desc);
-    if (!this.groupByErhebungen) {
-      this.computeGroupedDiagramData();
-      return;
-    }
-    for (let obj in cloneData) {
-      const curr = cloneData[obj];
-      const factor = 0.2 / curr.gp.length;
-      let colHsl = convertHexToHsl(curr.color);
-      res.push(
-        ...cloneData[obj].gp.map((el) => {
-          let colHex = hslToHex(
-            colHsl[0] * 360,
-            colHsl[1] * 100,
-            colHsl[2] * 100
-          );
-          colHsl[2] -= factor;
-          return {
-            age: curr.age,
-            color: colHex,
-            group: curr.group,
-            name: el.erhArt,
-            sigle: curr.sigle,
-            value: el.count
-          } as Description;
-        })
-      );
-    }
-    this.data = res;
-    console.log(res);
   }
 
   computeGroupedDiagramData() {
