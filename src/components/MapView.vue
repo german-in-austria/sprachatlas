@@ -2569,10 +2569,14 @@ export default class MapView extends Vue {
               this.displayDataFromLegend(legendMod.legend);
             },
             (reject) => {
-              messageHandler.setErrorMsg({
-                message: `Fehler beim Laden der Daten: ${reject}`,
-                icon: 'mdi-alert'
-              });
+              if (legendMod.legend.length === 0) {
+                messageHandler.setErrorMsg({
+                  message: `Fehler beim Laden der Daten: ${reject}`,
+                  icon: 'mdi-alert'
+                });
+              } else {
+                this.displayDataFromLegend(legendMod.legend);
+              }
             }
           );
         }
