@@ -325,7 +325,8 @@ export const fetchContent = async (
  * 2. display these new entries on the map
  */
 export const decodeURI = async () => {
-  if (legendMod.legend.length === 0 || !legendMod.legend[0].content) {
+  console.log(legendMod.legend.length);
+  if (legendMod.legend.length === 0) {
     const uriData = expData.fetchUriAndDecodeData();
     let legend: exportLegend[] = [];
     if (uriData.id.length > 0) {
