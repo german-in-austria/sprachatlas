@@ -130,6 +130,7 @@ import {
 } from '@/static/apiModels';
 import { legendMod } from '@/store/modules/legend';
 import { Component, Vue } from 'vue-property-decorator';
+import { messageHandler } from '@/store/modules/message';
 
 import IconCircle from '@/icons/IconCircle.vue';
 import ItemDescription from './ItemDescription.vue';
@@ -262,101 +263,117 @@ export default class ListView extends Vue {
     return item.ort.indexOf(search) !== -1 || item.name.indexOf(search) !== -1;
   }
 
+  loadData() {
+    this.legendGlobal.forEach((el, idx) => {
+      if (el.type === SearchItems.Tag) {
+        const content = el.content as TagOrteResults[];
+        const info = el.searchInfo as any;
+        for (const tag of content) {
+          this.listData = this.listData.concat(
+            this.extractTableData(
+              hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
+              tag.osmId ? Number(tag.osmId) : -1,
+              el.symbol,
+              el.vis,
+              tag.ortNamelang ? tag.ortNamelang : '',
+              tag.numTag ? Number(tag.numTag) : 1,
+              tag.tagName ? tag.tagName : '',
+              el.id,
+              SearchItems.Tag,
+              `Generation: ${info.tagGene}; Name: ${info.tagName}`
+            )
+          );
+        }
+      } else if (el.type === SearchItems.Aufgaben) {
+        const content = el.content as ISelectOrtAufgabeResult[];
+        const info = el.searchInfo as ISelectAllAufgabenResult;
+        for (const aufgabe of content) {
+          this.listData = this.listData.concat(
+            this.extractTableData(
+              hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
+              aufgabe.osmId ? Number(aufgabe.osmId) : -1,
+              el.symbol,
+              el.vis,
+              aufgabe.ortNamelang ? aufgabe.ortNamelang : '',
+              aufgabe.numAufg ? Number(aufgabe.numAufg) : 1,
+              aufgabe.aufgabenstellung ? aufgabe.aufgabenstellung : '',
+              el.id,
+              SearchItems.Aufgaben,
+              `Art Bezeichnung: ${info.artBezeichnung}, Beschreibung: ${info.beschreibung}`
+            )
+          );
+        }
+      } else if (el.type === SearchItems.Phaen) {
+        const content = el.content as TagOrteResults[];
+        const info = el.searchInfo as ISelectPhaenResult;
+        for (const phaen of content) {
+          this.listData = this.listData.concat(
+            this.extractTableData(
+              hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
+              phaen.osmId ? Number(phaen.osmId) : -1,
+              el.symbol,
+              el.vis,
+              phaen.ortNamelang ? phaen.ortNamelang : '',
+              phaen.numTag ? Number(phaen.numTag) : 1,
+              phaen.tagName ? phaen.tagName : '',
+              el.id,
+              SearchItems.Phaen,
+              `Bezeichnung: ${info.bezPhaenomen}, Beschreibung: ${info.beschrPhaenomen}`
+            )
+          );
+        }
+      } else if (
+        el.type === SearchItems.Query &&
+        el.parameter &&
+        el.parameter.length > 0
+      ) {
+        const content = el.content as any[];
+        for (const p of content) {
+          if (el.parameter) {
+            const parameter: Parameter | undefined = el.parameter.find(
+              (el) => el.id === p.para
+            );
+            if (parameter !== undefined) {
+              this.listData = this.listData.concat(
+                this.extractTableData(
+                  parameter.color ? parameter.color : '#FF0000',
+                  p.osmId ? Number(p.osmId) : -1,
+                  parameter.symbol,
+                  el.vis,
+                  p.ortNamelang ? p.ortNamelang : '',
+                  p.numTag ? Number(p.numTag) : 1,
+                  parameter.name ? parameter.name : '',
+                  el.id,
+                  SearchItems.Query,
+                  JSON.stringify(parameter)
+                )
+              );
+            }
+          }
+        }
+      }
+    });
+    this.loading = false;
+  }
+
   mounted() {
     if (legendMod.loadDataPromise) {
       this.loading = true;
-      legendMod.loadDataPromise.then(() => {
-        this.legendGlobal.forEach((el, idx) => {
-          if (el.type === SearchItems.Tag) {
-            const content = el.content as TagOrteResults[];
-            const info = el.searchInfo as any;
-            for (const tag of content) {
-              this.listData = this.listData.concat(
-                this.extractTableData(
-                  hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
-                  tag.osmId ? Number(tag.osmId) : -1,
-                  el.symbol,
-                  el.vis,
-                  tag.ortNamelang ? tag.ortNamelang : '',
-                  tag.numTag ? Number(tag.numTag) : 1,
-                  tag.tagName ? tag.tagName : '',
-                  el.id,
-                  SearchItems.Tag,
-                  `Generation: ${info.tagGene}; Name: ${info.tagName}`
-                )
-              );
-            }
-          } else if (el.type === SearchItems.Aufgaben) {
-            const content = el.content as ISelectOrtAufgabeResult[];
-            const info = el.searchInfo as ISelectAllAufgabenResult;
-            for (const aufgabe of content) {
-              this.listData = this.listData.concat(
-                this.extractTableData(
-                  hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
-                  aufgabe.osmId ? Number(aufgabe.osmId) : -1,
-                  el.symbol,
-                  el.vis,
-                  aufgabe.ortNamelang ? aufgabe.ortNamelang : '',
-                  aufgabe.numAufg ? Number(aufgabe.numAufg) : 1,
-                  aufgabe.aufgabenstellung ? aufgabe.aufgabenstellung : '',
-                  el.id,
-                  SearchItems.Aufgaben,
-                  `Art Bezeichnung: ${info.artBezeichnung}, Beschreibung: ${info.beschreibung}`
-                )
-              );
-            }
-          } else if (el.type === SearchItems.Phaen) {
-            const content = el.content as TagOrteResults[];
-            const info = el.searchInfo as ISelectPhaenResult;
-            for (const phaen of content) {
-              this.listData = this.listData.concat(
-                this.extractTableData(
-                  hslToHex(el.color.h, el.color.s * 100, el.color.l * 100),
-                  phaen.osmId ? Number(phaen.osmId) : -1,
-                  el.symbol,
-                  el.vis,
-                  phaen.ortNamelang ? phaen.ortNamelang : '',
-                  phaen.numTag ? Number(phaen.numTag) : 1,
-                  phaen.tagName ? phaen.tagName : '',
-                  el.id,
-                  SearchItems.Phaen,
-                  `Bezeichnung: ${info.bezPhaenomen}, Beschreibung: ${info.beschrPhaenomen}`
-                )
-              );
-            }
-          } else if (
-            el.type === SearchItems.Query &&
-            el.parameter &&
-            el.parameter.length > 0
-          ) {
-            const content = el.content as any[];
-            for (const p of content) {
-              if (el.parameter) {
-                const parameter: Parameter | undefined = el.parameter.find(
-                  (el) => el.id === p.para
-                );
-                if (parameter !== undefined) {
-                  this.listData = this.listData.concat(
-                    this.extractTableData(
-                      parameter.color ? parameter.color : '#FF0000',
-                      p.osmId ? Number(p.osmId) : -1,
-                      parameter.symbol,
-                      el.vis,
-                      p.ortNamelang ? p.ortNamelang : '',
-                      p.numTag ? Number(p.numTag) : 1,
-                      parameter.name ? parameter.name : '',
-                      el.id,
-                      SearchItems.Query,
-                      JSON.stringify(parameter)
-                    )
-                  );
-                }
-              }
-            }
+      legendMod.loadDataPromise.then(
+        () => {
+          this.loadData();
+        },
+        (reject) => {
+          if (legendMod.legend.length === 0) {
+            messageHandler.setErrorMsg({
+              message: `Fehler beim Laden der Daten: ${reject}`,
+              icon: 'mdi-alert'
+            });
+          } else {
+            this.loadData();
           }
-        });
-        this.loading = false;
-      });
+        }
+      );
     }
   }
 }
