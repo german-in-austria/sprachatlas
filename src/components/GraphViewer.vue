@@ -124,7 +124,6 @@ export default class GraphViewer extends Vue {
             (a, b) => a.concat(b.gp),
             [] as Array<GPData>
           );
-          console.log(erhebungenItem);
           erhebungenItem.forEach((erhebungen) => {
             let color = this.erhebungColors.get(erhebungen.erhArt);
             if (!color) {
