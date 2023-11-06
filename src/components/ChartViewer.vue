@@ -109,8 +109,8 @@ export default class ChartViewer extends Vue {
     const svg = d3
       .select('#datavis')
       .append('svg')
-      .attr('width', width + margin + margin + 50)
-      .attr('height', height + margin + margin)
+      .attr('width', width + margin + margin + 100)
+      .attr('height', height + margin + margin + 200)
       .append('g')
       .attr('transform', `translate(100, 0)`);
 
@@ -122,7 +122,17 @@ export default class ChartViewer extends Vue {
     svg
       .append('g')
       .attr('transform', `translate(0, ${height})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+      .call(d3.axisBottom(x).tickSizeOuter(0))
+      .call((selection) => {
+        if (this.kontext && this.classes.size > 2) {
+          selection
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('transform', `rotate(65)`)
+            .attr('dx', '180')
+            .attr('dy', '10');
+        }
+      });
 
     const y = d3
       .scaleLinear()
@@ -208,9 +218,9 @@ export default class ChartViewer extends Vue {
       .enter()
       .append('circle')
       .attr('cx', 25)
-      .attr('cy', (d, i) => {
-        return 545 + i * 25;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      .attr('cy', (d, i) =>
+        this.kontext && this.classes.size > 2 ? 695 + i * 25 : 545 + i * 25
+      ) // 100 is where the first dot appears. 25 is the distance between dots
       .attr('r', 7)
       .style('fill', (d) => color(d));
 
@@ -219,10 +229,10 @@ export default class ChartViewer extends Vue {
       .data(keys)
       .enter()
       .append('text')
-      .attr('x', 40)
-      .attr('y', function (d, i) {
-        return 550 + i * 25;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      .attr('x', 50)
+      .attr('y', (d, i) =>
+        this.kontext && this.classes.size > 2 ? 700 + i * 25 : 550 + i * 25
+      ) // 100 is where the first dot appears. 25 is the distance between dots
       .style('fill', function (d) {
         return color(d);
       })
