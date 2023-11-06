@@ -110,7 +110,6 @@ export default class GraphViewer extends Vue {
         groupedData[idx].value += desc.value;
       }
     });
-    console.log(groupedData);
     return groupedData;
   }
 
@@ -118,45 +117,65 @@ export default class GraphViewer extends Vue {
     let res = [] as Array<Description>;
     const cloneData = cloneDeep(this.desc);
     if (this.selGen === 'gp') {
-      const groupedErh = groupBy(this.erhebungsArten, 'erhArt');
-      for (let obj in groupedErh) {
-        let colorHex: string;
-        if (this.erhebungColors.has(groupedErh[obj][0].erhArt)) {
-          const mapCol = this.erhebungColors.get(groupedErh[obj][0].erhArt);
-          colorHex = mapCol ? mapCol : '#F00';
-        } else {
-          const color = selectColor(null);
-          colorHex = hslToHex(color.h, color.s * 100, color.l * 100);
-          this.erhebungColors.set(groupedErh[obj][0].erhArt, colorHex);
-        }
-        const dataErh = cloneData.filter(
-          (el) => el.sigle === groupedErh[obj][0].sigle
-        );
-        if (groupedErh[obj].length > 1) {
-          if (this.groupByGp) {
-            const factor = 0.5 / groupedErh[obj].length;
-            let colHsl = convertHexToHsl(colorHex);
-
-            groupedErh[obj].forEach((gpElement) => {
-              const erhName = dataErh.find((el) =>
-                el.gp.some((gp) => gp.erhArtId === gpElement.erhArtId)
-              );
+      if (this.groupByGp) {
+        const groupedGp = groupBy(cloneData, 'name');
+        for (let obj in groupedGp) {
+          const erhebungenItem = groupedGp[obj].reduce(
+            (a, b) => a.concat(b.gp),
+            [] as Array<GPData>
+          );
+          console.log(erhebungenItem);
+          erhebungenItem.forEach((erhebungen) => {
+            let color = this.erhebungColors.get(erhebungen.erhArt);
+            if (!color) {
+              const newColor = selectColor(null);
+              color = hslToHex(newColor.h, newColor.s * 100, newColor.l * 100);
+              this.erhebungColors.set(erhebungen.erhArt, color);
+            }
+            const idx = res.findIndex(
+              (el) =>
+                el.name === `${erhebungen.erhArt} # ${groupedGp[obj][0].name}`
+            );
+            if (idx < 0) {
               res.push({
-                age: dataErh ? dataErh[0].age : -1,
-                color: hslToHex(
-                  colHsl[0] * 360,
-                  colHsl[1] * 100,
-                  colHsl[2] * 100
-                ),
-                group: dataErh ? dataErh[0].group : '',
-                name: `${gpElement.erhArt} # ${erhName?.name}`,
-                sigle: gpElement.sigle,
-                value: gpElement.count,
-                gp: [gpElement]
+                age: groupedGp[obj][0].age,
+                color: color,
+                group: groupedGp[obj][0].group,
+                name: `${erhebungen.erhArt} # ${groupedGp[obj][0].name}`,
+                sigle: groupedGp[obj][0].sigle,
+                value: erhebungen.count,
+                gp: [erhebungen]
               });
-              colHsl[2] -= factor;
-            });
+            } else {
+              let newColor = convertHexToHsl(res[idx].color);
+              newColor[2] -= 0.1;
+              res[idx].color = hslToHex(
+                newColor[0] * 360,
+                newColor[1] * 100,
+                newColor[2] * 100
+              );
+              res[idx].value += erhebungen.count;
+              res[idx].gp.push(erhebungen);
+            }
+          });
+        }
+      } else {
+        const groupedErh = groupBy(this.erhebungsArten, 'erhArt');
+        for (let obj in groupedErh) {
+          let colorHex: string;
+          if (this.erhebungColors.has(groupedErh[obj][0].erhArt)) {
+            const mapCol = this.erhebungColors.get(groupedErh[obj][0].erhArt);
+            colorHex = mapCol ? mapCol : '#F00';
           } else {
+            const color = selectColor(null);
+            colorHex = hslToHex(color.h, color.s * 100, color.l * 100);
+            this.erhebungColors.set(groupedErh[obj][0].erhArt, colorHex);
+          }
+          const dataErh = cloneData.filter(
+            (el) => el.sigle === groupedErh[obj][0].sigle
+          );
+
+          if (groupedErh[obj].length > 1) {
             const curr = groupedErh[obj];
             const sum = curr.reduce((a, b) => a + b.count, 0);
             res.push({
@@ -168,31 +187,31 @@ export default class GraphViewer extends Vue {
               value: sum,
               gp: groupedErh[obj]
             });
-          }
-        } else {
-          if (this.groupByGp) {
-            const erhName = dataErh.find((el) =>
-              el.gp.some((gp) => gp.erhArtId === groupedErh[obj][0].erhArtId)
-            );
-            res.push({
-              age: dataErh ? dataErh[0].age : -1,
-              color: colorHex,
-              group: dataErh ? dataErh[0].group : '',
-              name: `${groupedErh[obj][0].erhArt} # ${erhName?.name}`,
-              sigle: groupedErh[obj][0].sigle,
-              value: groupedErh[obj][0].count,
-              gp: groupedErh[obj]
-            });
           } else {
-            res.push({
-              age: dataErh ? dataErh[0].age : -1,
-              color: colorHex,
-              group: dataErh ? dataErh[0].group : '',
-              name: groupedErh[obj][0].erhArt,
-              sigle: groupedErh[obj][0].sigle,
-              value: groupedErh[obj][0].count,
-              gp: groupedErh[obj]
-            });
+            if (this.groupByGp) {
+              const erhName = dataErh.find((el) =>
+                el.gp.some((gp) => gp.erhArtId === groupedErh[obj][0].erhArtId)
+              );
+              res.push({
+                age: dataErh ? dataErh[0].age : -1,
+                color: colorHex,
+                group: dataErh ? dataErh[0].group : '',
+                name: `${groupedErh[obj][0].erhArt} # ${erhName?.name}`,
+                sigle: groupedErh[obj][0].sigle,
+                value: groupedErh[obj][0].count,
+                gp: groupedErh[obj]
+              });
+            } else {
+              res.push({
+                age: dataErh ? dataErh[0].age : -1,
+                color: colorHex,
+                group: dataErh ? dataErh[0].group : '',
+                name: groupedErh[obj][0].erhArt,
+                sigle: groupedErh[obj][0].sigle,
+                value: groupedErh[obj][0].count,
+                gp: groupedErh[obj]
+              });
+            }
           }
         }
       }
