@@ -6,7 +6,6 @@ on:
     branches:
       - main
       - master
-  pull_request:
   release:
   workflow_dispatch:
 
@@ -15,17 +14,90 @@ env:
   IMAGE_NAME: sprachatlas
 
 jobs:
+  setup_workflow_env:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.get_environment_from_git_ref.outputs.environment }}
+      environment_short: ${{ steps.get_environment_from_git_ref.outputs.environment_short }}
+      image_name: "" # The container is located at the repository registry root at the moment.
+#  Start image_name with a / or add that below. These two are concatenated.
+      registry_root: ghcr.io/${{ github.repository }}
+      default_port: "5000"
+# Usually you don't deal with all commits since the repository was created.
+# Increase if you e.g don't find a tag you want to display in the application
+      fetch-depth: 10
+      submodules: "true"
+#      herokuish_base_image: ghcr.io/acdh-oeaw/herokuish-for-cypress/main:latest-22
+      APP_NAME: dioe-sprachatlas
+# This together with the branch name is also used as the namespace to deploy to
+      APP_ROOT: "/"
+    steps:
+      - name: Get environment from git ref
+        id: get_environment_from_git_ref
+        run: |
+          echo "Running on branch ${{ github.ref_name }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production"
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "environment_short=prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=review/${{ github.ref_name }}"
+            echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "environment_short=$(echo -n ${{ github.ref_name }} | sed 's/feat\(ure\)\{0,1\}[_/]//' | tr '_' '-' | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+          fi
+  generate_workflow_vars:
+    needs: [setup_workflow_env]
+    environment:
+      name: ${{ needs.setup_workflow_env.outputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate PUBLIC_URL if not set
+        id: generate_public_url
+        run: |
+          kube_ingress_base_domain="${{ vars.KUBE_INGRESS_BASE_DOMAIN }}"
+          public_url="${{ needs.setup_workflow_env.outputs.PUBLIC_URL || vars.PUBLIC_URL }}"
+          if [ "${public_url}x" == 'x' ]
+          then public_url=https://${{ needs.setup_workflow_env.outputs.environment_short }}.${kube_ingress_base_domain}
+          fi
+          echo "public_url=$public_url" >> $GITHUB_OUTPUT
+    outputs:
+      PUBLIC_URL: ${{ steps.generate_public_url.outputs.public_url }}        
   build-and-push-image:
-    runs-on: self-hosted
+    needs: [setup_workflow_env, generate_workflow_vars]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3  
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+
+      - name: Cache node modules
+        uses: actions/cache@v3 
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Login to the GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -35,16 +107,20 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=ref,event=branch
-            type=ref,event=tag
             type=ref,event=pr
-            type=sha
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{sha}}
 
       - name: Build and push the Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
