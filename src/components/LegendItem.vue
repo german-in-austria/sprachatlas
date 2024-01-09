@@ -182,7 +182,7 @@
               <v-container>
                 <v-row>
                   <v-btn icon color="red" @click="deleteLegendEntry(d, i)">
-                    <v-icon>mdi-cancel</v-icon>
+                    <v-icon>mdi-trash-can-outline</v-icon>
                   </v-btn>
                   <v-btn
                     icon
