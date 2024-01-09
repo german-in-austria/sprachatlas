@@ -124,3 +124,25 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  _3:
+    needs: [setup_workflow_env, generate_workflow_vars, build-and-push-image]
+    uses: german-in-austria/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
+    secrets: inherit
+    with:
+      environment: ${{ needs.setup_workflow_env.outputs.environment}}
+      fetch-depth: ${{ fromJson(needs.setup_workflow_env.outputs.fetch-depth) }}
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }} # The container is located at the repository registry root at the moment.
+      APP_NAME: ${{ needs.setup_workflow_env.outputs.APP_NAME }}-${{ needs.setup_workflow_env.outputs.environment_short }}
+      APP_ROOT: ${{ needs.setup_workflow_env.outputs.APP_ROOT }}
+      SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
+      PUBLIC_URL: ${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}
+      POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED == 'true'}}
+      default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
+      submodules: ${{ needs.setup_workflow_env.outputs.submodules }}
+  clean_up_cache:
+    needs: [build-and-push-image]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: MyAlbum/purge-cache@v2
+        with:
+          max-age: 604800 # Leave only caches accessed in the last 7 days (default)
