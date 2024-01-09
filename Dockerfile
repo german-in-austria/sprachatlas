@@ -10,23 +10,6 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app
 COPY package-lock.json /usr/src/app
 
-# DEPENDENCIES FOR CYPRESS
-# RUN apt-get update && apt-get install -y \
-#   libgtk2.0-0 \
-#   libgtk-3-0 \
-#   libgbm-dev \
-#   libnotify-dev \
-#   libgconf-2-4 \
-#   libnss3 \
-#   libxss1 \
-#   libasound2 \
-#   libxtst6 \
-#   xauth \
-#   xvfb
-
-# ARG SENTRY_TOKEN
-# ARG BUILD_ID
-
 ENV VUE_APP_DB_ENDPOINT https://dioedb.dioe.at
 ENV VUE_APP_API_ENDPOINT https://api.dioe.at/api
 ENV NODE_PORT $APP_PORT
