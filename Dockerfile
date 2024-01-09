@@ -16,6 +16,7 @@ ENV NODE_PORT $APP_PORT
 
 RUN npm install
 
+# Copy files
 COPY . /usr/src/app
 
 RUN npm run build
@@ -26,4 +27,4 @@ USER 1000
 EXPOSE $NODE_PORT
 
 # START AND EXPOSE TO HOST-DAEMON
-ENTRYPOINT ["/usr/local/bin/npm", "run"]
+ENTRYPOINT ["/usr/local/bin/npm", "run" , "start"]
