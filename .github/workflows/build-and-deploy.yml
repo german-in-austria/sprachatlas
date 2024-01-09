@@ -103,7 +103,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: | 
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ github.repository }} # The container is located at the repository registry root at the moment.
           flavor: |
             latest=auto
           tags: |
