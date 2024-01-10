@@ -26,11 +26,7 @@ app.use((request: any, response: any, next: any) => {
   const protocol = request.protocol;
   console.log(host);
   console.log(request.url);
-  if (process.env.NODE_ENV === 'production' && protocol === 'http') {
-    response.redirect(301, 'https://' + host + request.url);
-  } else {
-    next();
-  }
+  next();
 });
 
 app.use(compression());
