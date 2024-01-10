@@ -1,7 +1,8 @@
 .env
 .editorconfig
 .eslintrc.js
-
+.dev
+.env.dev
 
 /.git
 /.github
