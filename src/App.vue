@@ -14,7 +14,7 @@
           <v-card-title>Login</v-card-title
           ><v-card-text class="text-center"
             >Please
-            <a :href="`https://dioedb.dioe.at/login/`" target="_blank">login</a>
+            <a :href="`${dioeDBEndpoint}/login/`" target="_blank">login</a>
             and <a @click="loadTranscripts">refresh</a></v-card-text
           ></v-card
         >
@@ -54,6 +54,10 @@ export default class App extends Vue {
 
   get legendGlobal() {
     return legendMod.legend;
+  }
+
+  get dioeDBEndpoint() {
+    return process.env.VUE_APP_DB_ENDPOINT;
   }
 
   async loadTranscripts() {
