@@ -5,13 +5,15 @@ import MapView from '../components/MapView.vue';
 import QueryCreator from '../components/QueryCreator.vue';
 import TagView from '@/components/TagView.vue';
 import ListView from '@/components/ListView.vue';
+import ChartViewer from '@/components/ChartViewer.vue';
+import About from '@/views/About.vue';
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
-    name: 'home',
     path: '/',
+    name: 'Map',
     component: Home,
     children: [
       {
@@ -33,22 +35,26 @@ const routes: Array<RouteConfig> = [
         path: 'list',
         name: 'ResultList',
         component: ListView
+      },
+      {
+        path: 'graph',
+        name: 'GraphView',
+        component: ChartViewer
       }
     ]
   },
   {
-    path: '/about',
+    path: '/check',
     name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: About
   }
 ];
 
 const router = new VueRouter({
-  routes
+  mode: 'history',
+  // @ts-ignore
+  base: __dirname,
+  routes: routes
 });
 
 export default router;
