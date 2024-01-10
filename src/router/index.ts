@@ -45,7 +45,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/check',
-    name: 'About',
+    name: 'Check',
     component: About
   }
 ];
