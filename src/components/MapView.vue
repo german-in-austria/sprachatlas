@@ -735,7 +735,7 @@
                   <figcaption>Aufnahme anhören:</figcaption>
                   <audio
                     controls
-                    :src="`https://dioedb.dioe.at/private-media/${item.Dateipfad}/${item.Audiofile}`"
+                    :src="`${dioeDBEndpoint}/private-media/${item.Dateipfad}/${item.Audiofile}`"
                   ></audio>
                 </figure>
                 <template v-if="item.transcript">
@@ -1098,6 +1098,10 @@ export default class MapView extends Vue {
       : ([] as ApiLocSingleResponse[]);
   }
 
+  get dioeDBEndpoint() {
+    return process.env.VUE_APP_DB_ENDPOINT;
+  }
+
   getAudioPath(
     path: string,
     file: string,
@@ -1106,7 +1110,7 @@ export default class MapView extends Vue {
     stopMin: number,
     stopSec: number
   ) {
-    return `https://dioedb.dioe.at/private-media/${path}/${file}#t=${
+    return `${this.dioeDBEndpoint}/private-media/${path}/${file}#t=${
       startMin * 60 + startSec
     },${stopMin * 60 + stopSec}`;
   }

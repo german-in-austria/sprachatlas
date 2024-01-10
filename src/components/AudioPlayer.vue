@@ -286,8 +286,12 @@ export default class AudioPlayer extends Vue {
     return Math.pow(x, 3) * -1 + 1;
   }
 
+  get dioeDBEndpoint() {
+    return process.env.VUE_APP_DB_ENDPOINT;
+  }
+
   getAudioPath(path: string, file: string) {
-    return `https://dioedb.dioe.at/private-media/${path}/${file}`;
+    return `${this.dioeDBEndpoint}/private-media/${path}/${file}`;
   }
 
   @Watch('timestampId')
