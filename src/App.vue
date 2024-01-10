@@ -5,7 +5,7 @@
       class="pa-0"
       style="pa-0; postion: absolute; width: 100%; height: 100%"
     >
-      <template v-if="loggedIn">
+      <template v-if="!loggedIn">
         <Navigation></Navigation>
         <router-view></router-view>
       </template>
