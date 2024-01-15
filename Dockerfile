@@ -3,7 +3,7 @@ FROM node:18-alpine as builder
 
 ARG APP_PORT=3333
 ARG APP_DB_ENDPOINT=https://dioedb.acdh-ch-dev.oeaw.ac.at/
-ARG APP_API_ENDPOINT=https://dioeapi.acdh-ch-dev.oeaw.ac.at/api/
+ARG APP_API_ENDPOINT=https://dioeapi.acdh-ch-dev.oeaw.ac.at/api
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
