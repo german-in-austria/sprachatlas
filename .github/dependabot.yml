@@ -4,6 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      time: "01:00"
     commit-message:
       prefix: "[npm]"
     groups:
@@ -15,6 +16,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      time: "01:00"
     commit-message:
       prefix: "[docker]"
     groups:
