@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
       time: "01:00"
     commit-message:
       prefix: "[npm]"
@@ -15,7 +15,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       time: "01:00"
     commit-message:
       prefix: "[docker]"
