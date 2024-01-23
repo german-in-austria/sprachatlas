@@ -5,20 +5,8 @@
       class="pa-0"
       style="pa-0; postion: absolute; width: 100%; height: 100%"
     >
-      <template v-if="!loggedIn">
-        <Navigation></Navigation>
-        <router-view></router-view>
-      </template>
-      <template v-else>
-        <v-card class="mx-auto my-12" max-width="500">
-          <v-card-title>Login</v-card-title
-          ><v-card-text class="text-center"
-            >Please
-            <a :href="`${dioeDBEndpoint}/login/`" target="_blank">login</a>
-            and <a @click="loadTranscripts">refresh</a></v-card-text
-          ></v-card
-        >
-      </template>
+      <Navigation></Navigation>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
