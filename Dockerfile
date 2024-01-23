@@ -1,5 +1,5 @@
 # NODE AND NPM LTS
-FROM node:18-alpine as builder
+FROM node:21-alpine as builder
 
 ARG APP_PORT=3333
 ARG APP_DB_ENDPOINT=https://dioedb.acdh-ch-dev.oeaw.ac.at/
