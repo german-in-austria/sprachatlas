@@ -1,9 +1,6 @@
 # NODE AND NPM LTS
 FROM node:21-alpine as builder
 
-ARG APP_PORT=3333
-ARG APP_DB_ENDPOINT=https://dioedb.acdh-ch-dev.oeaw.ac.at/
-ARG APP_API_ENDPOINT=https://dioeapi.acdh-ch-dev.oeaw.ac.at/api
 # CREATE APP DIR
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -12,9 +9,7 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app
 COPY package-lock.json /usr/src/app
 
-ENV VUE_APP_DB_ENDPOINT $APP_DB_ENDPOINT
-ENV VUE_APP_API_ENDPOINT $APP_API_ENDPOINT
-ENV NODE_PORT $APP_PORT
+ENV NODE_PORT=3000
 
 RUN npm install
 
