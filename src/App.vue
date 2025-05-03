@@ -1,10 +1,7 @@
 <template>
   <v-app>
     <Snackbar />
-    <v-main
-      class="pa-0"
-      style="pa-0; postion: absolute; width: 100%; height: 100%"
-    >
+    <v-main class="pa-0" style="postion: absolute; width: 100%; height: 100%">
       <Navigation></Navigation>
       <router-view></router-view>
     </v-main>

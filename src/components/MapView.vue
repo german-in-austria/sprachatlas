@@ -2709,10 +2709,9 @@ html {
 .legend {
   top: 65%;
   left: 75%;
-  position: fixed;
+  position: absolute;
   z-index: 2;
   width: 15vw;
-  // transition: all 0.2s ease-in-out;
 }
 
 .zoom {

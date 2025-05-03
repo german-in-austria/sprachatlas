@@ -5,14 +5,14 @@
       elevation="2"
       class="mx-auto"
       min-width="300"
-      height="inherit"
+      style="max-height: 80vh; display: flex; flex-direction: column"
     >
       <v-divider class="mx-4"></v-divider>
-      <v-card-title
-        >Legende
+      <v-card-title>
+        Legende
         <v-spacer></v-spacer>
       </v-card-title>
-      <v-card-text class="mx-auto">
+      <v-div style="overflow-y: auto; flex-grow: 1">
         <v-list class="transparent">
           <v-list-item
             v-for="(d, i) in legendGlobal.filter((el) => el.type !== 3)"
@@ -82,8 +82,8 @@
                         min="2"
                         max="100"
                         @change="onLegendChange(d)"
-                      ></v-slider
-                    ></v-card-text>
+                      ></v-slider>
+                    </v-card-text>
                     <v-divider class="mx-4"></v-divider>
                     <v-card-title>Durchmesser Rand</v-card-title>
                     <v-card-text>
@@ -94,8 +94,8 @@
                         min="1"
                         max="10"
                         @change="onLegendChange(d)"
-                      ></v-slider
-                    ></v-card-text>
+                      ></v-slider>
+                    </v-card-text>
                   </v-card>
                 </template>
               </v-menu>
@@ -118,7 +118,6 @@
                         <v-icon>mdi-trash-can-outline</v-icon>
                       </v-btn>
                     </template>
-
                     <span>Eintrag löschen</span>
                   </v-tooltip>
                   <v-btn
@@ -213,8 +212,17 @@
             </v-list-item-action>
           </v-list-item>
         </v-list>
-      </v-card-text>
-      <v-card-actions>
+      </v-div>
+      <v-card-actions
+        style="
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background-color: white;
+          z-index: 10;
+        "
+      >
         <action-buttons
           v-on:hideCard="updateVis()"
           v-on:moveCard="$emit('moveCard', $event)"
